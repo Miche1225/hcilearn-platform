@@ -19,14 +19,15 @@ function getTransporter() {
     return null;
   }
 
-  // TAMA: I-assign sa outer variable na 'transporter' at i-return
-  transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    }
-  });
+  const nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
 
   return transporter;
 }
