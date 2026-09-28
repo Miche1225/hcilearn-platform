@@ -1,0 +1,5 @@
+node_modules/
+.env
+data/hcilearn.db
+public/uploads/*
+!public/uploads/.gitkeep

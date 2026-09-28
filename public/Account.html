@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Page</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <i class="fa-solid fa-book-open logo-icon"></i>
+                <span class="logo-text">HCILearn</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="Dashboard.html" class="nav-item">
+                    <i class="fa-solid fa-border-all"></i> Dashboard
+                </a>
+                <a href="WatchVideo.html" class="nav-item">
+                    <i class="fa-solid fa-play"></i> Watch Video
+                </a>
+                <a href="ReadLesson.html" class="nav-item">
+                    <i class="fa-solid fa-book"></i> Read Lesson
+                </a>
+                <a href="CaseStudies.html" class="nav-item">
+                    <i class="fa-solid fa-folder"></i> Case Studies
+                </a>
+                <a href="StudyCards.html" class="nav-item">
+                    <i class="fa-solid fa-rotate"></i> Study Cards
+                </a>
+                <!-- ACTIVE CLASS INILIPAT DITO -->
+                <a href="Account.html" class="nav-item active">
+                    <i class="fa-solid fa-circle-user"></i> Account
+                </a>
+            </nav>
+
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <div class="account-wrapper">
+                
+                <!-- Header Banner -->
+                <div class="account-banner">
+                    <div class="banner-title">
+                        <i class="fa-solid fa-pen"></i>
+                        <h2>Edit your Information</h2>
+                    </div>
+                    <p>This page is for editing only. Update your personal details and account preferences for your HCI learning account.</p>
+                </div>
+
+                <!-- Form Section -->
+                <p id="accountMsg" style="display:none; margin: 0 20px; padding: 10px 14px; border-radius: 8px;"></p>
+                <form id="accountForm" class="account-form">
+                    
+                    <!-- Profile Photo Section -->
+                    <div class="edit-section">
+                        <div class="section-title">
+                            <i class="fa-solid fa-camera"></i>
+                            <h3>Profile Photo</h3>
+                        </div>
+                        <div class="section-content photo-upload-content">
+                            <!-- Palitan ang src kung may default image kayo -->
+                            <img src="profile-pic.jpg" alt="Profile" class="current-photo" id="currentPhoto">
+                            <div class="upload-controls">
+                                <p>Upload (optional)</p>
+                                <input type="file" id="profile-upload" accept="image/*" class="file-input">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Personal Information Section -->
+                    <div class="edit-section">
+                        <div class="section-title">
+                            <i class="fa-solid fa-address-card"></i>
+                            <h3>Personal Information</h3>
+                        </div>
+                        <div class="section-content">
+                            <div class="form-grid">
+                                <!-- Row 1 -->
+                                <div class="input-group">
+                                    <label for="full-name">Full Name:</label>
+                                    <input type="text" id="full-name">
+                                </div>
+                                <div class="input-group">
+                                    <label for="year-section">Year & Section:</label>
+                                    <input type="text" id="year-section">
+                                </div>
+
+                                <!-- Row 2 -->
+                                <div class="input-group">
+                                    <label for="program">Program/Course:</label>
+                                    <input type="text" id="program">
+                                </div>
+                                <div class="input-group">
+                                    <label for="email">Email Address:</label>
+                                    <input type="email" id="email">
+                                </div>
+
+                                <!-- Row 3 -->
+                                <div class="input-group">
+                                    <label for="student-id">Student ID:</label>
+                                    <input type="text" id="student-id">
+                                </div>
+
+                                <div class="input-group">
+                                    <label for="password">Password (leave blank to keep current)</label>
+                                    <input type="password" id="password" minlength="6" placeholder="New password (optional)">
+                                    
+                                    <!-- Inayos na format para sa Show Password Checkbox -->
+                                    <div style="display: flex; align-items: center; margin-top: 10px; flex-direction: row;">
+                                        <input type="checkbox" id="show-password" style="width: auto; margin-right: 8px; margin-bottom: 0; padding: 0;">
+                                        <label for="show-password" style="margin-bottom: 0; font-weight: 500; font-size: 13px; cursor: pointer;">Show Password</label>
+                                    </div>
+                                
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Save and Delete Buttons -->
+                    <div class="save-action" style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 20px;">
+                        <button type="submit" class="btn-save" id="saveBtn" style="margin: 0;">Save</button>
+                        
+                        <button type="button" id="deleteAccountBtn" style="background-color: #c0392b; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem;">
+                            <i class="fa-solid fa-trash"></i> Delete Account
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        const els = {
+            fullName: document.getElementById('full-name'),
+            yearSection: document.getElementById('year-section'),
+            program: document.getElementById('program'),
+            email: document.getElementById('email'),
+            studentId: document.getElementById('student-id'),
+            password: document.getElementById('password'),
+        };
+        const msgEl = document.getElementById('accountMsg');
+
+        function showMessage(text, isError) {
+            msgEl.textContent = text;
+            msgEl.style.display = 'block';
+            msgEl.style.background = isError ? '#fdecea' : '#e8f8ef';
+            msgEl.style.color = isError ? '#c0392b' : '#1e7e45';
+        }
+
+        async function loadAccount() {
+            const user = await requireAuth();
+            if (!user) return;
+
+            els.fullName.value = user.fullName || '';
+            els.yearSection.value = user.yearSection || '';
+            els.program.value = user.program || '';
+            els.email.value = user.email || '';
+            els.studentId.value = user.studentId || '';
+            if (user.profilePhoto) {
+                document.getElementById('currentPhoto').src = user.profilePhoto;
+            }
+        }
+
+        document.getElementById('deleteAccountBtn').addEventListener('click', async function () {
+            const confirmed = confirm('Are you sure you want to delete your account? This action cannot be undone and all your progress will be lost.');
+            
+            if (confirmed) {
+                const btn = this;
+                btn.disabled = true;
+                btn.textContent = 'Deleting...';
+                
+                try {
+                    const res = await fetch('/api/account', {
+                        method: 'DELETE',
+                        credentials: 'include'
+                    });
+                    
+                    if (!res.ok) throw new Error('Failed to delete account');
+                    
+                    // Redirect sa login page kapag successful
+                    window.location.href = 'login.html';
+                } catch (err) {
+                    showMessage(err.message, true);
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-trash"></i> Delete Account';
+                }
+            }
+        });
+
+        // Function para sa Show Password checkbox
+        document.getElementById('show-password').addEventListener('change', function () {
+            const pwdInput = document.getElementById('password');
+            if (this.checked) {
+                pwdInput.type = 'text';
+            } else {
+                pwdInput.type = 'password';
+            }
+        });
+
+        // Upload the photo as soon as a file is chosen.
+        // Upload the photo as soon as a file is chosen.
+        document.getElementById('profile-upload').addEventListener('change', async function () {
+            const file = this.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('photo', file);
+
+            try {
+                const res = await fetch('/api/account/photo', {
+                    method: 'POST',
+                    credentials: 'include',
+                    body: formData,
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Upload failed.');
+                document.getElementById('currentPhoto').src = data.profilePhoto;
+            } catch (err) {
+                showMessage(err.message, true);
+            }
+        });
+
+        document.getElementById('accountForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const btn = document.getElementById('saveBtn');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+
+            const payload = {
+                fullName: els.fullName.value.trim(),
+                yearSection: els.yearSection.value.trim(),
+                program: els.program.value.trim(),
+                email: els.email.value.trim(),
+                studentId: els.studentId.value.trim(),
+            };
+            if (els.password.value) payload.password = els.password.value;
+
+            try {
+                await api.put('/account', payload);
+                els.password.value = '';
+                msgEl.style.display = 'none'; // Tinatago ang alert box kung successful ang save
+            } catch (err) {
+                showMessage(err.message, true);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Save';
+            }
+        });
+
+        loadAccount();
+    </script>
+</body>
+</html>

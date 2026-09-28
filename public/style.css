@@ -1,0 +1,2087 @@
+/* --- Global Reset & Typography --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body, html {
+    height: 100%;
+    width: 100%;
+}
+
+/* --- Layout Container --- */
+.container {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+}
+
+/* --- Left Section (Background & Alignment) --- */
+/* --- Left Section (Background & Alignment) --- */
+.login-section {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    position: relative;
+    overflow: hidden; /* Pinipigilan ang paglagpas ng blurred edges */
+}
+
+/* Dito natin ilalagay ang background image at blur effect */
+.login-section::before {
+    content: "";
+    position: absolute;
+    top: -15px; /* Ine-extend nang kaunti para maitago ang pangit na blurred edges sa gilid */
+    left: -15px;
+    right: -15px;
+    bottom: -15px;
+    
+    /* Palitan ang 'campus-bg.jpg' ng pangalan ng image file niyo */
+    background: url('campus-bg.jpg') no-repeat center center/cover;
+    
+    /* Dito mo aayusin kung gaano kalabo. Pwedeng 3px, 4px, 5px, etc. */
+    filter: blur(4px); 
+    
+    z-index: -1; /* Sinisiguro na nasa likod ito ng login form */
+}
+
+/* --- Right Section (Background Image) --- */
+.image-section {
+    flex: 1;
+    /* Palitan ang 'classroom-img.jpg' ng pangalan ng image file niyo */
+    background: url('classroom-img.jpg') no-repeat center center/cover;
+    background-color: #f4f4f4; 
+}
+
+/* --- Glassmorphism Panel --- */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 20px;
+    padding: 40px;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* --- Typography & Branding --- */
+.logo {
+    width: 70px;
+    margin-bottom: 15px;
+}
+
+h1 {
+    font-size: 32px;
+    color: #111;
+    font-weight: 800;
+    margin-bottom: 5px;
+}
+
+p {
+    color: #333;
+    font-size: 15px;
+    margin-bottom: 30px;
+}
+
+/* --- Form Elements --- */
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #111;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* Icons inside inputs */
+.input-wrapper i {
+    position: absolute;
+    left: 15px;
+    color: #555;
+    font-size: 16px;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding: 14px 14px 14px 45px;
+    border: none;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+    outline: none;
+    transition: background 0.3s, box-shadow 0.3s;
+}
+
+.input-wrapper input:focus {
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 0 2px #003366;
+}
+
+/* --- Checkbox --- */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.checkbox-group input {
+    margin-right: 8px;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.checkbox-group label {
+    font-size: 14px;
+    color: #222;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+/* --- Button --- */
+.login-btn {
+    width: 100%;
+    padding: 14px;
+    background-color: #003366; /* Deep blue color */
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.login-btn:hover {
+    background-color: #002244;
+}
+
+/* --- Links --- */
+.signup-link {
+    text-align: center;
+    margin-top: 25px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #222;
+}
+
+.signup-link a {
+    color: #0066cc;
+    text-decoration: none;
+}
+
+.signup-link a:hover {
+    text-decoration: underline;
+}
+
+/* --- Responsive Design (Mobile Support) --- */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+    .image-section {
+        display: none; /* Hides the right-side image on smaller screens */
+    }
+    .glass-panel {
+        padding: 30px;
+    }
+}
+
+/*SIGN UP PAGE*/
+.signup-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 15px; /* Pinaliit mula 20px */
+    position: relative;
+    overflow: hidden;
+}
+
+.signup-container::before {
+    content: "";
+    position: absolute;
+    top: -15px; 
+    left: -15px; 
+    right: -15px; 
+    bottom: -15px;
+    background: url('campus-bg.jpg') no-repeat center center/cover;
+    filter: blur(5px);
+    z-index: -1;
+}
+
+/* --- Glass Card Layout --- */
+/* Pinaliit ang padding para maging mas compact ang card */
+.signup-container .glass-card {
+    padding: 25px 40px; /* Pinaliit mula 40px 50px */
+    max-width: 600px; /* Pinaliit nang kaunti mula 650px */
+    width: 100%;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* Pinaliit ang margin sa ilalim ng text header */
+.signup-container .header-text h2 {
+    margin-bottom: 5px;
+    font-size: 32px; /* Idinagdag para lumaki ang text (pwede mong lakihan pa kung kulang) */
+    font-weight: 700; /* Para mas maging bold at malinaw */
+    color: #222; /* Para sigurado ang kulay */
+}
+
+.signup-container .header-text p {
+    font-weight: 600;
+    margin-bottom: 35px; /* Pinaliit mula 30px */
+    font-size: 14px;
+}
+
+/* --- Form Layout (2 Columns) --- */
+/* Binawasan ang gap at margin-bottom para mas magkadikit ang mga boxes */
+.input-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 20px; /* 12px lang ang spacing sa taas-baba, 20px sa kaliwa't kanan */
+    text-align: left;
+    margin-bottom: 15px; /* Pinaliit mula 25px */
+}
+
+/* --- Input Fields para sa Sign Up --- */
+.signup-container .input-group {
+    text-align: left;
+}
+
+.signup-container .input-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 4px; /* Pinaliit mula 8px para mas malapit sa input box */
+}
+
+.signup-container .input-group input {
+    width: 100%;
+    padding: 10px 12px; /* Pinaliit mula 12px 15px para mas manipis ang box */
+    border: none;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+    outline: none;
+    transition: background 0.3s, box-shadow 0.3s;
+}
+
+.signup-container .input-group input:focus {
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 0 2px #003366;
+}
+
+/* --- Fix para sa Show Password Checkbox --- */
+.signup-container .checkbox-group {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    margin-top: 2px; /* Idinikit lalo sa password input */
+}
+
+.signup-container .checkbox-group label {
+    display: inline-block;
+    margin-bottom: 0;
+    margin-left: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #222;
+    cursor: pointer;
+}
+
+.signup-container .checkbox-group input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    cursor: pointer;
+}
+
+/* --- Sign Up Button --- */
+.button-container {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.signup-btn {
+    width: 200px; /* Pinaliit mula 220px */
+    padding: 10px; /* Pinaliit mula 12px */
+    background-color: #003366;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    margin-bottom: 12px; /* Pinaliit mula 20px */
+}
+
+.signup-btn:hover {
+    background-color: #002244;
+}
+
+/* --- Log in Link --- */
+.login-link-container {
+    font-size: 13px; /* Pinaliit mula 14px */
+    font-weight: 600;
+    color: #222;
+}
+
+.login-link-container a {
+    color: #0066cc;
+    text-decoration: none;
+}
+
+.login-link-container a:hover {
+    text-decoration: underline;
+}
+
+/* --- Responsive Layout para sa Mobile --- */
+@media (max-width: 600px) {
+    .input-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    .signup-container .glass-card {
+        padding: 20px 15px;
+    }
+}
+
+/* ========================================= */
+/* --- DASHBOARD PAGE STYLES ---             */
+/* ========================================= */
+
+
+/* --- Layout --- */
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: #ffffff;
+    color: #333;
+}
+
+/* --- Sidebar --- */
+.sidebar {
+    width: 260px;
+    background-color: #0d3b75;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 30px 20px;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 50px;
+    padding-left: 10px;
+}
+
+.logo-icon {
+    font-size: 28px;
+    margin-right: 12px;
+}
+
+.sidebar-nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.nav-item {
+    text-decoration: none;
+    color: #e0e6ed;
+    padding: 15px 20px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    transition: 0.3s;
+}
+
+.nav-item i {
+    width: 25px;
+    font-size: 18px;
+    margin-right: 10px;
+}
+
+.nav-item:hover, .nav-item.active {
+    background-color: #3a6ba8;
+    color: white;
+}
+
+.sidebar-footer {
+    margin-top: auto;
+}
+
+/* --- Main Content --- */
+.main-content {
+    flex: 1;
+    padding: 40px;
+    background-color: #ffffff;
+    overflow-y: auto;
+}
+
+/* --- Welcome Card --- */
+.welcome-card {
+    background-color: #f7f9fb;
+    border-radius: 20px;
+    padding: 30px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.profile-img {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 25px;
+}
+
+.welcome-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.welcome-text h1 {
+    font-size: 28px;
+    color: #111;
+    font-weight: 800;
+    margin-bottom: 5px;
+}
+
+.welcome-text p {
+    color: #555;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 5px; 
+}
+
+.welcome-text .subtitle {
+    color: #888;
+    font-size: 14px;
+    font-weight: 400;
+    margin-top: 0; 
+}
+
+/* --- Dashboard Grid --- */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Hahatiin ang screen sa 3 pantay na columns */
+    gap: 20px;
+    align-items: stretch; /* Pinalitan mula 'start' papuntang 'stretch' para pumantay ang haba ng magkakatabi */
+}
+
+.card {
+    background-color: #f7f9fb;
+    border-radius: 20px;
+    padding: 25px;
+}
+
+.card-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+}
+
+.icon-title {
+    margin-right: 10px;
+    color: #444;
+}
+
+/* --- Overall Progress (Circular Chart) --- */
+/* --- Overall Progress (Circular Chart) --- */
+.progress-card {
+    grid-column: 1 / 3;
+    grid-row: 1 / 2;
+    /* Tinanggal ang align-self: start; para payagan itong humaba */
+    display: flex;
+    flex-direction: column;
+}
+
+.progress-content {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.circular-progress {
+    width: 180px; 
+    height: 180px; 
+    border-radius: 50%;
+    /* Pinalitan ang 10% ng 0% para mawala ang dark blue */
+    background: conic-gradient(#255a9e 0%, #dce6f2 0deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.inner-circle {
+    width: 130px; 
+    height: 130px; 
+    background-color: #f7f9fb;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 34px; 
+    font-weight: 700;
+    color: #222;
+}
+
+/* Nilinis na Progress Stats (Horizontal Layout) */
+.progress-stats {
+    display: flex;
+    flex-direction: row;
+    gap: 80px;
+    justify-content: center;
+    align-items: center;
+    margin-right: 20px; 
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    margin-bottom: 8px;
+}
+
+.stat-item span {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.stat-item small {
+    color: #666;
+    font-weight: 500;
+}
+
+/* --- Icon Colors --- */
+.case-icon { background-color: #ebd4c6; color: #a67c5f; }
+.video-icon { background-color: #d6e4f9; color: #4b84e6; }
+.read-icon { background-color: #c9e6d3; color: #4da36a; }
+.check-icon { background-color: #fbe0c9; color: #d68748; }
+.book-icon { background-color: #e5d9f2; color: #8352b8; }
+.check-action-icon { background-color: #d8efe3; color: #51a877; }
+.user-icon { background-color: #ffe6d5; color: #e67e35; }
+
+/* --- Activities --- */
+.activities-card {
+    background-color: #f7f9fb;
+    padding: 25px;
+    border-radius: 20px; 
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Pinalitan ang space-between para umakyat ang listahan */
+    gap: 20px; /* Nagdagdag ng tamang espasyo sa pagitan ng title at listahan */
+}
+
+.activity-items, .activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 0; /* Tinanggal ang margin-auto para hindi itulak pababa nang sobra */
+}
+
+.activity-list li, .act-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 8px 0; /* Pinaliit nang kaunti ang padding para mas compact */
+    border-bottom: 1px solid #eee;
+    font-weight: 500;
+}
+
+.activity-list li:last-child, .act-item:last-child {
+    border-bottom: none; /* Tinanggal ang border sa pinaka-huling item para malapit sa View All */
+}
+.act-item {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    color: #444;
+}
+
+.act-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+}
+
+/* --- SCROLLABLE ACTIVITIES SA DASHBOARD --- */
+.scrollable-activities {
+    max-height: 160px; /* Kinokontrol nito ang taas para hindi humaba ang card */
+    overflow-y: auto;
+    padding-right: 5px; /* Konting espasyo para sa scrollbar */
+}
+
+/* Custom Scrollbar Styling */
+.scrollable-activities::-webkit-scrollbar {
+    width: 6px;
+}
+
+.scrollable-activities::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1; 
+    border-radius: 10px;
+}
+
+.scrollable-activities::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
+.view-all i {
+    margin-left: 5px;
+}
+
+/* --- Recent Activities --- */
+.recent-card {
+    grid-column: 2 / 4;
+    grid-row: 2 / 3;
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Para sumunod ang box sa sukat ng grid row */
+}
+
+.recent-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 1; /* Para sakupin ang natitirang space */
+    max-height: 220px; /* Pinaliit para eksaktong pumantay sa Quick Actions box */
+    overflow-y: auto; /* Binubuhay ang scroll up and down */
+    padding-right: 10px;
+}
+
+/* Scrollbar design para sa recent-list */
+.recent-list::-webkit-scrollbar {
+    width: 6px;
+}
+.recent-list::-webkit-scrollbar-thumb {
+    background-color: #cccccc;
+    border-radius: 10px;
+}
+
+/* Text Alignment Fix para sa Recent Activities at Quick Actions */
+.recent-item, .quick-item {
+    display: flex;
+    align-items: center; 
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e1e6ed;
+}
+
+.recent-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.recent-icon, .quick-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+}
+
+.recent-info, .quick-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+}
+
+.recent-info h4, .quick-info h4 {
+    font-size: 15px;
+    color: #111;
+    margin: 0 0 3px 0; 
+    padding: 0;
+    line-height: 1.2; 
+}
+
+.recent-info p, .quick-info p {
+    font-size: 13px;
+    color: #777;
+    margin: 0;
+    padding: 0;
+    line-height: 1.2;
+}
+
+.time {
+    margin-left: auto;
+    font-size: 12px;
+    color: #888;
+    font-weight: 500;
+}
+
+/* --- Quick Actions --- */
+/* --- Quick Actions --- */
+.quick-actions-card {
+    grid-column: 3 / 4;
+    grid-row: 1 / 2;
+    display: flex;
+    flex-direction: column;
+}
+
+.quick-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.quick-item {
+    text-decoration: none;
+    background-color: #ffffff;
+    padding: 12px 15px;
+    border-radius: 15px;
+    border: 1px solid #eaeef3;
+    transition: 0.2s;
+    border-bottom: none; /* Tinanggal ang border-bottom galing sa shared class */
+}
+
+.quick-item:hover {
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.quick-info h4 {
+    font-size: 14px;
+}
+
+.quick-info p {
+    font-size: 12px;
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 1024px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    .progress-card, .activities-card, .recent-card, .quick-actions-card {
+        grid-column: 1 / 2;
+    }
+}
+
+/* ========================================= */
+/* --- WATCH VIDEO PAGE STYLES ---           */
+/* ========================================= */
+.video-grid {
+    display: grid;
+    /* Gagawa ito ng columns na mag-a-adjust depende sa screen size */
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+    padding-top: 10px;
+}
+
+/* --- IDAGDAG ITO: Styling para sa a tag wrapper --- */
+.video-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    height: 100%; /* Sinisiguro na sakop nito ang buong grid cell */
+}
+
+.video-card {
+    background-color: #ffffff;
+    border: 2px solid #b3b3b3; 
+    border-radius: 12px;
+    overflow: hidden; 
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    height: 100%; /* --- IDAGDAG ITO: Para ma-stretch pababa at pumantay sa ibang cards --- */
+}
+
+.video-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+}
+
+.thumbnail-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9; 
+    background-color: #000; 
+    border-bottom: 2px solid #b3b3b3;
+}
+
+.thumbnail-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.9;
+}
+
+/* Play Button Overlay */
+.play-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(4px);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    transition: background-color 0.2s;
+}
+
+.video-card:hover .play-overlay {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.play-overlay i {
+    margin-left: 4px; 
+}
+
+/* Time Duration Badge sa gilid */
+.duration-badge {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 6px;
+    border-radius: 4px;
+}
+
+.video-info {
+    padding: 15px;
+    flex: 1; /* Para pantay ang taas ng mga cards kahit magkaiba haba ng text */
+}
+
+.video-info h4 {
+    font-size: 14px;
+    color: #222;
+    line-height: 1.4;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* ========================================= */
+/* --- WATCH VIDEO PLAYER PAGE ---   */
+/* ========================================= */
+
+.player-wrapper {
+    max-width: 950px;
+    margin: 0 auto;
+    background: #ffffff;
+    padding-bottom: 20px;
+}
+
+/* Page Header */
+.page-header {
+    margin-bottom: 20px;
+}
+
+.title-with-icon {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.title-with-icon i {
+    font-size: 24px;
+    color: #444;
+}
+
+.title-with-icon h2 {
+    font-size: 24px;
+    color: #111;
+    font-weight: 800;
+}
+
+.page-header p {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.header-divider {
+    border: none;
+    border-bottom: 2px solid #eaeef3;
+    margin-bottom: 25px;
+}
+
+/* Video Container */
+.video-container {
+    background: #000;
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.player-footer-centered {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+    padding-bottom: 20px;
+}
+
+.btn-back-centered {
+    display: inline-block;
+    padding: 10px 50px; /* Mas mahaba ng kaunti ang horizontal padding para pumantay sa design */
+    background: #f4f6fa;
+    border: 2px solid #555;
+    border-radius: 25px; /* Pill shape */
+    font-weight: 700;
+    color: #333;
+    font-size: 16px;
+    text-decoration: none; /* Tanggalin ang underline dahil ito ay <a> tag */
+    cursor: pointer;
+    transition: 0.2s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.btn-back-centered:hover {
+    background: #e1e6ed;
+    color: #111;
+}
+
+
+/*READ LESSON PAGE*/
+/* ========================================= */
+/* --- READ LESSON PAGE STYLES ---           */
+/* ========================================= */
+
+.lesson-wrapper {
+    max-width: 950px;
+    margin: 0 auto;
+}
+
+/* --- Top Bar & Search Bar --- */
+.top-bar {
+    display: flex;
+    justify-content: flex-end; /* Itutulak nito ang search bar sa pinakakanan */
+    margin-bottom: 25px; /* Space sa pagitan ng search bar at ng cards */
+}
+
+.search-container {
+    position: relative;
+    width: 300px; /* Lapad ng search bar */
+}
+
+.search-container i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6a7c92; /* Kulay ng magnifying glass icon */
+    font-size: 14px;
+}
+
+.search-container input {
+    width: 100%;
+    padding: 12px 15px 12px 40px; /* Malaking space sa kaliwa para hindi matakpan ang icon */
+    border: 1px solid #d4dce6;
+    border-radius: 25px; /* Rounded pill shape */
+    background-color: #f4f6fa;
+    font-size: 14px;
+    color: #333;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.search-container input:focus {
+    border-color: #3b5b82; /* Mag-iiba ang border color kapag clinick */
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(59, 91, 130, 0.1);
+}
+
+.search-container input::placeholder {
+    color: #888;
+}
+
+/* --- Top Grid (Learning Objectives & Outline) --- */
+.lesson-top-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+    align-items: stretch; /* ITO ANG FIX: Pipilitin nito ang dalawang card na maging magkapantay ang taas */
+}
+
+.info-card {
+    background-color: #f4f6fa;
+    border-radius: 16px;
+    padding: 25px 30px;
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Kasama sa fix para pumantay ang taas */
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.icon-purple {
+    font-size: 22px;
+    color: #6a7c92; /* Grayish purple matching the icon */
+    margin-right: 12px;
+}
+
+.card-header h3 {
+    font-size: 16px;
+    font-weight: 800;
+    color: #111;
+    margin: 0;
+}
+
+.card-body {
+    flex-grow: 1;
+    margin-bottom: 20px;
+    
+    /* --- DAGDAG ITO PARA HINDI HUMABA NANG SOBRA ANG CARD --- */
+    max-height: 280px;   /* Hanggang dito lang ang taas ng laman bago mag-scroll */
+    overflow-y: auto;    /* Magkakaroon ng scrollbar kapag lumampas sa max-height */
+    padding-right: 10px; /* Bahagyang space para hindi dikit ang text sa scrollbar */
+}
+
+/* --- DAGDAG ITO PARA MAGING MANIPIS AT MAGANDA ANG SCROLLBAR --- */
+.card-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.card-body::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1; 
+    border-radius: 10px;
+}
+
+.card-body::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
+/* Pill Boxes inside Learning Objectives */
+.pill-box {
+    background-color: #ffffff;
+    border: 1px solid #e1e6ed;
+    border-radius: 8px;
+    padding: 12px 15px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    color: #555;
+    font-weight: 500;
+}
+
+.pill-box:last-child {
+    margin-bottom: 0;
+}
+
+/* Custom Bullet List inside Lesson Outline */
+.custom-bullet-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.custom-bullet-list li {
+    position: relative;
+    padding-left: 25px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    color: #444;
+    font-weight: 500;
+}
+
+.custom-bullet-list li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 5px;
+    width: 10px;
+    height: 10px;
+    background-color: #5d7599; /* Dark grayish blue circle */
+    border-radius: 50%;
+}
+
+/* --- Accordion (Expandable Lessons) --- */
+.accordion-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Spacing between each lesson bar */
+    position: relative; /* FIX: SIGURADUHING CLICKABLE ANG ACCORDION */
+    z-index: 10;        /* FIX: SIGURADUHING CLICKABLE ANG ACCORDION */
+}
+
+.accordion-item {
+    background-color: #f4f6fa;
+    border-radius: 12px;
+    overflow: hidden; /* Keeps the inside content within the rounded corners */
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+}
+
+/* Change background slightly when opened */
+.accordion-item.active {
+    background-color: #f4f6fa;
+    border: 1px solid #e1e6ed;
+}
+
+.accordion-button {
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: none;
+    padding: 20px 25px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #222;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.2s;
+}
+
+.accordion-button:hover {
+    background-color: #ebf0f7;
+}
+
+.chevron-icon {
+    font-size: 14px;
+    color: #666;
+    transition: transform 0.3s ease;
+}
+
+/* Hide content by default */
+.accordion-collapse {
+    display: none;
+    padding: 0 25px 25px 25px;
+}
+
+/* Show content when active */
+.accordion-item.active .accordion-collapse {
+    display: block; /* This pushes elements down without breaking spacing */
+}
+
+/* Sub-cards inside the expanded lesson */
+.accordion-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.sub-card {
+    background-color: #ffffff;
+    border: 1px solid #d4dce6;
+    border-radius: 8px;
+    padding: 15px 20px;
+}
+
+.sub-card-title {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.sub-card-title i {
+    font-size: 16px;
+    color: #6a7c92;
+    margin-right: 10px;
+}
+
+.sub-card-title h4 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: #111;
+}
+
+.sub-card p {
+    margin: 0;
+    font-size: 13px;
+    color: #555;
+    line-height: 1.5;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .lesson-top-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ========================================= */
+/* --- CASE STUDIES PAGE STYLES          --- */
+/* ========================================= */
+
+.case-studies-wrapper {
+    width: 100%;
+    max-width: 950px;
+    padding: 10px 0;
+    margin: 0 auto; /* Para pumagitna sa loob ng container mo */
+}
+
+/* --- Header Section --- */
+.cs-header-section {
+    margin-bottom: 5px; 
+}
+
+.cs-header-content {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0px; 
+}
+
+.cs-icon-box {
+    font-size: 32px;
+    color: #5d7599; 
+    margin-right: 20px;
+    opacity: 0.8;
+}
+
+.cs-header-text h2 {
+    font-size: 28px;
+    font-weight: 800;
+    color: #111;
+    margin: 0 0 5px 0;
+    letter-spacing: 0.5px;
+}
+
+.cs-header-text p {
+    font-size: 15px;
+    color: #888;
+    margin: 0;
+    font-weight: 500;
+}
+
+/* --- Divider Line --- */
+.cs-divider {
+    border: 0;
+    border-top: 3px solid #e1e6ed; 
+    border-radius: 5px;            
+    margin-top: 10px;    
+    margin-bottom: 15px; 
+}
+
+/* --- Scenarios List --- */
+.scenarios-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; 
+}
+
+.scenario-card {
+    display: block;
+    background-color: #f4f6fa; 
+    color: #444;
+    text-decoration: none;
+    padding: 22px 25px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+    cursor: pointer; 
+}
+.scenario-card i {
+    margin-right: 12px;
+    color: #555;
+}
+
+/* --- LOCKED SCENARIO STYLES --- */
+.scenario-card.locked {
+    color: #444; /* Ibinalik sa solid na kulay para parehas sa unlocked */
+    cursor: not-allowed;
+    opacity: 1; /* Ginawang 1 para matanggal ang pagiging malabo/blurred */
+}
+
+.scenario-card.locked:hover {
+    background-color: #f4f6fa;
+    border: 1px solid transparent;
+    box-shadow: none;
+    transform: none;
+    color: #444; /* Pinanatiling dark grey para hindi mag-fade pag-hover */
+}
+
+.scenario-card.locked:hover {
+    background-color: #f4f6fa;
+    border: 1px solid transparent;
+    box-shadow: none;
+    transform: none;
+    color: #888;
+}
+
+/* ========================================= */
+/* --- SCENARIO QUIZ PAGE STYLES         --- */
+/* ========================================= */
+
+.quiz-container {
+    background-color: #f4f6fa;
+    border-radius: 12px;
+    padding: 35px 40px;
+    margin-top: 20px;
+}
+
+.scenario-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #111;
+    margin: 0 0 10px 0;
+}
+
+.scenario-text {
+    font-size: 16px;
+    color: #444;
+    font-weight: 600;
+    line-height: 1.6;
+    margin: 0 0 25px 0;
+}
+
+.quiz-divider {
+    border: none;
+    border-top: 2px solid #d4dce6;
+    margin-bottom: 25px;
+}
+
+.question-text {
+    font-size: 17px;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 20px;
+}
+
+/* --- Quiz Options --- */
+.options-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 35px;
+}
+
+.hidden-radio {
+    display: none; 
+}
+
+.option-label {
+    display: block;
+    padding: 18px 25px;
+    background-color: transparent;
+    border: 1px solid #c0c7d1;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.option-label:hover {
+    background-color: #ffffff;
+    border-color: #a0aab8;
+}
+
+.hidden-radio:checked + .option-label {
+    background-color: #ffffff;
+    border: 2px solid #3b5b82; 
+    color: #111;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* --- RED & GREEN FEEDBACK STYLES --- */
+.option-label.correct-answer {
+    background-color: #d4edda !important; 
+    border: 2px solid #28a745 !important; 
+    color: #155724 !important;
+    box-shadow: 0 2px 6px rgba(40, 167, 69, 0.2) !important;
+}
+
+.option-label.wrong-answer {
+    background-color: #f8d7da !important; 
+    border: 2px solid #dc3545 !important; 
+    color: #721c24 !important;
+    box-shadow: 0 2px 6px rgba(220, 53, 69, 0.2) !important;
+}
+
+/* --- Quiz Action Buttons --- */
+.quiz-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-back {
+    padding: 10px 35px;
+    border: 2px solid #333;
+    border-radius: 25px;
+    background-color: transparent; 
+    color: #111;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 15px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.btn-back:hover {
+    background-color: #e4e7ec;
+}
+
+.btn-submit {
+    padding: 12px 35px;
+    border: none;
+    background-color: #3b5b82; 
+    border-radius: 25px;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-submit:hover {
+    background-color: #2a4365;
+}
+
+/* ========================================= */
+/* --- STUDY CARDS PAGE STYLES ---           */
+/* ========================================= */
+
+.study-cards-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Espasyo sa pagitan ng mga cards */
+}
+
+/* Disenyo ng bawat card */
+.study-card-item {
+    display: flex;
+    align-items: center;
+    background-color: #f4f6fa;
+    padding: 22px 25px;
+    border-radius: 12px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.study-card-item:hover {
+    background-color: #ffffff;
+    border-color: #d4dce6;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* CSS PARA SA NAKA-LOCK NA LESSONS */
+        .study-card-item.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        
+        .study-card-item.locked .custom-box {
+            background-color: #e2e6eb;
+            border-color: #c0c7d1;
+        }
+
+        .study-card-item.locked .custom-box i {
+            color: #a0aab8;
+        }
+
+/* Itago ang default na checkbox ng browser */
+.hidden-checkbox {
+    display: none;
+}
+
+/* Gawa tayo ng sariling box na pwedeng lagyan ng check */
+.custom-box {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #a0aab8;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+    background-color: transparent;
+    transition: all 0.2s ease;
+}
+
+/* Disenyo ng check icon (nakatago muna sa simula) */
+.custom-box i {
+    color: white;
+    font-size: 14px;
+    opacity: 0; 
+    transform: scale(0.5); /* Paliitin muna para may pop-up effect mamaya */
+    transition: all 0.2s ease;
+}
+
+/* KAPAG NA-CLICK O NA-CHECK NA ANG CARD: */
+.hidden-checkbox:checked + .custom-box {
+    background-color: #3b5b82; /* Magiging asul ang box */
+    border-color: #3b5b82;
+}
+
+.hidden-checkbox:checked + .custom-box i {
+    opacity: 1; /* Lalabas ang check icon */
+    transform: scale(1);
+}
+
+.card-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: #444;
+    transition: color 0.2s ease;
+}
+
+/* (Opsyonal) Magiging medyo light ang text kapag tapos na ang lesson */
+.hidden-checkbox:checked ~ .card-text {
+    color: #888;
+}
+
+/* Gray box na bumabalot sa buong quiz */
+.flashcard-quiz-container {
+    background-color: #e2e6eb;
+    border-radius: 15px;
+    padding: 35px 40px;
+    margin-top: 20px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* 3D Pop-out Question Card */
+.flashcard-question-box {
+    background: linear-gradient(to bottom, #ffffff, #d3dae0);
+    border: 1px solid #aeb8c3;
+    border-radius: 12px;
+    padding: 45px 20px;
+    text-align: center;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    margin-bottom: 25px;
+}
+
+.flashcard-question-box h3 {
+    font-size: 24px;
+    font-weight: 800;
+    color: #111;
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Flashcard Options Styling */
+.flashcard-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 30px;
+}
+
+.fc-option {
+    display: block;
+    cursor: pointer;
+}
+
+.fc-option-text {
+    display: block;
+    padding: 15px 20px;
+    background-color: #f1f4f8;
+    border: 1px solid #b8c3cd;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    transition: all 0.2s ease;
+}
+
+.fc-option:hover .fc-option-text {
+    background-color: #ffffff;
+    border-color: #94a3b8;
+}
+
+.hidden-radio {
+    display: none;
+}
+
+.hidden-radio:checked + .fc-option-text {
+    background-color: #ffffff;
+    border: 2px solid #3b5b82;
+    color: #111;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+/* Quiz Action Buttons */
+.quiz-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-back {
+    padding: 10px 35px;
+    border: 2px solid #333;
+    background: transparent;
+    border-radius: 25px;
+    color: #111;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-back:hover {
+    background-color: #e4e7ec;
+}
+
+.btn-submit {
+    padding: 12px 35px;
+    border: none;
+    background-color: #3b5b82;
+    border-radius: 25px;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-submit:hover {
+    background-color: #2a4365;
+}
+
+/* Helpful Tip Pill Box sa Ibaba */
+.helpful-tip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background-color: #f4f6fa;
+    color: #7b8a9c;
+    padding: 12px 25px;
+    border-radius: 50px;
+    width: max-content;
+    margin: 25px auto 0;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Kapag TAMA ang sagot (Green) */
+.fc-option-text.correct-answer {
+    background-color: #d4edda !important;
+    border: 2px solid #28a745 !important;
+    color: #155724 !important;
+    box-shadow: 0 2px 6px rgba(40, 167, 69, 0.2) !important;
+}
+
+/* Kapag MALI ang sagot (Red) */
+.fc-option-text.wrong-answer {
+    background-color: #f8d7da !important;
+    border: 2px solid #dc3545 !important;
+    color: #721c24 !important;
+    box-shadow: 0 2px 6px rgba(220, 53, 69, 0.2) !important;
+}
+
+
+
+/* ========================================= */
+/* --- ACCOUNT PAGE STYLES ---               */
+/* ========================================= */
+
+.account-wrapper {
+    max-width: 850px;
+    margin: 0 auto;
+    background-color: #f7f9fb; /* Light gray background like the outer container */
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+}
+
+/* Edit Information Banner */
+.account-banner {
+    background-color: #e5ebf2; /* Light blue/gray tint */
+    padding: 20px 25px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    border: 1px solid #d4dce6;
+}
+
+.banner-title {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.banner-title i {
+    font-size: 20px;
+    color: #3b5b82;
+    margin-right: 12px;
+}
+
+.banner-title h2 {
+    font-size: 18px;
+    color: #111;
+    font-weight: 800;
+    margin: 0;
+}
+
+.account-banner p {
+    font-size: 13px;
+    color: #555;
+    margin: 0;
+}
+
+/* Sections (Profile Photo & Personal Info) */
+.edit-section {
+    background-color: #eff3f8;
+    border-radius: 12px;
+    border: 1px solid #dce3eb;
+    margin-bottom: 25px;
+    overflow: hidden;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    background-color: #e5ebf2; /* Slightly darker header inside the section */
+    padding: 15px 25px;
+    border-bottom: 1px solid #dce3eb;
+}
+
+.section-title i {
+    font-size: 18px;
+    color: #3b5b82;
+    margin-right: 12px;
+}
+
+.section-title h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111;
+    margin: 0;
+}
+
+.section-content {
+    padding: 25px;
+}
+
+/* Profile Photo Area */
+.photo-upload-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.current-photo {
+    width: 65px;
+    height: 65px;
+    border-radius: 12px; /* Rounded square based on the image */
+    object-fit: cover;
+    border: 1px solid #ccc;
+}
+
+.upload-controls p {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 8px 0;
+}
+
+.file-input {
+    font-size: 13px;
+    color: #555;
+}
+
+/* Custom styling for the file input button (to match the design) */
+.file-input::file-selector-button {
+    background-color: #e5ebf2;
+    border: 1px solid #aebac9;
+    color: #444;
+    padding: 6px 12px;
+    border-radius: 6px;
+    margin-right: 10px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+.file-input::file-selector-button:hover {
+    background-color: #d4dce6;
+}
+
+/* Form Grid */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-grid .input-group {
+    margin-bottom: 0; /* Reset global input group margin */
+    display: flex;
+    flex-direction: column;
+}
+
+.form-grid label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.form-grid input {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #d4dce6;
+    border-radius: 8px;
+    background-color: #f8fafc; /* Very light background for inputs */
+    font-size: 14px;
+    color: #333;
+    outline: none;
+    transition: 0.2s;
+}
+
+.form-grid input:focus {
+    border-color: #3b5b82;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 2px rgba(59, 91, 130, 0.1);
+}
+
+/* Save Button */
+.save-action {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.btn-save {
+    background-color: #436a9b; /* Muted blue matching the image */
+    color: #ffffff;
+    border: none;
+    padding: 10px 45px;
+    border-radius: 20px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.btn-save:hover {
+    background-color: #305077;
+}
+
+/* Responsive adjustment for small screens */
+@media (max-width: 600px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ========================================= */
+/* --- RESPONSIVE MOBILE FIX ---             */
+/* ========================================= */
+@media screen and (max-width: 768px) {
+    /* 1. I-stack ang sidebar at main content pataas-pababa */
+    .dashboard-container {
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+    }
+
+    /* 2. Ayusin ang Sidebar para pumantay sa itaas at sakupin ang screen */
+    .sidebar {
+        width: 100%;
+        height: auto;
+        padding: 20px 15px;
+        border-radius: 0; /* Tinatanggal ang kurba sa gilid */
+    }
+
+    /* 3. Igitna ang Logo */
+    .sidebar-header {
+        margin-bottom: 20px;
+        justify-content: center;
+    }
+
+    /* 4. Gawing pahalang (row) ang mga menu buttons para hindi masyadong mahaba */
+    .sidebar-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .nav-item {
+        padding: 8px 12px;
+        font-size: 13px;
+        border-radius: 8px;
+    }
+
+    .nav-item i {
+        margin-right: 5px;
+    }
+
+    /* 5. Ayusin ang Main Content para sakto sa screen ng cellphone */
+    .main-content {
+        padding: 15px;
+        width: 100%;
+        margin-left: 0 !important;
+    }
+
+    /* 6. Fix para sa mga cards sa dashboard */
+    .dashboard-grid {
+        grid-template-columns: 1fr; /* Gagawin isang column ang mga cards */
+    }
+
+    /* 7. I-gitna ang Log out button sa ilalim */
+    .sidebar-footer {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        margin-top: 15px;
+    }
+
+    /* 8. Fix para sa putol na Welcome Text */
+    .welcome-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px;
+    }
+    .profile-img {
+        margin-right: 0;
+        margin-bottom: 15px;
+    }
+    .welcome-text h1 {
+        font-size: 22px; /* Pinaliit para hindi maputol */
+    }
+
+    /* 9. Fix para ma-center ang Overall Progress text */
+    .progress-content {
+        flex-direction: column; /* I-stack ang bilog sa ibabaw ng text */
+        gap: 25px;
+    }
+    .progress-stats {
+        gap: 10px; /* Pinaliit mula 80px para magkasya */
+        width: 100%;
+        margin-right: 0;
+        justify-content: space-evenly;
+    }
+    .stat-item {
+        text-align: center;
+        flex: 1; 
+    }
+    .stat-item small {
+        font-size: 11px;
+        display: block;
+        line-height: 1.2;
+    }
+
+    /* 10. Fix para sa malalaking buttons (Quiz at Account) */
+    .quiz-actions, .save-action {
+        flex-direction: column !important; /* Papatungin ang buttons imbes na magkatabi */
+        gap: 12px !important;
+        width: 100%;
+    }
+    .btn-back, .btn-submit, .btn-save, #deleteAccountBtn {
+        width: 100% !important; /* Sakupin ang buong lapad para madaling pindutin */
+        padding: 14px !important; /* Mas manipis at saktong padding */
+        font-size: 14px !important;
+        margin: 0 !important;
+        box-sizing: border-box;
+    }
+
+/* 11. Fix para pumantay ang lapad at haba ng LAHAT ng boxes at i-reorder */
+    .dashboard-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 20px !important;
+        width: 100% !important; /* Siguraduhing sagad ang grid container */
+    }
+    
+    /* --- ETO ANG FIX PARA SA PAGKAKASUNOD-SUNOD --- */
+    /* I-adjust ang class names kung iba ang ginamit mo sa HTML */
+    .welcome-card { order: 1 !important; } /* O kung ano man ang class ng Overall Progress */
+    .quick-actions { order: 2 !important; }
+    .activities-card { order: 3 !important; } /* O .activities-container */
+    .recent-card { order: 4 !important; }
+    /* ---------------------------------------------- */
+
+    .card, .quick-actions, .recent-activities, .activities-container, .welcome-card, .activities-card {
+        width: 100% !important; /* Papantayin ang lapad ng lahat ng boxes */
+        box-sizing: border-box !important; /* Isasama ang padding sa sukat para hindi lumagpas */
+        margin-left: 0 !important; /* Tatanggalin ang anumang extra space sa gilid */
+        margin-right: 0 !important;
+        height: auto !important; 
+        max-height: none !important; 
+        overflow: visible !important;
+        padding-bottom: 20px !important;
+    }
+
+    .action-item, .activity-item, .action-card {
+        height: auto !important;
+        white-space: normal !important; 
+        margin-bottom: 10px;
+    }
+
+    /* Fix para tanggalin ang sobrang space sa loob ng Activities at ang scrollbar */
+    .scrollable-activities, 
+    .activity-items {
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow: visible !important; /* Tatanggalin nito yung scrollbar sa mobile */
+        margin-bottom: 0 !important;
+    }
+} /* <--- DITO DAPAT ANG CLOSING BRACKET NG @MEDIA */

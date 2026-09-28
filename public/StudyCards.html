@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Cards Page</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+
+    <script src="js/api.js"></script>
+    <script>
+        requireAuth();
+        document.addEventListener('DOMContentLoaded', function() {
+            let currentPageName = window.location.pathname.split('/').pop();
+            if (currentPageName && currentPageName !== '') {
+                localStorage.setItem('lastLessonVisited', currentPageName);
+            }
+        });
+    </script>
+
+    <div class="dashboard-container">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <i class="fa-solid fa-book-open logo-icon"></i>
+                <span class="logo-text">HCILearn</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="Dashboard.html" class="nav-item">
+                    <i class="fa-solid fa-border-all"></i> Dashboard
+                </a>
+                <a href="WatchVideo.html" class="nav-item">
+                    <i class="fa-solid fa-play"></i> Watch Video
+                </a>
+                <a href="ReadLesson.html" class="nav-item">
+                    <i class="fa-solid fa-book"></i> Read Lesson
+                </a>
+                <a href="CaseStudies.html" class="nav-item">
+                    <i class="fa-solid fa-folder"></i> Case Studies
+                </a>
+                <a href="StudyCards.html" class="nav-item active">
+                    <i class="fa-solid fa-rotate"></i> Study Cards
+                </a>
+                <a href="Account.html" class="nav-item">
+                    <i class="fa-solid fa-circle-user"></i> Account
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <div class="case-studies-wrapper">
+                
+                <!-- Header Section -->
+                <div class="cs-header-section">
+                    <div class="cs-header-content">
+                        <div class="cs-icon-box" style="color: #4a658a;">
+                            <i class="fa-solid fa-clone"></i>
+                        </div>
+                        <div class="cs-header-text">
+                            <h2>Study Cards</h2>
+                            <p>Read the questions and choose the best answer</p>
+                        </div>
+                    </div>
+                    <hr class="cs-divider">
+                </div>
+
+                <!-- VIEW 1: LESSON LIST (Lahat ng 11 Lessons) -->
+                <div id="lessonListView" class="study-cards-list">
+                    
+                    <div class="study-card-item" id="lessonCard1" onclick="startQuiz(1)">
+                        <input type="checkbox" id="lesson1-check" class="hidden-checkbox" disabled>
+                        <label class="custom-box"><i class="fa-solid fa-check"></i></label>
+                        <span class="card-text-link">Lesson 1: Introduction & Review of HCI Fundamentals</span>
+                    </div>
+
+                    <div class="study-card-item locked" id="lessonCard2" onclick="startQuiz(2)">
+                        <input type="checkbox" id="lesson2-check" class="hidden-checkbox" disabled>
+                        <label class="custom-box"><i class="fa-solid fa-lock"></i></label>
+                        <span class="card-text-link">Lesson 2: Design Thinking & UCD Process</span>
+                    </div>
+
+                    <div class="study-card-item locked" id="lessonCard3" onclick="startQuiz(3)">
+                        <input type="checkbox" id="lesson3-check" class="hidden-checkbox" disabled>
+                        <label class="custom-box"><i class="fa-solid fa-lock"></i></label>
+                        <span class="card-text-link">Lesson 3: Cognitive Models & Mental Models</span>
+                    </div>
+
+                    <div class="study-card-item locked" id="lessonCard4" onclick="startQuiz(4)">
+                        <input type="checkbox" id="lesson4-check" class="hidden-checkbox" disabled>
+                        <label class="custom-box"><i class="fa-solid fa-lock"></i></label>
+                        <span class="card-text-link">Lesson 4: Digital Prototyping & Interface Design</span>
+                    </div>
+
+                    <div class="study-card-item locked" id="lessonCard5" onclick="startQuiz(5)">
+                        <input type="checkbox" id="lesson5-check" class="hidden-checkbox" disabled>
+                        <label class="custom-box"><i class="fa-solid fa-lock"></i></label>
+                        <span class="card-text-link">Lesson 5: User Research, Journey Mapping & Ethics</span>
+                    </div>
+
+                    <div class="study-card-item locked" id="lessonCard6" onclick="startQuiz(6)">
+                        <input type="checkbox" id="lesson6-check" class="hidden-checkbox" disabled>
+                        <label class="custom-box"><i class="fa-solid fa-lock"></i></label>
+                        <span class="card-text-link">Lesson 6: Accessibility and Inclusive Design</span>
+                    </div>
+
+                    <div class="study-card-item locked" id="lessonCard7" onclick="startQuiz(7)">
+                        <input type="checkbox" id="lesson7-check" class="hidden-checkbox" disabled>
+                        <label class="custom-box"><i class="fa-solid fa-lock"></i></label>
+                        <span class="card-text-link">Lesson 7: Cultural Dimensions & Bias in Interfaces</span>
+                    </div>
+
+                    <div class="study-card-item locked" id="lessonCard8" onclick="startQuiz(8)">
+                        <input type="checkbox" id="lesson8-check" class="hidden-checkbox" disabled>
+                        <label class="custom-box"><i class="fa-solid fa-lock"></i></label>
+                        <span class="card-text-link">Lesson 8: Designing for Emotion & User Engagement</span>
+                    </div>
+
+                    <div class="study-card-item locked" id="lessonCard9" onclick="startQuiz(9)">
+                        <input type="checkbox" id="lesson9-check" class="hidden-checkbox" disabled>
+                        <label class="custom-box"><i class="fa-solid fa-lock"></i></label>
+                        <span class="card-text-link">Lesson 9: Conversational AI & Voice Interfaces</span>
+                    </div>
+
+                    <div class="study-card-item locked" id="lessonCard10" onclick="startQuiz(10)">
+                        <input type="checkbox" id="lesson10-check" class="hidden-checkbox" disabled>
+                        <label class="custom-box"><i class="fa-solid fa-lock"></i></label>
+                        <span class="card-text-link">Lesson 10: Mixed Reality (AR/VR) & Tangible Interfaces</span>
+                    </div>
+
+                    <div class="study-card-item locked" id="lessonCard11" onclick="startQuiz(11)">
+                        <input type="checkbox" id="lesson11-check" class="hidden-checkbox" disabled>
+                        <label class="custom-box"><i class="fa-solid fa-lock"></i></label>
+                        <span class="card-text-link">Lesson 11: Ubiquitous Computing & Smart Environments</span>
+                    </div>
+
+                </div>
+
+                <!-- VIEW 2: FLASHCARD QUIZ -->
+                <div id="quizView" class="flashcard-quiz-container" style="display: none;">
+                    
+                    <div class="flashcard-question-box">
+                        <h3 id="flashcardQuestion">Loading Question...</h3>
+                    </div>
+
+                    <div class="flashcard-options">
+                        <label class="fc-option">
+                            <input type="radio" name="quizChoice" class="hidden-radio" value="0">
+                            <span class="fc-option-text" id="label0">Option A</span>
+                        </label>
+
+                        <label class="fc-option">
+                            <input type="radio" name="quizChoice" class="hidden-radio" value="1">
+                            <span class="fc-option-text" id="label1">Option B</span>
+                        </label>
+
+                        <label class="fc-option">
+                            <input type="radio" name="quizChoice" class="hidden-radio" value="2">
+                            <span class="fc-option-text" id="label2">Option C</span>
+                        </label>
+
+                        <label class="fc-option">
+                            <input type="radio" name="quizChoice" class="hidden-radio" value="3">
+                            <span class="fc-option-text" id="label3">Option D</span>
+                        </label>
+                    </div>
+
+                    <div class="quiz-actions">
+                        <button class="btn-back" onclick="exitQuiz()">Quit</button>
+                        <button class="btn-submit" id="submitBtn" onclick="submitAnswer()">Submit Answer</button>
+                    </div>
+                </div>
+
+                <div id="tipBox" class="helpful-tip" style="display: none;">
+                    <i class="fa-regular fa-lightbulb"></i>
+                    <span id="tipText">Take time to understand each concept. You'll remember it better</span>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC PARA SA QUIZ, CHECKING, REPEATING WRONG ANSWERS, AT UNLOCKING -->
+    <script>
+        const reviewerData = {
+            1: [
+                { question: "What does Human-Computer Interaction (HCI) primarily focus on?", options: ["A. Creating complex algorithms", "B. The interfaces between people and computers to ensure technology is safe, useful, and functional", "C. Maximizing battery life in mobile devices", "D. Hardware manufacturing"], answer: 1 },
+                { question: "How does Cognitive Science (Psychology) assist designers in HCI?", options: ["A. It improves coding speed.", "B. It focuses on network security.", "C. It helps understand how users process information to avoid cognitive overload.", "D. It designs the color palette."], answer: 2 },
+                { question: "Which field focuses on the visual communication of the system, including layout and typography?", options: ["A. Computer Science", "B. Ergonomics", "C. Design (Graphic and UI Design)", "D. Psychology"], answer: 2 },
+                { question: "What does Ergonomics (Human Factors) ensure in technology design?", options: ["A. Fast processing speed", "B. That hardware is physically comfortable and does not cause strain", "C. That software is free of bugs", "D. That color contrast is high"], answer: 1 },
+                { question: "What is the core goal of HCI 1?", options: ["A. Usability", "B. Artificial Intelligence", "C. Virtual Reality", "D. Marketing"], answer: 0 },
+                { question: "What is the design philosophy where the needs and limitations of the end-user are the focus at every stage?", options: ["A. Developer-Centered Design", "B. System-Centered Design", "C. User-Centered Design (UCD)", "D. Agile Design"], answer: 2 },
+                { question: "What is Don Norman’s Gulf of Execution?", options: ["A. The time it takes to boot a computer", "B. The gap between what a user wants to do and how the system lets them do it", "C. The gap between system feedback and user understanding", "D. The cost of software development"], answer: 1 },
+                { question: "Why is integrating HCI important in systems development?", options: ["A. It makes the system harder to hack.", "B. It reduces user errors and lowers customer support costs.", "C. It eliminates the need for backend code.", "D. It increases the file size of the application."], answer: 1 },
+                { question: "What does HCI 2 focus on compared to HCI 1?", options: ["A. Standard desktop layouts", "B. Basic mobile screen buttons", "C. Advanced techniques and systems like immersive technologies and emotion", "D. Backend database architecture"], answer: 2 },
+                { question: "Which technology involves the physical room itself becoming the computer?", options: ["A. Virtual Reality", "B. Chatbots", "C. Ubiquitous computing (UbiComp)", "D. Graphic Design"], answer: 2 }
+            ],
+            2: [
+                { question: "What is Design Thinking?", options: ["A) A linear path for fast coding", "B) A non-linear, iterative process to understand users and redefine problems", "C) A tool for compiling code", "D) A business strategy for pricing software"], answer: 1 },
+                { question: "What is the foundation principle of Design Thinking?", options: ["A) Profitability", "B) Empathy", "C) Speed", "D) Automation"], answer: 1 },
+                { question: "How does iteration work in Design Thinking?", options: ["A) It is a straight line where you build once and launch.", "B) It is a continuous loop of creating, testing, failing, learning, and refining.", "C) It occurs only after the final product is sold.", "D) It involves writing code without testing."], answer: 1 },
+                { question: "How does traditional problem-solving differ from Design Thinking?", options: ["A) Traditional problem-solving embraces failure during prototyping.", "B) Traditional problem-solving often assumes the initial problem statement is 100% correct.", "C) Traditional problem-solving prioritizes human needs over technical convenience.", "D) Traditional problem-solving is strictly non-linear."], answer: 1 },
+                { question: "What is the critical first stage in the Four UCD Process Stages?", options: ["A) Evaluate against requirements", "B) Identify context of use", "C) Design solutions", "D) Specify user requirements"], answer: 1 },
+                { question: "What does the 'Specify user requirements' stage do?", options: ["A) Merges business goals and user goals to define exact functional needs", "B) Tests the final prototype", "C) Builds a low-fidelity wireframe", "D) Identifies the internet connectivity needed"], answer: 0 },
+                { question: "When should Design Thinking primarily be applied?", options: ["A) During the execution phase", "B) After the product has launched", "C) At the very beginning of product strategy during the discovery phase", "D) Only when testing for bugs"], answer: 2 },
+                { question: "What is an empathy map used for?", options: ["A) To visualize server locations", "B) To articulate what a user says, thinks, does, and feels", "C) To track the budget of a project", "D) To map the code structure"], answer: 1 },
+                { question: "What are personas?", options: ["A) Fictional, data-driven characters created to represent different user types", "B) The real names of the developers", "C) Automated bots for testing", "D) Financial investors"], answer: 0 },
+                { question: "What visual storyline identifies user pain points by tracking emotional highs and lows over time?", options: ["A) Low-fidelity wireframe", "B) Journey map", "C) Component", "D) Empathy map"], answer: 1 }
+            ],
+            3: [
+                { question: "What is a mental model built from?", options: ["A) Objective facts written in a manual", "B) The user's past experiences with other systems", "C) The system's source code", "D) The designer's personal preferences"], answer: 1 },
+                { question: "What happens when a system behaves differently than a user's mental model?", options: ["A) The user automatically understands it.", "B) A mismatch occurs, causing frustration and task failure.", "C) The system runs more efficiently.", "D) The user is delighted by the surprise."], answer: 1 },
+                { question: "What principle refers to the physical or visual clues that tell a user how an object can be interacted with?", options: ["A) Affordance", "B) Feedback", "C) Visibility", "D) Iteration"], answer: 0 },
+                { question: "What is the system's immediate response to a user's action called?", options: ["A) Visibility", "B) Feedback", "C) Mental model", "D) Prototype"], answer: 1 },
+                { question: "What are the two main phases of Norman’s Model of Interaction?", options: ["A) Planning and Coding", "B) Execution and Evaluation", "C) Empathy and Testing", "D) Input and Output"], answer: 1 },
+                { question: "In the GOMS model, what do the 'Operators' represent?", options: ["A) The users operating the system", "B) What the user wants to achieve", "C) The basic physical or mental actions needed", "D) The sequence of actions"], answer: 2 },
+                { question: "What is the Keystroke-Level Model (KLM) used for?", options: ["A) Measuring user emotions", "B) Estimating exactly how long a task will take by adding up standard time values for physical movements", "C) Designing high-fidelity graphics", "D) Writing interview questions"], answer: 1 },
+                { question: "What design error occurs when a button is clicked but no loading spinner or success message appears?", options: ["A) Poor mapping", "B) Hidden feedback", "C) Good visibility", "D) Advanced affordance"], answer: 1 },
+                { question: "What is 'poor mapping' in software design?", options: ["A) Missing GPS data", "B) When the layout of controls does not logically match the things they control", "C) When the colors clash", "D) When the system loads too slowly"], answer: 1 },
+                { question: "What is redesigning for alignment?", options: ["A) Changing the font size", "B) Forcing users to learn an awkward placement", "C) Fixing a system so its design finally matches what the user naturally expects", "D) Testing with automated bots"], answer: 2 }
+            ],
+            4: [
+                { question: "What is prototyping?", options: ["A) Writing the final production code", "B) Building quick, testable models of a system before writing actual code", "C) Creating a marketing campaign", "D) Conducting a user interview"], answer: 1 },
+                { question: "What are low-fidelity prototypes?", options: ["A) Basic, rough sketches often drawn on paper or whiteboards", "B) Fully interactive digital apps", "C) 3D printed models", "D) High-resolution colorful designs"], answer: 0 },
+                { question: "What are tools like Figma and Adobe XD used for?", options: ["A) Writing backend PHP logic", "B) Building high-fidelity, interactive prototypes", "C) Running automated accessibility tests", "D) Transcribing audio interviews"], answer: 1 },
+                { question: "What is a reusable design part, such as a specific navigation bar, called?", options: ["A) A journey map", "B) A persona", "C) A component", "D) An empathy map"], answer: 2 },
+                { question: "What are the smooth animations that happen when navigating from one screen to the next called?", options: ["A) Microinteractions", "B) Transitions", "C) Wireframes", "D) Layouts"], answer: 1 },
+                { question: "What does responsive layout design ensure?", options: ["A) That an interface automatically stretches, shrinks, or rearranges itself to fit any screen size", "B) That the system responds emotionally to the user", "C) That the code is bug-free", "D) That buttons change color when clicked"], answer: 0 },
+                { question: "Which approach forces a designer to prioritize only the most essential features first due to limited space?", options: ["A) Desktop-first design", "B) Mobile-first design", "C) VR-first design", "D) Voice-first design"], answer: 1 },
+                { question: "What is consistency in interface design?", options: ["A) Using random colors to surprise the user", "B) Using the exact same fonts, colors, and button styles across every single page", "C) Placing text on an invisible grid", "D) Showing immediate visual responses"], answer: 1 },
+                { question: "How does hierarchy guide the user's eye?", options: ["A) By hiding elements in complex menus", "B) By making all text the exact same size", "C) By using size, color, and spacing to show which elements are most important", "D) By using sound alerts"], answer: 2 },
+                { question: "What does checking for high color contrast in a prototype help improve?", options: ["A) Animation speed", "B) File size", "C) Accessibility and readability", "D) Backend processing"], answer: 2 }
+            ],
+            5: [
+                { question: "What is the purpose of user research in UCD?", options: ["A) To rely on the designer's personal assumptions", "B) To gather actual evidence about what users need and how they behave", "C) To write the code structure", "D) To design the company logo"], answer: 1 },
+                { question: "What type of research methods answer 'why' and 'how' a user behaves using detailed stories?", options: ["A) Quantitative methods", "B) Qualitative methods", "C) Automated methods", "D) Algorithmic methods"], answer: 1 },
+                { question: "What is an interview guide?", options: ["A) A transcript of the interview", "B) A prepared outline of open-ended questions", "C) A legal contract", "D) A quantitative survey"], answer: 1 },
+                { question: "What is transcribing?", options: ["A) Highlighting specific themes in a text", "B) Creating a fictional character", "C) Converting a recorded spoken interview into written text", "D) Writing computer code"], answer: 2 },
+                { question: "How is a persona created accurately?", options: ["A) By guessing based on cultural clichés", "B) By grouping coded responses from multiple real interviews to find common behavioral patterns", "C) By looking at competitors' designs", "D) By using automated algorithms"], answer: 1 },
+                { question: "What is the specific part of a system that a user interacts with on a journey map called?", options: ["A) An emotion", "B) A pain point", "C) A touchpoint", "D) A wireframe"], answer: 2 },
+                { question: "By looking at emotional lows on a journey map, what can designers pinpoint?", options: ["A) Touchpoints", "B) Personas", "C) Pain points and opportunities", "D) Demographics"], answer: 2 },
+                { question: "What ethical requirement ensures users voluntarily agree to participate after knowing how their data will be used?", options: ["A) Respectful engagement", "B) Data privacy", "C) Informed consent", "D) User autonomy"], answer: 2 },
+                { question: "How must researchers protect user data identities in final reports?", options: ["A) By publishing their full names", "B) By anonymizing identities", "C) By selling the data", "D) By leaving the data unencrypted"], answer: 1 },
+                { question: "What does respectful engagement in research involve?", options: ["A) Asking invasive questions to get better data", "B) Treating participants with dignity and ensuring they are not exposed to harm", "C) Forcing users to finish the study", "D) Paying users based on how many questions they answer"], answer: 1 }
+            ],
+            6: [
+                { question: "What is Accessibility?", options: ["A) Designing for the average user only", "B) The measurable result of whether a digital product can be effectively used by people with disabilities", "C) Making the software free to download", "D) Translating text to different languages"], answer: 1 },
+                { question: "What is Inclusive Design?", options: ["A) Designing products for the widest possible range of human diversity from the very beginning", "B) Following strict technical checklists at the end of a project", "C) Restricting access to certain groups", "D) Focusing only on permanent disabilities"], answer: 0 },
+                { question: "Using only the color red to convey an important error is a design barrier for which group?", options: ["A) Users with auditory impairments", "B) Users with motor disabilities", "C) Users with visual impairments like color blindness", "D) Users with ADHD"], answer: 2 },
+                { question: "What is a common design barrier for users with motor disabilities?", options: ["A) Lack of closed captions", "B) Missing 'alt text'", "C) Tiny clickable buttons placed too close together", "D) Complex jargon"], answer: 2 },
+                { question: "What are the international standards for digital accessibility called?", options: ["A) HCI", "B) UCD", "C) WCAG", "D) KLM"], answer: 2 },
+                { question: "What does the 'O' in the POUR acronym stand for?", options: ["A) Organized", "B) Operable", "C) Objective", "D) Optimized"], answer: 1 },
+                { question: "What WCAG principle requires that content must not be invisible to all of a user's senses?", options: ["A) Perceivable", "B) Operable", "C) Understandable", "D) Robust"], answer: 0 },
+                { question: "What level of WCAG compliance is the standard most websites are legally required to meet?", options: ["A) Level A", "B) Level AA", "C) Level AAA", "D) Level B"], answer: 1 },
+                { question: "What assistive technology reads screen text out loud using a synthesized voice?", options: ["A) Adaptive switches", "B) Screen readers", "C) Eye-tracking cameras", "D) WAVE tool"], answer: 1 },
+                { question: "Why is manual testing essential alongside automated accessibility testing?", options: ["A) Automated tools are too slow.", "B) Automated tools can only catch 25% to 30% of issues because they cannot understand context (like if alt text makes sense).", "C) Manual testing is required by law.", "D) Automated tools delete code."], answer: 1 }
+            ],
+            7: [
+                { question: "Why do HCI professionals have a strict ethical responsibility?", options: ["A) Because their technology deeply impacts the daily lives, well-being, and autonomy of millions", "B) Because hardware is expensive", "C) To serve business objectives at the expense of the user", "D) To make interfaces look aesthetic"], answer: 0 },
+                { question: "What is an example of Persuasive Design and Dark Patterns?", options: ["A) Asking for informed consent", "B) Making it intentionally difficult to cancel a subscription", "C) Translating a website to Arabic", "D) Making a button larger for accessibility"], answer: 1 },
+                { question: "What causes algorithmic bias in artificial intelligence systems?", options: ["A) Perfect, unbiased training data", "B) Systems being trained on flawed data or reflecting the unconscious prejudices of programmers", "C) Using high-fidelity prototypes", "D) Running automated accessibility tests"], answer: 1 },
+                { question: "Which ethical framework focuses entirely on the final outcome to achieve the greatest amount of good for the greatest number?", options: ["A) Deontology", "B) Virtue Ethics", "C) Utilitarianism", "D) Localization"], answer: 2 },
+                { question: "What type of culture relies heavily on implicit understanding and visual cues rather than direct words?", options: ["A) Low-context culture", "B) High-context culture", "C) Individualistic culture", "D) Edge case culture"], answer: 1 },
+                { question: "What does the color red typically represent in many Asian cultures?", options: ["A) Danger and error", "B) Sadness", "C) Luck, wealth, and success", "D) Cowardice"], answer: 2 },
+                { question: "What is stereotyping in personas?", options: ["A) Grouping coded interview responses", "B) Creating fictional profiles based on lazy, biased assumptions instead of actual research data", "C) Designing for severe edge cases", "D) Testing with diverse populations"], answer: 1 },
+                { question: "What type of design intentionally or accidentally creates barriers that shut out marginalized groups?", options: ["A) Inclusive design", "B) Exclusive design", "C) Iterative design", "D) Responsive design"], answer: 1 },
+                { question: "What is Internationalization (i18n)?", options: ["A) Translating text on the frontend", "B) The backend coding step that makes software architecture flexible enough to handle multiple languages in the future", "C) Creating an empathy map", "D) Swapping images to feel local"], answer: 1 },
+                { question: "What is Localization (l10n)?", options: ["A) Building the backend database", "B) The actual process of adapting the interface for a specific target market by translating text and changing currency formats", "C) Writing the ACM Code of Ethics", "D) Using a screen reader"], answer: 1 }
+            ],
+            8: [
+                { question: "What negative emotions are triggered if an interface is slow and confusing?", options: ["A) Trust and satisfaction", "B) Delight and surprise", "C) Frustration, anxiety, and anger", "D) Empathy and connection"], answer: 2 },
+                { question: "Which of Norman’s 3 levels of emotional design deals with immediate, subconscious reactions to aesthetics?", options: ["A) Visceral (The Look)", "B) Behavioral (The Feel)", "C) Reflective (The Meaning)", "D) Extrinsic"], answer: 0 },
+                { question: "What does intrinsic motivation mean in UX?", options: ["A) Interacting with a system to earn a separate reward", "B) Interacting with a system because the activity itself is genuinely enjoyable", "C) Using an app to avoid a negative outcome", "D) Logging in to keep a daily streak alive"], answer: 1 },
+                { question: "According to Self-Determination Theory, giving users freedom of choice supports which psychological need?", options: ["A) Competence", "B) Relatedness", "C) Autonomy", "D) Hierarchy"], answer: 2 },
+                { question: "What is the practice of taking game-design elements and applying them to non-game systems called?", options: ["A) Prototyping", "B) Gamification", "C) Onboarding", "D) Transcribing"], answer: 1 },
+                { question: "What specific tactic creates delight by doing something unexpected but positive, like a hidden mini-game?", options: ["A) Trust", "B) Empathy", "C) Surprise", "D) Alignment"], answer: 2 },
+                { question: "What are tiny, single-purpose interactive moments that provide subtle feedback called (e.g., a heart icon bouncing)?", options: ["A) Transitions", "B) Components", "C) Microinteractions", "D) Personas"], answer: 2 },
+                { question: "What is a 'flow state' in design?", options: ["A) A step-by-step tutorial", "B) The feeling of being completely immersed and deeply focused on a task without interruption", "C) A map of user emotions", "D) A backend data pipeline"], answer: 1 },
+                { question: "What is the crucial step-by-step process of guiding a brand-new user through an app's core features called?", options: ["A) Onboarding", "B) Retention", "C) Evaluation", "D) Gamification"], answer: 0 },
+                { question: "What visual survey uses pictures of a simple character showing different levels of emotion to measure UX?", options: ["A) Empathy map", "B) Emotion cards", "C) AEQ", "D) SAM scale (Self-Assessment Manikin)"], answer: 3 }
+            ],
+            9: [
+                { question: "How does AI shift HCI away from direct manipulation?", options: ["A) By removing keyboards completely", "B) By moving to delegation, where the user tells the AI what they want and the AI figures it out", "C) By forcing users to write code", "D) By disabling internet access"], answer: 1 },
+                { question: "What allows a user to interact with a system using everyday human language rather than clicking menus?", options: ["A) Conversational Interface", "B) Tangible Interface", "C) Graphic User Interface", "D) Mixed Reality"], answer: 0 },
+                { question: "What AI technology helps computers understand the context and intent behind a user's words?", options: ["A) Object-Oriented Programming (OOP)", "B) Virtual Reality (VR)", "C) Natural Language Processing (NLP)", "D) Keystroke-Level Model (KLM)"], answer: 2 },
+                { question: "What is a key design challenge specific to Voice User Interfaces (VUIs)?", options: ["A) They run out of battery instantly.", "B) They have no visual cues (affordances) to show the user what options are available.", "C) They can only understand English.", "D) They require a mouse."], answer: 1 },
+                { question: "How do designers typically prototype a conversation instead of drawing screens?", options: ["A) By building 3D models", "B) Using Dialogue Flows (scripts or flowcharts)", "C) Using the WAVE tool", "D) Drawing high-fidelity wireframes"], answer: 1 },
+                { question: "What is Wizard of Oz Testing in conversational interfaces?", options: ["A) A fully coded AI system", "B) A prototyping method where a human designer sits in another room typing back responses to make the user believe they are talking to an AI", "C) A VR simulation of the Wizard of Oz", "D) An automated accessibility test"], answer: 1 },
+                { question: "Why do evaluators test Error Recovery in voice interfaces?", options: ["A) Because human speech is messy (mumbling, slang), and the system must gracefully handle confusion", "B) To measure battery life", "C) To check color contrast", "D) To fix physical hardware damage"], answer: 0 },
+                { question: "What does Testing Latency measure?", options: ["A) The volume of the user's voice", "B) How accurately the AI understands the core goal", "C) The delay between the user finishing a sentence and the AI responding", "D) The number of words spoken"], answer: 2 },
+                { question: "What does Intent Recognition Testing measure?", options: ["A) System response time", "B) How accurately the AI understands the core goal of the user, even if phrased differently", "C) If the user is feeling frustrated", "D) Screen resolution"], answer: 1 },
+                { question: "What must a VUI do to confirm actions since the user cannot 'see' the menu?", options: ["A) Print a receipt", "B) Vibrate strongly", "C) Clearly speak out the options and use audio feedback like a small chime sound", "D) Change the screen color"], answer: 2 }
+            ],
+            10: [
+                { question: "Which technology completely immerses the user in a 100% computer-generated environment, blocking out the physical world?", options: ["A) Augmented Reality (AR)", "B) Virtual Reality (VR)", "C) Tangible UI", "D) Ubiquitous Computing"], answer: 1 },
+                { question: "Which technology overlays digital elements (like 3D graphics) onto the real physical world?", options: ["A) Virtual Reality (VR)", "B) Augmented Reality (AR)", "C) Desktop UI", "D) Chatbots"], answer: 1 },
+                { question: "What is Mixed Reality (MR)?", options: ["A) A text-only interface", "B) A step beyond AR where the physical and digital worlds are merged and interact in real-time", "C) A VR headset that is turned off", "D) A standard mobile phone"], answer: 1 },
+                { question: "What type of interface allows users to interact with digital information by manipulating real, physical objects?", options: ["A) Conversational Interface", "B) Graphic User Interface", "C) Tangible User Interface (TUI)", "D) Voice User Interface"], answer: 2 },
+                { question: "How is VR used safely in education?", options: ["A) For taking exams on a flat screen", "B) For chemistry lab simulations where students can mix volatile chemicals without real-world danger", "C) For tracking student attendance", "D) For typing essays"], answer: 1 },
+                { question: "What is Cybersickness (Motion Sickness) in VR?", options: ["A) A virus that attacks the software", "B) Nausea caused by a sensory mismatch when the eyes see movement but the body feels still", "C) Eye fatigue from bright colors", "D) Muscle strain in the arms"], answer: 1 },
+                { question: "What causes the physical fatigue known as 'Gorilla Arm'?", options: ["A) Wearing a heavy VR headset", "B) Holding arms out in mid-air to interact with virtual menus for long periods", "C) Tripping over physical furniture", "D) Typing on a small keyboard"], answer: 1 },
+                { question: "Which of the following is an environmental interference challenge for AR?", options: ["A) The user getting motion sickness", "B) The physical room being too dark for the camera to map the floor accurately", "C) The user feeling socially isolated", "D) The lack of physical affordances"], answer: 1 },
+                { question: "Why do evaluators use Dual-Video Observation for AR/VR?", options: ["A) To check code errors automatically", "B) To record both the user's physical body moving in the room and a screen-recording of what they see inside the headset", "C) To broadcast the session live", "D) To measure audio latency"], answer: 1 },
+                { question: "What is a major physical safety challenge in VR?", options: ["A) The battery overheating", "B) Because VR completely blinds the user to the real world, they risk tripping over furniture or hitting walls", "C) Glare from the sun blocking the screen", "D) Losing internet connection"], answer: 1 }
+            ],
+            11: [
+                { question: "What is the concept where computing is made to appear anytime and everywhere, fading into the background?", options: ["A) Mixed Reality", "B) Ubiquitous Computing (UbiComp)", "C) Tangible Interface", "D) Graphic UI"], answer: 1 },
+                { question: "What is a Smart Environment?", options: ["A) A physical space that continuously monitors its surroundings to anticipate and automatically respond to the needs of its occupants", "B) A classroom with fast Wi-Fi", "C) A mobile phone with many apps", "D) A standard database server"], answer: 0 },
+                { question: "What technology is actually used to build UbiComp by connecting physical devices to the internet?", options: ["A) Augmented Reality", "B) Natural Language Processing (NLP)", "C) Internet of Things (IoT)", "D) Adobe XD"], answer: 2 },
+                { question: "What is a key characteristic of UbiComp known as 'Invisibility' (Calm Computing)?", options: ["A) The devices are made of clear glass.", "B) The technology fades into the background, operating quietly without demanding constant attention.", "C) The code is hidden from the user.", "D) The devices do not use electricity."], answer: 1 },
+                { question: "What does Context-Awareness allow a UbiComp system to do?", options: ["A) Print documents automatically", "B) Anticipate what the user needs before they ask by gathering data about the surroundings (time, location, activity)", "C) Connect to a monitor", "D) Design graphic layouts"], answer: 1 },
+                { question: "What is a major privacy challenge in UbiComp?", options: ["A) Devices don't collect enough data.", "B) There is a massive risk of data breaches and unauthorized surveillance since environments constantly monitor users.", "C) Users forget their passwords easily.", "D) The screens are too small to read privacy policies."], answer: 1 },
+                { question: "What happens if the physical Hardware Layer of a smart environment loses power or breaks?", options: ["A) It runs on solar energy automatically.", "B) The entire 'smart' environment completely stops working.", "C) The software fixes the physical sensors.", "D) It switches to VR mode."], answer: 1 },
+                { question: "What software challenge makes it difficult for different brands (like Apple, Google, Philips) to communicate seamlessly in a smart home?", options: ["A) Algorithmic bias", "B) Interoperability", "C) Latency", "D) Gamification"], answer: 1 },
+                { question: "How do designers map out when and where a user triggers a sensor before touching electronics?", options: ["A) By writing backend code", "B) By using Scenario Mapping and Storyboarding", "C) By running accessibility audits", "D) By building a high-fidelity Figma prototype"], answer: 1 },
+                { question: "What affordable microcontrollers are usually used by developers to prototype the physical Hardware Layer?", options: ["A) Supercomputers", "B) High-end smartphones", "C) Arduino or Raspberry Pi", "D) VR Headsets"], answer: 2 }
+            ]
+        };
+
+        let currentLessonId = null;
+        let questionQueue = [];
+        let currentQuestionObj = null;
+        let unlockedLesson = 1;
+        let completedIds = [];
+
+        // Pull real progress from the backend and reflect it in the lesson list.
+        async function loadStudyCardProgress() {
+            try {
+                const progress = await api.get('/progress/study-cards');
+                unlockedLesson = progress.unlockedLesson;
+                completedIds = progress.completedIds;
+            } catch (err) {
+                console.error('Could not load study card progress:', err);
+            }
+            applyLessonLockState();
+        }
+
+        function applyLessonLockState() {
+            for (let i = 1; i <= 11; i++) {
+                const card = document.getElementById(`lessonCard${i}`);
+                if (!card) continue;
+                const icon = card.querySelector('.custom-box i');
+                const isUnlocked = i <= unlockedLesson;
+                const isDone = completedIds.includes(i);
+
+                card.classList.toggle('locked', !isUnlocked);
+                if (icon) {
+                    icon.classList.remove('fa-lock', 'fa-check');
+                    icon.classList.add(isUnlocked ? 'fa-check' : 'fa-lock');
+                }
+                const checkbox = document.getElementById(`lesson${i}-check`);
+                if (checkbox) checkbox.checked = isDone;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadStudyCardProgress);
+
+        function startQuiz(lessonId) {
+            if (lessonId > unlockedLesson) {
+                alert("Finish the previous lesson first to unlock this one.");
+                return;
+            }
+            if (!reviewerData[lessonId] || reviewerData[lessonId].length === 0) {
+                alert("Questions for this lesson are coming soon!");
+                return;
+            }
+            
+            currentLessonId = lessonId;
+            questionQueue = [];
+            
+            for (let i = 0; i < reviewerData[lessonId].length; i++) {
+                questionQueue.push(i);
+            }
+
+            document.getElementById('lessonListView').style.display = 'none';
+            document.getElementById('quizView').style.display = 'block';
+            document.getElementById('tipBox').style.display = 'flex';
+            document.getElementById('tipText').textContent = `Questions remaining to master: ${questionQueue.length}`;
+
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const currentQIndex = questionQueue[0];
+            currentQuestionObj = reviewerData[currentLessonId][currentQIndex];
+            
+            document.getElementById('flashcardQuestion').textContent = currentQuestionObj.question;
+            document.getElementById('label0').textContent = currentQuestionObj.options[0];
+            document.getElementById('label1').textContent = currentQuestionObj.options[1];
+            document.getElementById('label2').textContent = currentQuestionObj.options[2];
+            document.getElementById('label3').textContent = currentQuestionObj.options[3];
+
+            const radios = document.querySelectorAll('input[name="quizChoice"]');
+            radios.forEach(radio => {
+                radio.checked = false;
+                document.getElementById(`label${radio.value}`).classList.remove("correct-answer", "wrong-answer");
+            });
+
+            document.getElementById('submitBtn').disabled = false;
+        }
+
+        function submitAnswer() {
+            const selected = document.querySelector('input[name="quizChoice"]:checked');
+            if (!selected) {
+                alert("Please select an answer first.");
+                return;
+            }
+
+            document.getElementById('submitBtn').disabled = true;
+
+            const selectedValue = parseInt(selected.value);
+            const correctValue = currentQuestionObj.answer;
+            const selectedLabel = document.getElementById(`label${selectedValue}`);
+
+            if (selectedValue === correctValue) {
+                // TAMA ANG SAGOT
+                selectedLabel.classList.add("correct-answer");
+                questionQueue.shift(); 
+            } else {
+                // MALI ANG SAGOT
+                selectedLabel.classList.add("wrong-answer");
+                
+                // TINANGGAL NA NATIN DITO YUNG NAGPAPAKITA NG TAMANG SAGOT (GREEN)
+                // Para hindi nila malaman kung ano ang tama hanggang sa masagot nila nang wasto
+                
+                const failedQuestionIndex = questionQueue.shift(); 
+                questionQueue.push(failedQuestionIndex); 
+            }
+
+            document.getElementById('tipText').textContent = `Questions remaining to master: ${questionQueue.length}`;
+
+            setTimeout(() => {
+                if (questionQueue.length === 0) {
+                    // Tell the backend this lesson is mastered, then refresh from its response.
+                    api.post('/progress/study-cards/complete', { lessonId: currentLessonId })
+                        .then(result => {
+                            unlockedLesson = result.unlockedLesson;
+                            completedIds = result.completedIds;
+                            applyLessonLockState();
+                        })
+                        .catch(err => console.error('Could not save study card progress:', err));
+
+                    exitQuiz();
+                } else {
+                    loadQuestion();
+                }
+            }, 1500); // 1.5 seconds delay bago lumipat sa next question
+        }
+
+        function exitQuiz() {
+            document.getElementById('quizView').style.display = 'none';
+            document.getElementById('tipBox').style.display = 'none';
+            document.getElementById('lessonListView').style.display = 'flex';
+        }
+
+        // PAG-TRACK NG LAST VISITED LESSON PARA SA DASHBOARD
+        let currentPageName = window.location.pathname.split('/').pop();
+        if (!currentPageName || currentPageName === '') {
+            // Palitan ng tamang pangalan depende sa file (e.g. 'ReadLesson.html')
+            currentPageName = 'ReadLesson.html'; 
+        }
+        localStorage.setItem('lastLessonVisited', currentPageName);
+
+    </script>
+</body>
+</html>

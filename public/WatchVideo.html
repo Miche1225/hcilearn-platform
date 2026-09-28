@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watch Videos Page</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Updated FontAwesome link para lumabas ang mga icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+
+    <script src="js/api.js"></script>
+    <script>
+        requireAuth();
+        document.addEventListener('DOMContentLoaded', function() {
+            let currentPageName = window.location.pathname.split('/').pop();
+            if (currentPageName && currentPageName !== '') {
+                localStorage.setItem('lastLessonVisited', currentPageName);
+            }
+        });
+    </script>
+
+    <div class="dashboard-container">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <i class="fa-solid fa-book-open logo-icon"></i>
+                <span class="logo-text">HCILearn</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="Dashboard.html" class="nav-item">
+                    <i class="fa-solid fa-border-all"></i> Dashboard
+                </a>
+                <a href="WatchVideo.html" class="nav-item active">
+                    <i class="fa-solid fa-play"></i> Watch Video
+                </a>
+                <a href="ReadLesson.html" class="nav-item">
+                    <i class="fa-solid fa-book"></i> Read Lesson
+                </a>
+                <a href="CaseStudies.html" class="nav-item">
+                    <i class="fa-solid fa-folder"></i> Case Studies
+                </a>
+                <a href="StudyCards.html" class="nav-item">
+                    <i class="fa-solid fa-rotate"></i> Study Cards
+                </a>
+                <a href="Account.html" class="nav-item">
+                    <i class="fa-solid fa-circle-user"></i> Account
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+
+            <!-- Top Bar (Search) -->
+            <div class="top-bar">
+                <div class="search-container">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <!-- DINAGDAG ANG id="searchInput" DITO -->
+                    <input type="text" id="searchInput" placeholder="Search videos...">
+                </div>
+            </div>
+            
+            <!-- VIDEO GRID -->
+            <div class="video-grid">
+                
+                <!-- Video Card 1 -->
+                <a href="WatchVideo-Player.html?video=ESRI4ovEOSo&title=Task-Centered%20Design%20%7C%20Introduction%20to%20HCI" class="video-link">
+                    <div class="video-card">
+                        <div class="thumbnail-container">
+                            <img src="https://img.youtube.com/vi/ESRI4ovEOSo/maxresdefault.jpg" alt="Video 1">
+                            <div class="play-overlay">
+                                <i class="fa-solid fa-play"></i>
+                            </div>
+                            <span class="duration-badge">10:00</span>
+                        </div>
+                        <div class="video-info">
+                            <h4>Task-Centered Design | Introduction to HCI</h4>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Video Card 2 -->
+                <a href="WatchVideo-Player.html?video=v__Yhk1U94k&title=Principles%20of%20Human%20Computer%20Interaction%20with%20Examples" class="video-link">
+                    <div class="video-card">
+                        <div class="thumbnail-container">
+                            <img src="https://img.youtube.com/vi/v__Yhk1U94k/maxresdefault.jpg" alt="Video 2">
+                            <div class="play-overlay">
+                                <i class="fa-solid fa-play"></i>
+                            </div>
+                            <span class="duration-badge">15:20</span>
+                        </div>
+                        <div class="video-info">
+                            <h4>Principles of Human Computer Interaction with Examples</h4>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Video Card 3 -->
+                <a href="WatchVideo-Player.html?video=uB9LaBIAcRs&title=Introduction%20to%20HUman%20Computer%20Interaction%20%28HCi%29" class="video-link">
+                    <div class="video-card">
+                        <div class="thumbnail-container">
+                            <img src="https://img.youtube.com/vi/uB9LaBIAcRs/maxresdefault.jpg" alt="Video 3">
+                            <div class="play-overlay">
+                                <i class="fa-solid fa-play"></i>
+                            </div>
+                            <span class="duration-badge">8:45</span>
+                        </div>
+                        <div class="video-info">
+                            <h4>Introduction to HUman Computer Interaction (HCi)</h4>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Video Card 4 -->
+                <a href="WatchVideo-Player.html?video=4OVptMIxsT4&title=HCI%20Lesson%204" class="video-link">
+                    <div class="video-card">
+                        <div class="thumbnail-container">
+                            <img src="https://img.youtube.com/vi/4OVptMIxsT4/maxresdefault.jpg" alt="Video 4">
+                            <div class="play-overlay">
+                                <i class="fa-solid fa-play"></i>
+                            </div>
+                            <span class="duration-badge">12:30</span>
+                        </div>
+                        <div class="video-info">
+                            <h4>HCI Lesson 4</h4>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Video Card 5 -->
+                <a href="WatchVideo-Player.html?video=dRIavYjuXek&title=HCI%20Lesson%205" class="video-link">
+                    <div class="video-card">
+                        <div class="thumbnail-container">
+                            <img src="https://img.youtube.com/vi/dRIavYjuXek/maxresdefault.jpg" alt="Video 5">
+                            <div class="play-overlay">
+                                <i class="fa-solid fa-play"></i>
+                            </div>
+                            <span class="duration-badge">20:15</span>
+                        </div>
+                        <div class="video-info">
+                            <h4>HCI Lesson 5</h4>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Video Card 6 -->
+                <a href="WatchVideo-Player.html?video=_RnuN-e1wsk&title=HCI%20Lesson%206" class="video-link">
+                    <div class="video-card">
+                        <div class="thumbnail-container">
+                            <img src="https://img.youtube.com/vi/_RnuN-e1wsk/maxresdefault.jpg" alt="Video 6">
+                            <div class="play-overlay">
+                                <i class="fa-solid fa-play"></i>
+                            </div>
+                            <span class="duration-badge">14:50</span>
+                        </div>
+                        <div class="video-info">
+                            <h4>HCI Lesson 6</h4>
+                        </div>
+                    </div>
+                </a>
+
+                 <!-- Video Card 7 -->
+                 <a href="WatchVideo-Player.html?video=iGmIvuPjv6s&title=HCI%20Lesson%207" class="video-link">
+                    <div class="video-card">
+                        <div class="thumbnail-container">
+                            <img src="https://img.youtube.com/vi/iGmIvuPjv6s/maxresdefault.jpg" alt="Video 7">
+                            <div class="play-overlay">
+                                <i class="fa-solid fa-play"></i>
+                            </div>
+                            <span class="duration-badge">11:11</span>
+                        </div>
+                        <div class="video-info">
+                            <h4>HCI Lesson 7</h4>
+                        </div>
+                    </div>
+                </a>
+
+                 <!-- Video Card 8 -->
+                 <a href="WatchVideo-Player.html?video=_r0VX-aU_T8&title=HCI%20Lesson%208" class="video-link">
+                    <div class="video-card">
+                        <div class="thumbnail-container">
+                            <img src="https://img.youtube.com/vi/_r0VX-aU_T8/maxresdefault.jpg" alt="Video 8">
+                            <div class="play-overlay">
+                                <i class="fa-solid fa-play"></i>
+                            </div>
+                            <span class="duration-badge">9:30</span>
+                        </div>
+                        <div class="video-info">
+                            <h4>HCI Lesson 8</h4>
+                        </div>
+                    </div>
+                </a>
+
+                 <!-- Video Card 9 -->
+                 <a href="WatchVideo-Player.html?video=meWKtrZNsRU&title=HCI%20Lesson%209" class="video-link">
+                    <div class="video-card">
+                        <div class="thumbnail-container">
+                            <img src="https://img.youtube.com/vi/meWKtrZNsRU/maxresdefault.jpg" alt="Video 9">
+                            <div class="play-overlay">
+                                <i class="fa-solid fa-play"></i>
+                            </div>
+                            <span class="duration-badge">16:45</span>
+                        </div>
+                        <div class="video-info">
+                            <h4>HCI Lesson 9</h4>
+                        </div>
+                    </div>
+                </a>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- JAVASCRIPT PARA SA SEARCH BAR AT PAG-TRACK NG ACTIVITY -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // ========================================================
+            // 1. PAG-TRACK NG LAST VISITED LESSON PARA SA DASHBOARD
+            // ========================================================
+            let currentPageName = window.location.pathname.split('/').pop();
+            
+            // Kapag walang filename (halimbawa, nasa root lang), i-force itong "WatchVideo.html"
+            if (!currentPageName || currentPageName === '') {
+                currentPageName = 'WatchVideo.html';
+            }
+            
+            // I-save ang pahina sa browser local storage
+            localStorage.setItem('lastLessonVisited', currentPageName);
+
+
+            // ========================================================
+            // 2. FUNCTION PARA SA SMART SEARCH BAR
+            // ========================================================
+            // Tagasalin ng words pa-number (e.g. "four" -> "4")
+            function normalizeText(text) {
+                const numberMap = {
+                    'one': '1', 'two': '2', 'three': '3', 'four': '4', 
+                    'five': '5', 'six': '6', 'seven': '7', 'eight': '8', 'nine': '9', 'zero': '0'
+                };
+                let normalized = text.toLowerCase();
+                for (const [word, digit] of Object.entries(numberMap)) {
+                    // Hinahanap ang buong salita at pinapalitan ng numero
+                    normalized = normalized.replace(new RegExp(`\\b${word}\\b`, 'g'), digit);
+                }
+                return normalized;
+            }
+
+            const searchInput = document.getElementById('searchInput');
+            // Kukunin natin ang mga .video-link (ang <a> tag na bumabalot sa bawat card)
+            const videoCards = document.querySelectorAll('.video-link');
+
+            if (searchInput) {
+                searchInput.addEventListener('keyup', function() {
+                    // Kunin ang tinype at idaan sa translator
+                    const filterText = normalizeText(this.value.trim());
+
+                    videoCards.forEach(card => {
+                        // Hanapin ang title ng video sa loob ng card
+                        const titleElement = card.querySelector('.video-info h4');
+                        
+                        if (titleElement) {
+                            // Idaan din sa translator ang title ng video
+                            const titleText = normalizeText(titleElement.textContent);
+                            
+                            // I-check kung ang tinype ay kasama sa title
+                            if (titleText.includes(filterText)) {
+                                card.style.display = ''; // Ipakita kung tugma
+                            } else {
+                                card.style.display = 'none'; // Itago kung hindi
+                            }
+                        }
+                    });
+                });
+            }
+
+            // ========================================================
+            // 3. MARK VIDEOS ALREADY WATCHED (backend-backed)
+            // ========================================================
+            api.get('/progress/videos').then(({ watched }) => {
+                const watchedIds = new Set(watched.map(w => w.video_id));
+                document.querySelectorAll('.video-link').forEach(link => {
+                    const url = new URL(link.href);
+                    const vid = url.searchParams.get('video');
+                    if (vid && watchedIds.has(vid)) {
+                        const thumb = link.querySelector('.thumbnail-container');
+                        if (thumb && !thumb.querySelector('.watched-badge')) {
+                            const badge = document.createElement('span');
+                            badge.className = 'watched-badge';
+                            badge.textContent = 'Watched';
+                            badge.style.cssText = 'position:absolute;top:8px;left:8px;background:#1e7e45;color:#fff;font-size:11px;padding:2px 8px;border-radius:10px;z-index:2;';
+                            thumb.style.position = 'relative';
+                            thumb.appendChild(badge);
+                        }
+                    }
+                });
+            }).catch(() => {});
+            
+        });
+    </script>
+</body>
+</html>

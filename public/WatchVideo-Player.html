@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watch Videos Player Page</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- FontAwesome para sa icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="js/api.js"></script>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <i class="fa-solid fa-book-open logo-icon"></i>
+                <span class="logo-text">HCILearn</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="Dashboard.html" class="nav-item">
+                    <i class="fa-solid fa-border-all"></i> Dashboard
+                </a>
+                <!-- ACTIVE CLASS SA WATCH VIDEO -->
+                <a href="WatchVideo.html" class="nav-item active">
+                    <i class="fa-solid fa-play"></i> Watch Video
+                </a>
+                <a href="ReadLesson.html" class="nav-item">
+                    <i class="fa-solid fa-book"></i> Read Lesson
+                </a>
+                <a href="CaseStudies.html" class="nav-item">
+                    <i class="fa-solid fa-folder"></i> Case Studies
+                </a>
+                <a href="StudyCards.html" class="nav-item">
+                    <i class="fa-solid fa-rotate"></i> Study Cards
+                </a>
+                <a href="Account.html" class="nav-item">
+                    <i class="fa-solid fa-circle-user"></i> Account
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <div class="player-wrapper">
+                
+                <!-- Header Title -->
+                <div class="page-header">
+                    <div class="title-with-icon">
+                        <i class="fa-solid fa-clapperboard"></i> 
+                        <h2>Watch Videos</h2>
+                    </div>
+                    <p>Watch the video and understand each concepts.</p>
+                    <hr class="header-divider">
+                </div>
+
+                <!-- Video Element -->
+                <div class="video-container" id="videoContainer">
+                    <!-- DITO PAPASOK ANG YOUTUBE API -->
+                    <div id="youtubePlayer"></div>
+                </div>
+
+                <p id="watchedMsg" style="text-align:center; color:#1e7e45; font-weight:600; display:none; margin-top:10px;">
+                    <i class="fa-solid fa-circle-check"></i> Marked as watched
+                </p>
+
+                <!-- Centered Back Button -->
+                <div class="player-footer-centered">
+                    <button type="button" class="btn-back-centered" id="markWatchedBtn" style="margin-right:10px;">Mark as Watched</button>
+                    <a href="WatchVideo.html" class="btn-back-centered">Back</a>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- JAVASCRIPT PARA PALITAN ANG VIDEO BASE SA LINK NA KINLIK -->
+    <script>
+        requireAuth();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const videoId = urlParams.get('video') || 'Yb0ZGvccOAY';
+        const videoTitle = urlParams.get('title') || videoId;
+
+        let watchLogged = false;
+        async function logWatched() {
+            if (watchLogged) return;
+            watchLogged = true;
+            try {
+                await api.post('/progress/videos/watch', { videoId, title: videoTitle });
+                document.getElementById('watchedMsg').style.display = 'block';
+            } catch (err) {
+                console.error('Could not save watch progress:', err);
+                watchLogged = false;
+            }
+        }
+
+        document.getElementById('markWatchedBtn').addEventListener('click', logWatched);
+
+        // Load the YouTube IFrame API so we can detect when the video actually ends.
+        const ytScript = document.createElement('script');
+        ytScript.src = 'https://www.youtube.com/iframe_api';
+        document.head.appendChild(ytScript);
+
+        window.onYouTubeIframeAPIReady = function () {
+            new YT.Player('youtubePlayer', {
+                height: '500',
+                width: '100%',
+                videoId: videoId,
+                playerVars: { 
+                    autoplay: 1, 
+                    rel: 0 
+                },
+                events: {
+                    onStateChange: function (event) {
+                        // Kapag tapos na ang video (State 0 = ENDED)
+                        if (event.data === YT.PlayerState.ENDED) {
+                            logWatched();
+                        }
+                    },
+                },
+            });
+        };
+
+        // PAG-TRACK NG LAST VISITED LESSON PARA SA DASHBOARD
+        localStorage.setItem('lastLessonVisited', window.location.pathname.split('/').pop() + window.location.search);
+    </script>
+</body>
+</html>

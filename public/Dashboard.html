@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Page</title>
+    <link rel="stylesheet" href="style.css?v=2">
+    <!-- FontAwesome for the input icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <i class="fa-solid fa-book-open logo-icon"></i>
+                <span class="logo-text">HCILearn</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="Dashboard.html" class="nav-item active">
+                    <i class="fa-solid fa-border-all"></i> Dashboard
+                </a>
+                <a href="WatchVideo.html" class="nav-item">
+                    <i class="fa-solid fa-play"></i> Watch Video
+                </a>
+                <a href="ReadLesson.html" class="nav-item">
+                    <i class="fa-solid fa-book"></i> Read Lesson
+                </a>
+                <a href="CaseStudies.html" class="nav-item">
+                    <i class="fa-solid fa-folder"></i> Case Studies
+                </a>
+                <a href="StudyCards.html" class="nav-item">
+                    <i class="fa-solid fa-rotate"></i> Study Cards
+                </a>
+                <a href="Account.html" class="nav-item">
+                    <i class="fa-solid fa-circle-user"></i> Account
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <!-- DINAGDAGAN NG ID NA 'logoutBtn' -->
+                <a href="#" class="nav-item logout" id="logoutBtn">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Log out
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <!-- Welcome Banner -->
+            <div class="welcome-card">
+                <!-- Palitan ng tamang image path ang src -->
+                <img src="profile-pic.jpg" alt="Profile" class="profile-img" id="profileImg">
+                <div class="welcome-text">
+                    <h1 id="welcomeName">Welcome!</h1>
+                    <p>Keep learning, keep growing</p>
+                    <p class="subtitle">Continue where you left off and achieve your goals</p>
+                </div>
+            </div>
+
+            <!-- Dashboard Grid Layout -->
+            <div class="dashboard-grid">
+                
+                <!-- Overall Progress -->
+                <div class="card progress-card">
+                    <h3 class="card-title"><i class="fa-solid fa-chart-pie icon-title"></i> Overall Progress</h3>
+                    <div class="progress-content">
+                        <div class="circular-progress">
+                            <div class="inner-circle" id="overallPercent">0%</div>
+                        </div>
+                        <div class="progress-stats">
+                            <div class="stat-item">
+                                <div class="stat-icon case-icon"><i class="fa-solid fa-folder"></i></div>
+                                <span id="caseStudiesCount">0</span>
+                                <small>Case Studies</small>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-icon video-icon"><i class="fa-solid fa-play"></i></div>
+                                <span id="videosCount">0</span>
+                                <small>Watch Videos</small>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-icon check-icon"><i class="fa-solid fa-rotate"></i></div>
+                                <span id="studyCardsCount">0</span>
+                                <small>Study Cards</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activities -->
+                <div class="card activities-card">
+                    <h3 class="card-title"><i class="fa-solid fa-chart-simple icon-title"></i> Activities</h3>
+                    
+                    <div class="activity-items scrollable-activities">
+                        
+                        <div class="act-item">
+                            <div class="act-icon case-icon"><i class="fa-solid fa-folder"></i></div>
+                            <span>Case Studies</span>
+                        </div>
+                        
+                        <div class="act-item">
+                            <div class="act-icon read-icon"><i class="fa-solid fa-book"></i></div>
+                            <span>Read Lesson</span>
+                        </div>
+
+                        <div class="act-item extra-activity">
+                            <div class="act-icon video-icon"><i class="fa-solid fa-play"></i></div>
+                            <span>Watch Videos</span>
+                        </div>
+
+                        <div class="act-item extra-activity">
+                            <div class="act-icon check-icon"><i class="fa-solid fa-rotate"></i></div>
+                            <span>Study Cards</span>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <!-- Recent Activities -->
+                <div class="card recent-card">
+                    <h3 class="card-title"><i class="fa-regular fa-clock icon-title"></i> Recent Activities</h3>
+                    <div class="recent-list" id="recentList">
+                        <div class="recent-item">
+                            <div class="recent-info">
+                                <p>No activity yet — start a lesson, video, case study or study card!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card quick-actions-card">
+                    <h3 class="card-title"><i class="fa-solid fa-bolt icon-title"></i> Quick Actions</h3>
+                    <div class="quick-list">
+                        <a href="WatchVideo.html" class="quick-item" id="continueLearningLink">
+                            <div class="quick-icon book-icon"><i class="fa-solid fa-book-open"></i></div>
+                            <div class="quick-info">
+                                <h4>Continue Learning</h4>
+                                <p>Go to your last lesson</p>
+                            </div>
+                        </a>
+                        <a href="StudyCards.html" class="quick-item">
+                            <div class="quick-icon check-action-icon"><i class="fa-regular fa-file-lines"></i></div>
+                            <div class="quick-info">
+                                <h4>Take knowledge check</h4>
+                                <p>Test your understanding</p>
+                            </div>
+                        </a>
+                        <a href="Account.html" class="quick-item">
+                            <div class="quick-icon user-icon"><i class="fa-regular fa-user"></i></div>
+                            <div class="quick-info">
+                                <h4>View Profile</h4>
+                                <p>Manage your account</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        const ACTIVITY_ICONS = {
+            video: 'fa-play',
+            lesson: 'fa-book',
+            case_study: 'fa-folder',
+            study_card: 'fa-rotate',
+        };
+
+        function timeAgo(dateString) {
+            // Updated para basahin ang Supabase (PostgreSQL) ISO date format
+            const then = new Date(dateString);
+            
+            // Kung sakaling may error sa petsa, hindi lalabas ang NaN
+            if (isNaN(then.getTime())) return 'Recently';
+
+            const diffMs = Date.now() - then.getTime();
+            const mins = Math.floor(diffMs / 60000);
+            
+            if (mins < 1) return 'Just now';
+            if (mins < 60) return `${mins} min ago`;
+            
+            const hrs = Math.floor(mins / 60);
+            if (hrs < 24) return `${hrs} hr ago`;
+            
+            const days = Math.floor(hrs / 24);
+            return `${days} day${days > 1 ? 's' : ''} ago`;
+        }
+
+        async function loadDashboard() {
+            const user = await requireAuth();
+            if (!user) return;
+
+            document.getElementById('welcomeName').textContent = `Welcome, ${user.fullName.split(' ')[0]}!`;
+            if (user.profilePhoto) {
+                document.getElementById('profileImg').src = user.profilePhoto;
+            }
+
+            const lastActivityPage = localStorage.getItem('lastLessonVisited');
+            if (lastActivityPage) {
+                document.getElementById('continueLearningLink').href = lastActivityPage;
+            }
+
+            try {
+                const summary = await api.get('/progress/summary');
+                document.getElementById('overallPercent').textContent = `${summary.overallPercent}%`;
+                
+                // NEW: Update the visual ring gradient based on the percentage
+                const ring = document.querySelector('.circular-progress');
+                if (ring) {
+                    ring.style.background = `conic-gradient(#1e7e45 ${summary.overallPercent * 3.6}deg, #e0e0e0 0deg)`;
+                }
+
+                document.getElementById('caseStudiesCount').textContent = summary.caseStudiesSolved;
+                document.getElementById('videosCount').textContent = summary.videosWatched;
+                document.getElementById('studyCardsCount').textContent = summary.studyCardsCompleted;
+
+                const recentList = document.getElementById('recentList');
+                if (summary.recentActivities.length > 0) {
+                    recentList.innerHTML = summary.recentActivities.map(a => `
+                        <div class="recent-item">
+                            <div class="recent-icon ${a.type}-icon"><i class="fa-solid ${ACTIVITY_ICONS[a.type] || 'fa-check'}"></i></div>
+                            <div class="recent-info">
+                                <h4>${a.description}</h4>
+                            </div>
+                            <span class="time">${timeAgo(a.created_at)}</span>
+                        </div>
+                    `).join('');
+                }
+            } catch (err) {
+                console.error('Could not load progress summary:', err);
+            }
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', function (e) {
+            e.preventDefault();
+            if (confirm('Are you sure you want to log out?')) {
+                logout();
+            }
+        });
+
+        loadDashboard();
+    </script>
+
+</body>
+</html>

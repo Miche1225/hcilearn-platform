@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up Page</title>
+    <link rel="stylesheet" href="style.css"> 
+    <!-- Pampa-ganda ng link sa Facebook at Messenger -->
+    <meta property="og:title" content="HCILearn | Interactive Study Guide">
+    <meta property="og:description" content="The official HCI 2 learning platform and reviewer system for UEP IT students.">
+    <meta property="og:image" content="https://hcilearn-platform.onrender.com/signup-preview.jpg">
+    <meta property="og:url" content="https://hcilearn-platform.onrender.com/">
+    <meta property="og:type" content="website">
+</head>
+<body>
+
+    <div class="signup-container">
+        <div class="glass-card">
+            
+            <div class="header-text">
+                <h2>Sign Up</h2>
+                <p>Just a few quick things to get started</p>
+            </div>
+
+            <form id="signupForm">
+
+                <p id="signupError" style="color:#c0392b; display:none; margin:0 0 10px;"></p>
+
+                <div class="input-grid">
+                    
+                    <div class="input-group">
+                        <label>Full Name</label>
+                        <input type="text" id="fullName" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Year & Section</label>
+                        <input type="text" id="yearSection" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Program/Course (BSIT)</label>
+                        <input type="text" id="program" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Email Address</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Student ID</label>
+                        <input type="text" id="studentId" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" id="password-input" minlength="8" required>
+                        <small style="display:block; color:#666; margin-top:4px;">
+                            Password must be at least 8 characters.
+                        </small>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="show-password">
+                            <label for="show-password">Show Password</label>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="button-container">
+                    <button type="submit" class="signup-btn" id="signupBtn">Sign up</button>
+                </div>
+
+                <div class="login-link-container" style="text-align: center; margin-top: 15px;">
+                    <p>Already have an account? <a href="login.html">Log in</a></p>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const showPasswordCheckbox = document.getElementById('show-password');
+            const passwordInput = document.getElementById('password-input');
+
+            if (showPasswordCheckbox && passwordInput) {
+                showPasswordCheckbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        passwordInput.type = 'text';
+                    } else {
+                        passwordInput.type = 'password';
+                    }
+                });
+            }
+        });
+    </script>
+
+    <script src="js/api.js"></script>
+    <script>
+        document.getElementById('signupForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const errorEl = document.getElementById('signupError');
+            const btn = document.getElementById('signupBtn');
+            errorEl.style.display = 'none';
+
+            const payload = {
+                fullName: document.getElementById('fullName').value.trim(),
+                yearSection: document.getElementById('yearSection').value.trim(),
+                program: document.getElementById('program').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                studentId: document.getElementById('studentId').value.trim(),
+                password: document.getElementById('password-input').value,
+            };
+
+            const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            function isValidPassword(pw) {
+                if (pw.length < 8) return false;
+                if (/^[a-z]+$/.test(pw)) return false;
+                if (/^[A-Z]+$/.test(pw)) return false;
+                if (/^[0-9]+$/.test(pw)) return false;
+                return true;
+            }
+
+            if (!EMAIL_REGEX.test(payload.email)) {
+                errorEl.textContent = 'Please enter a valid email address.';
+                errorEl.style.display = 'block';
+                return;
+            }
+            if (!isValidPassword(payload.password)) {
+                errorEl.textContent = 'Password must be at least 8 characters and not all letters or all numbers.';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Signing up...';
+            try {
+                await api.post('/auth/signup', payload);
+                window.location.href = 'Dashboard.html';
+            } catch (err) {
+                errorEl.textContent = err.message;
+                errorEl.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = 'Sign up';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Studies Page</title>
+    <!-- Link to the separated CSS file -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+
+    <script src="js/api.js"></script>
+    <script>
+        requireAuth();
+        document.addEventListener('DOMContentLoaded', function() {
+            let currentPageName = window.location.pathname.split('/').pop();
+            if (currentPageName && currentPageName !== '') {
+                localStorage.setItem('lastLessonVisited', currentPageName);
+            }
+        });
+    </script>
+
+    <div class="dashboard-container">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <i class="fa-solid fa-book-open logo-icon"></i>
+                <span class="logo-text">HCILearn</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="Dashboard.html" class="nav-item">
+                    <i class="fa-solid fa-border-all"></i> Dashboard
+                </a>
+                <a href="WatchVideo.html" class="nav-item">
+                    <i class="fa-solid fa-play"></i> Watch Video
+                </a>
+                <a href="ReadLesson.html" class="nav-item">
+                    <i class="fa-solid fa-book"></i> Read Lesson
+                </a>
+                <a href="CaseStudies.html" class="nav-item active">
+                    <i class="fa-solid fa-folder"></i> Case Studies
+                </a>
+                <a href="StudyCards.html" class="nav-item">
+                    <i class="fa-solid fa-rotate"></i> Study Cards
+                </a>
+                <a href="Account.html" class="nav-item">
+                    <i class="fa-solid fa-circle-user"></i> Account
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <div class="case-studies-wrapper">
+                
+                <!-- Header Section -->
+                <div class="cs-header-section">
+                    <div class="cs-header-content">
+                        <div class="cs-icon-box">
+                            <i class="fa-solid fa-file-invoice"></i>
+                        </div>
+                        <div class="cs-header-text">
+                            <h2>Case Studies</h2>
+                            <p>Read the scenario and choose the best answer</p>
+                        </div>
+                    </div>
+                </div>
+                <hr class="cs-divider">
+
+                <!-- VIEW 1: SCENARIOS LIST -->
+                <div id="scenariosListView" class="scenarios-list">
+                    <!-- Dynamic rendering of scenario cards via JavaScript -->
+                </div>
+
+                <!-- VIEW 2: SCENARIO QUIZ CARD -->
+                <div id="scenarioView" class="quiz-container" style="display: none;">
+                    
+                    <h3 class="scenario-title" id="scenarioTitle">Loading...</h3>
+                    <p class="scenario-text" id="scenarioText">Loading scenario...</p>
+                    
+                    <hr class="quiz-divider">
+                    
+                    <p class="question-text" id="questionText">Loading question...</p>
+
+                    <!-- Multiple Choice Options -->
+                    <div class="options-group" id="optionsGroup">
+                        <!-- Option A -->
+                        <div>
+                            <input type="radio" name="quizOption" id="optA" class="hidden-radio" value="0">
+                            <label for="optA" class="option-label" id="labelA" onclick="selectOption(0)">A.</label>
+                        </div>
+                        <!-- Option B -->
+                        <div>
+                            <input type="radio" name="quizOption" id="optB" class="hidden-radio" value="1">
+                            <label for="optB" class="option-label" id="labelB" onclick="selectOption(1)">B.</label>
+                        </div>
+                        <!-- Option C -->
+                        <div>
+                            <input type="radio" name="quizOption" id="optC" class="hidden-radio" value="2">
+                            <label for="optC" class="option-label" id="labelC" onclick="selectOption(2)">C.</label>
+                        </div>
+                        <!-- Option D -->
+                        <div>
+                            <input type="radio" name="quizOption" id="optD" class="hidden-radio" value="3">
+                            <label for="optD" class="option-label" id="labelD" onclick="selectOption(3)">D.</label>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="quiz-actions">
+                        <button class="btn-back" onclick="closeScenario()">Back</button>
+                        <button class="btn-submit" id="submitBtn" onclick="submitCaseStudy()">Submit Answer</button>
+                    </div>
+
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        const scenariosData = {
+            1: { text: "A software team writes perfect, bug-free backend code for a new enrollment system, but the front-end interface is too confusing for students to use, resulting in many errors.", question: "What HCI goal did the team fail to prioritize?", options: ["A. Software architecture", "B. Usability", "C. Algorithmic efficiency", "D. Server processing speed"], correctAnswer: "1" },
+            2: { text: "A designer is creating a dashboard and wants to ensure that the layout, typography, and color theory make the interface clear and visually appealing.", question: "Which interdisciplinary field of HCI is the designer relying on?", options: ["A. Computer Science", "B. Ergonomics", "C. Design (Graphic and UI)", "D. Psychology"], correctAnswer: "2" },
+            3: { text: "A development team decides to build a system where the needs, wants, and limitations of the end-user are the primary focus at every stage, rather than forcing the user to adapt to the system.", question: "What design philosophy is the team following?", options: ["A. Waterfall Development", "B. User-Centered Design (UCD)", "C. Backend Integration", "D. Traditional Problem-Solving"], correctAnswer: "1" },
+            4: { text: "A team is tackling a complex 'wicked problem.' Before building anything, they set aside their own assumptions and spend a week deeply understanding the users' frustrations and environment.", question: "Which key principle of Design Thinking is the team practicing?", options: ["A. Empathy", "B. Iteration", "C. Evaluation", "D. Standardization"], correctAnswer: "0" },
+            5: { text: "A software company strictly follows a linear path, starting with a predefined business goal of 'build a login system by Friday,' assuming the initial problem statement is 100% correct.", question: "What approach is this company using?", options: ["A. Design Thinking", "B. Iterative Prototyping", "C. Traditional Problem-Solving", "D. User-Centered Design"], correctAnswer: "2" },
+            6: { text: "A design team has just finished identifying the context of use for a new app. Their next step is to merge business goals with user goals to define the exact functional needs the system must meet.", question: "Which stage of the UCD process are they entering?", options: ["A. Design solutions", "B. Evaluate against requirements", "C. Specify user requirements", "D. Identify context of use"], correctAnswer: "2" },
+            7: { text: "A team wants to build a shared understanding of a user's emotional state. They create a collaborative visualization to articulate what the user says, thinks, does, and feels.", question: "What empathy tool are they using?", options: ["A. Persona", "B. Empathy map", "C. Journey map", "D. Low-fidelity wireframe"], correctAnswer: "1" },
+            8: { text: "A UX researcher creates a fictional, yet data-driven character named 'Teacher Tina' to represent the primary user type, including her specific goals and limitations.", question: "What tool for empathy did the researcher create?", options: ["A. Empathy map", "B. Mental model", "C. Persona", "D. Storyboard"], correctAnswer: "2" },
+            9: { text: "A designer wants to visually map out a user's emotional highs and lows over time to identify exactly where the user gets frustrated while trying to accomplish a goal.", question: "What tool should the designer use?", options: ["A. Journey map", "B. Empathy map", "C. High-fidelity prototype", "D. Component library"], correctAnswer: "0" },
+            10: { text: "A designer creates a rough, structural layout of an interface on paper to test core functionality without getting distracted by visual details like colors or typography.", question: "What is the designer creating?", options: ["A. High-fidelity prototype", "B. Journey map", "C. Low-fidelity wireframe", "D. Design system"], correctAnswer: "2" },
+            11: { text: "A user approaches a door with a flat metal plate and immediately pushes it, but the door actually requires pulling. The designer failed to match the physical interface with the user's expectations.", question: "What HCI concept does this mismatch violate?", options: ["A. The user's mental model", "B. Emotional design", "C. Context-awareness", "D. Interoperability"], correctAnswer: "0" },
+            12: { text: "A designer makes a digital button look raised with a slight shadow, providing a visual clue that tells the user the object can be clicked.", question: "What design principle is being applied?", options: ["A. Visibility", "B. Feedback", "C. Affordance", "D. Gamification"], correctAnswer: "2" },
+            13: { text: "A user clicks a 'Submit' button, but no loading spinner appears and the button doesn't change color. Confused, the user clicks it five more times.", question: "What common design error caused this confusion?", options: ["A. Poor mapping", "B. Hidden feedback", "C. Algorithmic bias", "D. Exceeding cognitive load"], correctAnswer: "1" },
+            14: { text: "A designer breaks down a user's interaction into two main phases: Execution (pressing a button) and Evaluation (checking if the action worked).", question: "Which cognitive model is the designer using?", options: ["A. GOMS Model", "B. Keystroke-Level Model (KLM)", "C. Norman’s Model of Interaction", "D. Self-Determination Theory"], correctAnswer: "2" },
+            15: { text: "A UX team calculates exactly how long a task will take by adding up standard time values for specific physical movements, like pointing with a mouse and hitting a key.", question: "Which specific cognitive model are they applying?", options: ["A. Keystroke-Level Model (KLM)", "B. Norman’s 3 Levels of Design", "C. The Reality-Virtuality Continuum", "D. Hofstede's Cultural Dimensions"], correctAnswer: "0" },
+            16: { text: "A team is ready to test the final user experience before coding begins. They build a highly realistic, interactive digital model using Figma that includes actual colors and clickable buttons.", question: "What type of prototype did they build?", options: ["A. Low-fidelity prototype", "B. Medium-fidelity prototype", "C. High-fidelity prototype", "D. Paper prototype"], correctAnswer: "2" },
+            17: { text: "A designer needs to place 50 copies of a specific 'Submit' button across a prototype. They want to ensure that if they change the button's color later, all 50 copies update automatically.", question: "What feature of digital prototyping tools should they use?", options: ["A. Transitions", "B. Components", "C. Responsive layouts", "D. Automated testing"], correctAnswer: "1" },
+            18: { text: "A developer ensures that an interface automatically stretches, shrinks, or rearranges itself to fit perfectly whether the user opens it on a large laptop or a small phone.", question: "What practice is the developer using?", options: ["A. Mobile-first design", "B. Desktop-first design", "C. Responsive layout design", "D. Immersive design"], correctAnswer: "2" },
+            19: { text: "A designer starts by creating the system for the smallest screen possible, prioritizing only the most essential features before scaling it up for a desktop monitor.", question: "What design approach is this?", options: ["A. Desktop-first design", "B. Mobile-first design", "C. Tangible design", "D. High-context design"], correctAnswer: "1" },
+            20: { text: "A UI designer uses the exact same fonts, colors, and button styles across every single page of an application so it feels familiar to the user.", question: "Which pillar of a clean interface is the designer applying?", options: ["A. Hierarchy", "B. Alignment", "C. Feedback", "D. Consistency"], correctAnswer: "3" },
+            21: { text: "A researcher wants to understand 'why' users behave a certain way by gathering detailed stories and opinions through interviews.", question: "What type of research method is this?", options: ["A. Quantitative method", "B. Qualitative method", "C. Automated testing", "D. Algorithmic evaluation"], correctAnswer: "1" },
+            22: { text: "After recording a user interview, a researcher converts the spoken audio into written text to prepare it for analysis.", question: "What is this process called?", options: ["A. Transcribing", "B. Coding", "C. Mapping", "D. Prototyping"], correctAnswer: "0" },
+            23: { text: "A design team looks at the emotional lows on a journey map and pinpoints exactly where the user gets frustrated or confused.", question: "What are these frustrating moments called?", options: ["A. Touchpoints", "B. Pain points", "C. Interactions", "D. Opportunities"], correctAnswer: "1" },
+            24: { text: "Before a usability study begins, a researcher clearly explains the purpose of the study and how the data will be used, allowing the user to voluntarily agree to participate.", question: "What research ethics principle is being followed?", options: ["A. Data privacy", "B. Informed consent", "C. Algorithmic transparency", "D. User autonomy"], correctAnswer: "1" },
+            25: { text: "A designer focuses on creating a product for the widest possible range of human diversity, including age and temporary disabilities, from the very beginning of the project.", question: "What mindset is the designer applying?", options: ["A. Accessibility compliance", "B. Inclusive Design", "C. Exclusive Design", "D. Utilitarianism"], correctAnswer: "1" },
+            26: { text: "A website uses extremely light gray text on a white background, making it very difficult for users with low vision to read.", question: "What type of disability design barrier is this?", options: ["A. Auditory barrier", "B. Cognitive barrier", "C. Motor barrier", "D. Visual barrier"], correctAnswer: "3" },
+            27: { text: "A developer ensures that a user with motor limitations can successfully navigate a website using only the 'Tab' and 'Enter' keys on their keyboard.", question: "Which WCAG principle (POUR) does this directly address?", options: ["A. Perceivable", "B. Operable", "C. Understandable", "D. Robust"], correctAnswer: "1" },
+            28: { text: "Because a blind user cannot see an image, the developer provides hidden 'alt text' in the code so a screen reader can read the description out loud.", question: "Which WCAG principle (POUR) is being fulfilled?", options: ["A. Perceivable", "B. Operable", "C. Understandable", "D. Robust"], correctAnswer: "0" },
+            29: { text: "A blind user relies on specialized software that reads the text and hidden code of a screen out loud using a synthesized voice.", question: "What type of assistive technology is this?", options: ["A. Alternative input device", "B. Screen reader", "C. Adaptive switch", "D. Voice control"], correctAnswer: "1" },
+            30: { text: "A developer uses the WAVE browser extension to quickly scan a webpage's code, but realizes they still need human testers to check if the alt text actually makes logical sense.", question: "What is the developer recognizing?", options: ["A. Automated testing catches 100% of errors.", "B. Manual testing is faster than automated testing.", "C. Automated testing must be combined with manual testing.", "D. WAVE is a manual testing tool."], correctAnswer: "2" },
+            31: { text: "A company makes it intentionally difficult for a user to cancel their subscription by hiding the cancel button deep inside confusing menus.", question: "What ethical dilemma does this represent?", options: ["A. Algorithmic bias", "B. Persuasive design and dark patterns", "C. Data privacy breach", "D. Lack of interoperability"], correctAnswer: "1" },
+            32: { text: "An AI facial recognition software fails to accurately detect people with darker skin tones because it was mostly trained on photos of lighter-skinned people.", question: "What ethical issue does this highlight?", options: ["A. Algorithmic bias", "B. Dark patterns", "C. Loss of user control", "D. Poor mapping"], correctAnswer: "0" },
+            33: { text: "An app designed for Japan uses rich imagery, dense layouts, and indirect messaging, relying heavily on implicit understanding and cultural background.", question: "What type of culture is this app designed for?", options: ["A. Low-context culture", "B. High-context culture", "C. Individualistic culture", "D. Low uncertainty avoidance culture"], correctAnswer: "1" },
+            34: { text: "A Western software uses the color red to mean 'danger', but a localization team changes it for an Asian market where red represents 'luck' and 'success'.", question: "What aspect of design for global audiences is the team addressing?", options: ["A. Internationalization (i18n)", "B. Algorithmic bias", "C. Respecting cultural norms and taboos", "D. Tangible interaction"], correctAnswer: "2" },
+            35: { text: "A user opens an app and has an immediate, subconscious positive reaction simply because the interface is clean and visually balanced.", question: "Which of Norman's 3 levels of emotional design is triggered?", options: ["A. Visceral", "B. Behavioral", "C. Reflective", "D. Extrinsic"], correctAnswer: "0" },
+            36: { text: "A user logs into a language learning app every day purely to keep their daily streak alive and earn a digital badge, rather than just for the joy of learning.", question: "What type of motivation is driving this user?", options: ["A. Intrinsic motivation", "B. Extrinsic motivation", "C. Autonomy", "D. Visceral motivation"], correctAnswer: "1" },
+            37: { text: "An interface allows a user to fully customize their dashboard and skip the tutorial, making them feel in control of their own actions.", question: "Which psychological need from the Self-Determination Theory is being supported?", options: ["A. Competence", "B. Relatedness", "C. Autonomy", "D. Flow"], correctAnswer: "2" },
+            38: { text: "A user's credit card is declined. Instead of a jarring red 'FATAL ERROR' screen, the system provides a calm, helpful message explaining how to fix the issue.", question: "Which emotional design pattern is being used?", options: ["A. Surprise", "B. Gamification", "C. Empathy", "D. Delight"], correctAnswer: "2" },
+            39: { text: "A designer balances task difficulty so that an app is not too easy (causing boredom) and not too difficult (causing frustration), keeping the user completely immersed.", question: "What state is the designer trying to create?", options: ["A. Reflective state", "B. Flow state", "C. Visceral state", "D. Onboarding state"], correctAnswer: "1" },
+            40: { text: "A researcher asks a user to select a picture of a smiling, frowning, or surprised manikin character to quickly measure their emotional response without language barriers.", question: "What emotion measurement tool is being used?", options: ["A. Product Reaction Cards", "B. AEQ Questionnaire", "C. SAM scale", "D. System Usability Scale"], correctAnswer: "2" },
+            41: { text: "A user verbally says a system is 'fine', but the researcher quietly watches them squinting and sighing in frustration while using it.", question: "What qualitative evaluation method is the researcher employing?", options: ["A. Automated testing", "B. Observational techniques", "C. Wizard of Oz testing", "D. Emotion cards"], correctAnswer: "1" },
+            42: { text: "A user interacts with a customer service chatbot using natural human language. The AI figures out the context and intent behind the user's words.", question: "What underlying technology is heavily reliant on this process?", options: ["A. Natural Language Processing (NLP)", "B. Mixed Reality (MR)", "C. Tangible Interfaces", "D. The Keystroke-Level Model"], correctAnswer: "0" },
+            43: { text: "A user is interacting with Amazon's Alexa. Because there are no visual screens, the system plays a small chime sound to confirm it has started listening.", question: "What key design challenge of Voice User Interfaces (VUI) does this solve?", options: ["A. Cybersickness", "B. Lack of visual affordances", "C. High latency", "D. Algorithmic bias"], correctAnswer: "1" },
+            44: { text: "A user believes they are talking to a fully functional AI system, but in reality, a human designer is sitting in another room typing back the responses.", question: "What prototyping method is being used?", options: ["A. High-fidelity prototyping", "B. Bodystorming", "C. Wizard of Oz Testing", "D. Keystroke-Level prototyping"], correctAnswer: "2" },
+            45: { text: "A user wears a headset that completely blocks out the physical world and places them inside a 100% computer-generated environment.", question: "What immersive technology is the user experiencing?", options: ["A. Augmented Reality (AR)", "B. Virtual Reality (VR)", "C. Mixed Reality (MR)", "D. Tangible Interfaces"], correctAnswer: "1" },
+            46: { text: "While playing a VR game, a user's eyes see movement, but their physical body feels still. This sensory mismatch causes nausea and dizziness.", question: "What usability challenge is the user experiencing?", options: ["A. Gorilla arm", "B. Cognitive overload", "C. Cybersickness", "D. Environmental interference"], correctAnswer: "2" },
+            47: { text: "Designers use cardboard and string in a real room to physically act out how a user will move their body while using a new AR application.", question: "What physical prototyping method are they using?", options: ["A. Dialogue Flows", "B. Bodystorming", "C. Storyboarding", "D. Wizard of Oz Testing"], correctAnswer: "1" },
+            48: { text: "A concept coined by Mark Weiser where computing power is integrated seamlessly into everyday objects so the user interacts with it without realizing it.", question: "What is this concept called?", options: ["A. Virtual Reality (VR)", "B. Conversational UI", "C. Ubiquitous Computing (UbiComp)", "D. Augmented Reality (AR)"], correctAnswer: "2" },
+            49: { text: "A modern classroom uses embedded sensors to detect when a teacher walks in, automatically turning on the lights and lowering the blinds.", question: "What is this physical space considered?", options: ["A. A Smart Environment", "B. A Tangible Interface", "C. A Virtual Reality Showroom", "D. An Inclusive Design System"], correctAnswer: "0" },
+            50: { text: "A smart room automatically turns off the lights because a user is sitting perfectly still reading a book. The user gets angry because there is no physical switch to turn them back on.", question: "What major usability challenge of UbiComp does this represent?", options: ["A. Interoperability issues", "B. Privacy and security risks", "C. Loss of manual control and override", "D. High latency"], correctAnswer: "2" }
+        };
+
+        // System Variables
+        let unlockedLevel = 1; // Default starting unlocked level, replaced by server data on load
+        let solvedIds = [];
+        let currentActiveScenario = null;
+        let selectedAnswer = null;
+        let isAnswerSubmitted = false;
+
+        // Initialize Page: pull the user's real progress from the backend first.
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const progress = await api.get('/progress/case-studies');
+                unlockedLevel = progress.unlockedLevel;
+                solvedIds = progress.solvedIds;
+            } catch (err) {
+                console.error('Could not load case study progress:', err);
+            }
+            renderScenariosList();
+        });
+
+        // Render the 50 scenario cards
+        function renderScenariosList() {
+            const listView = document.getElementById('scenariosListView');
+            listView.innerHTML = '';
+
+            for (let i = 1; i <= 50; i++) {
+                const isUnlocked = i <= unlockedLevel;
+                const isSolved = solvedIds.includes(i);
+                // CHANGED: Gumamit ng 'scenario-card' para basahin yung magandang background sa CSS
+                const scenarioDiv = document.createElement('div');
+                scenarioDiv.className = `scenario-card ${isUnlocked ? 'unlocked' : 'locked'}`;
+                
+                const iconHtml = isUnlocked
+                    ? (isSolved ? '<i class="fa-solid fa-circle-check" style="color:#1e7e45;"></i> ' : '')
+                    : '<i class="fa-solid fa-lock"></i>';
+                const questionPreview = scenariosData[i].question;
+                
+                scenarioDiv.innerHTML = `${iconHtml} Scenario ${i}: ${questionPreview}`;
+                
+                if (isUnlocked) {
+                    scenarioDiv.onclick = () => openScenario(i);
+                }
+                
+                listView.appendChild(scenarioDiv);
+            }
+        }
+
+        // Open a specific scenario
+        function openScenario(id) {
+            currentActiveScenario = id;
+            selectedAnswer = null;
+            isAnswerSubmitted = false;
+
+            const data = scenariosData[id];
+            
+            // Set Text
+            document.getElementById('scenarioTitle').innerText = `Scenario ${id}`;
+            document.getElementById('scenarioText').innerText = data.text;
+            document.getElementById('questionText').innerText = data.question;
+
+            // Set Options
+            document.getElementById('labelA').innerText = data.options[0];
+            document.getElementById('labelB').innerText = data.options[1];
+            document.getElementById('labelC').innerText = data.options[2];
+            document.getElementById('labelD').innerText = data.options[3];
+
+            // Reset UI states
+            resetOptionsUI();
+            
+            // I-reset ang text at action ng button
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.innerText = "Submit Answer";
+            submitBtn.onclick = submitCaseStudy; 
+
+            // Toggle Views
+            document.getElementById('scenariosListView').style.display = 'none';
+            document.getElementById('scenarioView').style.display = 'block';
+        }
+
+        // Close scenario and go back to list
+        function closeScenario() {
+            document.getElementById('scenariosListView').style.display = 'flex';
+            document.getElementById('scenarioView').style.display = 'none';
+        }
+
+        // Handle option selection
+        function selectOption(index) {
+            if (isAnswerSubmitted) return; // Pag naka-lock na (kasi tama), wag na palitan
+            
+            selectedAnswer = index.toString();
+            
+            // Tanggalin yung green/red na kulay kung pipili ulit sila
+            resetOptionsUI();
+            
+            // Check underlying radio manually
+            const radios = document.querySelectorAll('.hidden-radio');
+            radios[index].checked = true;
+            
+            // I-reset ang text ng button para hindi maka-confuse
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.innerText = "Submit Answer";
+        }
+
+        // Reset option styling
+        function resetOptionsUI() {
+            const labels = document.querySelectorAll('.option-label');
+            labels.forEach(label => {
+                label.classList.remove('correct-answer', 'wrong-answer');
+            });
+            const radios = document.querySelectorAll('.hidden-radio');
+            radios.forEach(radio => radio.checked = false);
+        }
+
+        // Submit the answer
+        function submitCaseStudy() {
+            if (selectedAnswer === null) {
+                alert("Please select an answer before submitting.");
+                return;
+            }
+
+            const data = scenariosData[currentActiveScenario];
+            const labels = document.querySelectorAll('.option-label');
+            const submitBtn = document.getElementById('submitBtn');
+
+            // Tanggalin ang dating red/green classes bago suriin
+            labels.forEach(label => label.classList.remove('correct-answer', 'wrong-answer'));
+
+            if (selectedAnswer === data.correctAnswer) {
+                // TAMA ANG SAGOT Logic
+                labels[selectedAnswer].classList.add('correct-answer');
+                
+                submitBtn.innerText = "Correct! Back to List";
+                submitBtn.onclick = closeScenario; 
+                isAnswerSubmitted = true; // Lock the choices
+
+                // Persist progress on the backend, then refresh local state from its response.
+                api.post('/progress/case-studies/submit', { scenarioId: currentActiveScenario, correct: true })
+                    .then(result => {
+                        unlockedLevel = result.unlockedLevel;
+                        solvedIds = result.solvedIds;
+                        renderScenariosList();
+                    })
+                    .catch(err => console.error('Could not save case study progress:', err));
+            } else {
+                // MALI ANG SAGOT Logic
+                labels[selectedAnswer].classList.add('wrong-answer');
+                
+                // Papalitan lang ang button ng "Try Again"
+                submitBtn.innerText = "Incorrect. Try Again";
+                // Ang isAnswerSubmitted ay mananatiling FALSE para makapindot ulit ang user ng ibang sagot!
+            }
+        }
+
+        // PAG-TRACK NG LAST VISITED LESSON PARA SA DASHBOARD
+        let currentPageName = window.location.pathname.split('/').pop();
+        if (!currentPageName || currentPageName === '') {
+            // Palitan ng tamang pangalan depende sa file (e.g. 'ReadLesson.html')
+            currentPageName = 'ReadLesson.html'; 
+        }
+        localStorage.setItem('lastLessonVisited', currentPageName);
+
+    </script>
+</body>
+</html>
