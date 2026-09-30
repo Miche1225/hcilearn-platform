@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -13,76 +14,6 @@
     <meta property="og:image" content="https://hcilearn-platform.onrender.com/signup-preview.jpg">
     <meta property="og:url" content="https://hcilearn-platform.onrender.com/">
     <meta property="og:type" content="website">
-
-    <!-- =========================================
-         SIGNUP SELECT STYLING
-         ========================================= -->
-    <style>
-        /* Make Year and Section look like the other inputs */
-        .input-grid .input-group select {
-            width: 100%;
-            height: 50px;
-            padding: 0 15px;
-
-            font-family: inherit;
-            font-size: 15px;
-
-            color: #333;
-
-            background: rgba(255, 255, 255, 0.85);
-
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            border-radius: 10px;
-
-            box-sizing: border-box;
-
-            outline: none;
-
-            cursor: pointer;
-
-            transition: all 0.2s ease;
-        }
-
-        /* Hover */
-        .input-grid .input-group select:hover {
-            background: rgba(255, 255, 255, 0.95);
-        }
-
-        /* Focus */
-        .input-grid .input-group select:focus {
-            background: #ffffff;
-
-            border-color: #0b67c2;
-
-            box-shadow:
-                0 0 0 3px rgba(11, 103, 194, 0.15);
-        }
-
-        /* Placeholder color */
-        .input-grid .input-group select:invalid {
-            color: #777;
-        }
-
-        /* Selected option */
-        .input-grid .input-group select:valid {
-            color: #333;
-        }
-
-        /* Make all form controls consistent */
-        .input-grid .input-group input,
-        .input-grid .input-group select {
-            min-height: 50px;
-            box-sizing: border-box;
-        }
-
-        /* Mobile */
-        @media (max-width: 700px) {
-            .input-grid .input-group select {
-                width: 100%;
-                height: 50px;
-            }
-        }
-    </style>
 </head>
 
 <body>
@@ -160,90 +91,72 @@
                     </div>
 
 
-                    <!-- =========================================
-                         YEAR
-                         ========================================= -->
-                    <div class="input-group">
+                    <!-- YEAR -->
+<div class="input-group">
 
-                        <label for="year">
-                            Year
-                        </label>
+    <label for="year">
+        Year
+    </label>
 
-                        <select
-                            id="year"
-                            required
-                        >
+    <select id="year" required>
 
-                            <option
-                                value=""
-                                selected
-                                disabled
-                            >
-                                Select year
-                            </option>
+        <option value="" selected disabled>
+            Select year
+        </option>
 
-                            <option value="1st Year">
-                                1st Year
-                            </option>
+        <option value="1st Year">
+            1st Year
+        </option>
 
-                            <option value="2nd Year">
-                                2nd Year
-                            </option>
+        <option value="2nd Year">
+            2nd Year
+        </option>
 
-                            <option value="3rd Year">
-                                3rd Year
-                            </option>
+        <option value="3rd Year">
+            3rd Year
+        </option>
 
-                            <option value="4th Year">
-                                4th Year
-                            </option>
+        <option value="4th Year">
+            4th Year
+        </option>
 
-                        </select>
+    </select>
 
-                    </div>
+</div>
 
 
-                    <!-- =========================================
-                         SECTION
-                         ========================================= -->
-                    <div class="input-group">
+<!-- SECTION -->
+<div class="input-group">
 
-                        <label for="section">
-                            Section
-                        </label>
+    <label for="section">
+        Section
+    </label>
 
-                        <select
-                            id="section"
-                            required
-                        >
+    <select id="section" required>
 
-                            <option
-                                value=""
-                                selected
-                                disabled
-                            >
-                                Select section
-                            </option>
+        <option value="" selected disabled>
+            Select section
+        </option>
 
-                            <option value="A">
-                                Section A
-                            </option>
+        <option value="A">
+            Section A
+        </option>
 
-                            <option value="B">
-                                Section B
-                            </option>
+        <option value="B">
+            Section B
+        </option>
 
-                            <option value="C">
-                                Section C
-                            </option>
+        <option value="C">
+            Section C
+        </option>
 
-                            <option value="D">
-                                Section D
-                            </option>
+        <option value="D">
+            Section D
+        </option>
 
-                        </select>
+    </select>
 
-                    </div>
+</div>
 
 
                     <!-- =========================================
@@ -299,7 +212,12 @@
                         <input
                             type="text"
                             id="studentId"
-                            maxlength="40"
+                            placeholder="123456"
+                            maxlength="6"
+                            minlength="6"
+                            inputmode="numeric"
+                            pattern="[0-9]{6}"
+                            autocomplete="off"
                             required
                         >
 
@@ -404,6 +322,29 @@
 
 
     <script>
+
+        const studentIdInput =
+    document.getElementById('studentId');
+
+
+/* ==========================================
+   STUDENT ID - NUMBERS ONLY / 6 DIGITS
+   ========================================== */
+
+studentIdInput.addEventListener(
+    'input',
+    function () {
+
+        // Remove anything that is not a number
+        this.value =
+            this.value.replace(/\D/g, '');
+
+        // Limit to 6 digits
+        this.value =
+            this.value.substring(0, 6);
+
+    }
+);
 
         document.addEventListener(
             'DOMContentLoaded',
@@ -617,6 +558,23 @@
                                 return;
 
                             }
+
+                            /* ==================================
+   STUDENT ID VALIDATION
+   ================================== */
+
+if (
+    !/^[0-9]{6}$/.test(payload.studentId)
+) {
+
+    errorEl.textContent =
+        'Student ID must contain exactly 6 digits.';
+
+    errorEl.style.display =
+        'block';
+
+    return;
+}
 
 
                             /* =========================================
