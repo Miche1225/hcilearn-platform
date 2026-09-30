@@ -14,6 +14,9 @@ const progressRoutes = require('./src/routes/progress');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Behind Render's proxy: makes req.protocol report https correctly.
+app.set('trust proxy', 1);
+
 app.use(express.json());
 app.use(cookieParser());
 

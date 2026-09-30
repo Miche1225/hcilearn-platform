@@ -145,3 +145,17 @@ Six tables, created automatically by `src/db.js`:
   string in `JWT_SECRET`.
 - Everything runs on plain HTTP on localhost by default, which is fine for
   local development and demos.
+
+## Email notifications
+
+| Event | Email sent to the user |
+|-------|------------------------|
+| Sign up | "Welcome — your account was created" |
+| Log in | "Security alert: new login" |
+| Forgot password | Reset link (valid 30 min, single use) |
+| Password reset done | "Your password was changed" |
+
+Forgot-password flow: `login.html` → `POST /api/auth/forgot-password` → email with
+`update-password.html?token=...` → `POST /api/auth/reset-password`.
+Set `APP_URL`, and either `EMAIL_USER`/`EMAIL_PASS` (Gmail App Password) or
+`BREVO_API_KEY`/`EMAIL_FROM` — see `.env.example`.

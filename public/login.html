@@ -72,69 +72,61 @@
             <h3 style="margin-top:0; color:#333;">I-reset ang Password</h3>
             <p style="font-size: 14px; color: #555; margin-bottom: 15px;">Ilagay ang iyong email at padadalhan ka namin ng reset link.</p>
             
+            <p id="resetMsg" style="display:none; font-size:13px; margin:0 0 12px;"></p>
             <input type="email" id="resetEmailInput" placeholder="estudyante@gmail.com" style="width:90%; padding:10px; margin-bottom:15px; border: 1px solid #ccc; border-radius: 4px;">
             
             <div style="display: flex; justify-content: center; gap: 10px;">
-                <button onclick="sendResetLink()" style="padding:10px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; width: 45%;">Send Link</button>
+                <button id="sendResetBtn" onclick="sendResetLink()" style="padding:10px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; width: 45%;">Send Link</button>
                 <button onclick="closeForgotModal()" style="padding:10px 15px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; width: 45%;">Cancel</button>
             </div>
         </div>
     </div>
 
-    <!-- Kung ang api.js mo ay walang Supabase initialization para sa reset, kakailanganin mo ang Supabase script dito -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/api.js"></script>
-    
+
     <script>
         // -- Forgot Password Modal Functions --
+        function showResetMsg(text, isError) {
+            const el = document.getElementById('resetMsg');
+            el.textContent = text;
+            el.style.color = isError ? '#c0392b' : '#27ae60';
+            el.style.display = 'block';
+        }
+
         function openForgotModal() {
+            // Pre-fill with whatever the user already typed in the login form
+            document.getElementById('resetEmailInput').value = document.getElementById('email').value.trim();
+            document.getElementById('resetMsg').style.display = 'none';
             document.getElementById('forgotPasswordModal').style.display = 'flex';
         }
 
         function closeForgotModal() {
             document.getElementById('forgotPasswordModal').style.display = 'none';
-            document.getElementById('resetEmailInput').value = ''; 
+            document.getElementById('resetEmailInput').value = '';
+            document.getElementById('resetMsg').style.display = 'none';
         }
 
         async function sendResetLink() {
-    const emailInput = document.getElementById('resetEmailInput').value.trim();
-    if (!emailInput) {
-        alert("Pakilagay ang iyong email address.");
-        return;
-    }
+            const email = document.getElementById('resetEmailInput').value.trim();
+            const btn = document.getElementById('sendResetBtn');
 
-    // 1. I-initialize ang Supabase dito mismo
-    // Kopyahin ang mga ito mula sa iyong Supabase Dashboard -> Project Settings -> API
-    const SUPABASE_URL = 'https://ajkbqtjgvyqoxmdoziio.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqa2JxdGpndnlxb3htZG96aWlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA0NTQyMDQsImV4cCI6MjEwNjAzMDIwNH0.y7xDTCe7SDbn8tPVD5DLuxUR_EdcRvlXPG9UwKFka8s';
+            if (!email) {
+                showResetMsg('Pakilagay ang iyong email address.', true);
+                return;
+            }
 
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    // 2. I-disable ang button para hindi ma-spam click
-    const btn = document.querySelector('#forgotPasswordModal button');
-    if(btn) {
-        btn.textContent = 'Sending...';
-        btn.disabled = true;
-    }
-
-    // 3. Gamitin ang bagong gawang 'supabaseClient'
-    const { data, error } = await supabaseClient.auth.resetPasswordForEmail(emailInput, {
-        redirectTo: window.location.origin + '/update-password.html', 
-    });
-
-    // 4. Ibalik ang button state
-    if(btn) {
-        btn.textContent = 'Send Link';
-        btn.disabled = false;
-    }
-
-    if (error) {
-        alert("Error: " + error.message);
-    } else {
-        alert("Naipadala na ang reset link! Paki-check ang iyong email.");
-        closeForgotModal(); 
-    }
-}
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+            try {
+                const data = await api.post('/auth/forgot-password', { email });
+                showResetMsg(data.message || 'Reset link sent! Please check your email.', false);
+            } catch (err) {
+                showResetMsg(err.message, true);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Send Link';
+            }
+        }
 
         // -- Existing Login Functions --
         document.getElementById('show-password').addEventListener('change', function () {
@@ -164,9 +156,6 @@
                 btn.textContent = 'Log in';
             }
         });
-
-        
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </body>
 </html>
