@@ -367,6 +367,85 @@ p {
     }
 }
 
+/* =========================================
+   SIGNUP SELECT BOXES
+   ========================================= */
+
+.signup-container .input-group select {
+    width: 100%;
+    height: 50px;
+    padding: 0 45px 0 16px;
+
+    font-size: 16px;
+    font-family: inherit;
+
+    color: #333;
+    background-color: rgba(255, 255, 255, 0.88);
+
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 10px;
+
+    box-sizing: border-box;
+
+    outline: none;
+
+    cursor: pointer;
+
+    appearance: auto;
+    -webkit-appearance: auto;
+    -moz-appearance: auto;
+
+    transition: 0.2s ease;
+}
+
+
+/* SELECT HOVER */
+.signup-container .input-group select:hover {
+    background-color: rgba(255, 255, 255, 0.95);
+}
+
+
+/* SELECT FOCUS */
+.signup-container .input-group select:focus {
+    border-color: #0b67c2;
+
+    box-shadow:
+        0 0 0 3px rgba(11, 103, 194, 0.15);
+
+    background-color: #ffffff;
+}
+
+
+/* DISABLED PLACEHOLDER OPTION */
+.signup-container .input-group select:invalid {
+    color: #777;
+}
+
+
+/* NORMAL SELECTED VALUE */
+.signup-container .input-group select:valid {
+    color: #333;
+}
+
+
+/* MAKE INPUT AND SELECT SAME SIZE */
+.signup-container .input-group input,
+.signup-container .input-group select {
+    min-height: 50px;
+    box-sizing: border-box;
+}
+
+
+/* MOBILE */
+@media (max-width: 700px) {
+
+    .signup-container .input-group select {
+        width: 100%;
+        height: 50px;
+    }
+
+}
+
 /* ========================================= */
 /* --- DASHBOARD PAGE STYLES ---             */
 /* ========================================= */
