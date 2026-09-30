@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up Page</title>
-    <link rel="stylesheet" href="style.css"> 
-    <!-- Pampa-ganda ng link sa Facebook at Messenger -->
+    <link rel="stylesheet" href="style.css">
     <meta property="og:title" content="HCILearn | Interactive Study Guide">
     <meta property="og:description" content="The official HCI 2 learning platform and reviewer system for UEP IT students.">
     <meta property="og:image" content="https://hcilearn-platform.onrender.com/signup-preview.jpg">
@@ -16,7 +15,7 @@
 
     <div class="signup-container">
         <div class="glass-card">
-            
+
             <div class="header-text">
                 <h2>Sign Up</h2>
                 <p>Just a few quick things to get started</p>
@@ -27,35 +26,118 @@
                 <p id="signupError" style="color:#c0392b; display:none; margin:0 0 10px;"></p>
 
                 <div class="input-grid">
-                    
+
+                    <!-- FIRST NAME -->
                     <div class="input-group">
-                        <label>Full Name</label>
-                        <input type="text" id="fullName" required>
+                        <label for="firstName">First Name</label>
+                        <input
+                            type="text"
+                            id="firstName"
+                            placeholder="Juan"
+                            maxlength="80"
+                            required
+                        >
                     </div>
-                    
+
+                    <!-- LAST NAME -->
                     <div class="input-group">
-                        <label>Year & Section</label>
-                        <input type="text" id="yearSection" required>
+                        <label for="lastName">Last Name</label>
+                        <input
+                            type="text"
+                            id="lastName"
+                            placeholder="Dela Cruz"
+                            maxlength="80"
+                            required
+                        >
                     </div>
-                    
+
+                    <!-- YEAR -->
                     <div class="input-group">
-                        <label>Program/Course (BSIT)</label>
-                        <input type="text" id="program" required>
+                        <label for="year">Year</label>
+
+                        <select id="year" required>
+                            <option value="" selected disabled>
+                                Select year
+                            </option>
+
+                            <option value="1st Year">1st Year</option>
+                            <option value="2nd Year">2nd Year</option>
+                            <option value="3rd Year">3rd Year</option>
+                            <option value="4th Year">4th Year</option>
+                        </select>
                     </div>
-                    
+
+                    <!-- SECTION -->
                     <div class="input-group">
-                        <label>Email Address</label>
-                        <input type="email" id="email" required>
+                        <label for="section">Section</label>
+
+                        <select id="section" required>
+                            <option value="" selected disabled>
+                                Select section
+                            </option>
+
+                            <option value="A">Section A</option>
+                            <option value="B">Section B</option>
+                            <option value="C">Section C</option>
+                            <option value="D">Section D</option>
+                        </select>
                     </div>
-                    
+
+                    <!-- PROGRAM -->
                     <div class="input-group">
-                        <label>Student ID</label>
-                        <input type="text" id="studentId" required>
+                        <label for="program">Program/Course (BSIT)</label>
+
+                        <input
+                            type="text"
+                            id="program"
+                            value="BSIT"
+                            maxlength="80"
+                            required
+                        >
                     </div>
-                    
+
+                    <!-- EMAIL -->
                     <div class="input-group">
-                        <label>Password</label>
-                        <input type="password" id="password-input" minlength="8" required>
+                        <label for="email">Gmail / Email Address</label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            placeholder="you@gmail.com"
+                            maxlength="254"
+                            autocomplete="email"
+                            required
+                        >
+
+                        <small style="display:block; color:#666; margin-top:4px;">
+                            Your email is protected with a server-side HMAC lookup hash.
+                        </small>
+                    </div>
+
+                    <!-- STUDENT ID -->
+                    <div class="input-group">
+                        <label for="studentId">Student ID</label>
+
+                        <input
+                            type="text"
+                            id="studentId"
+                            maxlength="40"
+                            required
+                        >
+                    </div>
+
+                    <!-- PASSWORD -->
+                    <div class="input-group">
+                        <label for="password-input">Password</label>
+
+                        <input
+                            type="password"
+                            id="password-input"
+                            minlength="8"
+                            autocomplete="new-password"
+                            required
+                        >
+
                         <small style="display:block; color:#666; margin-top:4px;">
                             Password must be at least 8 characters.
                         </small>
@@ -69,84 +151,208 @@
                 </div>
 
                 <div class="button-container">
-                    <button type="submit" class="signup-btn" id="signupBtn">Sign up</button>
+                    <button
+                        type="submit"
+                        class="signup-btn"
+                        id="signupBtn"
+                    >
+                        Sign up
+                    </button>
                 </div>
 
-                <div class="login-link-container" style="text-align: center; margin-top: 15px;">
-                    <p>Already have an account? <a href="login.html">Log in</a></p>
+                <div
+                    class="login-link-container"
+                    style="text-align: center; margin-top: 15px;"
+                >
+                    <p>
+                        Already have an account?
+                        <a href="login.html">Log in</a>
+                    </p>
                 </div>
 
             </form>
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const showPasswordCheckbox = document.getElementById('show-password');
-            const passwordInput = document.getElementById('password-input');
-
-            if (showPasswordCheckbox && passwordInput) {
-                showPasswordCheckbox.addEventListener('change', function() {
-                    if (this.checked) {
-                        passwordInput.type = 'text';
-                    } else {
-                        passwordInput.type = 'password';
-                    }
-                });
-            }
-        });
-    </script>
-
     <script src="js/api.js"></script>
+
     <script>
-        document.getElementById('signupForm').addEventListener('submit', async function (e) {
-            e.preventDefault();
-            const errorEl = document.getElementById('signupError');
-            const btn = document.getElementById('signupBtn');
-            errorEl.style.display = 'none';
+        document.addEventListener('DOMContentLoaded', function () {
 
-            const payload = {
-                fullName: document.getElementById('fullName').value.trim(),
-                yearSection: document.getElementById('yearSection').value.trim(),
-                program: document.getElementById('program').value.trim(),
-                email: document.getElementById('email').value.trim(),
-                studentId: document.getElementById('studentId').value.trim(),
-                password: document.getElementById('password-input').value,
-            };
+            const showPasswordCheckbox =
+                document.getElementById('show-password');
 
-            const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const passwordInput =
+                document.getElementById('password-input');
 
-            function isValidPassword(pw) {
-                if (pw.length < 8) return false;
-                if (/^[a-z]+$/.test(pw)) return false;
-                if (/^[A-Z]+$/.test(pw)) return false;
-                if (/^[0-9]+$/.test(pw)) return false;
-                return true;
-            }
+            // SHOW / HIDE PASSWORD
+            showPasswordCheckbox.addEventListener('change', function () {
 
-            if (!EMAIL_REGEX.test(payload.email)) {
-                errorEl.textContent = 'Please enter a valid email address.';
-                errorEl.style.display = 'block';
-                return;
-            }
-            if (!isValidPassword(payload.password)) {
-                errorEl.textContent = 'Password must be at least 8 characters and not all letters or all numbers.';
-                errorEl.style.display = 'block';
-                return;
-            }
+                passwordInput.type =
+                    this.checked ? 'text' : 'password';
 
-            btn.disabled = true;
-            btn.textContent = 'Signing up...';
-            try {
-                await api.post('/auth/signup', payload);
-                window.location.href = 'Dashboard.html';
-            } catch (err) {
-                errorEl.textContent = err.message;
-                errorEl.style.display = 'block';
-                btn.disabled = false;
-                btn.textContent = 'Sign up';
-            }
+            });
+
+            // SIGNUP FORM
+            document.getElementById('signupForm').addEventListener(
+                'submit',
+                async function (e) {
+
+                    e.preventDefault();
+
+                    const errorEl =
+                        document.getElementById('signupError');
+
+                    const btn =
+                        document.getElementById('signupBtn');
+
+                    errorEl.style.display = 'none';
+
+                    // GET FORM VALUES
+                    const payload = {
+
+                        firstName:
+                            document.getElementById('firstName')
+                            .value
+                            .trim(),
+
+                        lastName:
+                            document.getElementById('lastName')
+                            .value
+                            .trim(),
+
+                        year:
+                            document.getElementById('year')
+                            .value,
+
+                        section:
+                            document.getElementById('section')
+                            .value,
+
+                        program:
+                            document.getElementById('program')
+                            .value
+                            .trim(),
+
+                        email:
+                            document.getElementById('email')
+                            .value
+                            .trim(),
+
+                        studentId:
+                            document.getElementById('studentId')
+                            .value
+                            .trim(),
+
+                        password:
+                            document.getElementById('password-input')
+                            .value
+                    };
+
+                    // EMAIL VALIDATION
+                    const EMAIL_REGEX =
+                        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+                    // PASSWORD VALIDATION
+                    function isValidPassword(pw) {
+
+                        if (pw.length < 8)
+                            return false;
+
+                        if (/^[a-z]+$/.test(pw))
+                            return false;
+
+                        if (/^[A-Z]+$/.test(pw))
+                            return false;
+
+                        if (/^[0-9]+$/.test(pw))
+                            return false;
+
+                        return true;
+                    }
+
+                    // NAME VALIDATION
+                    if (
+                        !payload.firstName ||
+                        !payload.lastName
+                    ) {
+
+                        errorEl.textContent =
+                            'Please enter both your first name and last name.';
+
+                        errorEl.style.display = 'block';
+
+                        return;
+                    }
+
+                    // YEAR / SECTION VALIDATION
+                    if (
+                        !payload.year ||
+                        !payload.section
+                    ) {
+
+                        errorEl.textContent =
+                            'Please select your year and section.';
+
+                        errorEl.style.display = 'block';
+
+                        return;
+                    }
+
+                    // EMAIL VALIDATION
+                    if (!EMAIL_REGEX.test(payload.email)) {
+
+                        errorEl.textContent =
+                            'Please enter a valid email address.';
+
+                        errorEl.style.display = 'block';
+
+                        return;
+                    }
+
+                    // PASSWORD VALIDATION
+                    if (!isValidPassword(payload.password)) {
+
+                        errorEl.textContent =
+                            'Password must be at least 8 characters and not all letters or all numbers.';
+
+                        errorEl.style.display = 'block';
+
+                        return;
+                    }
+
+                    // DISABLE BUTTON
+                    btn.disabled = true;
+                    btn.textContent = 'Signing up...';
+
+                    try {
+
+                        await api.post(
+                            '/auth/signup',
+                            payload
+                        );
+
+                        window.location.href =
+                            'Dashboard.html';
+
+                    } catch (err) {
+
+                        errorEl.textContent =
+                            err.message;
+
+                        errorEl.style.display =
+                            'block';
+
+                        btn.disabled = false;
+
+                        btn.textContent =
+                            'Sign up';
+                    }
+
+                }
+            );
         });
     </script>
+
 </body>
 </html>
