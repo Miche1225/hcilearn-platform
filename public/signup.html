@@ -3,33 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Sign Up Page</title>
+
     <link rel="stylesheet" href="style.css">
+
     <meta property="og:title" content="HCILearn | Interactive Study Guide">
     <meta property="og:description" content="The official HCI 2 learning platform and reviewer system for UEP IT students.">
     <meta property="og:image" content="https://hcilearn-platform.onrender.com/signup-preview.jpg">
     <meta property="og:url" content="https://hcilearn-platform.onrender.com/">
     <meta property="og:type" content="website">
+
+    <!-- =========================================
+         SIGNUP SELECT STYLING
+         ========================================= -->
+    <style>
+        /* Make Year and Section look like the other inputs */
+        .input-grid .input-group select {
+            width: 100%;
+            height: 50px;
+            padding: 0 15px;
+
+            font-family: inherit;
+            font-size: 15px;
+
+            color: #333;
+
+            background: rgba(255, 255, 255, 0.85);
+
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+
+            box-sizing: border-box;
+
+            outline: none;
+
+            cursor: pointer;
+
+            transition: all 0.2s ease;
+        }
+
+        /* Hover */
+        .input-grid .input-group select:hover {
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        /* Focus */
+        .input-grid .input-group select:focus {
+            background: #ffffff;
+
+            border-color: #0b67c2;
+
+            box-shadow:
+                0 0 0 3px rgba(11, 103, 194, 0.15);
+        }
+
+        /* Placeholder color */
+        .input-grid .input-group select:invalid {
+            color: #777;
+        }
+
+        /* Selected option */
+        .input-grid .input-group select:valid {
+            color: #333;
+        }
+
+        /* Make all form controls consistent */
+        .input-grid .input-group input,
+        .input-grid .input-group select {
+            min-height: 50px;
+            box-sizing: border-box;
+        }
+
+        /* Mobile */
+        @media (max-width: 700px) {
+            .input-grid .input-group select {
+                width: 100%;
+                height: 50px;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
     <div class="signup-container">
+
         <div class="glass-card">
 
+            <!-- HEADER -->
             <div class="header-text">
+
                 <h2>Sign Up</h2>
-                <p>Just a few quick things to get started</p>
+
+                <p>
+                    Just a few quick things to get started
+                </p>
+
             </div>
 
+
+            <!-- SIGNUP FORM -->
             <form id="signupForm">
 
-                <p id="signupError" style="color:#c0392b; display:none; margin:0 0 10px;"></p>
+                <!-- ERROR MESSAGE -->
+                <p
+                    id="signupError"
+                    style="
+                        color:#c0392b;
+                        display:none;
+                        margin:0 0 10px;
+                    "
+                ></p>
+
 
                 <div class="input-grid">
 
-                    <!-- FIRST NAME -->
+
+                    <!-- =========================================
+                         FIRST NAME
+                         ========================================= -->
                     <div class="input-group">
-                        <label for="firstName">First Name</label>
+
+                        <label for="firstName">
+                            First Name
+                        </label>
+
                         <input
                             type="text"
                             id="firstName"
@@ -37,11 +136,19 @@
                             maxlength="80"
                             required
                         >
+
                     </div>
 
-                    <!-- LAST NAME -->
+
+                    <!-- =========================================
+                         LAST NAME
+                         ========================================= -->
                     <div class="input-group">
-                        <label for="lastName">Last Name</label>
+
+                        <label for="lastName">
+                            Last Name
+                        </label>
+
                         <input
                             type="text"
                             id="lastName"
@@ -49,43 +156,104 @@
                             maxlength="80"
                             required
                         >
+
                     </div>
 
-                    <!-- YEAR -->
-                    <div class="input-group">
-                        <label for="year">Year</label>
 
-                        <select id="year" required>
-                            <option value="" selected disabled>
+                    <!-- =========================================
+                         YEAR
+                         ========================================= -->
+                    <div class="input-group">
+
+                        <label for="year">
+                            Year
+                        </label>
+
+                        <select
+                            id="year"
+                            required
+                        >
+
+                            <option
+                                value=""
+                                selected
+                                disabled
+                            >
                                 Select year
                             </option>
 
-                            <option value="1st Year">1st Year</option>
-                            <option value="2nd Year">2nd Year</option>
-                            <option value="3rd Year">3rd Year</option>
-                            <option value="4th Year">4th Year</option>
+                            <option value="1st Year">
+                                1st Year
+                            </option>
+
+                            <option value="2nd Year">
+                                2nd Year
+                            </option>
+
+                            <option value="3rd Year">
+                                3rd Year
+                            </option>
+
+                            <option value="4th Year">
+                                4th Year
+                            </option>
+
                         </select>
+
                     </div>
 
-                    <!-- SECTION -->
-                    <div class="input-group">
-                        <label for="section">Section</label>
 
-                        <select id="section" required>
-                            <option value="" selected disabled>
+                    <!-- =========================================
+                         SECTION
+                         ========================================= -->
+                    <div class="input-group">
+
+                        <label for="section">
+                            Section
+                        </label>
+
+                        <select
+                            id="section"
+                            required
+                        >
+
+                            <option
+                                value=""
+                                selected
+                                disabled
+                            >
                                 Select section
                             </option>
 
-                            <option value="A">Section A</option>
-                            <option value="B">Section B</option>
-                            <option value="C">Section C</option>
-                            <option value="D">Section D</option>
+                            <option value="A">
+                                Section A
+                            </option>
+
+                            <option value="B">
+                                Section B
+                            </option>
+
+                            <option value="C">
+                                Section C
+                            </option>
+
+                            <option value="D">
+                                Section D
+                            </option>
+
                         </select>
+
                     </div>
 
-                    <!-- PROGRAM -->
+
+                    <!-- =========================================
+                         PROGRAM
+                         ========================================= -->
                     <div class="input-group">
-                        <label for="program">Program/Course (BSIT)</label>
+
+                        <label for="program">
+                            Program/Course (BSIT)
+                        </label>
 
                         <input
                             type="text"
@@ -94,11 +262,18 @@
                             maxlength="80"
                             required
                         >
+
                     </div>
 
-                    <!-- EMAIL -->
+
+                    <!-- =========================================
+                         EMAIL
+                         ========================================= -->
                     <div class="input-group">
-                        <label for="email">Gmail / Email Address</label>
+
+                        <label for="email">
+                            Email Address
+                        </label>
 
                         <input
                             type="email"
@@ -109,14 +284,17 @@
                             required
                         >
 
-                        <small style="display:block; color:#666; margin-top:4px;">
-                            Your email is protected with a server-side HMAC lookup hash.
-                        </small>
                     </div>
 
-                    <!-- STUDENT ID -->
+
+                    <!-- =========================================
+                         STUDENT ID
+                         ========================================= -->
                     <div class="input-group">
-                        <label for="studentId">Student ID</label>
+
+                        <label for="studentId">
+                            Student ID
+                        </label>
 
                         <input
                             type="text"
@@ -124,11 +302,18 @@
                             maxlength="40"
                             required
                         >
+
                     </div>
 
-                    <!-- PASSWORD -->
+
+                    <!-- =========================================
+                         PASSWORD
+                         ========================================= -->
                     <div class="input-group">
-                        <label for="password-input">Password</label>
+
+                        <label for="password-input">
+                            Password
+                        </label>
 
                         <input
                             type="password"
@@ -138,19 +323,41 @@
                             required
                         >
 
-                        <small style="display:block; color:#666; margin-top:4px;">
+                        <small
+                            style="
+                                display:block;
+                                color:#666;
+                                margin-top:4px;
+                            "
+                        >
                             Password must be at least 8 characters.
                         </small>
 
+
+                        <!-- SHOW PASSWORD -->
                         <div class="checkbox-group">
-                            <input type="checkbox" id="show-password">
-                            <label for="show-password">Show Password</label>
+
+                            <input
+                                type="checkbox"
+                                id="show-password"
+                            >
+
+                            <label for="show-password">
+                                Show Password
+                            </label>
+
                         </div>
+
                     </div>
 
                 </div>
 
+
+                <!-- =========================================
+                     SIGNUP BUTTON
+                     ========================================= -->
                 <div class="button-container">
+
                     <button
                         type="submit"
                         class="signup-btn"
@@ -158,200 +365,359 @@
                     >
                         Sign up
                     </button>
+
                 </div>
 
+
+                <!-- =========================================
+                     LOGIN LINK
+                     ========================================= -->
                 <div
                     class="login-link-container"
-                    style="text-align: center; margin-top: 15px;"
+                    style="
+                        text-align:center;
+                        margin-top:15px;
+                    "
                 >
+
                     <p>
+
                         Already have an account?
-                        <a href="login.html">Log in</a>
+
+                        <a href="login.html">
+                            Log in
+                        </a>
+
                     </p>
+
                 </div>
 
             </form>
+
         </div>
+
     </div>
 
+
+    <!-- API -->
     <script src="js/api.js"></script>
 
+
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
 
-            const showPasswordCheckbox =
-                document.getElementById('show-password');
+        document.addEventListener(
+            'DOMContentLoaded',
+            function () {
 
-            const passwordInput =
-                document.getElementById('password-input');
 
-            // SHOW / HIDE PASSWORD
-            showPasswordCheckbox.addEventListener('change', function () {
+                /* =========================================
+                   SHOW / HIDE PASSWORD
+                   ========================================= */
 
-                passwordInput.type =
-                    this.checked ? 'text' : 'password';
+                const showPasswordCheckbox =
+                    document.getElementById(
+                        'show-password'
+                    );
 
-            });
+                const passwordInput =
+                    document.getElementById(
+                        'password-input'
+                    );
 
-            // SIGNUP FORM
-            document.getElementById('signupForm').addEventListener(
-                'submit',
-                async function (e) {
 
-                    e.preventDefault();
+                showPasswordCheckbox.addEventListener(
+                    'change',
+                    function () {
 
-                    const errorEl =
-                        document.getElementById('signupError');
+                        passwordInput.type =
+                            this.checked
+                                ? 'text'
+                                : 'password';
 
-                    const btn =
-                        document.getElementById('signupBtn');
-
-                    errorEl.style.display = 'none';
-
-                    // GET FORM VALUES
-                    const payload = {
-
-                        firstName:
-                            document.getElementById('firstName')
-                            .value
-                            .trim(),
-
-                        lastName:
-                            document.getElementById('lastName')
-                            .value
-                            .trim(),
-
-                        year:
-                            document.getElementById('year')
-                            .value,
-
-                        section:
-                            document.getElementById('section')
-                            .value,
-
-                        program:
-                            document.getElementById('program')
-                            .value
-                            .trim(),
-
-                        email:
-                            document.getElementById('email')
-                            .value
-                            .trim(),
-
-                        studentId:
-                            document.getElementById('studentId')
-                            .value
-                            .trim(),
-
-                        password:
-                            document.getElementById('password-input')
-                            .value
-                    };
-
-                    // EMAIL VALIDATION
-                    const EMAIL_REGEX =
-                        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-                    // PASSWORD VALIDATION
-                    function isValidPassword(pw) {
-
-                        if (pw.length < 8)
-                            return false;
-
-                        if (/^[a-z]+$/.test(pw))
-                            return false;
-
-                        if (/^[A-Z]+$/.test(pw))
-                            return false;
-
-                        if (/^[0-9]+$/.test(pw))
-                            return false;
-
-                        return true;
                     }
+                );
 
-                    // NAME VALIDATION
-                    if (
-                        !payload.firstName ||
-                        !payload.lastName
-                    ) {
 
-                        errorEl.textContent =
-                            'Please enter both your first name and last name.';
+                /* =========================================
+                   SIGNUP FORM
+                   ========================================= */
 
-                        errorEl.style.display = 'block';
+                document
+                    .getElementById('signupForm')
+                    .addEventListener(
+                        'submit',
+                        async function (e) {
 
-                        return;
-                    }
+                            e.preventDefault();
 
-                    // YEAR / SECTION VALIDATION
-                    if (
-                        !payload.year ||
-                        !payload.section
-                    ) {
 
-                        errorEl.textContent =
-                            'Please select your year and section.';
+                            const errorEl =
+                                document.getElementById(
+                                    'signupError'
+                                );
 
-                        errorEl.style.display = 'block';
 
-                        return;
-                    }
+                            const btn =
+                                document.getElementById(
+                                    'signupBtn'
+                                );
 
-                    // EMAIL VALIDATION
-                    if (!EMAIL_REGEX.test(payload.email)) {
 
-                        errorEl.textContent =
-                            'Please enter a valid email address.';
+                            errorEl.style.display =
+                                'none';
 
-                        errorEl.style.display = 'block';
 
-                        return;
-                    }
+                            /* =========================================
+                               GET FORM VALUES
+                               ========================================= */
 
-                    // PASSWORD VALIDATION
-                    if (!isValidPassword(payload.password)) {
+                            const payload = {
 
-                        errorEl.textContent =
-                            'Password must be at least 8 characters and not all letters or all numbers.';
+                                firstName:
+                                    document
+                                        .getElementById(
+                                            'firstName'
+                                        )
+                                        .value
+                                        .trim(),
 
-                        errorEl.style.display = 'block';
 
-                        return;
-                    }
+                                lastName:
+                                    document
+                                        .getElementById(
+                                            'lastName'
+                                        )
+                                        .value
+                                        .trim(),
 
-                    // DISABLE BUTTON
-                    btn.disabled = true;
-                    btn.textContent = 'Signing up...';
 
-                    try {
+                                year:
+                                    document
+                                        .getElementById(
+                                            'year'
+                                        )
+                                        .value,
 
-                        await api.post(
-                            '/auth/signup',
-                            payload
-                        );
 
-                        window.location.href =
-                            'Dashboard.html';
+                                section:
+                                    document
+                                        .getElementById(
+                                            'section'
+                                        )
+                                        .value,
 
-                    } catch (err) {
 
-                        errorEl.textContent =
-                            err.message;
+                                program:
+                                    document
+                                        .getElementById(
+                                            'program'
+                                        )
+                                        .value
+                                        .trim(),
 
-                        errorEl.style.display =
-                            'block';
 
-                        btn.disabled = false;
+                                email:
+                                    document
+                                        .getElementById(
+                                            'email'
+                                        )
+                                        .value
+                                        .trim(),
 
-                        btn.textContent =
-                            'Sign up';
-                    }
 
-                }
-            );
-        });
+                                studentId:
+                                    document
+                                        .getElementById(
+                                            'studentId'
+                                        )
+                                        .value
+                                        .trim(),
+
+
+                                password:
+                                    document
+                                        .getElementById(
+                                            'password-input'
+                                        )
+                                        .value
+
+                            };
+
+
+                            /* =========================================
+                               EMAIL VALIDATION
+                               ========================================= */
+
+                            const EMAIL_REGEX =
+                                /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+
+                            /* =========================================
+                               PASSWORD VALIDATION
+                               ========================================= */
+
+                            function isValidPassword(pw) {
+
+                                if (pw.length < 8)
+                                    return false;
+
+
+                                if (/^[a-z]+$/.test(pw))
+                                    return false;
+
+
+                                if (/^[A-Z]+$/.test(pw))
+                                    return false;
+
+
+                                if (/^[0-9]+$/.test(pw))
+                                    return false;
+
+
+                                return true;
+
+                            }
+
+
+                            /* =========================================
+                               NAME VALIDATION
+                               ========================================= */
+
+                            if (
+                                !payload.firstName ||
+                                !payload.lastName
+                            ) {
+
+                                errorEl.textContent =
+                                    'Please enter both your first name and last name.';
+
+                                errorEl.style.display =
+                                    'block';
+
+                                return;
+
+                            }
+
+
+                            /* =========================================
+                               YEAR / SECTION VALIDATION
+                               ========================================= */
+
+                            if (
+                                !payload.year ||
+                                !payload.section
+                            ) {
+
+                                errorEl.textContent =
+                                    'Please select your year and section.';
+
+                                errorEl.style.display =
+                                    'block';
+
+                                return;
+
+                            }
+
+
+                            /* =========================================
+                               EMAIL VALIDATION
+                               ========================================= */
+
+                            if (
+                                !EMAIL_REGEX.test(
+                                    payload.email
+                                )
+                            ) {
+
+                                errorEl.textContent =
+                                    'Please enter a valid email address.';
+
+                                errorEl.style.display =
+                                    'block';
+
+                                return;
+
+                            }
+
+
+                            /* =========================================
+                               PASSWORD VALIDATION
+                               ========================================= */
+
+                            if (
+                                !isValidPassword(
+                                    payload.password
+                                )
+                            ) {
+
+                                errorEl.textContent =
+                                    'Password must be at least 8 characters and not all letters or all numbers.';
+
+                                errorEl.style.display =
+                                    'block';
+
+                                return;
+
+                            }
+
+
+                            /* =========================================
+                               DISABLE BUTTON
+                               ========================================= */
+
+                            btn.disabled = true;
+
+                            btn.textContent =
+                                'Signing up...';
+
+
+                            try {
+
+
+                                /* =========================================
+                                   SEND TO BACKEND
+                                   ========================================= */
+
+                                await api.post(
+                                    '/auth/signup',
+                                    payload
+                                );
+
+
+                                /* =========================================
+                                   REDIRECT
+                                   ========================================= */
+
+                                window.location.href =
+                                    'Dashboard.html';
+
+
+                            } catch (err) {
+
+
+                                errorEl.textContent =
+                                    err.message;
+
+
+                                errorEl.style.display =
+                                    'block';
+
+
+                                btn.disabled =
+                                    false;
+
+
+                                btn.textContent =
+                                    'Sign up';
+
+                            }
+
+                        }
+                    );
+
+            }
+        );
+
     </script>
 
 </body>
