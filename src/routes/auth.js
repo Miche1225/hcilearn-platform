@@ -687,6 +687,9 @@ router.post(
                 );
 
 
+            /*
+                Validate email format.
+            */
             if (
                 !EMAIL_REGEX.test(email)
             ) {
@@ -701,22 +704,11 @@ router.post(
 
 
             /*
-                Always return the same message.
-
-                This prevents account enumeration.
-            */
-            const generic = {
-
-                ok: true,
-
-                message:
-                    'If that email is registered, a password reset link has been sent. Please check your inbox (and spam folder).'
-
-            };
-
-
-            /*
                 Search using email HMAC.
+
+                The original email is still stored
+                in the account so the system can
+                send password reset messages.
             */
             const {
                 rows
@@ -741,8 +733,18 @@ router.post(
                 rows[0];
 
 
-            if (!user)
-                return res.json(generic);
+            /*
+                EMAIL NOT REGISTERED
+            */
+            if (!user) {
+
+                return res.status(404).json({
+
+                    error:
+                        'This email is not registered.'
+
+                });
+            }
 
 
             /*
@@ -758,24 +760,36 @@ router.post(
                      WHERE user_id = $1
 
                      AND created_at >
+
                      NOW() -
+
                      ($2 || ' seconds')::interval`,
 
                     [
+
                         user.id,
 
                         String(
                             RESET_COOLDOWN_SECONDS
                         )
+
                     ]
                 );
 
 
+            /*
+                Recently requested a reset.
+            */
             if (
                 recent.rows.length > 0
             ) {
 
-                return res.json(generic);
+                return res.status(429).json({
+
+                    error:
+                        'A password reset link was recently sent. Please wait before requesting another one.'
+
+                });
             }
 
 
@@ -795,7 +809,9 @@ router.post(
 
                 'DELETE FROM password_resets WHERE user_id = $1',
 
-                [user.id]
+                [
+                    user.id
+                ]
             );
 
 
@@ -829,6 +845,7 @@ router.post(
                     String(
                         RESET_TOKEN_MINUTES
                     )
+
                 ]
             );
 
@@ -856,7 +873,17 @@ router.post(
             );
 
 
-            res.json(generic);
+            /*
+                SUCCESS RESPONSE
+            */
+            return res.json({
+
+                ok: true,
+
+                message:
+                    'Password reset link sent. Please check your email.'
+
+            });
 
         } catch (err) {
 
