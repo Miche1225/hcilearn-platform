@@ -2,24 +2,27 @@
 
 const crypto = require('crypto');
 
+
 /*
-    Gets the secret key used for the email HMAC.
+    The email hash uses a dedicated server-side secret.
 
-    EMAIL_HASH_SECRET is preferred.
-
-    JWT_SECRET is used only as a fallback so an older
-    configuration can still work.
+    IMPORTANT:
+    Keep EMAIL_HASH_SECRET the same after users have been created.
+    Changing the secret changes every email hash and existing users
+    would no longer be found by email.
 */
 function getEmailHashSecret() {
 
     const secret =
-        process.env.EMAIL_HASH_SECRET ||
-        process.env.JWT_SECRET;
+        process.env.EMAIL_HASH_SECRET;
 
-    if (!secret || secret.length < 16) {
+    if (
+        !secret ||
+        secret.length < 32
+    ) {
 
         throw new Error(
-            'EMAIL_HASH_SECRET (or a strong JWT_SECRET fallback) is required.'
+            'EMAIL_HASH_SECRET is required and must be at least 32 characters long.'
         );
     }
 
@@ -28,7 +31,7 @@ function getEmailHashSecret() {
 
 
 /*
-    Normalizes the email.
+    Normalize email before hashing.
 
     Example:
 
@@ -49,18 +52,9 @@ function normalizeEmail(email) {
 
 
 /*
-    Creates a secure HMAC-SHA256 hash.
+    Create a deterministic HMAC-SHA256 hash.
 
-    The same Gmail address will always produce
-    the same hash when the same secret is used.
-
-    Example:
-
-    user@gmail.com
-        ↓
-    HMAC-SHA256
-        ↓
-    64-character hash
+    The raw email is NOT stored in the users table.
 */
 function hashEmail(email) {
 
@@ -70,7 +64,8 @@ function hashEmail(email) {
             getEmailHashSecret()
         )
         .update(
-            normalizeEmail(email)
+            normalizeEmail(email),
+            'utf8'
         )
         .digest('hex');
 }

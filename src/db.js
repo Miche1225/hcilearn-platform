@@ -1,18 +1,7 @@
 // src/db.js
 
-/*
-    Connects to a hosted Postgres database.
-
-    Works with services such as:
-
-    - Supabase
-    - Neon
-    - Other PostgreSQL providers
-*/
-
-const {
-    Pool
-} = require('pg');
+const { Pool } = require('pg');
+const { hashEmail } = require('./utils/emailSecurity');
 
 
 /*
@@ -21,7 +10,7 @@ const {
 if (!process.env.DATABASE_URL) {
 
     console.error(
-        'Missing DATABASE_URL environment variable. Set it to your Supabase/Neon connection string.'
+        'Missing DATABASE_URL environment variable. Set it to your PostgreSQL connection string.'
     );
 }
 
@@ -37,12 +26,8 @@ const pool =
 
         ssl:
             process.env.DATABASE_URL &&
-            process.env.DATABASE_URL.includes(
-                'localhost'
-            )
-
+            process.env.DATABASE_URL.includes('localhost')
                 ? false
-
                 : {
                     rejectUnauthorized: false
                 }
@@ -51,9 +36,23 @@ const pool =
 
 
 /*
-    Initialize database.
+    Initialize and migrate the database.
+
+    IMPORTANT:
+    Older versions of the project stored plaintext email in users.email.
+    This migration:
+
+    1. Creates email_hash when needed.
+    2. Converts existing plaintext emails to HMAC hashes.
+    3. Verifies every user has an email_hash.
+    4. Makes email_hash required and unique.
+    5. Removes the plaintext email column.
 */
 async function init() {
+
+    /* ==============================================
+       CREATE CORE TABLES
+       ============================================== */
 
     await pool.query(`
 
@@ -79,11 +78,6 @@ async function init() {
             program
                 TEXT,
 
-            email
-                TEXT
-                NOT NULL
-                UNIQUE,
-
             email_hash
                 TEXT,
 
@@ -104,9 +98,6 @@ async function init() {
         );
 
 
-        /*
-            Case study progress.
-        */
         CREATE TABLE IF NOT EXISTS case_study_progress (
 
             user_id
@@ -127,9 +118,6 @@ async function init() {
         );
 
 
-        /*
-            Study card progress.
-        */
         CREATE TABLE IF NOT EXISTS study_card_progress (
 
             user_id
@@ -150,9 +138,6 @@ async function init() {
         );
 
 
-        /*
-            Lesson progress.
-        */
         CREATE TABLE IF NOT EXISTS lesson_progress (
 
             user_id
@@ -171,9 +156,6 @@ async function init() {
         );
 
 
-        /*
-            Video progress.
-        */
         CREATE TABLE IF NOT EXISTS video_progress (
 
             user_id
@@ -201,12 +183,6 @@ async function init() {
         );
 
 
-        /*
-            Password reset tokens.
-
-            Only the SHA-256 hash of the
-            token is stored.
-        */
         CREATE TABLE IF NOT EXISTS password_resets (
 
             id
@@ -235,9 +211,6 @@ async function init() {
         );
 
 
-        /*
-            Recent activity log.
-        */
         CREATE TABLE IF NOT EXISTS activity_log (
 
             id
@@ -267,189 +240,261 @@ async function init() {
     `);
 
 
-    /*
-        ---------------------------------------------------
-        MIGRATIONS
-        ---------------------------------------------------
+    /* ==============================================
+       START MIGRATION TRANSACTION
+       ============================================== */
 
-        These are for users who already have
-        an older database.
-    */
+    const client =
+        await pool.connect();
 
 
-    /*
-        Add first_name if it doesn't exist.
-    */
-    await pool.query(
-        'ALTER TABLE users ADD COLUMN IF NOT EXISTS first_name TEXT'
-    );
+    try {
+
+        await client.query('BEGIN');
 
 
-    /*
-        Add last_name if it doesn't exist.
-    */
-    await pool.query(
-        'ALTER TABLE users ADD COLUMN IF NOT EXISTS last_name TEXT'
-    );
+        /* ----------------------------------------------
+           Ensure columns exist for older databases.
+           ---------------------------------------------- */
 
+        await client.query(
+            'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS first_name TEXT'
+        );
 
-    /*
-        Add email_hash if it doesn't exist.
-    */
-    await pool.query(
-        'ALTER TABLE users ADD COLUMN IF NOT EXISTS email_hash TEXT'
-    );
+        await client.query(
+            'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS last_name TEXT'
+        );
 
-
-    /*
-        ---------------------------------------------------
-        BACKFILL FIRST / LAST NAME
-        ---------------------------------------------------
-
-        Existing users may only have full_name.
-
-        Example:
-
-        "Juan Dela Cruz"
-
-        becomes:
-
-        first_name = "Juan"
-        last_name  = "Dela Cruz"
-    */
-    const legacyNames =
-        await pool.query(
-
-            `SELECT
-                id,
-                full_name
-
-             FROM users
-
-             WHERE
-                first_name IS NULL
-                OR
-                last_name IS NULL`
+        await client.query(
+            'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS email_hash TEXT'
         );
 
 
-    for (
-        const row
-        of legacyNames.rows
-    ) {
+        /* ----------------------------------------------
+           Backfill first_name / last_name.
+           ---------------------------------------------- */
 
-        const parts =
-            String(
-                row.full_name || ''
-            )
-                .trim()
-                .split(/\s+/)
-                .filter(Boolean);
+        const legacyNames =
+            await client.query(`
+
+                SELECT
+                    id,
+                    full_name
+
+                FROM public.users
+
+                WHERE
+                    first_name IS NULL
+                    OR
+                    last_name IS NULL
+
+            `);
 
 
-        const firstName =
-            parts.shift() || '';
+        for (
+            const row
+            of legacyNames.rows
+        ) {
+
+            const parts =
+                String(
+                    row.full_name || ''
+                )
+                    .trim()
+                    .split(/\s+/)
+                    .filter(Boolean);
 
 
-        const lastName =
-            parts.join(' ') || '';
+            const firstName =
+                parts.shift() || '';
 
 
-        await pool.query(
+            const lastName =
+                parts.join(' ') || '';
 
-            `UPDATE users
 
-             SET
+            await client.query(
 
-                first_name =
-                    COALESCE(
-                        first_name,
-                        $1
-                    ),
+                `UPDATE public.users
 
-                last_name =
-                    COALESCE(
-                        last_name,
-                        $2
-                    )
+                 SET
+                    first_name = COALESCE(first_name, $1),
+                    last_name = COALESCE(last_name, $2)
 
-             WHERE id = $3`,
+                 WHERE id = $3`,
 
-            [
-                firstName,
-                lastName,
-                row.id
-            ]
-        );
+                [
+                    firstName,
+                    lastName,
+                    row.id
+                ]
+            );
+        }
+
+
+        /* ----------------------------------------------
+           Detect whether the old plaintext email column
+           still exists.
+           ---------------------------------------------- */
+
+        const emailColumnResult =
+            await client.query(`
+
+                SELECT EXISTS (
+
+                    SELECT 1
+
+                    FROM information_schema.columns
+
+                    WHERE
+                        table_schema = 'public'
+                        AND table_name = 'users'
+                        AND column_name = 'email'
+
+                ) AS exists
+
+            `);
+
+
+        const hasLegacyEmailColumn =
+            emailColumnResult.rows[0].exists === true;
+
+
+        /* ----------------------------------------------
+           Backfill email_hash from the old plaintext
+           email column before removing that column.
+           ---------------------------------------------- */
+
+        if (hasLegacyEmailColumn) {
+
+            const missingEmailHashes =
+                await client.query(`
+
+                    SELECT
+                        id,
+                        email
+
+                    FROM public.users
+
+                    WHERE
+                        (email_hash IS NULL OR BTRIM(email_hash) = '')
+                        AND email IS NOT NULL
+                        AND BTRIM(email) <> ''
+
+                `);
+
+
+            for (
+                const row
+                of missingEmailHashes.rows
+            ) {
+
+                await client.query(
+
+                    `UPDATE public.users
+
+                     SET email_hash = $1
+
+                     WHERE id = $2`,
+
+                    [
+                        hashEmail(row.email),
+                        row.id
+                    ]
+                );
+            }
+        }
+
+
+        /* ----------------------------------------------
+           Make sure no user is missing the hash.
+           ---------------------------------------------- */
+
+        const missingCountResult =
+            await client.query(`
+
+                SELECT COUNT(*)::integer AS count
+
+                FROM public.users
+
+                WHERE
+                    email_hash IS NULL
+                    OR BTRIM(email_hash) = ''
+
+            `);
+
+
+        const missingCount =
+            missingCountResult.rows[0].count;
+
+
+        if (missingCount > 0) {
+
+            throw new Error(
+                `Cannot finish email security migration: ${missingCount} user(s) do not have an email_hash.`
+            );
+        }
+
+
+        /* ----------------------------------------------
+           Make email_hash unique.
+           ---------------------------------------------- */
+
+        await client.query(`
+
+            CREATE UNIQUE INDEX IF NOT EXISTS
+            users_email_hash_unique
+
+            ON public.users(email_hash)
+
+        `);
+
+
+        /* ----------------------------------------------
+           Make email_hash required.
+           ---------------------------------------------- */
+
+        await client.query(`
+
+            ALTER TABLE public.users
+            ALTER COLUMN email_hash SET NOT NULL
+
+        `);
+
+
+        /* ----------------------------------------------
+           Remove plaintext email only after every user's
+           email_hash has been verified.
+           ---------------------------------------------- */
+
+        if (hasLegacyEmailColumn) {
+
+            await client.query(`
+
+                ALTER TABLE public.users
+                DROP COLUMN IF EXISTS email
+
+            `);
+        }
+
+
+        await client.query('COMMIT');
+
+    } catch (err) {
+
+        await client.query('ROLLBACK');
+
+        throw err;
+
+    } finally {
+
+        client.release();
     }
-
-
-    /*
-        ---------------------------------------------------
-        BACKFILL EMAIL HASH
-        ---------------------------------------------------
-    */
-    const {
-        hashEmail
-    } = require(
-        './utils/emailSecurity'
-    );
-
-
-    const missingEmailHashes =
-        await pool.query(
-
-            `SELECT
-                id,
-                email
-
-             FROM users
-
-             WHERE email_hash IS NULL`
-        );
-
-
-    for (
-        const row
-        of missingEmailHashes.rows
-    ) {
-
-        await pool.query(
-
-            `UPDATE users
-
-             SET email_hash = $1
-
-             WHERE id = $2`,
-
-            [
-                hashEmail(
-                    row.email
-                ),
-
-                row.id
-            ]
-        );
-    }
-
-
-    /*
-        Unique email hash index.
-    */
-    await pool.query(
-
-        `CREATE UNIQUE INDEX IF NOT EXISTS
-         users_email_hash_unique
-
-         ON users(email_hash)
-
-         WHERE email_hash IS NOT NULL`
-    );
 }
 
 
 /*
-    Initialize database when server starts.
+    Initialize the database when the server starts.
 */
 const ready =
     init().catch(

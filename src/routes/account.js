@@ -26,6 +26,13 @@ const streamifier =
     require('streamifier');
 
 
+const EMAIL_REGEX =
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const STUDENT_ID_REGEX =
+    /^\d{6}$/;
+
+
 /*
     Cloudinary configuration.
 */
@@ -65,9 +72,7 @@ const upload =
             (req, file, cb) => {
 
                 if (
-                    !file.mimetype.startsWith(
-                        'image/'
-                    )
+                    !file.mimetype.startsWith('image/')
                 ) {
 
                     return cb(
@@ -114,7 +119,6 @@ function uploadToCloudinary(
 
                             if (err)
                                 reject(err);
-
                             else
                                 resolve(result);
                         }
@@ -130,7 +134,9 @@ function uploadToCloudinary(
 
 
 /*
-    User data returned to frontend.
+    Only return information that is safe for the frontend.
+
+    The plaintext email and email_hash are NOT returned.
 */
 function publicUser(row) {
 
@@ -148,15 +154,11 @@ function publicUser(row) {
         program:
             row.program,
 
-        email:
-            row.email,
-
         studentId:
             row.student_id,
 
         profilePhoto:
             row.profile_photo
-
     };
 }
 
@@ -176,7 +178,17 @@ router.get(
                 rows
             } = await pool.query(
 
-                'SELECT * FROM users WHERE id = $1',
+                `SELECT
+                    id,
+                    full_name,
+                    year_section,
+                    program,
+                    student_id,
+                    profile_photo
+
+                 FROM public.users
+
+                 WHERE id = $1`,
 
                 [req.userId]
             );
@@ -243,7 +255,19 @@ router.put(
                 rows
             } = await pool.query(
 
-                'SELECT * FROM users WHERE id = $1',
+                `SELECT
+                    id,
+                    full_name,
+                    year_section,
+                    program,
+                    email_hash,
+                    student_id,
+                    password_hash,
+                    profile_photo
+
+                 FROM public.users
+
+                 WHERE id = $1`,
 
                 [req.userId]
             );
@@ -264,43 +288,65 @@ router.put(
             }
 
 
-            /*
-                Normalize new email.
+            /* =====================================================
+               EMAIL UPDATE
 
-                If no new email was entered,
-                keep current email.
-            */
-            const normalizedEmail =
-                email
-                    ? normalizeEmail(email)
-                    : user.email;
+               The database stores only email_hash.
+
+               If email is blank/omitted, the existing hash stays.
+               If a new email is supplied, its HMAC is stored.
+               ===================================================== */
+
+            let newEmailHash =
+                user.email_hash;
 
 
-            /*
-                Check whether the email
-                belongs to another account.
-            */
             if (
-                email &&
-                normalizedEmail !== user.email
+                email !== undefined &&
+                String(email).trim() !== ''
             ) {
 
+                const normalizedEmail =
+                    normalizeEmail(email);
+
+
+                if (
+                    !EMAIL_REGEX.test(
+                        normalizedEmail
+                    )
+                ) {
+
+                    return res.status(400).json({
+
+                        error:
+                            'Please enter a valid email address.'
+
+                    });
+                }
+
+
+                const candidateEmailHash =
+                    hashEmail(
+                        normalizedEmail
+                    );
+
+
+                /*
+                    Check if another account already uses it.
+                */
                 const clash =
                     await pool.query(
 
                         `SELECT id
 
-                         FROM users
+                         FROM public.users
 
                          WHERE email_hash = $1
 
                          AND id != $2`,
 
                         [
-                            hashEmail(
-                                normalizedEmail
-                            ),
-
+                            candidateEmailHash,
                             req.userId
                         ]
                     );
@@ -317,52 +363,77 @@ router.put(
 
                     });
                 }
+
+
+                newEmailHash =
+                    candidateEmailHash;
             }
 
 
-            /*
-                Password validation.
-            */
+            /* =====================================================
+               STUDENT ID VALIDATION
+               ===================================================== */
+
+            const newStudentId =
+                studentId !== undefined
+                    ? String(studentId).trim()
+                    : user.student_id;
+
+
             if (
-                password &&
-                password.length > 0 &&
-                password.length < 6
+                newStudentId &&
+                !STUDENT_ID_REGEX.test(
+                    newStudentId
+                )
             ) {
 
                 return res.status(400).json({
 
                     error:
-                        'Password must be at least 6 characters.'
+                        'Student ID must contain exactly 6 digits.'
 
                 });
             }
 
 
-            /*
-                Create new password hash
-                when password is changed.
-            */
+            /* =====================================================
+               PASSWORD VALIDATION
+               ===================================================== */
+
+            if (
+                password !== undefined &&
+                String(password).length > 0 &&
+                String(password).length < 8
+            ) {
+
+                return res.status(400).json({
+
+                    error:
+                        'Password must be at least 8 characters.'
+
+                });
+            }
+
+
             const newPasswordHash =
-
                 password &&
-                password.length >= 6
-
+                String(password).length >= 8
                     ? bcrypt.hashSync(
                         password,
                         10
                     )
-
                     : user.password_hash;
 
 
-            /*
-                Update account.
-            */
+            /* =====================================================
+               UPDATE ACCOUNT
+               ===================================================== */
+
             const {
                 rows: updatedRows
             } = await pool.query(
 
-                `UPDATE users SET
+                `UPDATE public.users SET
 
                     full_name = $1,
 
@@ -370,45 +441,45 @@ router.put(
 
                     program = $3,
 
-                    email = $4,
+                    email_hash = $4,
 
-                    email_hash = $5,
+                    student_id = $5,
 
-                    student_id = $6,
+                    password_hash = $6
 
-                    password_hash = $7
+                 WHERE id = $7
 
-                 WHERE id = $8
-
-                 RETURNING *`,
+                 RETURNING
+                    id,
+                    full_name,
+                    year_section,
+                    program,
+                    student_id,
+                    profile_photo`,
 
                 [
 
-                    fullName
-                        ? fullName.trim()
+                    fullName !== undefined &&
+                    String(fullName).trim() !== ''
+                        ? String(fullName).trim()
                         : user.full_name,
 
                     yearSection !== undefined
-                        ? yearSection
+                        ? String(yearSection).trim()
                         : user.year_section,
 
                     program !== undefined
-                        ? program
+                        ? String(program).trim()
                         : user.program,
 
-                    normalizedEmail,
+                    newEmailHash,
 
-                    hashEmail(
-                        normalizedEmail
-                    ),
-
-                    studentId !== undefined
-                        ? studentId
-                        : user.student_id,
+                    newStudentId || null,
 
                     newPasswordHash,
 
                     req.userId
+
                 ]
             );
 
@@ -468,13 +539,14 @@ router.post(
 
             await pool.query(
 
-                `UPDATE users
+                `UPDATE public.users
+
                  SET profile_photo = $1
+
                  WHERE id = $2`,
 
                 [
                     url,
-
                     req.userId
                 ]
             );
@@ -506,23 +578,14 @@ router.delete(
 
         try {
 
-            /*
-                Delete user.
-
-                ON DELETE CASCADE will remove
-                related progress records.
-            */
             await pool.query(
 
-                'DELETE FROM users WHERE id = $1',
+                'DELETE FROM public.users WHERE id = $1',
 
                 [req.userId]
             );
 
 
-            /*
-                Remove login cookie.
-            */
             res.clearCookie('token');
 
 

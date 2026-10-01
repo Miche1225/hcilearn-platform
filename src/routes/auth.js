@@ -21,7 +21,6 @@ const {
     sendSignupNotification,
     sendLoginNotification,
     sendPasswordResetEmail,
-    sendPasswordChangedNotification
 } = require('../utils/mailer');
 
 const EMAIL_REGEX =
@@ -177,8 +176,6 @@ function publicUser(row) {
         program:
             row.program,
 
-        email:
-            row.email,
 
         studentId:
             row.student_id,
@@ -352,10 +349,9 @@ router.post(
             /*
                 Create HMAC hash of email.
 
-                The real email can still be used
-                for sending notifications.
-
-                The hash is used for account lookup.
+                The real email is NOT stored in users.
+                It is only used during this request
+                to send the signup notification.
             */
             const emailHash =
                 hashEmail(
@@ -398,15 +394,6 @@ router.post(
 
             /*
                 Combine first and last name.
-
-                Example:
-
-                Juan
-                Dela Cruz
-
-                becomes:
-
-                Juan Dela Cruz
             */
             const fullName =
                 `${cleanFirstName} ${cleanLastName}`;
@@ -414,14 +401,6 @@ router.post(
 
             /*
                 Combine year and section.
-
-                Example:
-
-                3rd Year + A
-
-                becomes:
-
-                3rd Year - Section A
             */
             const yearSection =
                 `${cleanYear} - Section ${cleanSection}`;
@@ -429,6 +408,9 @@ router.post(
 
             /*
                 Insert account.
+
+                NOTE:
+                There is NO email column here.
             */
             const insert =
                 await pool.query(
@@ -440,7 +422,6 @@ router.post(
                         last_name,
                         year_section,
                         program,
-                        email,
                         email_hash,
                         student_id,
                         password_hash
@@ -455,8 +436,7 @@ router.post(
                         $5,
                         $6,
                         $7,
-                        $8,
-                        $9
+                        $8
                     )
 
                     RETURNING id`,
@@ -474,8 +454,6 @@ router.post(
                         program
                             ? String(program).trim()
                             : null,
-
-                        normalizedEmail,
 
                         emailHash,
 
@@ -521,7 +499,7 @@ router.post(
 
 
             /*
-                Get complete user information.
+                Get user information.
             */
             const {
                 rows
@@ -534,12 +512,13 @@ router.post(
 
 
             /*
-                Send signup email.
+                Send signup email to the email
+                supplied in the current request.
 
-                This does not block signup.
+                It is not stored in users.
             */
             sendSignupNotification(
-                rows[0].email,
+                normalizedEmail,
                 rows[0].full_name
             );
 
@@ -647,9 +626,12 @@ router.post(
 
             /*
                 Login notification.
+
+                Email comes from the current request
+                instead of the database.
             */
             sendLoginNotification(
-                user.email,
+                normalizedEmail,
                 user.full_name
             );
 
@@ -704,11 +686,10 @@ router.post(
 
 
             /*
-                Search using email HMAC.
+                Search using the HMAC email hash.
 
-                The original email is still stored
-                in the account so the system can
-                send password reset messages.
+                The plaintext email is only kept in the
+                current request and is not stored in users.
             */
             const {
                 rows
@@ -716,8 +697,7 @@ router.post(
 
                 `SELECT
                     id,
-                    full_name,
-                    email
+                    full_name
 
                  FROM users
 
@@ -859,10 +839,13 @@ router.post(
 
             /*
                 Send reset email.
+
+                The email comes from the current request,
+                not from the database.
             */
             sendPasswordResetEmail(
 
-                user.email,
+                email,
 
                 user.full_name,
 
@@ -946,8 +929,7 @@ router.post(
 
                 `SELECT
                     u.id AS user_id,
-                    u.full_name,
-                    u.email
+                    u.full_name
 
                  FROM password_resets pr
 
@@ -1014,18 +996,6 @@ router.post(
                 [
                     match.user_id
                 ]
-            );
-
-
-            /*
-                Notify account owner.
-            */
-            sendPasswordChangedNotification(
-
-                match.email,
-
-                match.full_name
-
             );
 
 
