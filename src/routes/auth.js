@@ -112,7 +112,11 @@ const VALID_SECTIONS =
         'A',
         'B',
         'C',
-        'D'
+        'D',
+        'E',
+        'F',
+        'G',
+        'H'
     ]);
 
 
@@ -519,7 +523,7 @@ router.post(
             */
             sendSignupNotification(
                 normalizedEmail,
-                rows[0].full_name
+                rows[0].first_name
             );
 
 
@@ -632,7 +636,7 @@ router.post(
             */
             sendLoginNotification(
                 normalizedEmail,
-                user.full_name
+                user.first_name
             );
 
 
@@ -697,7 +701,7 @@ router.post(
 
                 `SELECT
                     id,
-                    full_name
+                    first_name
 
                  FROM users
 
@@ -847,7 +851,7 @@ router.post(
 
                 email,
 
-                user.full_name,
+                user.first_name,
 
                 link,
 
