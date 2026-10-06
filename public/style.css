@@ -2170,14 +2170,14 @@ p {
     flex-direction: column;
 }
 
-.form-grid label {
+.form-grid .input-group > label {
     font-size: 13px;
     font-weight: 600;
     color: #333;
     margin-bottom: 8px;
 }
 
-.form-grid input {
+.form-grid .input-group > input {
     width: 100%;
     padding: 10px 15px;
     border: 1px solid #d4dce6;
@@ -2189,10 +2189,114 @@ p {
     transition: 0.2s;
 }
 
-.form-grid input:focus {
+.form-grid .input-group > input:focus {
     border-color: #3b5b82;
     background-color: #ffffff;
     box-shadow: 0 0 0 2px rgba(59, 91, 130, 0.1);
+}
+
+/* Account page: keep the show-password control compact and inline.
+   The generic .form-grid input/label rules also affect checkboxes, so
+   these rules intentionally override them. */
+.account-password-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 7px;
+    margin-top: 8px;
+    padding: 0;
+    width: fit-content;
+}
+
+.account-password-toggle input[type="checkbox"] {
+    width: 14px !important;
+    height: 14px !important;
+    min-width: 14px;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 1px solid #9aa8b8;
+    border-radius: 3px;
+    background: #ffffff;
+    cursor: pointer;
+    appearance: auto;
+    flex: 0 0 auto;
+}
+
+.account-password-toggle label {
+    display: inline !important;
+    margin: 0 !important;
+    padding: 0;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: #333;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+/* Account action buttons: place Save and Delete Account on the same
+   row and give both controls the same visual height. */
+.account-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.account-actions .btn-save,
+.account-actions .btn-delete-account {
+    min-width: 120px;
+    height: 42px;
+    padding: 0 22px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 42px;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+}
+
+.account-actions .btn-save {
+    min-width: 125px;
+    border: 1px solid #436a9b;
+    background-color: #436a9b;
+    color: #ffffff;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.10);
+}
+
+.account-actions .btn-save:hover {
+    background-color: #305077;
+    border-color: #305077;
+}
+
+.account-actions .btn-delete-account {
+    min-width: 145px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border: 1px solid #aeb8c4;
+    background-color: #ffffff;
+    color: #2f3338;
+    line-height: 1;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.account-actions .btn-delete-account:hover {
+    border-color: #c94c4c;
+    background-color: #fff5f5;
+    color: #b42318;
+}
+
+.account-actions .btn-delete-account:disabled,
+.account-actions .btn-save:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    box-shadow: none;
 }
 
 /* Save Button */
@@ -2332,12 +2436,22 @@ p {
         width: 100%;
     }
     .btn-back, .btn-submit, .btn-save, #deleteAccountBtn {
-        width: 100% !important; /* Sakupin ang buong lapad para madaling pindutin */
-        padding: 14px !important; /* Mas manipis at saktong padding */
-        font-size: 14px !important;
-        margin: 0 !important;
-        box-sizing: border-box;
-    }
+    width: 100% !important;
+    padding: 0 14px !important;
+    font-size: 14px !important;
+    margin: 0 !important;
+    box-sizing: border-box;
+
+    min-height: 48px !important;
+    height: 48px !important;
+
+    /* Fix text vertical alignment */
+    line-height: 1 !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
 
 /* 11. Fix para pumantay ang lapad at haba ng LAHAT ng boxes at i-reorder */
     .dashboard-grid {

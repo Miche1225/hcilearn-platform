@@ -30,7 +30,6 @@
 
             </div>
 
-
             <nav class="sidebar-nav">
 
                 <a
@@ -41,7 +40,6 @@
                     Dashboard
                 </a>
 
-
                 <a
                     href="WatchVideo.html"
                     class="nav-item"
@@ -49,7 +47,6 @@
                     <i class="fa-solid fa-play"></i>
                     Watch Video
                 </a>
-
 
                 <a
                     href="ReadLesson.html"
@@ -59,7 +56,6 @@
                     Read Lesson
                 </a>
 
-
                 <a
                     href="CaseStudies.html"
                     class="nav-item"
@@ -68,7 +64,6 @@
                     Case Studies
                 </a>
 
-
                 <a
                     href="StudyCards.html"
                     class="nav-item"
@@ -76,7 +71,6 @@
                     <i class="fa-solid fa-rotate"></i>
                     Study Cards
                 </a>
-
 
                 <a
                     href="Account.html"
@@ -96,7 +90,6 @@
 
             <div class="account-wrapper">
 
-
                 <!-- Header Banner -->
                 <div class="account-banner">
 
@@ -109,7 +102,6 @@
                         </h2>
 
                     </div>
-
 
                     <p>
                         Update your personal details and account settings.
@@ -134,7 +126,6 @@
                     id="accountForm"
                     class="account-form"
                 >
-
 
                     <!-- =====================================
                          PROFILE PHOTO
@@ -316,19 +307,15 @@
                                     >
 
 
-                                    <div
-                                        class="account-password-toggle"
-                                    >
+                                    <!-- Fixed Show Password Layout -->
+                                    <div class="account-password-toggle">
 
                                         <input
                                             type="checkbox"
                                             id="show-password"
                                         >
 
-
-                                        <label
-                                            for="show-password"
-                                        >
+                                        <label for="show-password">
                                             Show Password
                                         </label>
 
@@ -347,9 +334,8 @@
                          ACTION BUTTONS
                          ===================================== -->
 
-                    <div
-                        class="save-action account-actions"
-                    >
+                    <!-- Fixed Save/Delete Account Layout -->
+                    <div class="save-action account-actions">
 
                         <button
                             type="submit"
@@ -388,7 +374,6 @@
 
 
     <script>
-
 
         /* =================================================
            ELEMENT REFERENCES
@@ -464,9 +449,6 @@
 
         /* =================================================
            LOAD ACCOUNT
-
-           Email is intentionally NOT loaded because
-           only email_hash exists in the database.
            ================================================= */
 
         async function loadAccount() {
@@ -500,6 +482,7 @@
 
                 Enter an email only when changing it.
             */
+
             els.email.value =
                 '';
 
@@ -567,7 +550,6 @@
             .addEventListener(
                 'click',
                 async function () {
-
 
                     const confirmed =
                         confirm(
@@ -661,7 +643,6 @@
             .addEventListener(
                 'change',
                 async function () {
-
 
                     const file =
                         this.files[0];
@@ -799,10 +780,8 @@
 
                     /*
                         Only send email when changing it.
-
-                        A blank email means:
-                        keep the existing email_hash.
                     */
+
                     if (
                         newEmail
                     ) {
@@ -815,6 +794,7 @@
                     /*
                         Only send password when changing it.
                     */
+
                     if (
                         els.password.value
                     ) {
