@@ -11,6 +11,7 @@
 <body>
 
     <script src="js/api.js"></script>
+    <script src="js/sfx.js"></script>
     <script>
         requireAuth();
         document.addEventListener('DOMContentLoaded', function() {
@@ -306,6 +307,9 @@
             if (selectedAnswer === data.correctAnswer) {
                 // TAMA ANG SAGOT Logic
                 labels[selectedAnswer].classList.add('correct-answer');
+
+                // Sound: mas malaking reward kapag first time na-solve (nag-unlock ng susunod)
+                HCISfx.play(solvedIds.includes(currentActiveScenario) ? 'correct' : 'levelUp');
                 
                 submitBtn.innerText = "Correct! Back to List";
                 submitBtn.onclick = closeScenario; 
@@ -322,6 +326,7 @@
             } else {
                 // MALI ANG SAGOT Logic
                 labels[selectedAnswer].classList.add('wrong-answer');
+                HCISfx.play('wrong');
                 
                 // Papalitan lang ang button ng "Try Again"
                 submitBtn.innerText = "Incorrect. Try Again";

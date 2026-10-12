@@ -10,6 +10,7 @@
 <body>
 
     <script src="js/api.js"></script>
+    <script src="js/sfx.js"></script>
     <script>
         requireAuth();
         document.addEventListener('DOMContentLoaded', function() {
@@ -421,9 +422,12 @@
                 // TAMA ANG SAGOT
                 selectedLabel.classList.add("correct-answer");
                 questionQueue.shift(); 
+                // Fanfare kapag huling tanong na (na-master na ang lesson), chime kung hindi pa
+                HCISfx.play(questionQueue.length === 0 ? 'mastered' : 'correct');
             } else {
                 // MALI ANG SAGOT
                 selectedLabel.classList.add("wrong-answer");
+                HCISfx.play('wrong');
                 
                 // TINANGGAL NA NATIN DITO YUNG NAGPAPAKITA NG TAMANG SAGOT (GREEN)
                 // Para hindi nila malaman kung ano ang tama hanggang sa masagot nila nang wasto
