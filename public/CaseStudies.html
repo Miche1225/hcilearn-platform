@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Case Studies Page</title>
     <!-- Link to the separated CSS file -->
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=22">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
-<body>
+<body class="case-page">
 
     <script src="js/api.js"></script>
     <script src="js/sfx.js"></script>
@@ -69,6 +69,12 @@
                             <p>Read the scenario and choose the best answer</p>
                         </div>
                     </div>
+                    <div class="cs-header-side" id="csHeaderSide">
+                        <span class="cs-solved-chip"><i class="fa-solid fa-circle-check"></i> <span>Solved <strong id="solvedCount">0</strong>/50</span></span>
+                        <button type="button" class="cs-continue-btn" id="continueBtn" hidden>
+                            <i class="fa-solid fa-play"></i> <span id="continueText">Continue</span>
+                        </button>
+                    </div>
                 </div>
                 <hr class="cs-divider">
 
@@ -79,12 +85,21 @@
 
                 <!-- VIEW 2: SCENARIO QUIZ CARD -->
                 <div id="scenarioView" class="quiz-container" style="display: none;">
-                    
+
+                    <div class="quiz-topbar">
+                        <button type="button" class="quiz-back-link" onclick="closeScenario()">
+                            <i class="fa-solid fa-arrow-left"></i> All scenarios
+                        </button>
+                        <span class="quiz-status" id="quizStatus"></span>
+                    </div>
+
                     <h3 class="scenario-title" id="scenarioTitle">Loading...</h3>
-                    <p class="scenario-text" id="scenarioText">Loading scenario...</p>
-                    
-                    <hr class="quiz-divider">
-                    
+
+                    <div class="scenario-box">
+                        <div class="scenario-box-label"><i class="fa-solid fa-book-open-reader"></i> Situation</div>
+                        <p class="scenario-text" id="scenarioText">Loading scenario...</p>
+                    </div>
+
                     <p class="question-text" id="questionText">Loading question...</p>
 
                     <!-- Multiple Choice Options -->
@@ -92,24 +107,39 @@
                         <!-- Option A -->
                         <div>
                             <input type="radio" name="quizOption" id="optA" class="hidden-radio" value="0">
-                            <label for="optA" class="option-label" id="labelA" onclick="selectOption(0)">A.</label>
+                            <label for="optA" class="option-label" onclick="selectOption(0)">
+                                <span class="option-letter">A</span>
+                                <span class="option-text" id="labelA"></span>
+                            </label>
                         </div>
                         <!-- Option B -->
                         <div>
                             <input type="radio" name="quizOption" id="optB" class="hidden-radio" value="1">
-                            <label for="optB" class="option-label" id="labelB" onclick="selectOption(1)">B.</label>
+                            <label for="optB" class="option-label" onclick="selectOption(1)">
+                                <span class="option-letter">B</span>
+                                <span class="option-text" id="labelB"></span>
+                            </label>
                         </div>
                         <!-- Option C -->
                         <div>
                             <input type="radio" name="quizOption" id="optC" class="hidden-radio" value="2">
-                            <label for="optC" class="option-label" id="labelC" onclick="selectOption(2)">C.</label>
+                            <label for="optC" class="option-label" onclick="selectOption(2)">
+                                <span class="option-letter">C</span>
+                                <span class="option-text" id="labelC"></span>
+                            </label>
                         </div>
                         <!-- Option D -->
                         <div>
                             <input type="radio" name="quizOption" id="optD" class="hidden-radio" value="3">
-                            <label for="optD" class="option-label" id="labelD" onclick="selectOption(3)">D.</label>
+                            <label for="optD" class="option-label" onclick="selectOption(3)">
+                                <span class="option-letter">D</span>
+                                <span class="option-text" id="labelD"></span>
+                            </label>
                         </div>
                     </div>
+
+                    <!-- Feedback message -->
+                    <div class="quiz-feedback" id="quizFeedback" role="status" hidden></div>
 
                     <!-- Action Buttons -->
                     <div class="quiz-actions">
@@ -179,11 +209,13 @@
         };
 
         // System Variables
+        const TOTAL_SCENARIOS = 50;
         let unlockedLevel = 1; // Default starting unlocked level, replaced by server data on load
         let solvedIds = [];
         let currentActiveScenario = null;
         let selectedAnswer = null;
         let isAnswerSubmitted = false;
+        let saveChain = Promise.resolve(); // para sunod-sunod ang pag-save sa server
 
         // Initialize Page: pull the user's real progress from the backend first.
         document.addEventListener('DOMContentLoaded', async () => {
@@ -197,31 +229,81 @@
             renderScenariosList();
         });
 
+        // Unang unlocked scenario na hindi pa nasasagot (ang "Up next")
+        function getNextScenario() {
+            for (let i = 1; i <= Math.min(unlockedLevel, TOTAL_SCENARIOS); i++) {
+                if (!solvedIds.includes(i)) return i;
+            }
+            return null;
+        }
+
         // Render the 50 scenario cards
         function renderScenariosList() {
             const listView = document.getElementById('scenariosListView');
             listView.innerHTML = '';
+            const nextId = getNextScenario();
 
-            for (let i = 1; i <= 50; i++) {
+            for (let i = 1; i <= TOTAL_SCENARIOS; i++) {
                 const isUnlocked = i <= unlockedLevel;
                 const isSolved = solvedIds.includes(i);
+                const isNext = i === nextId;
+
+                let state = 'locked';
+                if (isSolved) state = 'solved';
+                else if (isNext) state = 'next';
+                else if (isUnlocked) state = 'unlocked';
+
+                const STATUS = {
+                    solved:   '<i class="fa-solid fa-circle-check"></i> Solved',
+                    next:     '<i class="fa-solid fa-play"></i> Up next',
+                    unlocked: '<i class="fa-regular fa-circle"></i> Open',
+                    locked:   '<i class="fa-solid fa-lock"></i> Locked',
+                };
+
                 // CHANGED: Gumamit ng 'scenario-card' para basahin yung magandang background sa CSS
-                const scenarioDiv = document.createElement('div');
-                scenarioDiv.className = `scenario-card ${isUnlocked ? 'unlocked' : 'locked'}`;
-                
-                const iconHtml = isUnlocked
-                    ? (isSolved ? '<i class="fa-solid fa-circle-check" style="color:#1e7e45;"></i> ' : '')
-                    : '<i class="fa-solid fa-lock"></i>';
-                const questionPreview = scenariosData[i].question;
-                
-                scenarioDiv.innerHTML = `${iconHtml} Scenario ${i}: ${questionPreview}`;
-                
+                const scenarioDiv = document.createElement(isUnlocked ? 'button' : 'div');
+                scenarioDiv.className = `scenario-card ${isUnlocked ? 'unlocked' : 'locked'} is-${state}`;
+                if (isUnlocked) scenarioDiv.type = 'button';
+                else scenarioDiv.title = `Solve Scenario ${i - 1} to unlock`;
+
+                scenarioDiv.innerHTML = `
+                    <div class="sc-top">
+                        <span class="sc-num">${i}</span>
+                        <span class="sc-status">${STATUS[state]}</span>
+                    </div>
+                    <p class="sc-question"></p>`;
+                scenarioDiv.querySelector('.sc-question').textContent = scenariosData[i].question;
+
                 if (isUnlocked) {
                     scenarioDiv.onclick = () => openScenario(i);
                 }
-                
+
                 listView.appendChild(scenarioDiv);
             }
+
+            // Header: solved count + Continue button
+            document.getElementById('solvedCount').textContent = solvedIds.length;
+
+            const continueBtn = document.getElementById('continueBtn');
+            if (nextId) {
+                document.getElementById('continueText').textContent =
+                    solvedIds.length ? `Continue: Scenario ${nextId}` : 'Start Scenario 1';
+                continueBtn.onclick = () => openScenario(nextId);
+                continueBtn.hidden = false;
+            } else {
+                continueBtn.hidden = true;
+            }
+        }
+
+        function showFeedback(type, html) {
+            const box = document.getElementById('quizFeedback');
+            box.className = `quiz-feedback is-${type}`;
+            box.innerHTML = html;
+            box.hidden = false;
+        }
+
+        function hideFeedback() {
+            document.getElementById('quizFeedback').hidden = true;
         }
 
         // Open a specific scenario
@@ -231,50 +313,65 @@
             isAnswerSubmitted = false;
 
             const data = scenariosData[id];
-            
+
             // Set Text
             document.getElementById('scenarioTitle').innerText = `Scenario ${id}`;
             document.getElementById('scenarioText').innerText = data.text;
             document.getElementById('questionText').innerText = data.question;
+            document.getElementById('quizStatus').innerHTML = solvedIds.includes(id)
+                ? '<i class="fa-solid fa-circle-check"></i> Already solved'
+                : `${id} of ${TOTAL_SCENARIOS}`;
+            document.getElementById('quizStatus').classList.toggle('is-solved', solvedIds.includes(id));
 
-            // Set Options
-            document.getElementById('labelA').innerText = data.options[0];
-            document.getElementById('labelB').innerText = data.options[1];
-            document.getElementById('labelC').innerText = data.options[2];
-            document.getElementById('labelD').innerText = data.options[3];
+            // Set Options (tanggalin ang "A. " sa unahan dahil may letter badge na)
+            ['labelA', 'labelB', 'labelC', 'labelD'].forEach((labelId, index) => {
+                document.getElementById(labelId).innerText = data.options[index].replace(/^[A-D]\.\s*/, '');
+            });
 
             // Reset UI states
             resetOptionsUI();
-            
+            hideFeedback();
+            document.getElementById('optionsGroup').classList.remove('is-locked');
+
             // I-reset ang text at action ng button
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.innerText = "Submit Answer";
-            submitBtn.onclick = submitCaseStudy; 
+            submitBtn.onclick = submitCaseStudy;
 
             // Toggle Views
             document.getElementById('scenariosListView').style.display = 'none';
+            document.getElementById('csHeaderSide').style.display = 'none';
             document.getElementById('scenarioView').style.display = 'block';
+            scrollToTop();
         }
 
         // Close scenario and go back to list
         function closeScenario() {
-            document.getElementById('scenariosListView').style.display = 'flex';
+            document.getElementById('scenariosListView').style.display = '';
+            document.getElementById('csHeaderSide').style.display = '';
             document.getElementById('scenarioView').style.display = 'none';
+            scrollToTop();
+        }
+
+        function scrollToTop() {
+            document.querySelector('.main-content').scrollTo({ top: 0 });
+            window.scrollTo({ top: 0 });
         }
 
         // Handle option selection
         function selectOption(index) {
             if (isAnswerSubmitted) return; // Pag naka-lock na (kasi tama), wag na palitan
-            
+
             selectedAnswer = index.toString();
-            
+
             // Tanggalin yung green/red na kulay kung pipili ulit sila
             resetOptionsUI();
-            
+            hideFeedback();
+
             // Check underlying radio manually
             const radios = document.querySelectorAll('.hidden-radio');
             radios[index].checked = true;
-            
+
             // I-reset ang text ng button para hindi maka-confuse
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.innerText = "Submit Answer";
@@ -293,7 +390,7 @@
         // Submit the answer
         function submitCaseStudy() {
             if (selectedAnswer === null) {
-                alert("Please select an answer before submitting.");
+                showFeedback('info', '<i class="fa-solid fa-hand-pointer"></i> Please select an answer before submitting.');
                 return;
             }
 
@@ -307,29 +404,54 @@
             if (selectedAnswer === data.correctAnswer) {
                 // TAMA ANG SAGOT Logic
                 labels[selectedAnswer].classList.add('correct-answer');
+                document.getElementById('optionsGroup').classList.add('is-locked');
+
+                const firstTime = !solvedIds.includes(currentActiveScenario);
+                const unlocksNext = currentActiveScenario === unlockedLevel;
 
                 // Sound: mas malaking reward kapag first time na-solve (nag-unlock ng susunod)
-                HCISfx.play(solvedIds.includes(currentActiveScenario) ? 'correct' : 'levelUp');
-                
-                submitBtn.innerText = "Correct! Back to List";
-                submitBtn.onclick = closeScenario; 
+                HCISfx.play(firstTime ? 'levelUp' : 'correct');
+
+                const nextId = currentActiveScenario + 1;
+                const hasNext = nextId <= TOTAL_SCENARIOS;
+
+                showFeedback('correct', unlocksNext && hasNext
+                    ? `<i class="fa-solid fa-circle-check"></i> Correct! Scenario ${nextId} is now unlocked.`
+                    : '<i class="fa-solid fa-circle-check"></i> Correct! Great job.');
+
+                if (hasNext) {
+                    submitBtn.innerHTML = 'Next Scenario <i class="fa-solid fa-arrow-right"></i>';
+                    submitBtn.onclick = () => openScenario(nextId);
+                } else {
+                    submitBtn.innerText = "Back to List";
+                    submitBtn.onclick = closeScenario;
+                }
                 isAnswerSubmitted = true; // Lock the choices
 
+                // Para gumana agad ang "Next" kahit hindi pa tapos ang save
+                if (firstTime) solvedIds = [...solvedIds, currentActiveScenario];
+                if (unlocksNext && hasNext) unlockedLevel = nextId;
+
                 // Persist progress on the backend, then refresh local state from its response.
-                api.post('/progress/case-studies/submit', { scenarioId: currentActiveScenario, correct: true })
+                const scenarioId = currentActiveScenario;
+                saveChain = saveChain
+                    .then(() => api.post('/progress/case-studies/submit', { scenarioId, correct: true }))
                     .then(result => {
                         unlockedLevel = result.unlockedLevel;
                         solvedIds = result.solvedIds;
                         renderScenariosList();
                     })
                     .catch(err => console.error('Could not save case study progress:', err));
+                renderScenariosList();
             } else {
                 // MALI ANG SAGOT Logic
                 labels[selectedAnswer].classList.add('wrong-answer');
                 HCISfx.play('wrong');
-                
+
+                showFeedback('wrong', '<i class="fa-solid fa-circle-xmark"></i> Not quite. Pick another answer and try again.');
+
                 // Papalitan lang ang button ng "Try Again"
-                submitBtn.innerText = "Incorrect. Try Again";
+                submitBtn.innerText = "Try Again";
                 // Ang isAnswerSubmitted ay mananatiling FALSE para makapindot ulit ang user ng ibang sagot!
             }
         }
@@ -337,8 +459,7 @@
         // PAG-TRACK NG LAST VISITED LESSON PARA SA DASHBOARD
         let currentPageName = window.location.pathname.split('/').pop();
         if (!currentPageName || currentPageName === '') {
-            // Palitan ng tamang pangalan depende sa file (e.g. 'ReadLesson.html')
-            currentPageName = 'ReadLesson.html'; 
+            currentPageName = 'CaseStudies.html';
         }
         localStorage.setItem('lastLessonVisited', currentPageName);
 
