@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Read Lesson Page</title>
-    <link rel="stylesheet" href="style.css?v=20">
+    <link rel="stylesheet" href="style.css?v=22">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="lesson-page">
@@ -4196,7 +4196,7 @@
 
 
             // ========================================================
-            // 1. NUMBERS + "READ" CHECK SA BAWAT TOPIC
+            // 1. NUMBERS SA BAWAT TOPIC
             // ========================================================
             accordionItems.forEach((item, index) => {
                 const button = item.querySelector('.accordion-button');
@@ -4215,28 +4215,10 @@
                 num.className = 'topic-num';
                 num.textContent = index + 1;
                 button.prepend(num);
-
-                const check = document.createElement('i');
-                check.className = 'fa-solid fa-circle-check topic-read-icon';
-                check.title = 'You opened this topic';
-                button.querySelector('.chevron-icon').before(check);
             });
 
-            // Naaalala kung aling topics ang nabuksan na (sa browser na ito)
-            const READ_KEY = 'readLessonTopics';
-            let readTopics = new Set();
-            try {
-                readTopics = new Set(JSON.parse(localStorage.getItem(READ_KEY) || '[]'));
-            } catch (e) { /* storage blocked or corrupted */ }
-
-            function markRead(index) {
-                if (readTopics.has(index)) return;
-                readTopics.add(index);
-                accordionItems[index].classList.add('is-read');
-                try { localStorage.setItem(READ_KEY, JSON.stringify([...readTopics])); } catch (e) { }
-            }
-
-            readTopics.forEach(i => { if (accordionItems[i]) accordionItems[i].classList.add('is-read'); });
+            // Linisin ang lumang "read topics" data na hindi na ginagamit
+            try { localStorage.removeItem('readLessonTopics'); } catch (e) { }
 
 
             // ========================================================
@@ -4247,14 +4229,12 @@
                 item.querySelector('.accordion-button').setAttribute('aria-expanded', open);
             }
 
-            accordionItems.forEach((item, index) => {
+            accordionItems.forEach(item => {
                 const button = item.querySelector('.accordion-button');
                 button.setAttribute('aria-expanded', 'false');
 
                 button.addEventListener('click', function() {
-                    const open = !item.classList.contains('active');
-                    setOpen(item, open);
-                    if (open) markRead(index);
+                    setOpen(item, !item.classList.contains('active'));
                 });
             });
 
