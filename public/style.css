@@ -5061,6 +5061,697 @@ p {
 }
 
 /* ========================================= */
+/* --- STUDY CARDS PAGE ENHANCEMENTS ---     */
+/* (flashcard / deck style)                  */
+/* ========================================= */
+
+.study-page .main-content {
+    background-color: #f7f9fb;
+}
+
+.study-page .case-studies-wrapper {
+    max-width: 1040px;
+}
+
+/* --- Banner header --- */
+.study-page .sc-hero {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    padding: 24px 28px;
+    margin-bottom: 26px;
+    border-radius: 20px;
+    background: linear-gradient(120deg, #0d3b75 0%, #255a9e 60%, #3a6ba8 100%);
+    color: #fff;
+    box-shadow: 0 12px 30px rgba(13, 59, 117, 0.22);
+}
+
+.study-page .sc-hero::after {
+    /* Decorative "cards" sa kanan */
+    content: "";
+    position: absolute;
+    right: -30px;
+    bottom: -60px;
+    width: 180px;
+    height: 220px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.07);
+    transform: rotate(18deg);
+    box-shadow: -60px -10px 0 rgba(255, 255, 255, 0.05);
+    pointer-events: none;
+}
+
+.study-page .sc-hero-icon {
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.16);
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.study-page .sc-hero-text {
+    flex: 1;
+    min-width: 200px;
+}
+
+.study-page .sc-hero-text h2 {
+    margin: 0 0 4px;
+    font-size: 26px;
+    font-weight: 800;
+    color: #fff;
+}
+
+.study-page .sc-hero-text p {
+    margin: 0;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.study-page .sc-hero-side {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.study-page .sc-hero-stat {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+    text-align: right;
+}
+
+.study-page .sc-hero-stat strong {
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.study-page .sc-hero-stat small {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.study-page .sc-hero-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 20px;
+    border: none;
+    border-radius: 25px;
+    background: #fff;
+    color: #0d3b75;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.study-page .sc-hero-btn[hidden] {
+    display: none;
+}
+
+.study-page .sc-hero-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.2);
+}
+
+/* --- Deck grid --- */
+.study-page .deck-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 26px 22px;
+    padding: 4px 6px 10px 0;
+}
+
+.study-page .deck {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: none;
+    background: none;
+    text-align: left;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+/* Dalawang "card" sa likod para magmukhang deck */
+.study-page .deck::before,
+.study-page .deck::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid #e3e8ef;
+    transition: transform 0.25s ease;
+}
+
+.study-page .deck::before {
+    transform: translate(10px, 10px) rotate(2deg);
+    background: #eef2f7;
+}
+
+.study-page .deck::after {
+    transform: translate(5px, 5px) rotate(1deg);
+    background: #f6f8fb;
+}
+
+.study-page .deck-face {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 190px;
+    padding: 18px 18px 16px;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid #e3e8ef;
+    box-shadow: 0 4px 12px rgba(13, 59, 117, 0.06);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.study-page .deck:not(.is-locked):hover .deck-face {
+    transform: translateY(-6px) rotate(-1deg);
+    box-shadow: 0 14px 28px rgba(13, 59, 117, 0.15);
+}
+
+.study-page .deck:not(.is-locked):hover::before {
+    transform: translate(14px, 12px) rotate(4deg);
+}
+
+.study-page .deck-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    font-size: 19px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+}
+
+.study-page .deck-lesson {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #888;
+}
+
+.study-page .deck-title {
+    margin: 4px 0 14px;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.35;
+    color: #111;
+    flex: 1;
+}
+
+.study-page .deck-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px dashed #e1e6ed;
+}
+
+.study-page .deck-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #777;
+}
+
+.study-page .deck-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 11px;
+    border-radius: 14px;
+    font-size: 12px;
+    font-weight: 700;
+    background: #e8eef7;
+    color: #0d3b75;
+}
+
+/* Deck states */
+.study-page .deck.is-done .deck-status {
+    background: #e3f4ea;
+    color: #1e7e45;
+}
+
+.study-page .deck.is-done .deck-face {
+    border-color: #bfe3cc;
+}
+
+.study-page .deck.is-next .deck-face {
+    border: 2px solid #0d3b75;
+    padding: 17px 17px 15px;
+}
+
+.study-page .deck.is-next .deck-status {
+    background: #0d3b75;
+    color: #fff;
+}
+
+.study-page .deck.is-locked {
+    cursor: not-allowed;
+}
+
+.study-page .deck.is-locked .deck-face {
+    background: #f4f6f9;
+    box-shadow: none;
+}
+
+.study-page .deck.is-locked .deck-icon {
+    background: #e6e9ee;
+    color: #a6adb7;
+}
+
+.study-page .deck.is-locked .deck-title,
+.study-page .deck.is-locked .deck-count {
+    color: #9aa3ae;
+}
+
+.study-page .deck.is-locked .deck-status {
+    background: #e6e9ee;
+    color: #8a929d;
+}
+
+.study-page .deck:focus-visible {
+    outline: none;
+}
+
+.study-page .deck:focus-visible .deck-face {
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.45);
+}
+
+/* --- Flashcard quiz --- */
+.study-page .fc-stage {
+    max-width: 780px;
+    margin: 0 auto;
+}
+
+.study-page .fc-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.study-page .fc-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border: 1px solid #d4dce6;
+    border-radius: 20px;
+    background: #fff;
+    color: #0d3b75;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.study-page .fc-back:hover {
+    border-color: #0d3b75;
+}
+
+.study-page .fc-counter {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 14px;
+    border-radius: 20px;
+    background: #fff;
+    border: 1px solid #e3e8ef;
+    font-size: 13px;
+    font-weight: 700;
+    color: #333;
+}
+
+.study-page .fc-counter i {
+    color: #0d3b75;
+}
+
+/* The big flashcard with a deck behind it */
+.study-page .fc-card {
+    position: relative;
+    margin: 0 14px 34px;
+    padding: 40px 34px 44px;
+    min-height: 190px;
+    border-radius: 22px;
+    background: #fff;
+    border: 1px solid #e3e8ef;
+    /* Mga card sa likod (deck) gamit ang layered shadows */
+    box-shadow:
+        0 12px 0 -6px #f1f4f8,
+        0 12px 0 -5px #dfe5ec,
+        0 24px 0 -12px #e8edf3,
+        0 24px 0 -11px #d9e0e8,
+        0 22px 36px rgba(13, 59, 117, 0.12);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    animation: fadeUp 0.35s ease both;
+}
+
+.study-page .fc-card-label {
+    margin-bottom: 14px;
+    padding: 4px 12px;
+    border-radius: 14px;
+    background: #e8eef7;
+    color: #0d3b75;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.study-page .fc-card h3 {
+    margin: 0;
+    font-size: 21px;
+    font-weight: 800;
+    line-height: 1.45;
+    color: #111;
+}
+
+.study-page .fc-card-mark {
+    position: absolute;
+    top: 16px;
+    right: 18px;
+    font-size: 22px;
+    color: #e3e9f2;
+}
+
+/* Answer tiles (2x2) */
+.study-page .fc-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.study-page .fc-grid > div {
+    display: flex;
+}
+
+.study-page .fc-radio {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.study-page .fc-tile {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 14px;
+    background: #fff;
+    border: 2px solid #e3e8ef;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: #333;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, transform 0.15s;
+}
+
+.study-page .fc-tile:hover {
+    border-color: #9db3d3;
+    transform: translateY(-2px);
+}
+
+.study-page .fc-letter {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: #f1f4f8;
+    color: #0d3b75;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.study-page .fc-radio:checked + .fc-tile {
+    border-color: #0d3b75;
+    background: #f4f7fc;
+}
+
+.study-page .fc-radio:checked + .fc-tile .fc-letter {
+    background: #0d3b75;
+    color: #fff;
+}
+
+.study-page .fc-radio:focus-visible + .fc-tile {
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.35);
+}
+
+.study-page .fc-radio:disabled + .fc-tile {
+    cursor: default;
+    transform: none;
+}
+
+.study-page .fc-radio + .fc-tile.correct-answer {
+    border-color: #28a745;
+    background: #e3f4ea;
+    color: #155724;
+}
+
+.study-page .fc-radio + .fc-tile.correct-answer .fc-letter {
+    background: #28a745;
+    color: #fff;
+}
+
+.study-page .fc-radio + .fc-tile.wrong-answer {
+    border-color: #dc3545;
+    background: #fdecea;
+    color: #a12a1f;
+    animation: shake 0.35s ease;
+}
+
+.study-page .fc-radio + .fc-tile.wrong-answer .fc-letter {
+    background: #dc3545;
+    color: #fff;
+}
+
+/* Feedback */
+.study-page .fc-feedback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 11px 16px;
+    margin-bottom: 18px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.study-page .fc-feedback[hidden] {
+    display: none;
+}
+
+.study-page .fc-feedback.is-correct { background: #e3f4ea; color: #155724; }
+.study-page .fc-feedback.is-wrong   { background: #fdecea; color: #a12a1f; }
+.study-page .fc-feedback.is-info    { background: #e8eef7; color: #0d3b75; }
+
+/* Buttons */
+.study-page .fc-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.study-page .fc-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 150px;
+    height: 46px;
+    padding: 0 24px;
+    border-radius: 25px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.study-page .fc-btn[hidden] {
+    display: none;
+}
+
+.study-page .fc-btn-ghost {
+    background: #fff;
+    border: 1px solid #c9d1dc;
+    color: #333;
+}
+
+.study-page .fc-btn-ghost:hover {
+    background: #f1f4f8;
+}
+
+.study-page .fc-btn-primary {
+    border: none;
+    background: #0d3b75;
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(13, 59, 117, 0.25);
+}
+
+.study-page .fc-btn-primary:hover:not(:disabled) {
+    background: #002244;
+    transform: translateY(-1px);
+}
+
+.study-page .fc-btn-primary:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+/* Deck finished */
+.study-page .fc-done {
+    padding: 36px 24px 30px;
+    border-radius: 22px;
+    background: #fff;
+    border: 1px solid #e3e8ef;
+    box-shadow: 0 16px 34px rgba(13, 59, 117, 0.12);
+    text-align: center;
+    animation: fadeUp 0.35s ease both;
+}
+
+.study-page .fc-done[hidden] {
+    display: none;
+}
+
+.study-page .fc-done-icon {
+    width: 76px;
+    height: 76px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    background: #fff4d6;
+    color: #d68b00;
+    font-size: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 10px rgba(214, 139, 0, 0.08);
+}
+
+.study-page .fc-done h3 {
+    margin: 0 0 8px;
+    font-size: 24px;
+    font-weight: 800;
+    color: #111;
+}
+
+.study-page .fc-done p {
+    margin: 0 0 24px;
+    font-size: 15px;
+    color: #555;
+}
+
+.study-page .fc-done-actions {
+    flex-wrap: wrap;
+}
+
+/* Tip */
+.study-page .helpful-tip {
+    width: fit-content;
+    max-width: 100%;
+    margin: 28px auto 0;
+    text-align: center;
+    background: #fff;
+    border: 1px solid #e3e8ef;
+    border-radius: 12px;
+    color: #555;
+}
+
+.study-page .helpful-tip i {
+    color: #d68b00;
+}
+
+@media (max-width: 1100px) {
+    .study-page .deck-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .study-page .sc-hero {
+        padding: 20px;
+        gap: 14px;
+    }
+
+    .study-page .sc-hero-text h2 {
+        font-size: 22px;
+    }
+
+    .study-page .sc-hero-side {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .study-page .sc-hero-stat {
+        text-align: left;
+    }
+
+    .study-page .deck-grid {
+        grid-template-columns: 1fr;
+        gap: 22px;
+        padding-right: 10px;
+    }
+
+    .study-page .deck-face {
+        min-height: 0;
+    }
+
+    .study-page .fc-card {
+        margin: 0 8px 30px;
+        padding: 32px 18px 34px;
+        min-height: 150px;
+    }
+
+    .study-page .fc-card h3 {
+        font-size: 18px;
+    }
+
+    .study-page .fc-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .study-page .fc-actions {
+        flex-direction: column-reverse;
+    }
+
+    .study-page .fc-btn {
+        width: 100%;
+    }
+}
+
+/* ========================================= */
 /* --- CONFIRM DIALOG (confirmDialog()) ---  */
 /* ========================================= */
 
