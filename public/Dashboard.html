@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Page</title>
-    <link rel="stylesheet" href="style.css?v=26">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="stylesheet" href="style.css?v=30">
     <!-- FontAwesome for the input icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -15,36 +18,49 @@
         <!-- Sidebar Navigation -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <i class="fa-solid fa-book-open logo-icon"></i>
-                <span class="logo-text">HCILearn</span>
+                <img src="favicon.svg" alt="" class="sidebar-logo">
+                <div class="sidebar-brand">
+                    <span class="logo-text">HCILearn</span>
+                    <small class="logo-tag">HCI 2 Reviewer</small>
+                </div>
             </div>
+
+            <span class="sidebar-label">Overview</span>
 
             <nav class="sidebar-nav">
                 <a href="Dashboard.html" class="nav-item active">
-                    <i class="fa-solid fa-border-all"></i> Dashboard
+                    <i class="fa-solid fa-border-all"></i> <span class="nav-text">Dashboard</span>
                 </a>
+                <span class="sidebar-label sidebar-label-group">Learn</span>
                 <a href="WatchVideo.html" class="nav-item">
-                    <i class="fa-solid fa-play"></i> Watch Video
+                    <i class="fa-solid fa-play"></i> <span class="nav-text">Watch Video</span>
                 </a>
                 <a href="ReadLesson.html" class="nav-item">
-                    <i class="fa-solid fa-book"></i> Read Lesson
+                    <i class="fa-solid fa-book"></i> <span class="nav-text">Read Lesson</span>
                 </a>
                 <a href="CaseStudies.html" class="nav-item">
-                    <i class="fa-solid fa-folder"></i> Case Studies
+                    <i class="fa-solid fa-folder"></i> <span class="nav-text">Case Studies</span>
                 </a>
                 <a href="StudyCards.html" class="nav-item">
-                    <i class="fa-solid fa-rotate"></i> Study Cards
+                    <i class="fa-solid fa-rotate"></i> <span class="nav-text">Study Cards</span>
                 </a>
+                <span class="sidebar-label sidebar-label-group">You</span>
                 <a href="Account.html" class="nav-item">
-                    <i class="fa-solid fa-circle-user"></i> Account
+                    <i class="fa-solid fa-circle-user"></i> <span class="nav-text">Account</span>
                 </a>
             </nav>
-
-            <div class="sidebar-footer">
-                <!-- DINAGDAGAN NG ID NA 'logoutBtn' -->
-                <a href="#" class="nav-item logout" id="logoutBtn">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Log out
+            <!-- Profile card + log out (pinupuno ng renderSidebarUser() sa js/api.js) -->
+            <div class="sidebar-user">
+                <a href="Account.html" class="sidebar-user-link" title="View your account">
+                    <span class="sidebar-avatar" id="sidebarAvatar"><i class="fa-regular fa-user"></i></span>
+                    <span class="sidebar-user-text">
+                        <strong id="sidebarName">My Account</strong>
+                        <small id="sidebarMeta">View profile</small>
+                    </span>
                 </a>
+                <button type="button" class="sidebar-logout" data-logout aria-label="Log out" title="Log out">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                </button>
             </div>
         </aside>
 
@@ -140,7 +156,6 @@
                             <div class="act-icon read-icon"><i class="fa-solid fa-book"></i></div>
                             <div class="act-text">
                                 <span>Read Lesson</span>
-                                <small id="lessonMeta">Not started</small>
                             </div>
                             <i class="fa-solid fa-chevron-right act-arrow"></i>
                         </a>
@@ -212,7 +227,7 @@
         </main>
     </div>
 
-    <script src="js/api.js?v=2"></script>
+    <script src="js/api.js?v=4"></script>
     <script>
         const ACTIVITY_ICONS = {
             video: 'fa-play',
@@ -260,21 +275,16 @@
                 { name: 'Case Studies', href: 'CaseStudies.html', done: summary.caseStudiesSolved, total: summary.caseStudiesTotal, verb: 'solved', meta: 'caseMeta', count: 'caseStudiesCount', totalEl: 'caseStudiesTotal', bar: 'caseStudiesBar' },
                 { name: 'Watch Videos', href: 'WatchVideo.html', done: summary.videosWatched, total: summary.videosTotal, verb: 'watched', meta: 'videoMeta', count: 'videosCount', totalEl: 'videosTotal', bar: 'videosBar' },
                 { name: 'Study Cards', href: 'StudyCards.html', done: summary.studyCardsCompleted, total: summary.studyCardsTotal, verb: 'completed', meta: 'cardsMeta', count: 'studyCardsCount', totalEl: 'studyCardsTotal', bar: 'studyCardsBar' },
-                { name: 'Read Lesson', href: 'ReadLesson.html', done: summary.lessonCompleted ? 1 : 0, total: 1, meta: 'lessonMeta' },
             ];
 
             modules.forEach(m => {
                 const metaEl = document.getElementById(m.meta);
-                metaEl.textContent = m.total === 1
-                    ? (m.done ? 'Completed' : 'Not finished yet')
-                    : moduleMeta(m.done, m.total, m.verb);
+                metaEl.textContent = moduleMeta(m.done, m.total, m.verb);
                 metaEl.classList.toggle('is-done', m.done >= m.total);
 
-                if (m.count) {
-                    animateCount(document.getElementById(m.count), m.done);
-                    document.getElementById(m.totalEl).textContent = `/${m.total}`;
-                    document.getElementById(m.bar).style.width = `${Math.min(100, (m.done / m.total) * 100)}%`;
-                }
+                animateCount(document.getElementById(m.count), m.done);
+                document.getElementById(m.totalEl).textContent = `/${m.total}`;
+                document.getElementById(m.bar).style.width = `${Math.min(100, (m.done / m.total) * 100)}%`;
             });
 
             // Suggest the unfinished module with the lowest completion
@@ -405,18 +415,6 @@
             }
         }
 
-        document.getElementById('logoutBtn').addEventListener('click', function (e) {
-            e.preventDefault();
-            confirmDialog({
-                title: 'Log out?',
-                message: "Your progress is saved. You'll need to log in again to continue learning.",
-                confirmText: 'Log out',
-                cancelText: 'Stay',
-                icon: 'fa-arrow-right-from-bracket',
-                danger: true,
-                onConfirm: logout,
-            });
-        });
 
         loadDashboard();
     </script>

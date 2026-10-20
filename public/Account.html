@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Account Page</title>
 
-    <link rel="stylesheet" href="style.css?v=26">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="stylesheet" href="style.css?v=30">
 
     <link
         rel="stylesheet"
@@ -21,14 +24,14 @@
         <aside class="sidebar">
 
             <div class="sidebar-header">
-
-                <i class="fa-solid fa-book-open logo-icon"></i>
-
-                <span class="logo-text">
-                    HCILearn
-                </span>
-
+                <img src="favicon.svg" alt="" class="sidebar-logo">
+                <div class="sidebar-brand">
+                    <span class="logo-text">HCILearn</span>
+                    <small class="logo-tag">HCI 2 Reviewer</small>
+                </div>
             </div>
+
+            <span class="sidebar-label">Overview</span>
 
             <nav class="sidebar-nav">
 
@@ -36,51 +39,60 @@
                     href="Dashboard.html"
                     class="nav-item"
                 >
-                    <i class="fa-solid fa-border-all"></i>
-                    Dashboard
+                    <i class="fa-solid fa-border-all"></i> <span class="nav-text">Dashboard</span>
                 </a>
 
+                <span class="sidebar-label sidebar-label-group">Learn</span>
                 <a
                     href="WatchVideo.html"
                     class="nav-item"
                 >
-                    <i class="fa-solid fa-play"></i>
-                    Watch Video
+                    <i class="fa-solid fa-play"></i> <span class="nav-text">Watch Video</span>
                 </a>
 
                 <a
                     href="ReadLesson.html"
                     class="nav-item"
                 >
-                    <i class="fa-solid fa-book"></i>
-                    Read Lesson
+                    <i class="fa-solid fa-book"></i> <span class="nav-text">Read Lesson</span>
                 </a>
 
                 <a
                     href="CaseStudies.html"
                     class="nav-item"
                 >
-                    <i class="fa-solid fa-folder"></i>
-                    Case Studies
+                    <i class="fa-solid fa-folder"></i> <span class="nav-text">Case Studies</span>
                 </a>
 
                 <a
                     href="StudyCards.html"
                     class="nav-item"
                 >
-                    <i class="fa-solid fa-rotate"></i>
-                    Study Cards
+                    <i class="fa-solid fa-rotate"></i> <span class="nav-text">Study Cards</span>
                 </a>
 
+                <span class="sidebar-label sidebar-label-group">You</span>
                 <a
                     href="Account.html"
                     class="nav-item active"
                 >
-                    <i class="fa-solid fa-circle-user"></i>
-                    Account
+                    <i class="fa-solid fa-circle-user"></i> <span class="nav-text">Account</span>
                 </a>
 
             </nav>
+            <!-- Profile card + log out (pinupuno ng renderSidebarUser() sa js/api.js) -->
+            <div class="sidebar-user">
+                <a href="Account.html" class="sidebar-user-link" title="View your account">
+                    <span class="sidebar-avatar" id="sidebarAvatar"><i class="fa-regular fa-user"></i></span>
+                    <span class="sidebar-user-text">
+                        <strong id="sidebarName">My Account</strong>
+                        <small id="sidebarMeta">View profile</small>
+                    </span>
+                </a>
+                <button type="button" class="sidebar-logout" data-logout aria-label="Log out" title="Log out">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                </button>
+            </div>
 
         </aside>
 
@@ -256,7 +268,7 @@
     </div>
 
 
-    <script src="js/api.js?v=2"></script>
+    <script src="js/api.js?v=4"></script>
 
 
     <script>
