@@ -3,14 +3,22 @@
 const crypto = require('crypto');
 const express = require('express');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 
 const { pool } = require('../db');
 
 const {
     requireAuth,
-    JWT_SECRET
+    issueSession,
+    clearSession,
+    IS_PRODUCTION
 } = require('../middleware/authGuard');
+
+const { rateLimit } = require('../middleware/rateLimit');
+
+const {
+    isValidPassword,
+    PASSWORD_RULES_MESSAGE
+} = require('../utils/passwords');
 
 const {
     normalizeEmail,
@@ -29,6 +37,65 @@ const EMAIL_REGEX =
 const RESET_TOKEN_MINUTES = 30;
 
 const RESET_COOLDOWN_SECONDS = 60;
+
+const STUDENT_ID_REGEX = /^\d{6}$/;
+
+// Maximum lengths for text fields (stops huge values being stored)
+const MAX_NAME = 60;
+const MAX_PROGRAM = 80;
+const MAX_EMAIL = 254;
+
+// Same reply whether or not the email is registered, so nobody can use
+// "Forgot password" to find out who has an account.
+const FORGOT_PASSWORD_REPLY =
+    'If that email is registered, a password reset link has been sent. Please check your inbox.';
+
+// Used when the email isn't registered so the login check takes about the
+// same time either way (no timing hint that an account exists).
+const DUMMY_PASSWORD_HASH =
+    bcrypt.hashSync(crypto.randomBytes(16).toString('hex'), 10);
+
+
+/* ---------------------------------------------------------
+   Rate limits (per IP address, plus per email for login)
+   --------------------------------------------------------- */
+
+const MINUTE = 60 * 1000;
+
+const loginLimiter = rateLimit({
+    windowMs: 15 * MINUTE,
+    max: 10,
+    keyFn: (req) => `login:${req.ip}:${String((req.body && req.body.email) || '').trim().toLowerCase()}`,
+    message: 'Too many login attempts. Please wait 15 minutes and try again.'
+});
+
+const loginIpLimiter = rateLimit({
+    windowMs: 15 * MINUTE,
+    max: 50,
+    keyFn: (req) => `login-ip:${req.ip}`,
+    message: 'Too many login attempts. Please wait 15 minutes and try again.'
+});
+
+const signupLimiter = rateLimit({
+    windowMs: 60 * MINUTE,
+    max: 10,
+    keyFn: (req) => `signup:${req.ip}`,
+    message: 'Too many sign-up attempts. Please try again later.'
+});
+
+const forgotLimiter = rateLimit({
+    windowMs: 15 * MINUTE,
+    max: 5,
+    keyFn: (req) => `forgot:${req.ip}`,
+    message: 'Too many reset requests. Please wait 15 minutes and try again.'
+});
+
+const resetLimiter = rateLimit({
+    windowMs: 15 * MINUTE,
+    max: 10,
+    keyFn: (req) => `reset:${req.ip}`,
+    message: 'Too many attempts. Please wait 15 minutes and try again.'
+});
 
 
 /*
@@ -58,37 +125,17 @@ function getBaseUrl(req) {
             .replace(/\/+$/, '');
     }
 
-    return `${req.protocol}://${req.get('host')}`;
-}
+    /*
+        In production the reset link must come from APP_URL. Building it
+        from the request's Host header would let someone send reset emails
+        that point to their own website.
+    */
+    if (IS_PRODUCTION) {
 
-
-/*
-    Password rules:
-
-    - At least 8 characters
-    - Cannot be only lowercase letters
-    - Cannot be only uppercase letters
-    - Cannot be only numbers
-*/
-function isValidPassword(password) {
-
-    if (
-        typeof password !== 'string' ||
-        password.length < 8
-    ) {
-        return false;
+        throw new Error('APP_URL must be set in production.');
     }
 
-    if (/^[a-z]+$/.test(password))
-        return false;
-
-    if (/^[A-Z]+$/.test(password))
-        return false;
-
-    if (/^[0-9]+$/.test(password))
-        return false;
-
-    return true;
+    return `${req.protocol}://${req.get('host')}`;
 }
 
 
@@ -122,43 +169,6 @@ const VALID_SECTIONS =
 
 const router =
     express.Router();
-
-
-/*
-    Cookie settings.
-*/
-const COOKIE_OPTIONS = {
-
-    httpOnly: true,
-
-    sameSite: 'lax',
-
-    secure:
-        process.env.NODE_ENV === 'production',
-
-    maxAge:
-        7 * 24 * 60 * 60 * 1000
-};
-
-
-/*
-    Creates the user's login session.
-*/
-function issueSession(res, userId) {
-
-    const token =
-        jwt.sign(
-            { userId },
-            JWT_SECRET,
-            { expiresIn: '7d' }
-        );
-
-    res.cookie(
-        'token',
-        token,
-        COOKIE_OPTIONS
-    );
-}
 
 
 /*
@@ -196,6 +206,7 @@ function publicUser(row) {
 
 router.post(
     '/signup',
+    signupLimiter,
     async (req, res, next) => {
 
         try {
@@ -278,6 +289,48 @@ router.post(
 
 
             /*
+                Check lengths.
+            */
+            const cleanProgram =
+                program ? String(program).trim() : '';
+
+            if (
+                cleanFirstName.length > MAX_NAME ||
+                cleanLastName.length > MAX_NAME ||
+                cleanProgram.length > MAX_PROGRAM ||
+                String(email).length > MAX_EMAIL
+            ) {
+
+                return res.status(400).json({
+
+                    error:
+                        'One of the fields is too long.'
+
+                });
+            }
+
+
+            /*
+                Check student ID (exactly 6 digits).
+            */
+            const cleanStudentId =
+                studentId ? String(studentId).trim() : '';
+
+            if (
+                cleanStudentId &&
+                !STUDENT_ID_REGEX.test(cleanStudentId)
+            ) {
+
+                return res.status(400).json({
+
+                    error:
+                        'Student ID must contain exactly 6 digits.'
+
+                });
+            }
+
+
+            /*
                 Check year.
             */
             if (
@@ -344,7 +397,7 @@ router.post(
                 return res.status(400).json({
 
                     error:
-                        'Password must be at least 8 characters and not all letters or all numbers.'
+                        PASSWORD_RULES_MESSAGE
 
                 });
             }
@@ -390,7 +443,7 @@ router.post(
                 Hash password with bcrypt.
             */
             const passwordHash =
-                bcrypt.hashSync(
+                await bcrypt.hash(
                     password,
                     10
                 );
@@ -455,15 +508,11 @@ router.post(
 
                         yearSection,
 
-                        program
-                            ? String(program).trim()
-                            : null,
+                        cleanProgram || null,
 
                         emailHash,
 
-                        studentId
-                            ? String(studentId).trim()
-                            : null,
+                        cleanStudentId || null,
 
                         passwordHash
                     ]
@@ -498,7 +547,8 @@ router.post(
             */
             issueSession(
                 res,
-                userId
+                userId,
+                0
             );
 
 
@@ -548,6 +598,8 @@ router.post(
 
 router.post(
     '/login',
+    loginIpLimiter,
+    loginLimiter,
     async (req, res, next) => {
 
         try {
@@ -560,7 +612,8 @@ router.post(
 
             if (
                 !email ||
-                !password
+                !password ||
+                typeof password !== 'string'
             ) {
 
                 return res.status(400).json({
@@ -601,13 +654,19 @@ router.post(
 
             /*
                 Check password.
+
+                When the email isn't registered we still compare against a
+                dummy hash, so the reply takes the same time either way.
             */
+            const passwordOk =
+                await bcrypt.compare(
+                    password,
+                    user ? user.password_hash : DUMMY_PASSWORD_HASH
+                );
+
             if (
                 !user ||
-                !bcrypt.compareSync(
-                    password,
-                    user.password_hash
-                )
+                !passwordOk
             ) {
 
                 return res.status(401).json({
@@ -624,7 +683,8 @@ router.post(
             */
             issueSession(
                 res,
-                user.id
+                user.id,
+                user.session_version
             );
 
 
@@ -661,6 +721,7 @@ router.post(
 
 router.post(
     '/forgot-password',
+    forgotLimiter,
     async (req, res, next) => {
 
         try {
@@ -719,13 +780,18 @@ router.post(
 
             /*
                 EMAIL NOT REGISTERED
+
+                Same reply as a real request, so this can't be used to
+                check which emails have accounts.
             */
             if (!user) {
 
-                return res.status(404).json({
+                return res.json({
 
-                    error:
-                        'This email is not registered.'
+                    ok: true,
+
+                    message:
+                        FORGOT_PASSWORD_REPLY
 
                 });
             }
@@ -762,16 +828,19 @@ router.post(
 
 
             /*
-                Recently requested a reset.
+                Recently requested a reset: don't send another email,
+                but reply the same way (no hint that the account exists).
             */
             if (
                 recent.rows.length > 0
             ) {
 
-                return res.status(429).json({
+                return res.json({
 
-                    error:
-                        'A password reset link was recently sent. Please wait before requesting another one.'
+                    ok: true,
+
+                    message:
+                        FORGOT_PASSWORD_REPLY
 
                 });
             }
@@ -868,7 +937,7 @@ router.post(
                 ok: true,
 
                 message:
-                    'Password reset link sent. Please check your email.'
+                    FORGOT_PASSWORD_REPLY
 
             });
 
@@ -886,6 +955,7 @@ router.post(
 
 router.post(
     '/reset-password',
+    resetLimiter,
     async (req, res, next) => {
 
         try {
@@ -898,7 +968,8 @@ router.post(
 
             if (
                 !token ||
-                typeof token !== 'string'
+                typeof token !== 'string' ||
+                !/^[a-f0-9]{64}$/.test(token)
             ) {
 
                 return res.status(400).json({
@@ -917,7 +988,7 @@ router.post(
                 return res.status(400).json({
 
                     error:
-                        'Password must be at least 8 characters and not all letters or all numbers.'
+                        PASSWORD_RULES_MESSAGE
 
                 });
             }
@@ -969,16 +1040,21 @@ router.post(
                 Hash new password.
             */
             const newPasswordHash =
-                bcrypt.hashSync(
+                await bcrypt.hash(
                     password,
                     10
                 );
 
 
+            /*
+                Save the new password and bump the session version,
+                which logs out every device still using the old password.
+            */
             await pool.query(
 
                 `UPDATE users
-                 SET password_hash = $1
+                 SET password_hash = $1,
+                     session_version = session_version + 1
                  WHERE id = $2`,
 
                 [
@@ -1028,10 +1104,7 @@ router.post(
     '/logout',
     (req, res) => {
 
-        res.clearCookie(
-            'token',
-            COOKIE_OPTIONS
-        );
+        clearSession(res);
 
         res.json({
             ok: true

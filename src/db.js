@@ -269,6 +269,15 @@ async function init() {
             'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS email_hash TEXT'
         );
 
+        /*
+            Session version: stored inside each login cookie.
+            Bumping it (password change/reset) logs out every
+            other device that still has an old cookie.
+        */
+        await client.query(
+            'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS session_version INTEGER NOT NULL DEFAULT 0'
+        );
+
 
         /* ----------------------------------------------
            Backfill first_name / last_name.

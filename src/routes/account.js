@@ -8,13 +8,17 @@ const {
 } = require('../db');
 
 const {
-    requireAuth
+    requireAuth,
+    issueSession,
+    clearSession
 } = require('../middleware/authGuard');
 
+const { rateLimit } = require('../middleware/rateLimit');
+
 const {
-    normalizeEmail,
-    hashEmail
-} = require('../utils/emailSecurity');
+    isValidPassword,
+    PASSWORD_RULES_MESSAGE
+} = require('../utils/passwords');
 
 const cloudinary =
     require('cloudinary').v2;
@@ -26,11 +30,29 @@ const streamifier =
     require('streamifier');
 
 
-const EMAIL_REGEX =
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 const STUDENT_ID_REGEX =
     /^\d{6}$/;
+
+// Maximum lengths for text fields
+const MAX_FULL_NAME = 120;
+const MAX_YEAR_SECTION = 40;
+const MAX_PROGRAM = 80;
+
+// Only common photo formats (no SVG/other files that could carry scripts)
+const ALLOWED_IMAGE_TYPES =
+    new Set([
+        'image/jpeg',
+        'image/png',
+        'image/webp',
+        'image/gif'
+    ]);
+
+// Limits wrong "current password" guesses on the account page
+const passwordChangeLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    message: 'Too many attempts. Please wait 15 minutes and try again.'
+});
 
 
 /*
@@ -72,14 +94,17 @@ const upload =
             (req, file, cb) => {
 
                 if (
-                    !file.mimetype.startsWith('image/')
+                    !ALLOWED_IMAGE_TYPES.has(file.mimetype)
                 ) {
 
-                    return cb(
+                    const err =
                         new Error(
-                            'Only image files are allowed.'
-                        )
-                    );
+                            'Only JPG, PNG, WEBP or GIF images are allowed.'
+                        );
+
+                    err.status = 400;
+
+                    return cb(err);
                 }
 
                 cb(null, true);
@@ -112,7 +137,17 @@ function uploadToCloudinary(
                                 `user${userId}`,
 
                             overwrite:
-                                true
+                                true,
+
+                            /*
+                                Cloudinary checks the real file contents,
+                                not just the type the browser claims.
+                            */
+                            resource_type:
+                                'image',
+
+                            allowed_formats:
+                                ['jpg', 'jpeg', 'png', 'webp', 'gif']
                         },
 
                         (err, result) => {
@@ -239,13 +274,33 @@ router.put(
 
                 program,
 
-                email,
-
                 studentId,
 
-                password
+                password,
+
+                currentPassword
 
             } = req.body || {};
+
+
+            /*
+                Changing the email is no longer supported here (the
+                Account page has no email field). Rejecting it stops a
+                stolen session from moving the account to another email.
+            */
+            if (
+                req.body &&
+                req.body.email !== undefined &&
+                String(req.body.email).trim() !== ''
+            ) {
+
+                return res.status(400).json({
+
+                    error:
+                        'Email address cannot be changed here.'
+
+                });
+            }
 
 
             /*
@@ -260,9 +315,9 @@ router.put(
                     full_name,
                     year_section,
                     program,
-                    email_hash,
                     student_id,
                     password_hash,
+                    session_version,
                     profile_photo
 
                  FROM public.users
@@ -289,84 +344,38 @@ router.put(
 
 
             /* =====================================================
-               EMAIL UPDATE
-
-               The database stores only email_hash.
-
-               If email is blank/omitted, the existing hash stays.
-               If a new email is supplied, its HMAC is stored.
+               TEXT FIELDS
                ===================================================== */
 
-            let newEmailHash =
-                user.email_hash;
+            const newFullName =
+                fullName !== undefined &&
+                String(fullName).trim() !== ''
+                    ? String(fullName).trim()
+                    : user.full_name;
+
+            const newYearSection =
+                yearSection !== undefined
+                    ? String(yearSection).trim()
+                    : user.year_section;
+
+            const newProgram =
+                program !== undefined
+                    ? String(program).trim()
+                    : user.program;
 
 
             if (
-                email !== undefined &&
-                String(email).trim() !== ''
+                (newFullName || '').length > MAX_FULL_NAME ||
+                (newYearSection || '').length > MAX_YEAR_SECTION ||
+                (newProgram || '').length > MAX_PROGRAM
             ) {
 
-                const normalizedEmail =
-                    normalizeEmail(email);
+                return res.status(400).json({
 
+                    error:
+                        'One of the fields is too long.'
 
-                if (
-                    !EMAIL_REGEX.test(
-                        normalizedEmail
-                    )
-                ) {
-
-                    return res.status(400).json({
-
-                        error:
-                            'Please enter a valid email address.'
-
-                    });
-                }
-
-
-                const candidateEmailHash =
-                    hashEmail(
-                        normalizedEmail
-                    );
-
-
-                /*
-                    Check if another account already uses it.
-                */
-                const clash =
-                    await pool.query(
-
-                        `SELECT id
-
-                         FROM public.users
-
-                         WHERE email_hash = $1
-
-                         AND id != $2`,
-
-                        [
-                            candidateEmailHash,
-                            req.userId
-                        ]
-                    );
-
-
-                if (
-                    clash.rows.length > 0
-                ) {
-
-                    return res.status(409).json({
-
-                        error:
-                            'That email is already in use.'
-
-                    });
-                }
-
-
-                newEmailHash =
-                    candidateEmailHash;
+                });
             }
 
 
@@ -397,32 +406,83 @@ router.put(
 
 
             /* =====================================================
-               PASSWORD VALIDATION
+               PASSWORD CHANGE
+
+               Requires the current password, so someone using a
+               stolen or unattended session can't lock the owner out.
                ===================================================== */
 
-            if (
+            const changingPassword =
                 password !== undefined &&
-                String(password).length > 0 &&
-                String(password).length < 8
-            ) {
+                password !== null &&
+                String(password).length > 0;
 
-                return res.status(400).json({
+            let newPasswordHash =
+                user.password_hash;
 
-                    error:
-                        'Password must be at least 8 characters.'
-
-                });
-            }
+            let newSessionVersion =
+                user.session_version;
 
 
-            const newPasswordHash =
-                password &&
-                String(password).length >= 8
-                    ? bcrypt.hashSync(
+            if (changingPassword) {
+
+                if (
+                    !isValidPassword(password)
+                ) {
+
+                    return res.status(400).json({
+
+                        error:
+                            PASSWORD_RULES_MESSAGE
+
+                    });
+                }
+
+
+                // Count attempts only when a password change is tried
+                const attempt =
+                    passwordChangeLimiter.hit(
+                        `account-pw:${req.userId}`
+                    );
+
+                if (attempt.limited) {
+
+                    return passwordChangeLimiter.reject(
+                        res,
+                        attempt.retryAfter
+                    );
+                }
+
+
+                const currentOk =
+                    typeof currentPassword === 'string' &&
+                    currentPassword.length > 0 &&
+                    await bcrypt.compare(
+                        currentPassword,
+                        user.password_hash
+                    );
+
+                if (!currentOk) {
+
+                    return res.status(400).json({
+
+                        error:
+                            'Your current password is incorrect.'
+
+                    });
+                }
+
+
+                newPasswordHash =
+                    await bcrypt.hash(
                         password,
                         10
-                    )
-                    : user.password_hash;
+                    );
+
+                // Logs out every other device
+                newSessionVersion =
+                    user.session_version + 1;
+            }
 
 
             /* =====================================================
@@ -441,11 +501,11 @@ router.put(
 
                     program = $3,
 
-                    email_hash = $4,
+                    student_id = $4,
 
-                    student_id = $5,
+                    password_hash = $5,
 
-                    password_hash = $6
+                    session_version = $6
 
                  WHERE id = $7
 
@@ -459,29 +519,35 @@ router.put(
 
                 [
 
-                    fullName !== undefined &&
-                    String(fullName).trim() !== ''
-                        ? String(fullName).trim()
-                        : user.full_name,
+                    newFullName,
 
-                    yearSection !== undefined
-                        ? String(yearSection).trim()
-                        : user.year_section,
+                    newYearSection,
 
-                    program !== undefined
-                        ? String(program).trim()
-                        : user.program,
-
-                    newEmailHash,
+                    newProgram,
 
                     newStudentId || null,
 
                     newPasswordHash,
 
+                    newSessionVersion,
+
                     req.userId
 
                 ]
             );
+
+
+            /*
+                Keep this device logged in with the new session version.
+            */
+            if (changingPassword) {
+
+                issueSession(
+                    res,
+                    req.userId,
+                    newSessionVersion
+                );
+            }
 
 
             res.json({
@@ -586,7 +652,16 @@ router.delete(
             );
 
 
-            res.clearCookie('token');
+            /*
+                Also remove the profile photo from Cloudinary.
+                (Best effort: a failure here shouldn't block deletion.)
+            */
+            cloudinary.uploader
+                .destroy(`hcilearn/profile_photos/user${req.userId}`, { resource_type: 'image' })
+                .catch(err => console.error('Could not delete profile photo:', err.message));
+
+
+            clearSession(res);
 
 
             res.json({

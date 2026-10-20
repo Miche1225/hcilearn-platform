@@ -62,6 +62,24 @@ function esc(value) {
 
 
 /*
+    Hide most of an email address in server logs, e.g.
+    "juan.delacruz@gmail.com" -> "ju***@gmail.com".
+    (Emails are never stored in the database, so they shouldn't
+    end up in plain text in the logs either.)
+*/
+function maskEmail(email) {
+
+    const [name, domain] =
+        String(email || '').split('@');
+
+    if (!domain)
+        return '***';
+
+    return `${name.slice(0, 2)}***@${domain}`;
+}
+
+
+/*
     Philippine time.
 */
 function manilaTime() {
@@ -318,7 +336,7 @@ async function sendMail({
 
 
         console.log(
-            `✅ ${label} email sent to ${to} via ${provider}`
+            `✅ ${label} email sent to ${maskEmail(to)} via ${provider}`
         );
 
 
@@ -328,7 +346,7 @@ async function sendMail({
 
         console.error(
 
-            `❌ Failed to send ${label} email to ${to} via ${provider}:`,
+            `❌ Failed to send ${label} email to ${maskEmail(to)} via ${provider}:`,
 
             err.message
 

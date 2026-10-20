@@ -9,7 +9,27 @@ router.use(requireAuth);
 // These mirror the content that's hard-coded into the front-end pages.
 const TOTAL_CASE_STUDIES = 50;
 const TOTAL_STUDY_CARD_LESSONS = 11;
-const TOTAL_VIDEOS = 16; // keep in sync with the VIDEOS list in public/WatchVideo.html
+// The only videos that count as "watched". Keep in sync with the VIDEOS
+// list in public/WatchVideo.html. Titles come from here, not the browser.
+const VIDEOS = new Map([
+  ['uB9LaBIAcRs', 'Introduction to Human Computer Interaction (HCI)'],
+  ['iGmIvuPjv6s', 'HCI: The What and the Importance'],
+  ['v__Yhk1U94k', 'Principles of Human Computer Interaction with Examples'],
+  ['ESRI4ovEOSo', 'Task-Centered Design | Introduction to HCI'],
+  ['4OVptMIxsT4', 'What is the User-Centered Design Process?'],
+  ['dRIavYjuXek', 'User-Centered Design (UCD) Process with Examples'],
+  ['_r0VX-aU_T8', 'The Design Thinking Process'],
+  ['meWKtrZNsRU', 'Principles of Design Thinking'],
+  ['_RnuN-e1wsk', "Donald Norman's Model: Execution & Evaluation Loop"],
+  ['BZbNNhBPIY8', "Design Rules: Nielsen's 10 Heuristics"],
+  ['ETGtsleVOpE', "Jakob Nielsen's 10 Usability Heuristics"],
+  ['Dh_6gZSF87Y', 'Gestalt Principles of Design'],
+  ['0OPmsy7SXoM', "User Experience Design: Fitts' Law"],
+  ['IVUeVUajtZI', "What is Fitts' Law and How to Use It?"],
+  ['YtBb-iVjwzw', 'Usability Evaluation in HCI'],
+  ['Md-huYID-Mg', 'Prototyping and Usability Testing'],
+]);
+const TOTAL_VIDEOS = VIDEOS.size;
 
 async function logActivity(userId, type, description) {
   await pool.query(
@@ -54,9 +74,10 @@ router.get('/summary', async (req, res, next) => {
     const cs = await getCaseStudyRow(userId);
     const sc = await getStudyCardRow(userId);
     const lesson = await getLessonRow(userId);
+    // Only count the real videos (ignores any old/unknown IDs)
     const videosWatchedResult = await pool.query(
-      'SELECT COUNT(*)::int AS n FROM video_progress WHERE user_id = $1',
-      [userId]
+      'SELECT COUNT(DISTINCT video_id)::int AS n FROM video_progress WHERE user_id = $1 AND video_id = ANY($2)',
+      [userId, [...VIDEOS.keys()]]
     );
     const videosWatched = videosWatchedResult.rows[0].n;
 
@@ -190,11 +211,14 @@ router.get('/videos', async (req, res, next) => {
   }
 });
 
-// POST /api/progress/videos/watch  { videoId, title }
+// POST /api/progress/videos/watch  { videoId }
 router.post('/videos/watch', async (req, res, next) => {
   try {
-    const { videoId, title } = req.body || {};
-    if (!videoId) return res.status(400).json({ error: 'videoId is required.' });
+    const { videoId } = req.body || {};
+    if (typeof videoId !== 'string' || !VIDEOS.has(videoId)) {
+      return res.status(400).json({ error: 'Unknown video.' });
+    }
+    const title = VIDEOS.get(videoId); // trusted title, not the one from the browser
 
     const already = await pool.query(
       'SELECT 1 FROM video_progress WHERE user_id = $1 AND video_id = $2',
@@ -204,9 +228,9 @@ router.post('/videos/watch', async (req, res, next) => {
     if (already.rows.length === 0) {
       await pool.query(
         'INSERT INTO video_progress (user_id, video_id, title) VALUES ($1, $2, $3)',
-        [req.userId, videoId, title || null]
+        [req.userId, videoId, title]
       );
-      await logActivity(req.userId, 'video', `Watched video: ${title || videoId}`);
+      await logActivity(req.userId, 'video', `Watched video: ${title}`);
     }
 
     res.json({ ok: true });
