@@ -120,7 +120,57 @@ function renderSidebarUser(user) {
     });
 
     apply();
+    setupMobileMenu(sidebar, header);
   };
+
+  // Phone: hamburger button that slides the menu in as a drawer.
+  function setupMobileMenu(sidebar, header) {
+    const nav = sidebar.querySelector('.sidebar-nav');
+    if (!nav) return;
+    nav.id = nav.id || 'sidebarNav';
+
+    const burger = document.createElement('button');
+    burger.type = 'button';
+    burger.className = 'sidebar-burger';
+    burger.setAttribute('aria-label', 'Open menu');
+    burger.setAttribute('aria-controls', nav.id);
+    burger.setAttribute('aria-expanded', 'false');
+    burger.innerHTML = '<i class="fa-solid fa-bars"></i>';
+    header.prepend(burger);
+
+    const drawerHead = document.createElement('div');
+    drawerHead.className = 'drawer-head';
+    drawerHead.innerHTML = `
+      <span class="drawer-brand"><img src="favicon.svg" alt=""> HCILearn</span>
+      <button type="button" class="drawer-close" aria-label="Close menu"><i class="fa-solid fa-xmark"></i></button>`;
+    nav.prepend(drawerHead);
+
+    // Inside the sidebar so it layers between the top bar and the drawer
+    const backdrop = document.createElement('div');
+    backdrop.className = 'sidebar-backdrop';
+    sidebar.appendChild(backdrop);
+
+    const setOpen = (open) => {
+      document.documentElement.classList.toggle('menu-open', open);
+      burger.setAttribute('aria-expanded', String(open));
+      if (open) {
+        const current = nav.querySelector('.nav-item.active') || nav.querySelector('.nav-item');
+        if (current) current.focus();
+      } else if (nav.contains(document.activeElement)) {
+        burger.focus();
+      }
+    };
+
+    burger.addEventListener('click', () => setOpen(true));
+    drawerHead.querySelector('.drawer-close').addEventListener('click', () => setOpen(false));
+    backdrop.addEventListener('click', () => setOpen(false));
+    nav.addEventListener('click', (e) => { if (e.target.closest('.nav-item')) setOpen(false); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && document.documentElement.classList.contains('menu-open')) setOpen(false);
+    });
+    // Close it if the screen becomes desktop-sized (e.g. rotating a tablet)
+    window.matchMedia('(min-width: 769px)').addEventListener('change', (e) => { if (e.matches) setOpen(false); });
+  }
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
