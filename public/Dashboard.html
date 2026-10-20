@@ -4,21 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Page</title>
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=11">
     <!-- FontAwesome for the input icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
+<body class="dashboard-page">
 
     <div class="dashboard-container">
-        
+
         <!-- Sidebar Navigation -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <i class="fa-solid fa-book-open logo-icon"></i>
                 <span class="logo-text">HCILearn</span>
             </div>
-            
+
             <nav class="sidebar-nav">
                 <a href="Dashboard.html" class="nav-item active">
                     <i class="fa-solid fa-border-all"></i> Dashboard
@@ -50,74 +50,119 @@
 
         <!-- Main Content Area -->
         <main class="main-content">
-            
+
             <!-- Welcome Banner -->
             <div class="welcome-card">
-                <!-- Palitan ng tamang image path ang src -->
-                <img src="profile-pic.jpg" alt="Profile" class="profile-img" id="profileImg">
+                <div class="avatar-wrap">
+                    <img src="" alt="Profile" class="profile-img" id="profileImg" hidden>
+                    <div class="profile-initials" id="profileInitials"><i class="fa-regular fa-user"></i></div>
+                </div>
                 <div class="welcome-text">
+                    <span class="welcome-date" id="welcomeDate"></span>
                     <h1 id="welcomeName">Welcome!</h1>
                     <p>Keep learning, keep growing</p>
                     <p class="subtitle">Continue where you left off and achieve your goals</p>
+                </div>
+                <div class="welcome-status">
+                    <div class="status-icon"><i class="fa-regular fa-clock"></i></div>
+                    <div class="status-text">
+                        <small>Last activity</small>
+                        <strong id="lastActivityText">No activity yet</strong>
+                        <span id="lastActivityTime">Start your first lesson today</span>
+                    </div>
                 </div>
             </div>
 
             <!-- Dashboard Grid Layout -->
             <div class="dashboard-grid">
-                
+
                 <!-- Overall Progress -->
                 <div class="card progress-card">
                     <h3 class="card-title"><i class="fa-solid fa-chart-pie icon-title"></i> Overall Progress</h3>
                     <div class="progress-content">
                         <div class="circular-progress">
-                            <div class="inner-circle" id="overallPercent">0%</div>
+                            <div class="inner-circle">
+                                <span id="overallPercent">0%</span>
+                                <small>Complete</small>
+                            </div>
                         </div>
                         <div class="progress-stats">
-                            <div class="stat-item">
+                            <a href="CaseStudies.html" class="stat-item">
                                 <div class="stat-icon case-icon"><i class="fa-solid fa-folder"></i></div>
-                                <span id="caseStudiesCount">0</span>
+                                <span><b id="caseStudiesCount">0</b><em id="caseStudiesTotal"></em></span>
                                 <small>Case Studies</small>
-                            </div>
-                            <div class="stat-item">
+                                <div class="mini-bar"><div class="mini-fill bar-case" id="caseStudiesBar"></div></div>
+                            </a>
+                            <a href="WatchVideo.html" class="stat-item">
                                 <div class="stat-icon video-icon"><i class="fa-solid fa-play"></i></div>
-                                <span id="videosCount">0</span>
+                                <span><b id="videosCount">0</b><em id="videosTotal"></em></span>
                                 <small>Watch Videos</small>
-                            </div>
-                            <div class="stat-item">
+                                <div class="mini-bar"><div class="mini-fill bar-video" id="videosBar"></div></div>
+                            </a>
+                            <a href="StudyCards.html" class="stat-item">
                                 <div class="stat-icon check-icon"><i class="fa-solid fa-rotate"></i></div>
-                                <span id="studyCardsCount">0</span>
+                                <span><b id="studyCardsCount">0</b><em id="studyCardsTotal"></em></span>
                                 <small>Study Cards</small>
-                            </div>
+                                <div class="mini-bar"><div class="mini-fill bar-cards" id="studyCardsBar"></div></div>
+                            </a>
                         </div>
+                    </div>
+
+                    <!-- Motivation + suggested next step -->
+                    <div class="progress-footer">
+                        <p class="progress-message" id="progressMessage">
+                            <i class="fa-solid fa-seedling"></i> Loading your progress...
+                        </p>
+                        <a href="WatchVideo.html" class="up-next" id="upNext" hidden>
+                            <small>Up next</small>
+                            <span id="upNextLabel"></span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </a>
                     </div>
                 </div>
 
                 <!-- Activities -->
                 <div class="card activities-card">
                     <h3 class="card-title"><i class="fa-solid fa-chart-simple icon-title"></i> Activities</h3>
-                    
+
                     <div class="activity-items scrollable-activities">
-                        
-                        <div class="act-item">
+
+                        <a href="CaseStudies.html" class="act-item">
                             <div class="act-icon case-icon"><i class="fa-solid fa-folder"></i></div>
-                            <span>Case Studies</span>
-                        </div>
-                        
-                        <div class="act-item">
+                            <div class="act-text">
+                                <span>Case Studies</span>
+                                <small id="caseMeta">Not started</small>
+                            </div>
+                            <i class="fa-solid fa-chevron-right act-arrow"></i>
+                        </a>
+
+                        <a href="ReadLesson.html" class="act-item">
                             <div class="act-icon read-icon"><i class="fa-solid fa-book"></i></div>
-                            <span>Read Lesson</span>
-                        </div>
+                            <div class="act-text">
+                                <span>Read Lesson</span>
+                                <small id="lessonMeta">Not started</small>
+                            </div>
+                            <i class="fa-solid fa-chevron-right act-arrow"></i>
+                        </a>
 
-                        <div class="act-item extra-activity">
+                        <a href="WatchVideo.html" class="act-item extra-activity">
                             <div class="act-icon video-icon"><i class="fa-solid fa-play"></i></div>
-                            <span>Watch Videos</span>
-                        </div>
+                            <div class="act-text">
+                                <span>Watch Videos</span>
+                                <small id="videoMeta">Not started</small>
+                            </div>
+                            <i class="fa-solid fa-chevron-right act-arrow"></i>
+                        </a>
 
-                        <div class="act-item extra-activity">
+                        <a href="StudyCards.html" class="act-item extra-activity">
                             <div class="act-icon check-icon"><i class="fa-solid fa-rotate"></i></div>
-                            <span>Study Cards</span>
-                        </div>
-                        
+                            <div class="act-text">
+                                <span>Study Cards</span>
+                                <small id="cardsMeta">Not started</small>
+                            </div>
+                            <i class="fa-solid fa-chevron-right act-arrow"></i>
+                        </a>
+
                     </div>
                 </div>
 
@@ -125,10 +170,9 @@
                 <div class="card recent-card">
                     <h3 class="card-title"><i class="fa-regular fa-clock icon-title"></i> Recent Activities</h3>
                     <div class="recent-list" id="recentList">
-                        <div class="recent-item">
-                            <div class="recent-info">
-                                <p>No activity yet — start a lesson, video, case study or study card!</p>
-                            </div>
+                        <div class="recent-empty">
+                            <i class="fa-regular fa-calendar-check"></i>
+                            <p>No activity yet — start a lesson, video, case study or study card!</p>
                         </div>
                     </div>
                 </div>
@@ -143,6 +187,7 @@
                                 <h4>Continue Learning</h4>
                                 <p>Go to your last lesson</p>
                             </div>
+                            <i class="fa-solid fa-chevron-right quick-arrow"></i>
                         </a>
                         <a href="StudyCards.html" class="quick-item">
                             <div class="quick-icon check-action-icon"><i class="fa-regular fa-file-lines"></i></div>
@@ -150,6 +195,7 @@
                                 <h4>Take knowledge check</h4>
                                 <p>Test your understanding</p>
                             </div>
+                            <i class="fa-solid fa-chevron-right quick-arrow"></i>
                         </a>
                         <a href="Account.html" class="quick-item">
                             <div class="quick-icon user-icon"><i class="fa-regular fa-user"></i></div>
@@ -157,6 +203,7 @@
                                 <h4>View Profile</h4>
                                 <p>Manage your account</p>
                             </div>
+                            <i class="fa-solid fa-chevron-right quick-arrow"></i>
                         </a>
                     </div>
                 </div>
@@ -174,33 +221,156 @@
             study_card: 'fa-rotate',
         };
 
+        const ACTIVITY_LABELS = {
+            video: 'Video',
+            lesson: 'Lesson',
+            case_study: 'Case Study',
+            study_card: 'Study Card',
+        };
+
+        // Counts a number up from 0 for a livelier load
+        function animateCount(el, target) {
+            const end = Number(target) || 0;
+            const start = performance.now();
+            function frame(now) {
+                const t = Math.min(1, (now - start) / 800);
+                el.textContent = Math.round(end * (1 - Math.pow(1 - t, 3)));
+                if (t < 1) requestAnimationFrame(frame);
+            }
+            requestAnimationFrame(frame);
+        }
+
+        function progressMessage(percent) {
+            if (percent <= 0) return ['fa-seedling', "Let's get started! Pick any module to begin."];
+            if (percent < 25) return ['fa-person-walking', 'Great start — keep the momentum going.'];
+            if (percent < 50) return ['fa-chart-line', "You're making solid progress."];
+            if (percent < 75) return ['fa-fire', "Over halfway there — you're doing great!"];
+            if (percent < 100) return ['fa-flag-checkered', 'Almost done — finish strong!'];
+            return ['fa-trophy', 'Course complete. Amazing work!'];
+        }
+
+        function moduleMeta(done, total, verb) {
+            if (done <= 0) return 'Not started';
+            if (done >= total) return `Completed · ${total}/${total}`;
+            return `${done}/${total} ${verb}`;
+        }
+
+        function renderModules(summary) {
+            const modules = [
+                { name: 'Case Studies', href: 'CaseStudies.html', done: summary.caseStudiesSolved, total: summary.caseStudiesTotal, verb: 'solved', meta: 'caseMeta', count: 'caseStudiesCount', totalEl: 'caseStudiesTotal', bar: 'caseStudiesBar' },
+                { name: 'Watch Videos', href: 'WatchVideo.html', done: summary.videosWatched, total: summary.videosTotal, verb: 'watched', meta: 'videoMeta', count: 'videosCount', totalEl: 'videosTotal', bar: 'videosBar' },
+                { name: 'Study Cards', href: 'StudyCards.html', done: summary.studyCardsCompleted, total: summary.studyCardsTotal, verb: 'completed', meta: 'cardsMeta', count: 'studyCardsCount', totalEl: 'studyCardsTotal', bar: 'studyCardsBar' },
+                { name: 'Read Lesson', href: 'ReadLesson.html', done: summary.lessonCompleted ? 1 : 0, total: 1, meta: 'lessonMeta' },
+            ];
+
+            modules.forEach(m => {
+                const metaEl = document.getElementById(m.meta);
+                metaEl.textContent = m.total === 1
+                    ? (m.done ? 'Completed' : 'Not finished yet')
+                    : moduleMeta(m.done, m.total, m.verb);
+                metaEl.classList.toggle('is-done', m.done >= m.total);
+
+                if (m.count) {
+                    animateCount(document.getElementById(m.count), m.done);
+                    document.getElementById(m.totalEl).textContent = `/${m.total}`;
+                    document.getElementById(m.bar).style.width = `${Math.min(100, (m.done / m.total) * 100)}%`;
+                }
+            });
+
+            // Suggest the unfinished module with the lowest completion
+            const next = modules
+                .filter(m => m.done < m.total)
+                .sort((a, b) => a.done / a.total - b.done / b.total)[0];
+
+            const upNext = document.getElementById('upNext');
+            if (next) {
+                upNext.href = next.href;
+                document.getElementById('upNextLabel').textContent = next.name;
+                upNext.hidden = false;
+            }
+
+            const [icon, text] = progressMessage(summary.overallPercent);
+            document.getElementById('progressMessage').innerHTML =
+                `<i class="fa-solid ${icon}"></i> ${escapeHtml(text)}`;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text == null ? '' : String(text);
+            return div.innerHTML;
+        }
+
         function timeAgo(dateString) {
             // Updated para basahin ang Supabase (PostgreSQL) ISO date format
             const then = new Date(dateString);
-            
+
             // Kung sakaling may error sa petsa, hindi lalabas ang NaN
             if (isNaN(then.getTime())) return 'Recently';
 
             const diffMs = Date.now() - then.getTime();
             const mins = Math.floor(diffMs / 60000);
-            
+
             if (mins < 1) return 'Just now';
             if (mins < 60) return `${mins} min ago`;
-            
+
             const hrs = Math.floor(mins / 60);
             if (hrs < 24) return `${hrs} hr ago`;
-            
+
             const days = Math.floor(hrs / 24);
             return `${days} day${days > 1 ? 's' : ''} ago`;
         }
+
+        function greeting() {
+            const hour = new Date().getHours();
+            if (hour < 12) return 'Good morning';
+            if (hour < 18) return 'Good afternoon';
+            return 'Good evening';
+        }
+
+        // Smoothly fills the ring and counts the percentage up from 0
+        function animateProgress(percent) {
+            const ring = document.querySelector('.circular-progress');
+            const label = document.getElementById('overallPercent');
+            const target = Math.max(0, Math.min(100, Number(percent) || 0));
+            const duration = 900;
+            const start = performance.now();
+
+            function frame(now) {
+                const t = Math.min(1, (now - start) / duration);
+                const eased = 1 - Math.pow(1 - t, 3);
+                const value = target * eased;
+                label.textContent = `${Math.round(value)}%`;
+                if (ring) {
+                    ring.style.background = `conic-gradient(#1e7e45 ${value * 3.6}deg, #e0e0e0 0deg)`;
+                }
+                if (t < 1) requestAnimationFrame(frame);
+            }
+            requestAnimationFrame(frame);
+        }
+
+        document.getElementById('welcomeDate').textContent = new Date().toLocaleDateString(undefined, {
+            weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+        });
 
         async function loadDashboard() {
             const user = await requireAuth();
             if (!user) return;
 
-            document.getElementById('welcomeName').textContent = `Welcome, ${user.fullName.split(' ')[0]}!`;
+            const firstName = user.fullName.split(' ')[0];
+            document.getElementById('welcomeName').textContent = `${greeting()}, ${firstName}!`;
+
+            const initials = document.getElementById('profileInitials');
+            initials.textContent = user.fullName
+                .split(' ')
+                .filter(Boolean)
+                .slice(0, 2)
+                .map(n => n[0].toUpperCase())
+                .join('');
+
             if (user.profilePhoto) {
-                document.getElementById('profileImg').src = user.profilePhoto;
+                const img = document.getElementById('profileImg');
+                img.onload = () => { img.hidden = false; initials.hidden = true; };
+                img.src = user.profilePhoto;
             }
 
             const lastActivityPage = localStorage.getItem('lastLessonVisited');
@@ -210,25 +380,21 @@
 
             try {
                 const summary = await api.get('/progress/summary');
-                document.getElementById('overallPercent').textContent = `${summary.overallPercent}%`;
-                
-                // NEW: Update the visual ring gradient based on the percentage
-                const ring = document.querySelector('.circular-progress');
-                if (ring) {
-                    ring.style.background = `conic-gradient(#1e7e45 ${summary.overallPercent * 3.6}deg, #e0e0e0 0deg)`;
-                }
-
-                document.getElementById('caseStudiesCount').textContent = summary.caseStudiesSolved;
-                document.getElementById('videosCount').textContent = summary.videosWatched;
-                document.getElementById('studyCardsCount').textContent = summary.studyCardsCompleted;
+                animateProgress(summary.overallPercent);
+                renderModules(summary);
 
                 const recentList = document.getElementById('recentList');
                 if (summary.recentActivities.length > 0) {
+                    const latest = summary.recentActivities[0];
+                    document.getElementById('lastActivityText').textContent = latest.description;
+                    document.getElementById('lastActivityTime').textContent = timeAgo(latest.created_at);
+
                     recentList.innerHTML = summary.recentActivities.map(a => `
                         <div class="recent-item">
-                            <div class="recent-icon ${a.type}-icon"><i class="fa-solid ${ACTIVITY_ICONS[a.type] || 'fa-check'}"></i></div>
+                            <div class="recent-icon ${escapeHtml(a.type)}-icon"><i class="fa-solid ${ACTIVITY_ICONS[a.type] || 'fa-check'}"></i></div>
                             <div class="recent-info">
-                                <h4>${a.description}</h4>
+                                <h4>${escapeHtml(a.description)}</h4>
+                                <span class="type-chip ${escapeHtml(a.type)}-icon">${ACTIVITY_LABELS[a.type] || 'Activity'}</span>
                             </div>
                             <span class="time">${timeAgo(a.created_at)}</span>
                         </div>
