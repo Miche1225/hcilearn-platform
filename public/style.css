@@ -2236,12 +2236,15 @@ p {
 
 /* Account action buttons: place Save and Delete Account on the same
    row and give both controls the same visual height. */
-.account-actions {
+.account-actions,
+.save-action.account-actions {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     gap: 10px;
     flex-wrap: wrap;
+    width: 100%;
+    box-sizing: border-box;
     margin-top: 10px;
 }
 
