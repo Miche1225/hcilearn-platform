@@ -3706,7 +3706,333 @@ p {
     }
 }
 
+/* ========================================= */
+/* --- SIGN UP PAGE (simple polish) ---      */
+/* ========================================= */
+
+.signup-page .signup-container .glass-card {
+    position: relative;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.55);
+    box-shadow: 0 12px 40px rgba(0, 34, 68, 0.2);
+    animation: fadeUp 0.5s ease both;
+}
+
+/* Blue accent bar sa itaas, same as login */
+.signup-page .signup-container .glass-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #003366, #3a6ba8);
+}
+
+.signup-page .signup-logo {
+    width: 56px;
+    margin-bottom: 8px;
+    padding: 5px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 4px 12px rgba(0, 51, 102, 0.18);
+}
+
+/* Softer focus ring + hover */
+.signup-page .signup-container .field input:hover:not(:focus),
+.signup-page .signup-container .field select:hover:not(:focus) {
+    background: rgba(255, 255, 255, 0.88);
+}
+
+.signup-page .signup-container .field input:focus,
+.signup-page .signup-container .field select:focus {
+    background: #fff;
+    box-shadow: 0 0 0 2px #003366, 0 0 0 5px rgba(0, 51, 102, 0.12);
+}
+
+.signup-page .signup-container .password-note {
+    color: #444;
+}
+
+/* Error alert */
+.signup-page .form-alert {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    background: rgba(192, 57, 43, 0.1);
+    border: 1px solid rgba(192, 57, 43, 0.35);
+    color: #c0392b;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 14px;
+    border-radius: 10px;
+    margin-bottom: 14px;
+    text-align: left;
+}
+
+.signup-page .signup-container #signupError.visible {
+    display: flex;
+}
+
+/* Inputs with icons */
+.signup-page .field {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.signup-page .field > i:first-child {
+    position: absolute;
+    left: 14px;
+    color: #666;
+    font-size: 14px;
+    pointer-events: none;
+}
+
+.signup-page .field:focus-within > i:first-child {
+    color: #003366;
+}
+
+.signup-page .signup-container .field input,
+.signup-page .signup-container .field select {
+    padding-left: 40px;
+}
+
+/* Custom select arrow */
+.signup-page .signup-container .field select {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 36px;
+}
+
+.signup-page .select-arrow {
+    position: absolute;
+    right: 14px;
+    font-size: 12px;
+    color: #666;
+    pointer-events: none;
+}
+
+/* Invalid field */
+.signup-page .signup-container .field.invalid input,
+.signup-page .signup-container .field.invalid select {
+    box-shadow: 0 0 0 2px #c0392b;
+}
+
+/* Eye button */
+.signup-page .signup-container #password-input {
+    padding-right: 44px;
+}
+
+.signup-page .toggle-password {
+    position: absolute;
+    right: 6px;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 8px;
+    background: none;
+    color: #666;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.signup-page .toggle-password:hover {
+    color: #003366;
+}
+
+/* Button: spinner alignment */
+.signup-page .signup-container .signup-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    height: 48px;
+    line-height: 1;
+    font-size: 16px;
+    box-shadow: 0 6px 16px rgba(0, 51, 102, 0.25);
+}
+
+.signup-page .signup-container .signup-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(0, 51, 102, 0.3);
+}
+
+.signup-page .signup-container .button-container {
+    margin-top: 22px;
+}
+
+.signup-page .signup-container .login-link-container {
+    margin-top: 14px;
+}
+
+@media (max-width: 600px) {
+    .signup-page .signup-container .glass-card {
+        background: rgba(255, 255, 255, 0.7);
+    }
+
+    /* 16px para hindi mag-zoom ang iPhone */
+    .signup-page .signup-container .field input,
+    .signup-page .signup-container .field select {
+        font-size: 16px;
+    }
+}
+
+/* ========================================= */
+/* --- CONFIRM DIALOG (confirmDialog()) ---  */
+/* ========================================= */
+
+.confirm-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(0, 20, 40, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.confirm-overlay.is-open {
+    opacity: 1;
+}
+
+.confirm-card {
+    width: 380px;
+    max-width: 100%;
+    padding: 30px 28px 24px;
+    border-radius: 20px;
+    background: #fff;
+    text-align: center;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+    transform: translateY(16px) scale(0.96);
+    transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.confirm-overlay.is-open .confirm-card {
+    transform: translateY(0) scale(1);
+}
+
+.confirm-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    background: #e8eef7;
+    color: #0d3b75;
+    box-shadow: 0 0 0 8px rgba(13, 59, 117, 0.06);
+}
+
+.confirm-card.is-danger .confirm-icon {
+    background: #fdecea;
+    color: #c0392b;
+    box-shadow: 0 0 0 8px rgba(192, 57, 43, 0.06);
+}
+
+.confirm-card h3 {
+    margin: 0 0 8px;
+    font-size: 21px;
+    font-weight: 800;
+    color: #111;
+}
+
+.confirm-card p {
+    margin: 0 0 24px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #666;
+}
+
+.confirm-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.confirm-btn {
+    flex: 1;
+    height: 46px;
+    border-radius: 25px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.confirm-cancel {
+    background: #fff;
+    color: #333;
+    border: 1px solid #d5dbe3;
+}
+
+.confirm-cancel:hover:not(:disabled) {
+    background: #f1f4f8;
+}
+
+.confirm-ok {
+    border: none;
+    color: #fff;
+    background: #0d3b75;
+    box-shadow: 0 6px 16px rgba(13, 59, 117, 0.25);
+}
+
+.confirm-ok:hover:not(:disabled) {
+    background: #002244;
+    transform: translateY(-1px);
+}
+
+.confirm-card.is-danger .confirm-ok {
+    background: #c0392b;
+    box-shadow: 0 6px 16px rgba(192, 57, 43, 0.3);
+}
+
+.confirm-card.is-danger .confirm-ok:hover:not(:disabled) {
+    background: #a93226;
+}
+
+.confirm-btn:disabled {
+    cursor: wait;
+    opacity: 0.85;
+}
+
+.confirm-btn:focus-visible {
+    outline: 3px solid rgba(0, 102, 204, 0.45);
+    outline-offset: 2px;
+}
+
+@media (max-width: 400px) {
+    .confirm-card {
+        padding: 26px 20px 20px;
+    }
+    .confirm-actions {
+        flex-direction: column-reverse;
+    }
+    .confirm-btn {
+        flex: none;
+        width: 100%;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
+    .confirm-overlay,
+    .confirm-card {
+        transition: none !important;
+    }
+    .signup-page *,
     .login-page *,
     .dashboard-page * {
         animation: none !important;
