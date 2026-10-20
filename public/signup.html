@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Sign Up Page</title>
 
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=15">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <meta property="og:title" content="HCILearn | Interactive Study Guide">
     <meta property="og:description" content="The official HCI 2 learning platform and reviewer system for UEP IT students.">
@@ -16,7 +16,7 @@
     <meta property="og:type" content="website">
 </head>
 
-<body>
+<body class="signup-page">
 
     <div class="signup-container">
 
@@ -24,6 +24,8 @@
 
             <!-- HEADER -->
             <div class="header-text">
+
+                <img src="images.png" alt="University Logo" class="signup-logo">
 
                 <h2>Sign Up</h2>
 
@@ -35,244 +37,158 @@
 
 
             <!-- SIGNUP FORM -->
-            <form id="signupForm">
+            <form id="signupForm" novalidate>
 
                 <!-- ERROR MESSAGE -->
-                <p
-                    id="signupError"
-                    style="
-                        color:#c0392b;
-                        display:none;
-                        margin:0 0 10px;
-                    "
-                ></p>
+                <div id="signupError" class="form-alert" role="alert">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span id="signupErrorText"></span>
+                </div>
 
 
                 <div class="input-grid">
 
-
-                    <!-- =========================================
-                         FIRST NAME
-                         ========================================= -->
+                    <!-- FIRST NAME -->
                     <div class="input-group">
-
-                        <label for="firstName">
-                            First Name
-                        </label>
-
-                        <input
-    type="text"
-    id="firstName"
-    maxlength="80"
-    autocomplete="given-name"
-    required
->
-
+                        <label for="firstName">First Name</label>
+                        <div class="field">
+                            <i class="fa-regular fa-user"></i>
+                            <input
+                                type="text"
+                                id="firstName"
+                                maxlength="80"
+                                autocomplete="given-name"
+                                required
+                            >
+                        </div>
                     </div>
 
-
-                    <!-- =========================================
-                         LAST NAME
-                         ========================================= -->
+                    <!-- LAST NAME -->
                     <div class="input-group">
-
-                        <label for="lastName">
-                            Last Name
-                        </label>
-
-                        <input
-    type="text"
-    id="lastName"
-    maxlength="80"
-    autocomplete="family-name"
-    required
->
-
+                        <label for="lastName">Last Name</label>
+                        <div class="field">
+                            <i class="fa-regular fa-user"></i>
+                            <input
+                                type="text"
+                                id="lastName"
+                                maxlength="80"
+                                autocomplete="family-name"
+                                required
+                            >
+                        </div>
                     </div>
-
 
                     <!-- YEAR -->
-<div class="input-group">
-
-    <label for="year">
-        Year
-    </label>
-
-    <select id="year" required>
-
-        <option value="" selected disabled>
-            Select year
-        </option>
-
-        <option value="1st Year">
-            1st Year
-        </option>
-
-        <option value="2nd Year">
-            2nd Year
-        </option>
-
-        <option value="3rd Year">
-            3rd Year
-        </option>
-
-        <option value="4th Year">
-            4th Year
-        </option>
-
-    </select>
-
-</div>
-
-
-<!-- SECTION -->
-<div class="input-group">
-
-    <label for="section">
-        Section
-    </label>
-
-    <select id="section" required>
-
-        <option value="" selected disabled>
-            Select section
-        </option>
-
-        <option value="A">
-            Section A
-        </option>
-
-        <option value="B">
-            Section B
-        </option>
-
-        <option value="C">
-            Section C
-        </option>
-
-        <option value="D">
-            Section D
-        </option>
-
-    </select>
-
-</div>
-
-
-                    <!-- =========================================
-                         PROGRAM
-                         ========================================= -->
                     <div class="input-group">
-
-                        <label for="program">
-                            Program/Course (BSIT)
-                        </label>
-
-                        <input
-                            type="text"
-                            id="program"
-                            value="BSIT"
-                            maxlength="80"
-                            required
-                        >
-
+                        <label for="year">Year</label>
+                        <div class="field">
+                            <i class="fa-solid fa-layer-group"></i>
+                            <select id="year" required>
+                                <option value="" selected disabled>Select year</option>
+                                <option value="1st Year">1st Year</option>
+                                <option value="2nd Year">2nd Year</option>
+                                <option value="3rd Year">3rd Year</option>
+                                <option value="4th Year">4th Year</option>
+                            </select>
+                            <i class="fa-solid fa-chevron-down select-arrow"></i>
+                        </div>
                     </div>
 
-
-                    <!-- =========================================
-                         EMAIL
-                         ========================================= -->
+                    <!-- SECTION -->
                     <div class="input-group">
-
-                        <label for="email">
-                            Email Address
-                        </label>
-
-                        <input
-                            type="email"
-                            id="email"
-                            placeholder="you@gmail.com"
-                            maxlength="254"
-                            autocomplete="email"
-                            required
-                        >
-
+                        <label for="section">Section</label>
+                        <div class="field">
+                            <i class="fa-solid fa-users"></i>
+                            <select id="section" required>
+                                <option value="" selected disabled>Select section</option>
+                                <option value="A">Section A</option>
+                                <option value="B">Section B</option>
+                                <option value="C">Section C</option>
+                                <option value="D">Section D</option>
+                            </select>
+                            <i class="fa-solid fa-chevron-down select-arrow"></i>
+                        </div>
                     </div>
 
-
-                    <!-- =========================================
-                         STUDENT ID
-                         ========================================= -->
+                    <!-- PROGRAM -->
                     <div class="input-group">
-
-                        <label for="studentId">
-                            Student ID
-                        </label>
-
-                        <input
-    type="text"
-    id="studentId"
-    maxlength="6"
-    minlength="6"
-    inputmode="numeric"
-    pattern="[0-9]{6}"
-    autocomplete="off"
-    required
->
-
+                        <label for="program">Program/Course (BSIT)</label>
+                        <div class="field">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                            <input
+                                type="text"
+                                id="program"
+                                value="BSIT"
+                                maxlength="80"
+                                required
+                            >
+                        </div>
                     </div>
 
-
-                    <!-- =========================================
-                         PASSWORD
-                         ========================================= -->
+                    <!-- EMAIL -->
                     <div class="input-group">
+                        <label for="email">Email Address</label>
+                        <div class="field">
+                            <i class="fa-solid fa-envelope"></i>
+                            <input
+                                type="email"
+                                id="email"
+                                placeholder="you@gmail.com"
+                                maxlength="254"
+                                autocomplete="email"
+                                required
+                            >
+                        </div>
+                    </div>
 
-                        <label for="password-input">
-                            Password
-                        </label>
+                    <!-- STUDENT ID -->
+                    <div class="input-group">
+                        <label for="studentId">Student ID</label>
+                        <div class="field">
+                            <i class="fa-regular fa-id-card"></i>
+                            <input
+                                type="text"
+                                id="studentId"
+                                maxlength="6"
+                                minlength="6"
+                                inputmode="numeric"
+                                pattern="[0-9]{6}"
+                                autocomplete="off"
+                                required
+                            >
+                        </div>
+                    </div>
 
-                        <input
-                            type="password"
-                            id="password-input"
-                            minlength="8"
-                            autocomplete="new-password"
-                            required
-                        >
-
-                        <small
-                            style="
-                                display:block;
-                                color:#666;
-                                margin-top:4px;
-                            "
-                        >
+                    <!-- PASSWORD -->
+                    <div class="input-group">
+                        <label for="password-input">Password</label>
+                        <div class="field">
+                            <i class="fa-solid fa-lock"></i>
+                            <input
+                                type="password"
+                                id="password-input"
+                                minlength="8"
+                                autocomplete="new-password"
+                                required
+                            >
+                            <button
+                                type="button"
+                                class="toggle-password"
+                                id="togglePassword"
+                                aria-label="Show password"
+                            >
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                        <small class="password-note">
                             Password must be at least 8 characters.
                         </small>
-
-
-                        <!-- SHOW PASSWORD -->
-                        <div class="checkbox-group">
-
-                            <input
-                                type="checkbox"
-                                id="show-password"
-                            >
-
-                            <label for="show-password">
-                                Show Password
-                            </label>
-
-                        </div>
-
                     </div>
 
                 </div>
 
 
-                <!-- =========================================
-                     SIGNUP BUTTON
-                     ========================================= -->
+                <!-- SIGNUP BUTTON -->
                 <div class="button-container">
 
                     <button
@@ -286,25 +202,12 @@
                 </div>
 
 
-                <!-- =========================================
-                     LOGIN LINK
-                     ========================================= -->
-                <div
-                    class="login-link-container"
-                    style="
-                        text-align:center;
-                        margin-top:15px;
-                    "
-                >
+                <!-- LOGIN LINK -->
+                <div class="login-link-container">
 
                     <p>
-
                         Already have an account?
-
-                        <a href="login.html">
-                            Log in
-                        </a>
-
+                        <a href="login.html">Log in</a>
                     </p>
 
                 </div>
@@ -322,358 +225,225 @@
 
     <script>
 
-        const studentIdInput =
-    document.getElementById('studentId');
+        const EMAIL_REGEX =
+            /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 
-/* ==========================================
-   STUDENT ID - NUMBERS ONLY / 6 DIGITS
-   ========================================== */
+        /* ==========================================
+           STUDENT ID - NUMBERS ONLY / 6 DIGITS
+           ========================================== */
 
-studentIdInput.addEventListener(
-    'input',
-    function () {
+        document
+            .getElementById('studentId')
+            .addEventListener(
+                'input',
+                function () {
 
-        // Remove anything that is not a number
-        this.value =
-            this.value.replace(/\D/g, '');
-
-        // Limit to 6 digits
-        this.value =
-            this.value.substring(0, 6);
-
-    }
-);
-
-        document.addEventListener(
-            'DOMContentLoaded',
-            function () {
+                    // Remove anything that is not a number, limit to 6 digits
+                    this.value =
+                        this.value.replace(/\D/g, '').substring(0, 6);
+                }
+            );
 
 
-                /* =========================================
-                   SHOW / HIDE PASSWORD
-                   ========================================= */
+        /* ==========================================
+           PASSWORD VALIDATION
+           ========================================== */
 
-                const showPasswordCheckbox =
-                    document.getElementById(
-                        'show-password'
+        function isValidPassword(pw) {
+
+            if (pw.length < 8)
+                return false;
+
+            if (/^[a-z]+$/.test(pw))
+                return false;
+
+            if (/^[A-Z]+$/.test(pw))
+                return false;
+
+            if (/^[0-9]+$/.test(pw))
+                return false;
+
+            return true;
+        }
+
+
+        /* ==========================================
+           SHOW / HIDE PASSWORD
+           ========================================== */
+
+        const passwordInput =
+            document.getElementById('password-input');
+
+        document
+            .getElementById('togglePassword')
+            .addEventListener(
+                'click',
+                function () {
+
+                    const show =
+                        passwordInput.type === 'password';
+
+                    passwordInput.type = show ? 'text' : 'password';
+
+                    this.innerHTML = show
+                        ? '<i class="fa-solid fa-eye-slash"></i>'
+                        : '<i class="fa-solid fa-eye"></i>';
+
+                    this.setAttribute(
+                        'aria-label',
+                        show ? 'Hide password' : 'Show password'
                     );
+                }
+            );
 
-                const passwordInput =
-                    document.getElementById(
-                        'password-input'
-                    );
 
+        /* ==========================================
+           ERROR MESSAGE + FIELD HIGHLIGHT
+           ========================================== */
 
-                showPasswordCheckbox.addEventListener(
-                    'change',
-                    function () {
+        function showError(message, fieldId) {
 
-                        passwordInput.type =
-                            this.checked
-                                ? 'text'
-                                : 'password';
+            document.getElementById('signupErrorText').textContent =
+                message;
 
-                    }
-                );
+            const errorEl =
+                document.getElementById('signupError');
 
+            errorEl.classList.add('visible');
 
-                /* =========================================
-                   SIGNUP FORM
-                   ========================================= */
+            errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-                document
-                    .getElementById('signupForm')
-                    .addEventListener(
-                        'submit',
-                        async function (e) {
-
-                            e.preventDefault();
-
-
-                            const errorEl =
-                                document.getElementById(
-                                    'signupError'
-                                );
-
-
-                            const btn =
-                                document.getElementById(
-                                    'signupBtn'
-                                );
-
-
-                            errorEl.style.display =
-                                'none';
-
-
-                            /* =========================================
-                               GET FORM VALUES
-                               ========================================= */
-
-                            const payload = {
-
-                                firstName:
-                                    document
-                                        .getElementById(
-                                            'firstName'
-                                        )
-                                        .value
-                                        .trim(),
-
-
-                                lastName:
-                                    document
-                                        .getElementById(
-                                            'lastName'
-                                        )
-                                        .value
-                                        .trim(),
-
-
-                                year:
-                                    document
-                                        .getElementById(
-                                            'year'
-                                        )
-                                        .value,
-
-
-                                section:
-                                    document
-                                        .getElementById(
-                                            'section'
-                                        )
-                                        .value,
-
-
-                                program:
-                                    document
-                                        .getElementById(
-                                            'program'
-                                        )
-                                        .value
-                                        .trim(),
-
-
-                                email:
-                                    document
-                                        .getElementById(
-                                            'email'
-                                        )
-                                        .value
-                                        .trim(),
-
-
-                                studentId:
-                                    document
-                                        .getElementById(
-                                            'studentId'
-                                        )
-                                        .value
-                                        .trim(),
-
-
-                                password:
-                                    document
-                                        .getElementById(
-                                            'password-input'
-                                        )
-                                        .value
-
-                            };
-
-
-                            /* =========================================
-                               EMAIL VALIDATION
-                               ========================================= */
-
-                            const EMAIL_REGEX =
-                                /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-
-                            /* =========================================
-                               PASSWORD VALIDATION
-                               ========================================= */
-
-                            function isValidPassword(pw) {
-
-                                if (pw.length < 8)
-                                    return false;
-
-
-                                if (/^[a-z]+$/.test(pw))
-                                    return false;
-
-
-                                if (/^[A-Z]+$/.test(pw))
-                                    return false;
-
-
-                                if (/^[0-9]+$/.test(pw))
-                                    return false;
-
-
-                                return true;
-
-                            }
-
-
-                            /* =========================================
-                               NAME VALIDATION
-                               ========================================= */
-
-                            if (
-                                !payload.firstName ||
-                                !payload.lastName
-                            ) {
-
-                                errorEl.textContent =
-                                    'Please enter both your first name and last name.';
-
-                                errorEl.style.display =
-                                    'block';
-
-                                return;
-
-                            }
-
-
-                            /* =========================================
-                               YEAR / SECTION VALIDATION
-                               ========================================= */
-
-                            if (
-                                !payload.year ||
-                                !payload.section
-                            ) {
-
-                                errorEl.textContent =
-                                    'Please select your year and section.';
-
-                                errorEl.style.display =
-                                    'block';
-
-                                return;
-
-                            }
-
-                            /* ==================================
-   STUDENT ID VALIDATION
-   ================================== */
-
-if (
-    !/^[0-9]{6}$/.test(payload.studentId)
-) {
-
-    errorEl.textContent =
-        'Student ID must contain exactly 6 digits.';
-
-    errorEl.style.display =
-        'block';
-
-    return;
-}
-
-
-                            /* =========================================
-                               EMAIL VALIDATION
-                               ========================================= */
-
-                            if (
-                                !EMAIL_REGEX.test(
-                                    payload.email
-                                )
-                            ) {
-
-                                errorEl.textContent =
-                                    'Please enter a valid email address.';
-
-                                errorEl.style.display =
-                                    'block';
-
-                                return;
-
-                            }
-
-
-                            /* =========================================
-                               PASSWORD VALIDATION
-                               ========================================= */
-
-                            if (
-                                !isValidPassword(
-                                    payload.password
-                                )
-                            ) {
-
-                                errorEl.textContent =
-                                    'Password must be at least 8 characters and not all letters or all numbers.';
-
-                                errorEl.style.display =
-                                    'block';
-
-                                return;
-
-                            }
-
-
-                            /* =========================================
-                               DISABLE BUTTON
-                               ========================================= */
-
-                            btn.disabled = true;
-
-                            btn.textContent =
-                                'Signing up...';
-
-
-                            try {
-
-
-                                /* =========================================
-                                   SEND TO BACKEND
-                                   ========================================= */
-
-                                await api.post(
-                                    '/auth/signup',
-                                    payload
-                                );
-
-
-                                /* =========================================
-                                   REDIRECT
-                                   ========================================= */
-
-                                window.location.href =
-                                    'Dashboard.html';
-
-
-                            } catch (err) {
-
-
-                                errorEl.textContent =
-                                    err.message;
-
-
-                                errorEl.style.display =
-                                    'block';
-
-
-                                btn.disabled =
-                                    false;
-
-
-                                btn.textContent =
-                                    'Sign up';
-
-                            }
-
-                        }
-                    );
-
+            if (fieldId) {
+                const field = document.getElementById(fieldId);
+                field.closest('.field').classList.add('invalid');
+                field.focus({ preventScroll: true });
             }
-        );
+        }
+
+        // Tanggalin ang red highlight kapag inayos na ng user ang field
+        document
+            .querySelectorAll('#signupForm input, #signupForm select')
+            .forEach(el => {
+                const clear = () => {
+                    const field = el.closest('.field');
+                    if (field) field.classList.remove('invalid');
+                };
+                el.addEventListener('input', clear);
+                el.addEventListener('change', clear);
+            });
+
+
+        /* ==========================================
+           SIGNUP FORM
+           ========================================== */
+
+        document
+            .getElementById('signupForm')
+            .addEventListener(
+                'submit',
+                async function (e) {
+
+                    e.preventDefault();
+
+                    const btn =
+                        document.getElementById('signupBtn');
+
+                    document
+                        .getElementById('signupError')
+                        .classList
+                        .remove('visible');
+
+
+                    const payload = {
+                        firstName: document.getElementById('firstName').value.trim(),
+                        lastName: document.getElementById('lastName').value.trim(),
+                        year: document.getElementById('year').value,
+                        section: document.getElementById('section').value,
+                        program: document.getElementById('program').value.trim(),
+                        email: document.getElementById('email').value.trim(),
+                        studentId: document.getElementById('studentId').value.trim(),
+                        password: document.getElementById('password-input').value,
+                    };
+
+
+                    /* NAME VALIDATION */
+                    if (!payload.firstName || !payload.lastName) {
+                        showError(
+                            'Please enter both your first name and last name.',
+                            payload.firstName ? 'lastName' : 'firstName'
+                        );
+                        return;
+                    }
+
+
+                    /* YEAR / SECTION VALIDATION */
+                    if (!payload.year || !payload.section) {
+                        showError(
+                            'Please select your year and section.',
+                            payload.year ? 'section' : 'year'
+                        );
+                        return;
+                    }
+
+
+                    /* STUDENT ID VALIDATION */
+                    if (!/^[0-9]{6}$/.test(payload.studentId)) {
+                        showError(
+                            'Student ID must contain exactly 6 digits.',
+                            'studentId'
+                        );
+                        return;
+                    }
+
+
+                    /* EMAIL VALIDATION */
+                    if (!EMAIL_REGEX.test(payload.email)) {
+                        showError(
+                            'Please enter a valid email address.',
+                            'email'
+                        );
+                        return;
+                    }
+
+
+                    /* PASSWORD VALIDATION */
+                    if (!isValidPassword(payload.password)) {
+                        showError(
+                            'Password must be at least 8 characters and not all letters or all numbers.',
+                            'password-input'
+                        );
+                        return;
+                    }
+
+
+                    /* DISABLE BUTTON */
+                    btn.disabled = true;
+                    btn.innerHTML =
+                        '<span class="btn-spinner"></span> Signing up...';
+
+
+                    try {
+
+                        /* SEND TO BACKEND */
+                        await api.post(
+                            '/auth/signup',
+                            payload
+                        );
+
+                        /* REDIRECT */
+                        window.location.href =
+                            'Dashboard.html';
+
+                    } catch (err) {
+
+                        showError(err.message);
+
+                        btn.disabled = false;
+                        btn.textContent = 'Sign up';
+                    }
+                }
+            );
 
     </script>
 
