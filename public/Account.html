@@ -218,7 +218,7 @@
                                         <i class="fa-solid fa-eye"></i>
                                     </button>
                                 </div>
-                                <small class="acct-hint">At least 8 characters.</small>
+                                <small class="acct-hint">8–72 characters, not all letters or all numbers.</small>
                             </div>
 
                             <!-- Confirm Password -->
@@ -229,6 +229,16 @@
                                     <input type="password" id="confirm-password" placeholder="Type the new password again" autocomplete="new-password" disabled>
                                 </div>
                                 <small class="acct-hint" id="confirmHint">Enter a new password first.</small>
+                            </div>
+
+                            <!-- Current Password (needed to change the password) -->
+                            <div class="acct-field acct-field-full">
+                                <label for="current-password">Current Password</label>
+                                <div class="acct-input">
+                                    <i class="fa-solid fa-key"></i>
+                                    <input type="password" id="current-password" placeholder="Enter your current password to confirm it's you" autocomplete="current-password" disabled>
+                                </div>
+                                <small class="acct-hint">Required only when changing your password.</small>
                             </div>
 
                         </div>
@@ -288,6 +298,7 @@
 
         const confirmPassword = document.getElementById('confirm-password');
         const confirmHint = document.getElementById('confirmHint');
+        const currentPassword = document.getElementById('current-password');
 
         const msgEl = document.getElementById('accountMsg');
         const saveBtn = document.getElementById('saveBtn');
@@ -391,7 +402,11 @@
 
             // Bubukas lang ang Confirm kapag may tinype na bagong password
             confirmPassword.disabled = !pw;
-            if (!pw) confirmPassword.value = '';
+            currentPassword.disabled = !pw;
+            if (!pw) {
+                confirmPassword.value = '';
+                currentPassword.value = '';
+            }
 
             confirmHint.classList.remove('is-ok', 'is-bad');
             if (!pw) {
@@ -410,6 +425,9 @@
 
         els.password.addEventListener('input', updateConfirmState);
         confirmPassword.addEventListener('input', updateConfirmState);
+        currentPassword.addEventListener('input', () => {
+            currentPassword.closest('.acct-input').classList.remove('invalid');
+        });
 
 
         // Babala kapag aalis nang hindi naka-save
@@ -459,6 +477,7 @@
             const show = els.password.type === 'password';
             els.password.type = show ? 'text' : 'password';
             confirmPassword.type = els.password.type;
+            currentPassword.type = els.password.type;
             this.innerHTML = show ? '<i class="fa-solid fa-eye-slash"></i>' : '<i class="fa-solid fa-eye"></i>';
             this.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
         });
@@ -581,6 +600,14 @@
                 return;
             }
 
+            /* Current password is required to set a new one */
+            if (els.password.value && !currentPassword.value) {
+                currentPassword.closest('.acct-input').classList.add('invalid');
+                currentPassword.focus();
+                showMessage('Please enter your current password to change it.', true);
+                return;
+            }
+
             const payload = {
                 fullName: els.fullName.value.trim(),
                 yearSection: els.yearSection.value.trim(),
@@ -588,8 +615,11 @@
                 studentId: els.studentId.value.trim()
             };
 
-            /* Only send password when changing it. */
-            if (els.password.value) payload.password = els.password.value;
+            /* Only send password when changing it (with the current one). */
+            if (els.password.value) {
+                payload.password = els.password.value;
+                payload.currentPassword = currentPassword.value;
+            }
 
             saveBtn.disabled = true;
             saveBtn.innerHTML = '<span class="btn-spinner"></span> Saving...';
@@ -604,6 +634,11 @@
                 showMessage('Account information updated successfully.', false);
 
             } catch (err) {
+                if (/current password/i.test(err.message)) {
+                    currentPassword.closest('.acct-input').classList.add('invalid');
+                    currentPassword.value = '';
+                    currentPassword.focus();
+                }
                 showMessage(err.message, true);
 
             } finally {
