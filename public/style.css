@@ -6683,6 +6683,15 @@ p {
     }
 }
 
+/* Hamburger, drawer header at backdrop: phone lang */
+@media (min-width: 769px) {
+    .sidebar-burger,
+    .drawer-head,
+    .sidebar-backdrop {
+        display: none;
+    }
+}
+
 @media screen and (max-width: 768px) {
     .sidebar {
         position: static;
@@ -6730,33 +6739,207 @@ p {
         padding-top: 0;
     }
 
-    /* Sa phone: full-width top bar ulit, compact na profile row */
+    /* Sa phone: slim top bar (☰ + logo kaliwa, profile kanan); ang menu ay drawer */
     .sidebar {
-        top: auto;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
         height: auto;
         margin: 0;
-        border-radius: 0;
+        padding: 10px 14px;
+        border-radius: 0 0 18px 18px;
+        box-shadow: 0 6px 18px rgba(13, 59, 117, 0.18);
     }
 
+    .sidebar-header {
+        justify-content: flex-start;
+        gap: 10px;
+        min-height: 40px;
+        margin: 0;
+        padding: 0 92px 0 0; /* space para sa profile sa kanan */
+    }
+
+    /* Profile: avatar + log out sa kanang itaas */
     .sidebar-user {
-        margin: 14px auto 0;
-        max-width: 420px;
-        padding: 6px 8px;
+        position: absolute;
+        top: 50%;
+        right: 14px;
+        transform: translateY(-50%);
+        margin: 0;
+        padding: 3px;
+        gap: 4px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.1);
     }
 
-    .sidebar-avatar {
-        width: 32px;
-        height: 32px;
-        font-size: 12px;
+    .sidebar-user-link {
+        flex: none;
+        padding: 0;
     }
 
-    .sidebar-user-text small {
+    .sidebar-user-text {
         display: none;
     }
 
+    .sidebar-avatar {
+        width: 34px;
+        height: 34px;
+        font-size: 12px;
+        box-shadow: 0 0 0 2px rgba(255, 200, 69, 0.85);
+    }
+
     .sidebar-logout {
-        width: 32px;
-        height: 32px;
+        width: 34px;
+        height: 34px;
+        border-radius: 11px;
+        background: transparent;
+    }
+
+    /* ☰ button */
+    .sidebar-burger {
+        display: flex;
+        width: 40px;
+        height: 40px;
+        flex-shrink: 0;
+        border: none;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.12);
+        color: #fff;
+        font-size: 17px;
+        cursor: pointer;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .sidebar-burger:focus-visible,
+    .drawer-close:focus-visible {
+        outline: 2px solid rgba(255, 255, 255, 0.7);
+        outline-offset: 2px;
+    }
+
+    /* Drawer (slides in from the left) */
+    .sidebar .sidebar-nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 2; /* above the backdrop (both live inside .sidebar) */
+        width: min(290px, 84vw);
+        display: flex;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        gap: 6px;
+        padding: 16px 16px 24px;
+        overflow-y: auto;
+        background:
+            radial-gradient(circle at 0% 100%, rgba(58, 107, 168, 0.45), transparent 55%),
+            linear-gradient(180deg, #0d3b75 0%, #0a2f5f 100%);
+        border-radius: 0 22px 22px 0;
+        box-shadow: 10px 0 34px rgba(0, 0, 0, 0.3);
+        transform: translateX(-105%);
+        visibility: hidden;
+        transition: transform 0.28s ease, visibility 0.28s;
+    }
+
+    .menu-open .sidebar .sidebar-nav {
+        transform: translateX(0);
+        visibility: visible;
+    }
+
+    .drawer-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .drawer-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 19px;
+        font-weight: 800;
+        color: #fff;
+    }
+
+    .drawer-brand img {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.22);
+    }
+
+    .drawer-close {
+        width: 36px;
+        height: 36px;
+        border: none;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.12);
+        color: #fff;
+        font-size: 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Section labels show inside the drawer */
+    .sidebar .sidebar-nav .sidebar-label-group {
+        display: block;
+        margin-top: 10px;
+    }
+
+    .sidebar .nav-item {
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 12px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        font-size: 15px;
+    }
+
+    .sidebar .nav-item:hover {
+        transform: none;
+    }
+
+    .sidebar .nav-item i {
+        width: 36px;
+        height: 36px;
+        margin: 0;
+        font-size: 15px;
+        border-radius: 10px;
+    }
+
+    /* Dimmed background behind the drawer */
+    .sidebar-backdrop {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 1;
+        background: rgba(0, 20, 40, 0.5);
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(2px);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.28s ease;
+    }
+
+    .menu-open .sidebar-backdrop {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .menu-open body {
+        overflow: hidden; /* huwag i-scroll ang page habang bukas ang menu */
+    }
+
+    /* Sound button (Case Studies / Study Cards): ilipat sa ibaba para hindi tumama sa profile */
+    #sfxToggle {
+        top: auto !important;
+        bottom: 16px !important;
     }
 }
 
