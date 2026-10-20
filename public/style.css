@@ -7101,3 +7101,80 @@ p {
         transition: none !important;
     }
 }
+
+
+/* ========================================= */
+/* --- FINAL TOUCHES (all pages) ---         */
+/* ========================================= */
+
+/* Smooth scrolling (e.g. "Back to top", "Jump to a lesson") */
+@media (prefers-reduced-motion: no-preference) {
+    html {
+        scroll-behavior: smooth;
+    }
+
+    /* Gentle fade-in kapag nagbukas ang page (opacity lang, para hindi
+       maapektuhan ang sticky/fixed na elements) */
+    .main-content {
+        animation: pageIn 0.35s ease both;
+    }
+}
+
+@keyframes pageIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* Blue text highlight kapag nag-select ng text */
+::selection {
+    background: rgba(58, 107, 168, 0.25);
+    color: inherit;
+}
+
+/* Mas manipis at malinis na scrollbar */
+html {
+    scrollbar-width: thin;
+    scrollbar-color: #b9c8dc transparent;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #b9c8dc;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #8fa6c4;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Pare-parehong keyboard focus outline (low specificity: page rules still win) */
+:where(a, button, [tabindex], summary):focus-visible {
+    outline: 3px solid rgba(0, 102, 204, 0.45);
+    outline-offset: 2px;
+}
+
+/* Mahinang tap highlight sa phones imbes na default gray box */
+a,
+button,
+label {
+    -webkit-tap-highlight-color: rgba(13, 59, 117, 0.12);
+}
+
+/* Mas maayos na text rendering */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
