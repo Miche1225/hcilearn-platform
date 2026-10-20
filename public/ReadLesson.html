@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Read Lesson Page</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=20">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
+<body class="lesson-page">
 
     <script src="js/api.js"></script>
     <script>
@@ -55,15 +55,22 @@
         <!-- Main Content Area -->
         <main class="main-content">
             
-            <!-- Top Bar (Search) -->
-                <div class="top-bar">
-                    <div class="search-container">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                        <!-- DITO YUNG NAGING PROBLEMA: Kailangan may id="searchInput" -->
-                        <input type="text" id="searchInput" placeholder="Search lessons...">
-                    </div>
+            <!-- Page Header + Search -->
+            <div class="video-header">
+                <div class="video-header-text">
+                    <h2><i class="fa-solid fa-book"></i> Read Lesson</h2>
+                    <p>HCI 2 lessons, from the basics of HCI to smart environments.</p>
                 </div>
-                
+                <div class="search-container">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <!-- DITO YUNG NAGING PROBLEMA: Kailangan may id="searchInput" -->
+                    <input type="text" id="searchInput" placeholder="Search lessons...">
+                    <button type="button" class="clear-search" id="clearSearchBtn" aria-label="Clear search" hidden>
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
                 <!-- Top Cards Grid -->
                <!-- Top Cards Grid -->
                 <div class="lesson-top-grid">
@@ -196,6 +203,22 @@
 
                 </div>
                 
+                <!-- Reading progress + controls -->
+                <div class="lesson-toolbar">
+                    <div class="topic-select module-jump">
+                        <i class="fa-solid fa-list-ul"></i>
+                        <select id="moduleSelect" aria-label="Jump to lesson">
+                            <option value="">Jump to a lesson...</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down select-arrow"></i>
+                    </div>
+                    <div class="lesson-actions">
+                        <span class="search-count" id="searchCount" hidden></span>
+                        <button type="button" class="filter-btn" id="expandAllBtn"><i class="fa-solid fa-angles-down"></i> Expand all</button>
+                        <button type="button" class="filter-btn" id="collapseAllBtn"><i class="fa-solid fa-angles-up"></i> Collapse all</button>
+                    </div>
+                </div>
+
                 <!-- Accordion Lesson List -->
                 <div class="accordion-container">
                     
@@ -4069,10 +4092,19 @@
                 </div>
 
             </div>
+            <!-- Empty state kapag walang tugma sa search -->
+            <div class="video-empty" id="lessonEmpty" hidden>
+                <i class="fa-solid fa-book-open"></i>
+                <p>No topics found. Try a different keyword.</p>
+            </div>
+
+            <button type="button" class="to-top-btn" id="toTopBtn" aria-label="Back to top">
+                <i class="fa-solid fa-arrow-up"></i>
+            </button>
         </main>
     </div>
 
-    <!-- KUMPLETONG JAVASCRIPT PARA SA ACCORDION AT SMART SEARCH BAR -->
+    <!-- KUMPLETONG JAVASCRIPT PARA SA ACCORDION, SMART SEARCH BAR AT READING PROGRESS -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
 
@@ -4080,14 +4112,14 @@
             let currentPageName = window.location.pathname.split('/').pop();
             if (!currentPageName || currentPageName === '') {
                 // Palitan ng tamang pangalan depende sa file (e.g. 'ReadLesson.html')
-                currentPageName = 'ReadLesson.html'; 
+                currentPageName = 'ReadLesson.html';
             }
             localStorage.setItem('lastLessonVisited', currentPageName);
 
             // FUNCTION: Tagasalin ng words pa-number (e.g. "four" -> "4")
             function normalizeText(text) {
                 const numberMap = {
-                    'one': '1', 'two': '2', 'three': '3', 'four': '4', 
+                    'one': '1', 'two': '2', 'three': '3', 'four': '4',
                     'five': '5', 'six': '6', 'seven': '7', 'eight': '8', 'nine': '9', 'zero': '0'
                 };
                 let normalized = text.toLowerCase();
@@ -4098,57 +4130,222 @@
                 return normalized;
             }
 
-            // 1. LOGIC PARA SA SEARCH BAR
-            const searchInput = document.getElementById('searchInput');
             const accordionItems = document.querySelectorAll('.accordion-item');
+            const total = accordionItems.length;
 
-            if (searchInput) {
-                searchInput.addEventListener('keyup', function() {
-                    // Kunin ang tinype at idaan sa translator
-                    const filterText = normalizeText(this.value.trim());
 
-                    accordionItems.forEach(item => {
-                        const button = item.querySelector('.accordion-button');
-                        
-                        if (button) {
-                            // Idaan din sa translator ang title ng lesson
-                            const lessonTitle = normalizeText(button.textContent);
-                            
-                            // I-check kung ang tinype ay kasama sa title ng lesson
-                            if (lessonTitle.includes(filterText)) {
-                                item.style.display = ''; // Ipakita kung tugma
-                            } else {
-                                item.style.display = 'none'; // Itago kung hindi
-                            }
-                        }
-                    });
-                });
+            // ========================================================
+            // 0. MODULES — hinahati ang 137 topics ayon sa Lesson Outline
+            //    (start = numero ng unang topic ng module)
+            // ========================================================
+            const MODULES = [
+                { start: 1,   icon: 'fa-desktop',           title: 'Introduction to HCI' },
+                { start: 8,   icon: 'fa-lightbulb',         title: 'Design Thinking & User-Centered Design' },
+                { start: 18,  icon: 'fa-brain',             title: 'Mental & Cognitive Models' },
+                { start: 27,  icon: 'fa-pen-ruler',         title: 'Prototyping' },
+                { start: 41,  icon: 'fa-magnifying-glass',  title: 'User Research' },
+                { start: 54,  icon: 'fa-universal-access',  title: 'Accessibility & Inclusive Design' },
+                { start: 69,  icon: 'fa-scale-balanced',    title: 'Ethics & Culture in HCI' },
+                { start: 82,  icon: 'fa-face-smile',        title: 'Emotion & Motivation in UX' },
+                { start: 101, icon: 'fa-robot',             title: 'AI, Conversational & Voice Interfaces' },
+                { start: 110, icon: 'fa-vr-cardboard',      title: 'Mixed Reality & Tangible Interfaces' },
+                { start: 125, icon: 'fa-house-signal',      title: 'Ubiquitous Computing & Smart Environments' },
+            ];
+
+            const container = document.querySelector('.accordion-container');
+            const moduleSelect = document.getElementById('moduleSelect');
+            const moduleHeaders = [];
+
+            MODULES.forEach((mod, m) => {
+                const end = m + 1 < MODULES.length ? MODULES[m + 1].start - 1 : total;
+                const firstItem = accordionItems[mod.start - 1];
+                if (!firstItem) return;
+
+                const header = document.createElement('div');
+                header.className = 'module-header';
+                header.id = `module-${m + 1}`;
+                header.innerHTML = `
+                    <div class="module-icon"><i class="fa-solid ${mod.icon}"></i></div>
+                    <div class="module-text">
+                        <small>Lesson ${m + 1}</small>
+                        <h3></h3>
+                    </div>
+                    <span class="module-count">${end - mod.start + 1} topics</span>`;
+                header.querySelector('h3').textContent = mod.title;
+                container.insertBefore(header, firstItem);
+
+                // Itala kung aling module ang bawat topic
+                for (let i = mod.start - 1; i < end; i++) {
+                    accordionItems[i].dataset.module = m + 1;
+                }
+                moduleHeaders.push(header);
+
+                const option = document.createElement('option');
+                option.value = m + 1;
+                option.textContent = `Lesson ${m + 1}: ${mod.title}`;
+                moduleSelect.appendChild(option);
+            });
+
+            // Jump to module
+            moduleSelect.addEventListener('change', function () {
+                if (!this.value) return;
+                const target = document.getElementById(`module-${this.value}`);
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                this.value = '';
+            });
+
+
+            // ========================================================
+            // 1. NUMBERS + "READ" CHECK SA BAWAT TOPIC
+            // ========================================================
+            accordionItems.forEach((item, index) => {
+                const button = item.querySelector('.accordion-button');
+
+                // Ilagay ang title text sa sariling span (para sa search highlight)
+                const titleSpan = document.createElement('span');
+                titleSpan.className = 'topic-title';
+                [...button.childNodes]
+                    .filter(n => n.nodeType === Node.TEXT_NODE)
+                    .forEach(n => { titleSpan.textContent += n.textContent; n.remove(); });
+                titleSpan.textContent = titleSpan.textContent.trim();
+                titleSpan.dataset.original = titleSpan.textContent;
+                button.prepend(titleSpan);
+
+                const num = document.createElement('span');
+                num.className = 'topic-num';
+                num.textContent = index + 1;
+                button.prepend(num);
+
+                const check = document.createElement('i');
+                check.className = 'fa-solid fa-circle-check topic-read-icon';
+                check.title = 'You opened this topic';
+                button.querySelector('.chevron-icon').before(check);
+            });
+
+            // Naaalala kung aling topics ang nabuksan na (sa browser na ito)
+            const READ_KEY = 'readLessonTopics';
+            let readTopics = new Set();
+            try {
+                readTopics = new Set(JSON.parse(localStorage.getItem(READ_KEY) || '[]'));
+            } catch (e) { /* storage blocked or corrupted */ }
+
+            function markRead(index) {
+                if (readTopics.has(index)) return;
+                readTopics.add(index);
+                accordionItems[index].classList.add('is-read');
+                try { localStorage.setItem(READ_KEY, JSON.stringify([...readTopics])); } catch (e) { }
             }
 
-            // 2. LOGIC PARA SA ACCORDION (Pampabuka ng mga Lessons)
-            const accordionButtons = document.querySelectorAll('.accordion-button');
-            
-            accordionButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const accordionItem = this.parentElement;
-                    
-                    // Toggle the active class para magpakita/magtago ang content
-                    accordionItem.classList.toggle('active');
+            readTopics.forEach(i => { if (accordionItems[i]) accordionItems[i].classList.add('is-read'); });
 
-                    // I-rotate ang chevron icon
-                    const icon = this.querySelector('.chevron-icon');
-                    if (icon) {
-                        if (accordionItem.classList.contains('active')) {
-                            icon.classList.remove('fa-chevron-down');
-                            icon.classList.add('fa-chevron-up');
-                        } else {
-                            icon.classList.remove('fa-chevron-up');
-                            icon.classList.add('fa-chevron-down');
-                        }
-                    }
+
+            // ========================================================
+            // 2. LOGIC PARA SA ACCORDION (Pampabuka ng mga Lessons)
+            // ========================================================
+            function setOpen(item, open) {
+                item.classList.toggle('active', open);
+                item.querySelector('.accordion-button').setAttribute('aria-expanded', open);
+            }
+
+            accordionItems.forEach((item, index) => {
+                const button = item.querySelector('.accordion-button');
+                button.setAttribute('aria-expanded', 'false');
+
+                button.addEventListener('click', function() {
+                    const open = !item.classList.contains('active');
+                    setOpen(item, open);
+                    if (open) markRead(index);
                 });
             });
-            
+
+            // Expand all / Collapse all (para lang sa mga nakikitang topics)
+            document.getElementById('expandAllBtn').addEventListener('click', () => {
+                accordionItems.forEach(item => { if (item.style.display !== 'none') setOpen(item, true); });
+            });
+            document.getElementById('collapseAllBtn').addEventListener('click', () => {
+                accordionItems.forEach(item => setOpen(item, false));
+            });
+
+
+            // ========================================================
+            // 3. LOGIC PARA SA SEARCH BAR (title at laman ng topic)
+            // ========================================================
+            const searchInput = document.getElementById('searchInput');
+            const searchCount = document.getElementById('searchCount');
+            const clearSearchBtn = document.getElementById('clearSearchBtn');
+
+            function escapeHtml(text) {
+                return text.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+            }
+
+            // I-highlight ang tinype na salita sa title
+            function highlightTitle(span, query) {
+                const original = span.dataset.original;
+                if (!query) { span.textContent = original; return; }
+                const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                span.innerHTML = escapeHtml(original).replace(
+                    new RegExp(`(${escapeHtml(escapedQuery)})`, 'gi'),
+                    '<mark>$1</mark>'
+                );
+            }
+
+            function runSearch() {
+                const raw = searchInput.value.trim();
+                // Kunin ang tinype at idaan sa translator
+                const filterText = normalizeText(raw);
+                let visible = 0;
+
+                accordionItems.forEach(item => {
+                    // Idaan din sa translator ang title at laman ng lesson
+                    const matches = normalizeText(item.textContent).includes(filterText);
+                    item.style.display = matches ? '' : 'none';
+                    if (matches) visible++;
+                    highlightTitle(item.querySelector('.topic-title'), raw);
+                });
+
+                // Itago ang module header kung walang tugmang topic sa loob nito
+                moduleHeaders.forEach((header, m) => {
+                    const hasVisible = [...accordionItems].some(item =>
+                        item.dataset.module == m + 1 && item.style.display !== 'none');
+                    header.style.display = hasVisible ? '' : 'none';
+                });
+
+                // Habang naghahanap, itago ang Objectives/Outline para kita agad ang results
+                document.querySelector('.lesson-top-grid').style.display = raw ? 'none' : '';
+
+                searchCount.hidden = !raw;
+                searchCount.textContent = `${visible} topic${visible === 1 ? '' : 's'} found`;
+                clearSearchBtn.hidden = !raw;
+                document.getElementById('lessonEmpty').hidden = visible > 0;
+            }
+
+            searchInput.addEventListener('input', runSearch);
+
+            clearSearchBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                runSearch();
+                searchInput.focus();
+            });
+
+
+            // ========================================================
+            // 4. BACK TO TOP BUTTON
+            // ========================================================
+            const toTopBtn = document.getElementById('toTopBtn');
+            const scroller = document.querySelector('.main-content');
+
+            function onScroll() {
+                const y = Math.max(scroller.scrollTop, window.scrollY);
+                toTopBtn.classList.toggle('visible', y > 600);
+            }
+            scroller.addEventListener('scroll', onScroll);
+            window.addEventListener('scroll', onScroll);
+
+            toTopBtn.addEventListener('click', () => {
+                scroller.scrollTo({ top: 0, behavior: 'smooth' });
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
         });
 
     </script>
