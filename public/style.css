@@ -3882,6 +3882,347 @@ p {
 }
 
 /* ========================================= */
+/* --- WATCH VIDEO PAGE ENHANCEMENTS ---     */
+/* ========================================= */
+
+.video-page .main-content {
+    background-color: #f7f9fb;
+}
+
+/* Header + search */
+.video-page .video-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.video-page .video-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 26px;
+    font-weight: 800;
+    color: #111;
+}
+
+.video-page .video-header h2 i {
+    color: #0d3b75;
+}
+
+.video-page .video-header p {
+    margin: 4px 0 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.video-page .search-container input {
+    background-color: #fff;
+}
+
+/* Progress + filters */
+.video-page .video-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 14px 18px;
+    margin-bottom: 24px;
+    background: #fff;
+    border: 1px solid #eaeef3;
+    border-radius: 14px;
+}
+
+.video-page .video-progress {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 1;
+    min-width: 220px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #333;
+}
+
+.video-page .video-progress span {
+    white-space: nowrap;
+}
+
+.video-page .video-progress-bar {
+    flex: 1;
+    max-width: 260px;
+    height: 8px;
+    border-radius: 8px;
+    background: #e6ebf1;
+    overflow: hidden;
+}
+
+.video-page .video-progress-bar div {
+    width: 0;
+    height: 100%;
+    border-radius: 8px;
+    background: #1e7e45;
+    transition: width 0.6s ease;
+}
+
+.video-page .video-filters {
+    display: flex;
+    gap: 6px;
+}
+
+.video-page .filter-btn {
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1px solid #d4dce6;
+    background: #fff;
+    color: #555;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.video-page .filter-btn:hover {
+    border-color: #0d3b75;
+    color: #0d3b75;
+}
+
+.video-page .filter-btn.active {
+    background: #0d3b75;
+    border-color: #0d3b75;
+    color: #fff;
+}
+
+/* Cards */
+.video-page .video-grid {
+    gap: 24px;
+    padding-top: 0;
+}
+
+.video-page .video-card {
+    border: 1px solid #e3e8ef;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(13, 59, 117, 0.04);
+}
+
+.video-page .video-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(13, 59, 117, 0.12);
+}
+
+.video-page .thumbnail-container {
+    overflow: hidden;
+    border-bottom: none;
+}
+
+.video-page .thumbnail-container img {
+    opacity: 1;
+    transition: transform 0.4s ease;
+}
+
+.video-page .video-card:hover .thumbnail-container img {
+    transform: scale(1.05);
+}
+
+.video-page .play-overlay {
+    width: 54px;
+    height: 54px;
+    /* Darker para kita rin sa mga puting thumbnail */
+    background-color: rgba(0, 0, 0, 0.45);
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.video-page .video-card:hover .play-overlay {
+    background-color: #0d3b75;
+    transform: translate(-50%, -50%) scale(1.08);
+}
+
+.video-page .duration-badge {
+    border-radius: 6px;
+    padding: 3px 7px;
+}
+
+.video-page .watched-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 10px;
+    background: #1e7e45;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.video-page .video-info {
+    padding: 14px 16px 16px;
+}
+
+.video-page .lesson-tag {
+    display: inline-block;
+    margin-bottom: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #0d3b75;
+}
+
+.video-page .video-info h4 {
+    font-size: 15px;
+}
+
+.video-page .video-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.video-page .video-meta .lesson-tag {
+    margin-bottom: 0;
+}
+
+.video-page .topic-chip {
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* Topic dropdown */
+.video-page .video-filters {
+    align-items: center;
+}
+
+.video-page .topic-select {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-right: 6px;
+}
+
+.video-page .topic-select > i:first-child {
+    position: absolute;
+    left: 12px;
+    font-size: 12px;
+    color: #0d3b75;
+    pointer-events: none;
+}
+
+.video-page .topic-select .select-arrow {
+    position: absolute;
+    right: 12px;
+    font-size: 11px;
+    color: #555;
+    pointer-events: none;
+}
+
+.video-page .topic-select select {
+    appearance: none;
+    -webkit-appearance: none;
+    padding: 7px 32px 7px 32px;
+    border-radius: 20px;
+    border: 1px solid #d4dce6;
+    background: #fff;
+    color: #333;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+}
+
+.video-page .topic-select select:hover,
+.video-page .topic-select select:focus {
+    border-color: #0d3b75;
+}
+
+/* Empty state */
+.video-page .video-empty {
+    text-align: center;
+    padding: 50px 20px;
+    color: #888;
+}
+
+.video-page .video-empty[hidden] {
+    display: none;
+}
+
+.video-page .video-empty i {
+    font-size: 36px;
+    color: #c3cedd;
+    margin-bottom: 12px;
+}
+
+.video-page .video-empty p {
+    margin: 0;
+    font-size: 14px;
+    color: #888;
+}
+
+@media screen and (max-width: 768px) {
+    .video-page .video-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+    }
+
+    .video-page .video-header h2 {
+        font-size: 22px;
+    }
+
+    .video-page .search-container {
+        width: 100%;
+    }
+
+    /* 16px para hindi mag-zoom ang iPhone */
+    .video-page .search-container input {
+        font-size: 16px;
+    }
+
+    .video-page .video-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .video-page .video-progress-bar {
+        max-width: none;
+    }
+
+    .video-page .video-filters {
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+
+    .video-page .topic-select {
+        flex: 1 1 100%;
+        margin: 0 0 4px;
+    }
+
+    .video-page .topic-select select {
+        width: 100%;
+        font-size: 16px;
+        padding-top: 9px;
+        padding-bottom: 9px;
+    }
+
+    .video-page .filter-btn {
+        flex: 1;
+        padding: 8px 6px;
+        white-space: nowrap;
+    }
+}
+
+/* ========================================= */
 /* --- CONFIRM DIALOG (confirmDialog()) ---  */
 /* ========================================= */
 

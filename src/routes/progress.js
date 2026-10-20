@@ -9,7 +9,7 @@ router.use(requireAuth);
 // These mirror the content that's hard-coded into the front-end pages.
 const TOTAL_CASE_STUDIES = 50;
 const TOTAL_STUDY_CARD_LESSONS = 11;
-const TOTAL_VIDEOS = 9;
+const TOTAL_VIDEOS = 16; // keep in sync with the VIDEOS list in public/WatchVideo.html
 
 async function logActivity(userId, type, description) {
   await pool.query(
