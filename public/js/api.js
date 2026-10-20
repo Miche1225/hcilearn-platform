@@ -179,6 +179,52 @@ function renderSidebarUser(user) {
   }
 })();
 
+// Page helpers for logged-in pages: "Skip to content" link for keyboard
+// users, and a back-to-top button on long pages.
+(function setupPageHelpers() {
+  const init = () => {
+    const main = document.querySelector('.main-content');
+    if (!main) return;
+
+    // Skip link (only visible when reached with the Tab key)
+    main.id = main.id || 'mainContent';
+    main.setAttribute('tabindex', '-1');
+    const skip = document.createElement('a');
+    skip.href = `#${main.id}`;
+    skip.className = 'skip-link';
+    skip.textContent = 'Skip to content';
+    document.body.prepend(skip);
+
+    // Back to top (Read Lesson already has its own button)
+    if (document.querySelector('.to-top-btn')) return;
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'to-top-btn to-top-global';
+    btn.setAttribute('aria-label', 'Back to top');
+    btn.innerHTML = '<i class="fa-solid fa-arrow-up"></i>';
+    document.body.appendChild(btn);
+
+    const onScroll = () => {
+      const y = Math.max(window.scrollY, main.scrollTop);
+      btn.classList.toggle('visible', y > 600);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    main.addEventListener('scroll', onScroll, { passive: true });
+
+    btn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      main.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+
 // Any element with data-logout (e.g. the sidebar log-out button) asks first.
 document.addEventListener('click', (e) => {
   const trigger = e.target.closest('[data-logout]');

@@ -7178,3 +7178,143 @@ body {
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
 }
+
+
+/* ========================================= */
+/* --- FINISHING TOUCHES (all pages) ---     */
+/* ========================================= */
+
+/* Footer at the bottom of logged-in pages */
+.site-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 6px 10px;
+    margin-top: 36px;
+    padding: 18px 0 6px;
+    border-top: 1px solid #e6ebf1;
+    font-size: 12.5px;
+    color: #8a96a6;
+    text-align: center;
+}
+
+.site-footer strong {
+    color: #0d3b75;
+    font-weight: 800;
+}
+
+.site-footer-dot {
+    color: #c3cedd;
+}
+
+/* "Skip to content" link: hidden until reached with the Tab key */
+.skip-link {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 3000;
+    padding: 10px 16px;
+    border-radius: 10px;
+    background: #0d3b75;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transform: translateY(-150%);
+    transition: transform 0.2s ease;
+}
+
+.skip-link:focus {
+    transform: translateY(0);
+    outline: 3px solid #ffc845;
+    outline-offset: 2px;
+}
+
+/* The main area can receive focus from the skip link; no outline box */
+.main-content:focus {
+    outline: none;
+}
+
+/* Shown only if JavaScript is turned off */
+.noscript-note {
+    position: relative;
+    z-index: 3000;
+    padding: 12px 16px;
+    background: #fff4d6;
+    color: #7a5200;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Back-to-top button on long pages (same look as Read Lesson's) */
+.to-top-global {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 50;
+    width: 46px;
+    height: 46px;
+    border: none;
+    border-radius: 50%;
+    background: #0d3b75;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(13, 59, 117, 0.3);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
+    transition: opacity 0.2s, transform 0.2s, background 0.2s;
+}
+
+.to-top-global.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.to-top-global:hover {
+    background: #002244;
+}
+
+@media screen and (max-width: 768px) {
+    /* Stop a stray sideways scrollbar on phones (an invisible decorative
+       layer was ~45px wider than the screen; nothing visible is cut off) */
+    .main-content {
+        overflow-x: hidden;
+    }
+
+    /* Two short centered lines, so the back-to-top button never covers it */
+    .site-footer {
+        flex-direction: column;
+        gap: 2px;
+        margin-top: 28px;
+        font-size: 12px;
+    }
+
+    .site-footer-dot {
+        display: none;
+    }
+
+    .to-top-global {
+        right: 16px;
+        bottom: 16px;
+    }
+
+    /* On Case Studies / Study Cards the sound button sits bottom-right on
+       phones, so lift the back-to-top button above it */
+    body:has(#sfxToggle) .to-top-global {
+        bottom: 76px;
+    }
+}
+
+/* Small "press" feedback on buttons */
+@media (prefers-reduced-motion: no-preference) {
+    :where(button, .login-btn, .signup-btn, .btn-submit, .btn-back, .fc-btn,
+           .acct-save-btn, .cs-continue-btn, .sc-hero-btn, .filter-btn,
+           .quick-item, .nav-item):not(:disabled):not(.clear-search):active {
+        transform: scale(0.97);
+    }
+}
