@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Account Page</title>
 
-    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="stylesheet" href="style.css?v=30">
 
     <link
         rel="stylesheet"
@@ -13,7 +16,7 @@
     >
 </head>
 
-<body>
+<body class="account-page">
 
     <div class="dashboard-container">
 
@@ -21,14 +24,14 @@
         <aside class="sidebar">
 
             <div class="sidebar-header">
-
-                <i class="fa-solid fa-book-open logo-icon"></i>
-
-                <span class="logo-text">
-                    HCILearn
-                </span>
-
+                <img src="favicon.svg" alt="" class="sidebar-logo">
+                <div class="sidebar-brand">
+                    <span class="logo-text">HCILearn</span>
+                    <small class="logo-tag">HCI 2 Reviewer</small>
+                </div>
             </div>
+
+            <span class="sidebar-label">Overview</span>
 
             <nav class="sidebar-nav">
 
@@ -36,51 +39,60 @@
                     href="Dashboard.html"
                     class="nav-item"
                 >
-                    <i class="fa-solid fa-border-all"></i>
-                    Dashboard
+                    <i class="fa-solid fa-border-all"></i> <span class="nav-text">Dashboard</span>
                 </a>
 
+                <span class="sidebar-label sidebar-label-group">Learn</span>
                 <a
                     href="WatchVideo.html"
                     class="nav-item"
                 >
-                    <i class="fa-solid fa-play"></i>
-                    Watch Video
+                    <i class="fa-solid fa-play"></i> <span class="nav-text">Watch Video</span>
                 </a>
 
                 <a
                     href="ReadLesson.html"
                     class="nav-item"
                 >
-                    <i class="fa-solid fa-book"></i>
-                    Read Lesson
+                    <i class="fa-solid fa-book"></i> <span class="nav-text">Read Lesson</span>
                 </a>
 
                 <a
                     href="CaseStudies.html"
                     class="nav-item"
                 >
-                    <i class="fa-solid fa-folder"></i>
-                    Case Studies
+                    <i class="fa-solid fa-folder"></i> <span class="nav-text">Case Studies</span>
                 </a>
 
                 <a
                     href="StudyCards.html"
                     class="nav-item"
                 >
-                    <i class="fa-solid fa-rotate"></i>
-                    Study Cards
+                    <i class="fa-solid fa-rotate"></i> <span class="nav-text">Study Cards</span>
                 </a>
 
+                <span class="sidebar-label sidebar-label-group">You</span>
                 <a
                     href="Account.html"
                     class="nav-item active"
                 >
-                    <i class="fa-solid fa-circle-user"></i>
-                    Account
+                    <i class="fa-solid fa-circle-user"></i> <span class="nav-text">Account</span>
                 </a>
 
             </nav>
+            <!-- Profile card + log out (pinupuno ng renderSidebarUser() sa js/api.js) -->
+            <div class="sidebar-user">
+                <a href="Account.html" class="sidebar-user-link" title="View your account">
+                    <span class="sidebar-avatar" id="sidebarAvatar"><i class="fa-regular fa-user"></i></span>
+                    <span class="sidebar-user-text">
+                        <strong id="sidebarName">My Account</strong>
+                        <small id="sidebarMeta">View profile</small>
+                    </span>
+                </a>
+                <button type="button" class="sidebar-logout" data-logout aria-label="Log out" title="Log out">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                </button>
+            </div>
 
         </aside>
 
@@ -90,239 +102,89 @@
 
             <div class="account-wrapper">
 
-                <!-- Header Banner -->
-                <div class="account-banner">
+                <!-- Profile header -->
+                <div class="acct-profile">
 
-                    <div class="banner-title">
+                    <div class="acct-avatar" id="avatarBox">
+                        <img src="" alt="Profile photo" id="currentPhoto" hidden>
+                        <span class="acct-initials" id="avatarInitials"><i class="fa-regular fa-user"></i></span>
+                        <span class="acct-avatar-loading" id="avatarLoading" hidden><span class="btn-spinner"></span></span>
 
-                        <i class="fa-solid fa-pen"></i>
-
-                        <h2>
-                            Edit Your Information
-                        </h2>
-
+                        <label for="profile-upload" class="acct-avatar-btn" title="Change photo">
+                            <i class="fa-solid fa-camera"></i>
+                            <span class="sr-only">Change photo</span>
+                        </label>
+                        <input type="file" id="profile-upload" accept="image/*" class="sr-only">
                     </div>
 
-                    <p>
-                        Update your personal details and account settings.
-                    </p>
+                    <div class="acct-profile-text">
+                        <h2 id="profileName">Your Account</h2>
+                        <p id="profileMeta">Loading your details...</p>
+                        <div class="acct-profile-chips">
+                            <span class="acct-chip" id="profileIdChip" hidden><i class="fa-regular fa-id-card"></i> <span id="profileId"></span></span>
+                            <label for="profile-upload" class="acct-chip acct-chip-link"><i class="fa-solid fa-image"></i> Change photo</label>
+                        </div>
+                    </div>
 
                 </div>
 
 
                 <!-- Message -->
-                <p
-                    id="accountMsg"
-                    style="
-                        display:none;
-                        margin:0 20px;
-                        padding:10px 14px;
-                        border-radius:8px;
-                    "
-                ></p>
+                <div id="accountMsg" class="acct-alert" role="status" hidden></div>
 
 
-                <form
-                    id="accountForm"
-                    class="account-form"
-                >
-
-                    <!-- =====================================
-                         PROFILE PHOTO
-                         ===================================== -->
-
-                    <div class="edit-section">
-
-                        <div class="section-title">
-
-                            <i class="fa-solid fa-camera"></i>
-
-                            <h3>
-                                Profile Photo
-                            </h3>
-
-                        </div>
-
-
-                        <div
-                            class="section-content photo-upload-content"
-                        >
-
-                            <img
-                                src="profile-pic.jpg"
-                                alt="Profile"
-                                class="current-photo"
-                                id="currentPhoto"
-                            >
-
-
-                            <div class="upload-controls">
-
-                                <p>
-                                    Upload a photo
-                                </p>
-
-
-                                <input
-                                    type="file"
-                                    id="profile-upload"
-                                    accept="image/*"
-                                    class="file-input"
-                                >
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
+                <form id="accountForm" class="account-form" novalidate>
 
                     <!-- =====================================
                          PERSONAL INFORMATION
                          ===================================== -->
+                    <div class="acct-card">
 
-                    <div class="edit-section">
-
-                        <div class="section-title">
-
-                            <i class="fa-solid fa-address-card"></i>
-
-                            <h3>
-                                Personal Information
-                            </h3>
-
+                        <div class="acct-card-head">
+                            <div class="acct-card-icon"><i class="fa-solid fa-address-card"></i></div>
+                            <div>
+                                <h3>Personal Information</h3>
+                                <p>This is how you appear on HCILearn.</p>
+                            </div>
                         </div>
 
+                        <div class="acct-grid">
 
-                        <div class="section-content">
-
-                            <div class="form-grid">
-
-
-                                <!-- Full Name -->
-                                <div class="input-group">
-
-                                    <label for="full-name">
-                                        Full Name:
-                                    </label>
-
-
-                                    <input
-                                        type="text"
-                                        id="full-name"
-                                        required
-                                    >
-
+                            <!-- Full Name -->
+                            <div class="acct-field">
+                                <label for="full-name">Full Name</label>
+                                <div class="acct-input">
+                                    <i class="fa-regular fa-user"></i>
+                                    <input type="text" id="full-name" maxlength="160" autocomplete="name" required>
                                 </div>
+                            </div>
 
-
-                                <!-- Year and Section -->
-                                <div class="input-group">
-
-                                    <label for="year-section">
-                                        Year &amp; Section:
-                                    </label>
-
-
-                                    <input
-                                        type="text"
-                                        id="year-section"
-                                        required
-                                    >
-
+                            <!-- Year and Section -->
+                            <div class="acct-field">
+                                <label for="year-section">Year &amp; Section</label>
+                                <div class="acct-input">
+                                    <i class="fa-solid fa-layer-group"></i>
+                                    <input type="text" id="year-section" placeholder="e.g. 3rd Year - B" required>
                                 </div>
+                            </div>
 
-
-                                <!-- Program -->
-                                <div class="input-group">
-
-                                    <label for="program">
-                                        Program/Course:
-                                    </label>
-
-
-                                    <input
-                                        type="text"
-                                        id="program"
-                                        required
-                                    >
-
+                            <!-- Program -->
+                            <div class="acct-field">
+                                <label for="program">Program/Course</label>
+                                <div class="acct-input">
+                                    <i class="fa-solid fa-graduation-cap"></i>
+                                    <input type="text" id="program" maxlength="80" required>
                                 </div>
+                            </div>
 
-
-                                <!-- New Email -->
-                                <div class="input-group">
-
-                                    <label for="email">
-                                        New Email Address (optional):
-                                    </label>
-
-
-                                    <input
-                                        type="email"
-                                        id="email"
-                                        placeholder="Enter a new email address to change it"
-                                        autocomplete="email"
-                                    >
-
+                            <!-- Student ID -->
+                            <div class="acct-field">
+                                <label for="student-id">Student ID</label>
+                                <div class="acct-input">
+                                    <i class="fa-regular fa-id-card"></i>
+                                    <input type="text" id="student-id" maxlength="6" minlength="6" inputmode="numeric" pattern="[0-9]{6}" autocomplete="off" required>
                                 </div>
-
-
-                                <!-- Student ID -->
-                                <div class="input-group">
-
-                                    <label for="student-id">
-                                        Student ID:
-                                    </label>
-
-
-                                    <input
-                                        type="text"
-                                        id="student-id"
-                                        maxlength="6"
-                                        minlength="6"
-                                        inputmode="numeric"
-                                        pattern="[0-9]{6}"
-                                        autocomplete="off"
-                                        required
-                                    >
-
-                                </div>
-
-
-                                <!-- Password -->
-                                <div class="input-group">
-
-                                    <label for="password">
-                                        New Password (optional):
-                                    </label>
-
-
-                                    <input
-                                        type="password"
-                                        id="password"
-                                        minlength="8"
-                                        placeholder="Leave blank to keep your current password"
-                                        autocomplete="new-password"
-                                    >
-
-
-                                    <!-- Fixed Show Password Layout -->
-                                    <div class="account-password-toggle">
-
-                                        <input
-                                            type="checkbox"
-                                            id="show-password"
-                                        >
-
-                                        <label for="show-password">
-                                            Show Password
-                                        </label>
-
-                                    </div>
-
-                                </div>
-
+                                <small class="acct-hint">Exactly 6 digits.</small>
                             </div>
 
                         </div>
@@ -331,37 +193,73 @@
 
 
                     <!-- =====================================
-                         ACTION BUTTONS
+                         LOGIN & SECURITY
                          ===================================== -->
+                    <div class="acct-card">
 
-                    <!-- Fixed Save/Delete Account Layout -->
-                    <div class="save-action account-actions">
+                        <div class="acct-card-head">
+                            <div class="acct-card-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                            <div>
+                                <h3>Login &amp; Security</h3>
+                                <p>Leave these blank to keep your current password.</p>
+                            </div>
+                        </div>
 
-                        <button
-                            type="submit"
-                            class="btn-save"
-                            id="saveBtn"
-                        >
-                            Save
-                        </button>
+                        <div class="acct-grid">
 
+                            <!-- Password -->
+                            <div class="acct-field">
+                                <label for="password">New Password <span class="acct-optional">optional</span></label>
+                                <div class="acct-input">
+                                    <i class="fa-solid fa-lock"></i>
+                                    <input type="password" id="password" minlength="8" placeholder="Enter a new password to change it" autocomplete="new-password">
+                                    <button type="button" class="acct-eye" id="togglePassword" aria-label="Show password">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                </div>
+                                <small class="acct-hint">At least 8 characters.</small>
+                            </div>
 
-                        <button
-                            type="button"
-                            class="btn-delete-account"
-                            id="deleteAccountBtn"
-                        >
+                            <!-- Confirm Password -->
+                            <div class="acct-field">
+                                <label for="confirm-password">Confirm New Password</label>
+                                <div class="acct-input">
+                                    <i class="fa-solid fa-lock"></i>
+                                    <input type="password" id="confirm-password" placeholder="Type the new password again" autocomplete="new-password" disabled>
+                                </div>
+                                <small class="acct-hint" id="confirmHint">Enter a new password first.</small>
+                            </div>
 
-                            <i class="fa-solid fa-trash"></i>
-
-                            Delete Account
-
-                        </button>
+                        </div>
 
                     </div>
 
 
+                    <!-- =====================================
+                         SAVE
+                         ===================================== -->
+                    <div class="acct-save-bar">
+                        <span class="acct-save-note" id="saveNote">No changes yet</span>
+                        <button type="submit" class="acct-save-btn" id="saveBtn" disabled>
+                            <i class="fa-solid fa-floppy-disk"></i> Save Changes
+                        </button>
+                    </div>
+
                 </form>
+
+
+                <!-- =====================================
+                     DANGER ZONE
+                     ===================================== -->
+                <div class="acct-card acct-danger">
+                    <div class="acct-danger-text">
+                        <h3><i class="fa-solid fa-triangle-exclamation"></i> Delete Account</h3>
+                        <p>This permanently deletes your account and all your progress. It cannot be undone.</p>
+                    </div>
+                    <button type="button" class="acct-delete-btn" id="deleteAccountBtn">
+                        <i class="fa-solid fa-trash"></i> Delete Account
+                    </button>
+                </div>
 
             </div>
 
@@ -370,7 +268,7 @@
     </div>
 
 
-    <script src="js/api.js"></script>
+    <script src="js/api.js?v=4"></script>
 
 
     <script>
@@ -380,71 +278,146 @@
            ================================================= */
 
         const els = {
-
-            fullName:
-                document.getElementById(
-                    'full-name'
-                ),
-
-            yearSection:
-                document.getElementById(
-                    'year-section'
-                ),
-
-            program:
-                document.getElementById(
-                    'program'
-                ),
-
-            email:
-                document.getElementById(
-                    'email'
-                ),
-
-            studentId:
-                document.getElementById(
-                    'student-id'
-                ),
-
-            password:
-                document.getElementById(
-                    'password'
-                )
-
+            fullName: document.getElementById('full-name'),
+            yearSection: document.getElementById('year-section'),
+            program: document.getElementById('program'),
+            studentId: document.getElementById('student-id'),
+            password: document.getElementById('password'),
         };
 
+        const confirmPassword = document.getElementById('confirm-password');
+        const confirmHint = document.getElementById('confirmHint');
 
-        const msgEl =
-            document.getElementById(
-                'accountMsg'
-            );
+        const msgEl = document.getElementById('accountMsg');
+        const saveBtn = document.getElementById('saveBtn');
+        const saveNote = document.getElementById('saveNote');
+
+        const SAVE_BTN_HTML = '<i class="fa-solid fa-floppy-disk"></i> Save Changes';
+
+        // Ang huling na-save na values (para malaman kung may binago)
+        let savedValues = {};
 
 
         /* =================================================
            MESSAGE HELPER
            ================================================= */
 
-        function showMessage(
-            text,
-            isError
-        ) {
+        let msgTimer = null;
 
-            msgEl.textContent =
-                text;
+        function showMessage(text, isError) {
+            msgEl.className = 'acct-alert ' + (isError ? 'is-error' : 'is-success');
+            msgEl.innerHTML = `<i class="fa-solid ${isError ? 'fa-circle-exclamation' : 'fa-circle-check'}"></i> <span></span>`;
+            msgEl.querySelector('span').textContent = text;
+            msgEl.hidden = false;
+            msgEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
-            msgEl.style.display =
-                'block';
-
-            msgEl.style.background =
-                isError
-                    ? '#fdecea'
-                    : '#e8f8ef';
-
-            msgEl.style.color =
-                isError
-                    ? '#c0392b'
-                    : '#1e7e45';
+            // Kusang mawawala ang success message
+            clearTimeout(msgTimer);
+            if (!isError) msgTimer = setTimeout(() => { msgEl.hidden = true; }, 5000);
         }
+
+
+        /* =================================================
+           PROFILE HEADER
+           ================================================= */
+
+        function updateProfileHeader() {
+            const name = els.fullName.value.trim() || 'Your Account';
+            document.getElementById('profileName').textContent = name;
+
+            const meta = [els.program.value.trim(), els.yearSection.value.trim()].filter(Boolean).join(' · ');
+            document.getElementById('profileMeta').textContent = meta || 'HCILearn student';
+
+            const id = els.studentId.value.trim();
+            document.getElementById('profileId').textContent = id ? `ID ${id}` : '';
+            document.getElementById('profileIdChip').hidden = !id;
+
+            document.getElementById('avatarInitials').textContent = name === 'Your Account'
+                ? ''
+                : name.split(' ').filter(Boolean).slice(0, 2).map(n => n[0].toUpperCase()).join('');
+        }
+
+        function showPhoto(url) {
+            const img = document.getElementById('currentPhoto');
+            img.onload = () => {
+                img.hidden = false;
+                document.getElementById('avatarInitials').hidden = true;
+            };
+            img.src = url;
+        }
+
+
+        /* =================================================
+           UNSAVED CHANGES (Save button)
+           ================================================= */
+
+        function currentValues() {
+            return {
+                fullName: els.fullName.value.trim(),
+                yearSection: els.yearSection.value.trim(),
+                program: els.program.value.trim(),
+                studentId: els.studentId.value.trim(),
+                password: els.password.value,
+            };
+        }
+
+        function updateDirtyState() {
+            const now = currentValues();
+            const dirty = Object.keys(now).some(k => now[k] !== (savedValues[k] || ''));
+            saveBtn.disabled = !dirty;
+            saveNote.textContent = dirty ? 'You have unsaved changes' : 'No changes yet';
+            saveNote.classList.toggle('is-dirty', dirty);
+        }
+
+        Object.values(els).forEach(input => {
+            input.addEventListener('input', () => {
+                input.closest('.acct-input').classList.remove('invalid');
+                updateDirtyState();
+                updateProfileHeader();
+            });
+        });
+
+        /* =================================================
+           CONFIRM PASSWORD (live check)
+           ================================================= */
+
+        function passwordsMatch() {
+            return !els.password.value || confirmPassword.value === els.password.value;
+        }
+
+        function updateConfirmState() {
+            const pw = els.password.value;
+
+            // Bubukas lang ang Confirm kapag may tinype na bagong password
+            confirmPassword.disabled = !pw;
+            if (!pw) confirmPassword.value = '';
+
+            confirmHint.classList.remove('is-ok', 'is-bad');
+            if (!pw) {
+                confirmHint.textContent = 'Enter a new password first.';
+            } else if (!confirmPassword.value) {
+                confirmHint.textContent = 'Type the same password again.';
+            } else if (passwordsMatch()) {
+                confirmHint.innerHTML = '<i class="fa-solid fa-circle-check"></i> Passwords match';
+                confirmHint.classList.add('is-ok');
+                confirmPassword.closest('.acct-input').classList.remove('invalid');
+            } else {
+                confirmHint.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Passwords do not match';
+                confirmHint.classList.add('is-bad');
+            }
+        }
+
+        els.password.addEventListener('input', updateConfirmState);
+        confirmPassword.addEventListener('input', updateConfirmState);
+
+
+        // Babala kapag aalis nang hindi naka-save
+        window.addEventListener('beforeunload', (e) => {
+            if (!saveBtn.disabled) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
 
 
         /* =================================================
@@ -452,52 +425,19 @@
            ================================================= */
 
         async function loadAccount() {
+            const user = await requireAuth();
+            if (!user) return;
 
-            const user =
-                await requireAuth();
+            els.fullName.value = user.fullName || '';
+            els.yearSection.value = user.yearSection || '';
+            els.program.value = user.program || '';
+            els.studentId.value = user.studentId || '';
 
+            savedValues = currentValues();
+            updateProfileHeader();
+            updateDirtyState();
 
-            if (!user)
-                return;
-
-
-            els.fullName.value =
-                user.fullName || '';
-
-
-            els.yearSection.value =
-                user.yearSection || '';
-
-
-            els.program.value =
-                user.program || '';
-
-
-            els.studentId.value =
-                user.studentId || '';
-
-
-            /*
-                Email is intentionally blank.
-
-                Enter an email only when changing it.
-            */
-
-            els.email.value =
-                '';
-
-
-            if (
-                user.profilePhoto
-            ) {
-
-                document
-                    .getElementById(
-                        'currentPhoto'
-                    )
-                    .src =
-                    user.profilePhoto;
-            }
+            if (user.profilePhoto) showPhoto(user.profilePhoto);
         }
 
 
@@ -505,355 +445,171 @@
            STUDENT ID - NUMBERS ONLY
            ================================================= */
 
-        els.studentId.addEventListener(
-            'input',
-            function () {
-
-                this.value =
-                    this.value
-                        .replace(/\D/g, '')
-                        .substring(0, 6);
-
-            }
-        );
+        els.studentId.addEventListener('input', function () {
+            this.value = this.value.replace(/\D/g, '').substring(0, 6);
+        });
 
 
         /* =================================================
            SHOW / HIDE PASSWORD
            ================================================= */
 
-        document
-            .getElementById(
-                'show-password'
-            )
-            .addEventListener(
-                'change',
-                function () {
-
-                    els.password.type =
-                        this.checked
-                            ? 'text'
-                            : 'password';
-
-                }
-            );
+        document.getElementById('togglePassword').addEventListener('click', function () {
+            const show = els.password.type === 'password';
+            els.password.type = show ? 'text' : 'password';
+            confirmPassword.type = els.password.type;
+            this.innerHTML = show ? '<i class="fa-solid fa-eye-slash"></i>' : '<i class="fa-solid fa-eye"></i>';
+            this.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+        });
 
 
         /* =================================================
            DELETE ACCOUNT
            ================================================= */
 
-        document
-            .getElementById(
-                'deleteAccountBtn'
-            )
-            .addEventListener(
-                'click',
-                async function () {
+        document.getElementById('deleteAccountBtn').addEventListener('click', function () {
+            const btn = this;
 
-                    const confirmed =
-                        confirm(
-                            'Are you sure you want to delete your account? This action cannot be undone and all your progress will be lost.'
-                        );
-
-
-                    if (!confirmed)
-                        return;
-
-
-                    const btn =
-                        this;
-
-
-                    btn.disabled =
-                        true;
-
-
-                    btn.textContent =
-                        'Deleting...';
-
+            confirmDialog({
+                title: 'Delete your account?',
+                message: 'This permanently deletes your account and all your progress. This action cannot be undone.',
+                confirmText: 'Delete Account',
+                cancelText: 'Cancel',
+                icon: 'fa-trash',
+                danger: true,
+                onConfirm: async () => {
+                    btn.disabled = true;
+                    btn.textContent = 'Deleting...';
 
                     try {
+                        const response = await fetch('/api/account', {
+                            method: 'DELETE',
+                            credentials: 'include'
+                        });
 
-                        const response =
-                            await fetch(
-                                '/api/account',
-                                {
-                                    method: 'DELETE',
-                                    credentials: 'include'
-                                }
-                            );
+                        const data = await response.json().catch(() => ({}));
 
-
-                        const data =
-                            await response
-                                .json()
-                                .catch(
-                                    () => ({})
-                                );
-
-
-                        if (
-                            !response.ok
-                        ) {
-
-                            throw new Error(
-
-                                data.error ||
-
-                                'Failed to delete account.'
-
-                            );
+                        if (!response.ok) {
+                            throw new Error(data.error || 'Failed to delete account.');
                         }
 
-
-                        window.location.href =
-                            'login.html';
-
+                        saveBtn.disabled = true; // para walang "unsaved changes" warning
+                        window.location.href = 'login.html';
 
                     } catch (err) {
-
-                        showMessage(
-                            err.message,
-                            true
-                        );
-
-
-                        btn.disabled =
-                            false;
-
-
-                        btn.innerHTML =
-                            '<i class="fa-solid fa-trash"></i> Delete Account';
-
+                        showMessage(err.message, true);
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa-solid fa-trash"></i> Delete Account';
                     }
-
                 }
-            );
+            });
+        });
 
 
         /* =================================================
            PROFILE PHOTO UPLOAD
            ================================================= */
 
-        document
-            .getElementById(
-                'profile-upload'
-            )
-            .addEventListener(
-                'change',
-                async function () {
+        document.getElementById('profile-upload').addEventListener('change', async function () {
+            const file = this.files[0];
+            if (!file) return;
 
-                    const file =
-                        this.files[0];
+            const formData = new FormData();
+            formData.append('photo', file);
 
+            const loading = document.getElementById('avatarLoading');
+            loading.hidden = false;
 
-                    if (!file)
-                        return;
+            try {
+                const response = await fetch('/api/account/photo', {
+                    method: 'POST',
+                    credentials: 'include',
+                    body: formData
+                });
 
+                const data = await response.json();
 
-                    const formData =
-                        new FormData();
-
-
-                    formData.append(
-                        'photo',
-                        file
-                    );
-
-
-                    try {
-
-                        const response =
-                            await fetch(
-                                '/api/account/photo',
-                                {
-                                    method: 'POST',
-                                    credentials: 'include',
-                                    body: formData
-                                }
-                            );
-
-
-                        const data =
-                            await response.json();
-
-
-                        if (
-                            !response.ok
-                        ) {
-
-                            throw new Error(
-                                data.error ||
-                                'Upload failed.'
-                            );
-                        }
-
-
-                        document
-                            .getElementById(
-                                'currentPhoto'
-                            )
-                            .src =
-                            data.profilePhoto;
-
-
-                        showMessage(
-                            'Profile photo updated successfully.',
-                            false
-                        );
-
-
-                    } catch (err) {
-
-                        showMessage(
-                            err.message,
-                            true
-                        );
-
-                    }
-
+                if (!response.ok) {
+                    throw new Error(data.error || 'Upload failed.');
                 }
-            );
+
+                showPhoto(data.profilePhoto);
+                showMessage('Profile photo updated successfully.', false);
+
+            } catch (err) {
+                showMessage(err.message, true);
+            } finally {
+                loading.hidden = true;
+                this.value = ''; // para mapili ulit ang parehong file
+            }
+        });
 
 
         /* =================================================
            SAVE ACCOUNT
            ================================================= */
 
-        document
-            .getElementById(
-                'accountForm'
-            )
-            .addEventListener(
-                'submit',
-                async function (e) {
+        document.getElementById('accountForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
 
-                    e.preventDefault();
-
-
-                    const btn =
-                        document.getElementById(
-                            'saveBtn'
-                        );
-
-
-                    /* --------------------------------------
-                       Validate student ID.
-                       -------------------------------------- */
-
-                    if (
-                        !/^\d{6}$/.test(
-                            els.studentId.value.trim()
-                        )
-                    ) {
-
-                        showMessage(
-                            'Student ID must contain exactly 6 digits.',
-                            true
-                        );
-
-                        return;
-                    }
-
-
-                    const newEmail =
-                        els.email.value.trim();
-
-
-                    const payload = {
-
-                        fullName:
-                            els.fullName.value.trim(),
-
-                        yearSection:
-                            els.yearSection.value.trim(),
-
-                        program:
-                            els.program.value.trim(),
-
-                        studentId:
-                            els.studentId.value.trim()
-
-                    };
-
-
-                    /*
-                        Only send email when changing it.
-                    */
-
-                    if (
-                        newEmail
-                    ) {
-
-                        payload.email =
-                            newEmail;
-                    }
-
-
-                    /*
-                        Only send password when changing it.
-                    */
-
-                    if (
-                        els.password.value
-                    ) {
-
-                        payload.password =
-                            els.password.value;
-                    }
-
-
-                    btn.disabled =
-                        true;
-
-
-                    btn.textContent =
-                        'Saving...';
-
-
-                    try {
-
-                        await api.put(
-                            '/account',
-                            payload
-                        );
-
-
-                        els.password.value =
-                            '';
-
-
-                        els.email.value =
-                            '';
-
-
-                        showMessage(
-                            'Account information updated successfully.',
-                            false
-                        );
-
-
-                    } catch (err) {
-
-                        showMessage(
-                            err.message,
-                            true
-                        );
-
-
-                    } finally {
-
-                        btn.disabled =
-                            false;
-
-
-                        btn.textContent =
-                            'Save';
-                    }
-
+            /* Validate required fields */
+            for (const key of ['fullName', 'yearSection', 'program']) {
+                if (!els[key].value.trim()) {
+                    els[key].closest('.acct-input').classList.add('invalid');
+                    els[key].focus();
+                    showMessage('Please fill in all required fields.', true);
+                    return;
                 }
-            );
+            }
+
+            /* Validate student ID */
+            if (!/^\d{6}$/.test(els.studentId.value.trim())) {
+                els.studentId.closest('.acct-input').classList.add('invalid');
+                els.studentId.focus();
+                showMessage('Student ID must contain exactly 6 digits.', true);
+                return;
+            }
+
+            /* Validate confirm password */
+            if (els.password.value && !passwordsMatch()) {
+                confirmPassword.closest('.acct-input').classList.add('invalid');
+                confirmPassword.focus();
+                showMessage(confirmPassword.value
+                    ? 'The new passwords do not match.'
+                    : 'Please confirm your new password.', true);
+                return;
+            }
+
+            const payload = {
+                fullName: els.fullName.value.trim(),
+                yearSection: els.yearSection.value.trim(),
+                program: els.program.value.trim(),
+                studentId: els.studentId.value.trim()
+            };
+
+            /* Only send password when changing it. */
+            if (els.password.value) payload.password = els.password.value;
+
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<span class="btn-spinner"></span> Saving...';
+
+            try {
+                await api.put('/account', payload);
+
+                els.password.value = '';
+                updateConfirmState();
+                savedValues = currentValues();
+
+                showMessage('Account information updated successfully.', false);
+
+            } catch (err) {
+                showMessage(err.message, true);
+
+            } finally {
+                saveBtn.innerHTML = SAVE_BTN_HTML;
+                updateDirtyState();
+            }
+        });
 
 
         /* =================================================

@@ -34,6 +34,7 @@ const api = {
 async function requireAuth() {
   try {
     const { user } = await api.get('/auth/me');
+    renderSidebarUser(user);
     return user;
   } catch (err) {
     window.location.href = 'login.html';
@@ -45,6 +46,104 @@ async function logout() {
   try { await api.post('/auth/logout'); } catch (e) { /* ignore */ }
   window.location.href = 'login.html';
 }
+
+// Fills the profile card at the bottom of the sidebar (if the page has one).
+function renderSidebarUser(user) {
+  if (!user) return;
+
+  const fill = () => {
+    const nameEl = document.getElementById('sidebarName');
+    if (!nameEl) return;
+
+    nameEl.textContent = user.fullName || 'My Account';
+    const meta = [user.program, user.yearSection].filter(Boolean).join(' · ');
+    document.getElementById('sidebarMeta').textContent = meta || 'View profile';
+
+    const avatar = document.getElementById('sidebarAvatar');
+    const initials = (user.fullName || '')
+      .split(' ').filter(Boolean).slice(0, 2)
+      .map(n => n[0].toUpperCase()).join('');
+    if (initials) avatar.textContent = initials;
+
+    if (user.profilePhoto) {
+      const img = new Image();
+      img.alt = '';
+      img.onload = () => { avatar.textContent = ''; avatar.appendChild(img); };
+      img.src = user.profilePhoto;
+    }
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', fill);
+  } else {
+    fill();
+  }
+}
+
+// Sidebar collapse (desktop): icons-only mode, remembered in this browser.
+(function setupSidebarCollapse() {
+  const KEY = 'sidebarCollapsed';
+  let collapsed = false;
+  try { collapsed = localStorage.getItem(KEY) === '1'; } catch (e) { /* storage blocked */ }
+
+  // Apply right away (on <html>) so the menu doesn't flash open on load
+  document.documentElement.classList.toggle('sidebar-collapsed', collapsed);
+
+  const init = () => {
+    const sidebar = document.querySelector('.sidebar');
+    const header = sidebar && sidebar.querySelector('.sidebar-header');
+    if (!header) return;
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'sidebar-collapse-btn';
+    btn.innerHTML = '<i class="fa-solid fa-angles-left"></i>';
+    header.appendChild(btn);
+
+    const apply = () => {
+      document.documentElement.classList.toggle('sidebar-collapsed', collapsed);
+      const label = collapsed ? 'Expand menu' : 'Collapse menu';
+      btn.setAttribute('aria-label', label);
+      btn.title = label;
+      // Show item names as tooltips only while collapsed
+      sidebar.querySelectorAll('.nav-item').forEach(item => {
+        const text = item.querySelector('.nav-text');
+        if (collapsed && text) item.title = text.textContent.trim();
+        else item.removeAttribute('title');
+      });
+    };
+
+    btn.addEventListener('click', () => {
+      collapsed = !collapsed;
+      try { localStorage.setItem(KEY, collapsed ? '1' : '0'); } catch (e) { /* storage blocked */ }
+      apply();
+    });
+
+    apply();
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+
+// Any element with data-logout (e.g. the sidebar log-out button) asks first.
+document.addEventListener('click', (e) => {
+  const trigger = e.target.closest('[data-logout]');
+  if (!trigger) return;
+  e.preventDefault();
+  confirmDialog({
+    title: 'Log out?',
+    message: "Your progress is saved. You'll need to log in again to continue learning.",
+    confirmText: 'Log out',
+    cancelText: 'Stay',
+    icon: 'fa-arrow-right-from-bracket',
+    danger: true,
+    onConfirm: logout,
+  });
+});
 
 // Styled replacement for window.confirm(). Resolves true/false.
 // options: { title, message, confirmText, cancelText, icon, danger, onConfirm }
