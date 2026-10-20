@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Study Cards Page</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=24">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
-<body>
+<body class="study-page">
 
     <script src="js/api.js"></script>
     <script src="js/sfx.js"></script>
@@ -57,129 +57,98 @@
             
             <div class="case-studies-wrapper">
                 
-                <!-- Header Section -->
-                <div class="cs-header-section">
-                    <div class="cs-header-content">
-                        <div class="cs-icon-box" style="color: #4a658a;">
-                            <i class="fa-solid fa-clone"></i>
-                        </div>
-                        <div class="cs-header-text">
-                            <h2>Study Cards</h2>
-                            <p>Read the questions and choose the best answer</p>
-                        </div>
+                <!-- Header Section (banner) -->
+                <div class="sc-hero">
+                    <div class="sc-hero-icon"><i class="fa-solid fa-clone"></i></div>
+                    <div class="sc-hero-text">
+                        <h2>Study Cards</h2>
+                        <p>Read the questions and choose the best answer</p>
                     </div>
-                    <hr class="cs-divider">
+                    <div class="sc-hero-side" id="scHeaderSide">
+                        <div class="sc-hero-stat">
+                            <strong><span id="completedCount">0</span>/11</strong>
+                            <small>decks completed</small>
+                        </div>
+                        <button type="button" class="sc-hero-btn" id="continueBtn" hidden>
+                            <i class="fa-solid fa-play"></i> <span id="continueText">Continue</span>
+                        </button>
+                    </div>
                 </div>
 
-                <!-- VIEW 1: LESSON LIST (Lahat ng 11 Lessons) -->
-                <div id="lessonListView" class="study-cards-list">
-                    
-                    <div class="study-card-item" id="lessonCard1" onclick="startQuiz(1)">
-                        <input type="checkbox" id="lesson1-check" class="hidden-checkbox" disabled>
-                        <label class="custom-box"><i class="fa-solid fa-check"></i></label>
-                        <span class="card-text-link">Lesson 1: Introduction & Review of HCI Fundamentals</span>
-                    </div>
-
-                    <div class="study-card-item locked" id="lessonCard2" onclick="startQuiz(2)">
-                        <input type="checkbox" id="lesson2-check" class="hidden-checkbox" disabled>
-                        <label class="custom-box"><i class="fa-solid fa-lock"></i></label>
-                        <span class="card-text-link">Lesson 2: Design Thinking & UCD Process</span>
-                    </div>
-
-                    <div class="study-card-item locked" id="lessonCard3" onclick="startQuiz(3)">
-                        <input type="checkbox" id="lesson3-check" class="hidden-checkbox" disabled>
-                        <label class="custom-box"><i class="fa-solid fa-lock"></i></label>
-                        <span class="card-text-link">Lesson 3: Cognitive Models & Mental Models</span>
-                    </div>
-
-                    <div class="study-card-item locked" id="lessonCard4" onclick="startQuiz(4)">
-                        <input type="checkbox" id="lesson4-check" class="hidden-checkbox" disabled>
-                        <label class="custom-box"><i class="fa-solid fa-lock"></i></label>
-                        <span class="card-text-link">Lesson 4: Digital Prototyping & Interface Design</span>
-                    </div>
-
-                    <div class="study-card-item locked" id="lessonCard5" onclick="startQuiz(5)">
-                        <input type="checkbox" id="lesson5-check" class="hidden-checkbox" disabled>
-                        <label class="custom-box"><i class="fa-solid fa-lock"></i></label>
-                        <span class="card-text-link">Lesson 5: User Research, Journey Mapping & Ethics</span>
-                    </div>
-
-                    <div class="study-card-item locked" id="lessonCard6" onclick="startQuiz(6)">
-                        <input type="checkbox" id="lesson6-check" class="hidden-checkbox" disabled>
-                        <label class="custom-box"><i class="fa-solid fa-lock"></i></label>
-                        <span class="card-text-link">Lesson 6: Accessibility and Inclusive Design</span>
-                    </div>
-
-                    <div class="study-card-item locked" id="lessonCard7" onclick="startQuiz(7)">
-                        <input type="checkbox" id="lesson7-check" class="hidden-checkbox" disabled>
-                        <label class="custom-box"><i class="fa-solid fa-lock"></i></label>
-                        <span class="card-text-link">Lesson 7: Cultural Dimensions & Bias in Interfaces</span>
-                    </div>
-
-                    <div class="study-card-item locked" id="lessonCard8" onclick="startQuiz(8)">
-                        <input type="checkbox" id="lesson8-check" class="hidden-checkbox" disabled>
-                        <label class="custom-box"><i class="fa-solid fa-lock"></i></label>
-                        <span class="card-text-link">Lesson 8: Designing for Emotion & User Engagement</span>
-                    </div>
-
-                    <div class="study-card-item locked" id="lessonCard9" onclick="startQuiz(9)">
-                        <input type="checkbox" id="lesson9-check" class="hidden-checkbox" disabled>
-                        <label class="custom-box"><i class="fa-solid fa-lock"></i></label>
-                        <span class="card-text-link">Lesson 9: Conversational AI & Voice Interfaces</span>
-                    </div>
-
-                    <div class="study-card-item locked" id="lessonCard10" onclick="startQuiz(10)">
-                        <input type="checkbox" id="lesson10-check" class="hidden-checkbox" disabled>
-                        <label class="custom-box"><i class="fa-solid fa-lock"></i></label>
-                        <span class="card-text-link">Lesson 10: Mixed Reality (AR/VR) & Tangible Interfaces</span>
-                    </div>
-
-                    <div class="study-card-item locked" id="lessonCard11" onclick="startQuiz(11)">
-                        <input type="checkbox" id="lesson11-check" class="hidden-checkbox" disabled>
-                        <label class="custom-box"><i class="fa-solid fa-lock"></i></label>
-                        <span class="card-text-link">Lesson 11: Ubiquitous Computing & Smart Environments</span>
-                    </div>
-
-                </div>
+                <!-- VIEW 1: LESSON DECKS (ginagawa ng JavaScript mula sa LESSONS list) -->
+                <div id="lessonListView" class="deck-grid"></div>
 
                 <!-- VIEW 2: FLASHCARD QUIZ -->
-                <div id="quizView" class="flashcard-quiz-container" style="display: none;">
-                    
-                    <div class="flashcard-question-box">
-                        <h3 id="flashcardQuestion">Loading Question...</h3>
+                <div id="quizView" class="fc-stage" style="display: none;">
+
+                    <div class="fc-topbar">
+                        <button type="button" class="fc-back" onclick="exitQuiz()">
+                            <i class="fa-solid fa-arrow-left"></i> All decks
+                        </button>
+                        <span class="fc-counter" id="masteredText"></span>
                     </div>
 
-                    <div class="flashcard-options">
-                        <label class="fc-option">
-                            <input type="radio" name="quizChoice" class="hidden-radio" value="0">
-                            <span class="fc-option-text" id="label0">Option A</span>
-                        </label>
+                    <!-- Quiz body (tanong at sagot) -->
+                    <div id="quizBody">
+                        <div class="fc-card">
+                            <span class="fc-card-label" id="quizLessonTitle"></span>
+                            <h3 id="flashcardQuestion">Loading Question...</h3>
+                            <i class="fa-solid fa-circle-question fc-card-mark"></i>
+                        </div>
 
-                        <label class="fc-option">
-                            <input type="radio" name="quizChoice" class="hidden-radio" value="1">
-                            <span class="fc-option-text" id="label1">Option B</span>
-                        </label>
+                        <div class="fc-grid">
+                            <div>
+                                <input type="radio" name="quizChoice" id="choice0" class="fc-radio" value="0">
+                                <label for="choice0" class="fc-tile" id="label0">
+                                    <span class="fc-letter">A</span><span class="fc-tile-text" id="text0"></span>
+                                </label>
+                            </div>
+                            <div>
+                                <input type="radio" name="quizChoice" id="choice1" class="fc-radio" value="1">
+                                <label for="choice1" class="fc-tile" id="label1">
+                                    <span class="fc-letter">B</span><span class="fc-tile-text" id="text1"></span>
+                                </label>
+                            </div>
+                            <div>
+                                <input type="radio" name="quizChoice" id="choice2" class="fc-radio" value="2">
+                                <label for="choice2" class="fc-tile" id="label2">
+                                    <span class="fc-letter">C</span><span class="fc-tile-text" id="text2"></span>
+                                </label>
+                            </div>
+                            <div>
+                                <input type="radio" name="quizChoice" id="choice3" class="fc-radio" value="3">
+                                <label for="choice3" class="fc-tile" id="label3">
+                                    <span class="fc-letter">D</span><span class="fc-tile-text" id="text3"></span>
+                                </label>
+                            </div>
+                        </div>
 
-                        <label class="fc-option">
-                            <input type="radio" name="quizChoice" class="hidden-radio" value="2">
-                            <span class="fc-option-text" id="label2">Option C</span>
-                        </label>
+                        <!-- Feedback message -->
+                        <div class="fc-feedback" id="quizFeedback" role="status" hidden></div>
 
-                        <label class="fc-option">
-                            <input type="radio" name="quizChoice" class="hidden-radio" value="3">
-                            <span class="fc-option-text" id="label3">Option D</span>
-                        </label>
+                        <div class="fc-actions">
+                            <button type="button" class="fc-btn fc-btn-ghost" onclick="exitQuiz()">Quit</button>
+                            <button type="button" class="fc-btn fc-btn-primary" id="submitBtn" onclick="submitAnswer()">Check Answer</button>
+                        </div>
                     </div>
 
-                    <div class="quiz-actions">
-                        <button class="btn-back" onclick="exitQuiz()">Quit</button>
-                        <button class="btn-submit" id="submitBtn" onclick="submitAnswer()">Submit Answer</button>
+                    <!-- Lesson finished screen -->
+                    <div class="fc-done" id="quizDone" hidden>
+                        <div class="fc-done-icon"><i class="fa-solid fa-trophy"></i></div>
+                        <h3>Deck mastered!</h3>
+                        <p id="doneText">You answered every card correctly.</p>
+                        <div class="fc-actions fc-done-actions">
+                            <button type="button" class="fc-btn fc-btn-ghost" onclick="exitQuiz()">Back to decks</button>
+                            <button type="button" class="fc-btn fc-btn-primary" id="nextLessonBtn">
+                                Next Deck <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <div id="tipBox" class="helpful-tip" style="display: none;">
+                <div class="helpful-tip" id="tipBox">
                     <i class="fa-regular fa-lightbulb"></i>
-                    <span id="tipText">Take time to understand each concept. You'll remember it better</span>
+                    <span>Tip: Cards you miss go back into the deck, so you'll master every question.</span>
                 </div>
 
             </div>
@@ -323,6 +292,23 @@
             ]
         };
 
+        // title + icon + kulay ng bawat deck (kulay galing sa dashboard icon palette)
+        const LESSON_INFO = {
+            1:  { title: 'Introduction & Review of HCI Fundamentals',   icon: 'fa-desktop',          color: 'video-icon' },
+            2:  { title: 'Design Thinking & UCD Process',               icon: 'fa-lightbulb',        color: 'check-icon' },
+            3:  { title: 'Cognitive Models & Mental Models',            icon: 'fa-brain',            color: 'book-icon' },
+            4:  { title: 'Digital Prototyping & Interface Design',      icon: 'fa-pen-ruler',        color: 'read-icon' },
+            5:  { title: 'User Research, Journey Mapping & Ethics',     icon: 'fa-magnifying-glass', color: 'case-icon' },
+            6:  { title: 'Accessibility and Inclusive Design',          icon: 'fa-universal-access', color: 'video-icon' },
+            7:  { title: 'Cultural Dimensions & Bias in Interfaces',    icon: 'fa-earth-asia',       color: 'check-icon' },
+            8:  { title: 'Designing for Emotion & User Engagement',     icon: 'fa-face-smile',       color: 'book-icon' },
+            9:  { title: 'Conversational AI & Voice Interfaces',        icon: 'fa-robot',            color: 'read-icon' },
+            10: { title: 'Mixed Reality (AR/VR) & Tangible Interfaces', icon: 'fa-vr-cardboard',     color: 'case-icon' },
+            11: { title: 'Ubiquitous Computing & Smart Environments',   icon: 'fa-house-signal',     color: 'video-icon' },
+        };
+        const LESSONS = Object.fromEntries(Object.entries(LESSON_INFO).map(([k, v]) => [k, v.title]));
+        const TOTAL_LESSONS = 11;
+
         let currentLessonId = null;
         let questionQueue = [];
         let currentQuestionObj = null;
@@ -341,47 +327,109 @@
             applyLessonLockState();
         }
 
-        function applyLessonLockState() {
-            for (let i = 1; i <= 11; i++) {
-                const card = document.getElementById(`lessonCard${i}`);
-                if (!card) continue;
-                const icon = card.querySelector('.custom-box i');
-                const isUnlocked = i <= unlockedLesson;
-                const isDone = completedIds.includes(i);
+        // Unang unlocked lesson na hindi pa tapos (ang "Up next")
+        function getNextLesson() {
+            for (let i = 1; i <= Math.min(unlockedLesson, TOTAL_LESSONS); i++) {
+                if (!completedIds.includes(i)) return i;
+            }
+            return null;
+        }
 
-                card.classList.toggle('locked', !isUnlocked);
-                if (icon) {
-                    icon.classList.remove('fa-lock', 'fa-check');
-                    icon.classList.add(isUnlocked ? 'fa-check' : 'fa-lock');
+        // Gawin ang listahan ng 11 lessons
+        function applyLessonLockState() {
+            const listView = document.getElementById('lessonListView');
+            listView.innerHTML = '';
+            const nextId = getNextLesson();
+
+            const STATUS = {
+                done:     '<i class="fa-solid fa-circle-check"></i> Mastered',
+                next:     '<i class="fa-solid fa-play"></i> Start',
+                unlocked: '<i class="fa-solid fa-rotate-right"></i> Study',
+                locked:   '<i class="fa-solid fa-lock"></i> Locked',
+            };
+
+            for (let i = 1; i <= TOTAL_LESSONS; i++) {
+                const info = LESSON_INFO[i];
+                const isUnlocked = i <= unlockedLesson;
+                let state = 'locked';
+                if (completedIds.includes(i)) state = 'done';
+                else if (i === nextId) state = 'next';
+                else if (isUnlocked) state = 'unlocked';
+
+                const deck = document.createElement(isUnlocked ? 'button' : 'div');
+                deck.className = `deck is-${state}`;
+                if (isUnlocked) {
+                    deck.type = 'button';
+                    deck.onclick = () => startQuiz(i);
+                } else {
+                    deck.title = `Finish Lesson ${i - 1} to unlock`;
                 }
-                const checkbox = document.getElementById(`lesson${i}-check`);
-                if (checkbox) checkbox.checked = isDone;
+
+                const count = (reviewerData[i] || []).length;
+                deck.innerHTML = `
+                    <div class="deck-face">
+                        <div class="deck-icon ${info.color}"><i class="fa-solid ${info.icon}"></i></div>
+                        <small class="deck-lesson">Lesson ${i}</small>
+                        <h4 class="deck-title"></h4>
+                        <div class="deck-footer">
+                            <span class="deck-count"><i class="fa-regular fa-clone"></i> ${count} cards</span>
+                            <span class="deck-status">${STATUS[state]}</span>
+                        </div>
+                    </div>`;
+                deck.querySelector('.deck-title').textContent = info.title;
+                listView.appendChild(deck);
+            }
+
+            document.getElementById('completedCount').textContent = completedIds.length;
+
+            const continueBtn = document.getElementById('continueBtn');
+            if (nextId) {
+                document.getElementById('continueText').textContent =
+                    completedIds.length ? `Continue: Lesson ${nextId}` : 'Start Lesson 1';
+                continueBtn.onclick = () => startQuiz(nextId);
+                continueBtn.hidden = false;
+            } else {
+                continueBtn.hidden = true;
             }
         }
 
         document.addEventListener('DOMContentLoaded', loadStudyCardProgress);
 
+        function showFeedback(type, html) {
+            const box = document.getElementById('quizFeedback');
+            box.className = `fc-feedback is-${type}`;
+            box.innerHTML = html;
+            box.hidden = false;
+        }
+
+        function updateMastered() {
+            const total = reviewerData[currentLessonId].length;
+            document.getElementById('masteredText').innerHTML =
+                `<i class="fa-regular fa-clone"></i> ${total - questionQueue.length} / ${total} mastered`;
+        }
+
         function startQuiz(lessonId) {
-            if (lessonId > unlockedLesson) {
-                alert("Finish the previous lesson first to unlock this one.");
-                return;
-            }
+            if (lessonId > unlockedLesson) return;
             if (!reviewerData[lessonId] || reviewerData[lessonId].length === 0) {
                 alert("Questions for this lesson are coming soon!");
                 return;
             }
-            
+
             currentLessonId = lessonId;
             questionQueue = [];
-            
+
             for (let i = 0; i < reviewerData[lessonId].length; i++) {
                 questionQueue.push(i);
             }
 
+            document.getElementById('quizLessonTitle').textContent = `Lesson ${lessonId}: ${LESSONS[lessonId]}`;
             document.getElementById('lessonListView').style.display = 'none';
+            document.getElementById('scHeaderSide').style.display = 'none';
             document.getElementById('quizView').style.display = 'block';
-            document.getElementById('tipBox').style.display = 'flex';
-            document.getElementById('tipText').textContent = `Questions remaining to master: ${questionQueue.length}`;
+            document.getElementById('quizBody').hidden = false;
+            document.getElementById('quizDone').hidden = true;
+            updateMastered();
+            scrollToTop();
 
             loadQuestion();
         }
@@ -389,30 +437,39 @@
         function loadQuestion() {
             const currentQIndex = questionQueue[0];
             currentQuestionObj = reviewerData[currentLessonId][currentQIndex];
-            
+
             document.getElementById('flashcardQuestion').textContent = currentQuestionObj.question;
-            document.getElementById('label0').textContent = currentQuestionObj.options[0];
-            document.getElementById('label1').textContent = currentQuestionObj.options[1];
-            document.getElementById('label2').textContent = currentQuestionObj.options[2];
-            document.getElementById('label3').textContent = currentQuestionObj.options[3];
+            // Tanggalin ang "A. " o "A) " sa unahan dahil may letter badge na
+            for (let i = 0; i < 4; i++) {
+                document.getElementById(`text${i}`).textContent =
+                    currentQuestionObj.options[i].replace(/^[A-D][.)]\s*/, '');
+            }
 
             const radios = document.querySelectorAll('input[name="quizChoice"]');
             radios.forEach(radio => {
                 radio.checked = false;
+                radio.disabled = false;
                 document.getElementById(`label${radio.value}`).classList.remove("correct-answer", "wrong-answer");
             });
 
+            document.getElementById('quizFeedback').hidden = true;
             document.getElementById('submitBtn').disabled = false;
         }
+
+        // Tanggalin ang lumang feedback kapag pumili ulit
+        document.addEventListener('change', (e) => {
+            if (e.target.name === 'quizChoice') document.getElementById('quizFeedback').hidden = true;
+        });
 
         function submitAnswer() {
             const selected = document.querySelector('input[name="quizChoice"]:checked');
             if (!selected) {
-                alert("Please select an answer first.");
+                showFeedback('info', '<i class="fa-solid fa-hand-pointer"></i> Please select an answer first.');
                 return;
             }
 
             document.getElementById('submitBtn').disabled = true;
+            document.querySelectorAll('input[name="quizChoice"]').forEach(r => r.disabled = true);
 
             const selectedValue = parseInt(selected.value);
             const correctValue = currentQuestionObj.answer;
@@ -421,52 +478,80 @@
             if (selectedValue === correctValue) {
                 // TAMA ANG SAGOT
                 selectedLabel.classList.add("correct-answer");
-                questionQueue.shift(); 
+                questionQueue.shift();
                 // Fanfare kapag huling tanong na (na-master na ang lesson), chime kung hindi pa
                 HCISfx.play(questionQueue.length === 0 ? 'mastered' : 'correct');
+                showFeedback('correct', '<i class="fa-solid fa-circle-check"></i> Correct!');
             } else {
                 // MALI ANG SAGOT
                 selectedLabel.classList.add("wrong-answer");
                 HCISfx.play('wrong');
-                
+
                 // TINANGGAL NA NATIN DITO YUNG NAGPAPAKITA NG TAMANG SAGOT (GREEN)
                 // Para hindi nila malaman kung ano ang tama hanggang sa masagot nila nang wasto
-                
-                const failedQuestionIndex = questionQueue.shift(); 
-                questionQueue.push(failedQuestionIndex); 
+                showFeedback('wrong', '<i class="fa-solid fa-circle-xmark"></i> Not quite. This card goes back into the deck.');
+
+                const failedQuestionIndex = questionQueue.shift();
+                questionQueue.push(failedQuestionIndex);
             }
 
-            document.getElementById('tipText').textContent = `Questions remaining to master: ${questionQueue.length}`;
+            updateMastered();
 
             setTimeout(() => {
                 if (questionQueue.length === 0) {
-                    // Tell the backend this lesson is mastered, then refresh from its response.
-                    api.post('/progress/study-cards/complete', { lessonId: currentLessonId })
-                        .then(result => {
-                            unlockedLesson = result.unlockedLesson;
-                            completedIds = result.completedIds;
-                            applyLessonLockState();
-                        })
-                        .catch(err => console.error('Could not save study card progress:', err));
-
-                    exitQuiz();
+                    finishLesson();
                 } else {
                     loadQuestion();
                 }
             }, 1500); // 1.5 seconds delay bago lumipat sa next question
         }
 
+        function finishLesson() {
+            const lessonId = currentLessonId;
+            const nextId = lessonId + 1;
+            const hasNext = nextId <= TOTAL_LESSONS;
+
+            document.getElementById('quizBody').hidden = true;
+            document.getElementById('quizDone').hidden = false;
+            document.getElementById('doneText').textContent = hasNext
+                ? `You mastered every card in Lesson ${lessonId}. Lesson ${nextId} is now unlocked.`
+                : 'You mastered every card in the final lesson. Great work!';
+
+            const nextBtn = document.getElementById('nextLessonBtn');
+            nextBtn.hidden = !hasNext;
+
+            // Para gumana agad ang "Next Lesson" kahit hindi pa tapos ang save
+            if (!completedIds.includes(lessonId)) completedIds = [...completedIds, lessonId];
+            if (hasNext && lessonId === unlockedLesson) unlockedLesson = nextId;
+            nextBtn.onclick = () => startQuiz(nextId);
+
+            // Tell the backend this lesson is mastered, then refresh from its response.
+            api.post('/progress/study-cards/complete', { lessonId })
+                .then(result => {
+                    unlockedLesson = result.unlockedLesson;
+                    completedIds = result.completedIds;
+                    applyLessonLockState();
+                })
+                .catch(err => console.error('Could not save study card progress:', err));
+            applyLessonLockState();
+        }
+
         function exitQuiz() {
             document.getElementById('quizView').style.display = 'none';
-            document.getElementById('tipBox').style.display = 'none';
-            document.getElementById('lessonListView').style.display = 'flex';
+            document.getElementById('scHeaderSide').style.display = '';
+            document.getElementById('lessonListView').style.display = '';
+            scrollToTop();
+        }
+
+        function scrollToTop() {
+            document.querySelector('.main-content').scrollTo({ top: 0 });
+            window.scrollTo({ top: 0 });
         }
 
         // PAG-TRACK NG LAST VISITED LESSON PARA SA DASHBOARD
         let currentPageName = window.location.pathname.split('/').pop();
         if (!currentPageName || currentPageName === '') {
-            // Palitan ng tamang pangalan depende sa file (e.g. 'ReadLesson.html')
-            currentPageName = 'ReadLesson.html'; 
+            currentPageName = 'StudyCards.html';
         }
         localStorage.setItem('lastLessonVisited', currentPageName);
 
