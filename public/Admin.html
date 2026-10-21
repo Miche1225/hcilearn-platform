@@ -9,8 +9,8 @@
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
-    <link rel="stylesheet" href="style.css?v=72">
-    <link rel="stylesheet" href="dark.css?v=36">
+    <link rel="stylesheet" href="style.css?v=73">
+    <link rel="stylesheet" href="dark.css?v=37">
     <script src="js/theme.js?v=3"></script>
     <!-- FontAwesome para sa icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -331,6 +331,7 @@
         const RISK_LOW_ACCURACY = 50;
         const RISK_BEHIND_AFTER_DAYS = 14;
         const RISK_SHOWN = 5; // on the overview; the Students tab has everyone
+        const MISSED_SHOWN = 3;
 
         function classAverage() {
             return students.length ? students.reduce((sum, s) => sum + s.overallPercent, 0) / students.length : 0;
@@ -413,20 +414,21 @@
             const missedRows = insights.mostMissed.map(m => {
                 const isCase = m.source === 'case_study';
                 const key = `${m.source}:${m.itemKey}`;
-                return `
-                <div class="admin-list-item is-static">
+                const where = `${questionWhere.get(key) || (isCase ? 'Case study' : 'Study card')} · missed ${m.wrong} time${m.wrong === 1 ? '' : 's'}`;
+                return (i) => `
+                <div class="admin-list-item is-static${i >= MISSED_SHOWN ? ' is-extra' : ''}">
                     <span class="admin-tag is-icon ${isCase ? 'is-case' : 'is-card'}" title="${isCase ? 'Case study' : 'Study card'}"><i class="fa-solid ${isCase ? 'fa-briefcase' : 'fa-clone'}"></i></span>
                     <span class="admin-list-text"><strong class="is-clamped">${escapeHtml(questionText.get(key) || 'Question')}</strong>
-                    <small>${escapeHtml(questionWhere.get(key) || (isCase ? 'Case study' : 'Study card'))} · missed ${m.wrong} time${m.wrong === 1 ? '' : 's'}</small></span>
+                    <small title="${escapeHtml(where)}">${escapeHtml(where)}</small></span>
                     <span class="admin-pill is-warn">${m.students} student${m.students === 1 ? '' : 's'}</span>
                 </div>`;
             });
-            // Top 3 always visible, the rest behind "Show N more"
-            $('missedList').innerHTML = missedRows.length ? missedRows.slice(0, 3).join('') + (missedRows.length > 3 ? `
-                <details class="admin-more">
-                    <summary><span class="admin-more-label" data-more="Show ${missedRows.length - 3} more"></span> <i class="fa-solid fa-chevron-down"></i></summary>
-                    <div class="admin-list">${missedRows.slice(3).join('')}</div>
-                </details>` : '') : '<p class="admin-empty">No missed questions right now.</p>';
+            // Top 3 always visible; the rest are in the same list (so every row lines up), shown by the button at the bottom
+            const extra = missedRows.length - MISSED_SHOWN;
+            $('missedList').classList.remove('is-expanded');
+            $('missedList').innerHTML = missedRows.length ? missedRows.map((row, i) => row(i)).join('') + (extra > 0 ? `
+                <button type="button" class="admin-more-btn" data-more="${extra}" aria-expanded="false"><span>Show ${extra} more</span> <i class="fa-solid fa-chevron-down"></i></button>` : '')
+                : '<p class="admin-empty">No missed questions right now.</p>';
 
             // Least-watched videos
             $('videoList').innerHTML = insights.leastWatched.length ? insights.leastWatched.map(v => dropRow(
@@ -945,6 +947,14 @@
             if (!e.target.closest('[data-quick="atrisk"]')) return;
             $('filterStatus').value = 'atrisk';
             renderStudents();
+        });
+        // "Show N more" / "Show less" under the most-missed questions
+        $('missedList').addEventListener('click', (e) => {
+            const btn = e.target.closest('.admin-more-btn');
+            if (!btn) return;
+            const open = $('missedList').classList.toggle('is-expanded');
+            btn.setAttribute('aria-expanded', String(open));
+            btn.querySelector('span').textContent = open ? 'Show less' : `Show ${btn.dataset.more} more`;
         });
         // Reminder email straight from the at-risk list
         $('inactiveList').addEventListener('click', (e) => {

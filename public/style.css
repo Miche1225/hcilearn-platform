@@ -10406,54 +10406,96 @@ div.qs-result {
 }
 
 /* Dropdown rows (least-watched videos) */
-.admin-drop summary,
-.admin-more summary {
+.admin-drop summary {
     list-style: none;
 }
 
-.admin-drop summary::-webkit-details-marker,
-.admin-more summary::-webkit-details-marker {
+.admin-drop summary::-webkit-details-marker {
     display: none;
 }
 
 /* "Show N more" under the top 3 most-missed questions */
-.admin-more summary {
+#missedList .is-extra {
+    display: none;
+}
+
+#missedList.is-expanded .is-extra {
+    display: flex;
+}
+
+.admin-more-btn {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
+    width: 100%;
     margin-top: 4px;
     padding: 8px;
+    border: none;
     border-radius: 12px;
+    background: none;
     color: var(--fun-grape);
+    font-family: inherit;
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
 }
 
-.admin-more summary:hover {
+.admin-more-btn:hover {
     background: #f6f4ff;
 }
 
-.admin-more-label::before {
-    content: attr(data-more);
-}
-
-.admin-more[open] .admin-more-label::before {
-    content: "Show less";
-}
-
-.admin-more summary i {
+.admin-more-btn i {
     font-size: 11px;
     transition: transform 0.2s;
 }
 
-.admin-more[open] summary i {
+.admin-more-btn[aria-expanded="true"] i {
     transform: rotate(180deg);
 }
 
-.admin-more > .admin-list {
-    margin-top: 6px;
+/* Narrow cards (small or scaled laptops): one line for the details, so rows line up */
+#missedList .admin-list-text small,
+.risk-row .admin-list-text small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#missedList .admin-pill {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+/* Overview cards adapt to their own width (small or scaled laptops make them narrow) */
+#tab-overview .admin-card {
+    container-type: inline-size;
+}
+
+@container (max-width: 460px) {
+    /* At-risk: reasons go under the name instead of squeezing it */
+    .risk-row > .admin-list-item {
+        flex-wrap: wrap;
+        row-gap: 6px;
+    }
+
+    .risk-row .risk-reasons {
+        order: 3;
+        flex-basis: 100%;
+        max-width: none;
+        justify-content: flex-start;
+        padding-left: 52px; /* line up with the name, past the avatar */
+    }
+
+    /* Progress by section: the full name on its own line, bar + % under it */
+    .section-bar {
+        grid-template-columns: minmax(0, 1fr) 42px;
+        row-gap: 6px;
+    }
+
+    .section-bar .section-name {
+        grid-column: 1 / -1;
+    }
 }
 
 .admin-drop summary .admin-list-text strong {
