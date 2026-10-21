@@ -9823,3 +9823,859 @@ div.qs-result {
         transition: opacity 0.2s !important;
     }
 }
+
+/* ========================================= */
+/* --- ADMIN DASHBOARD ---                   */
+/* ========================================= */
+
+.nav-item[href="Admin.html"] { --nav-c: #7fe0c4; --nav-tint: rgba(127, 224, 196, 0.16); --nav-soft: #d3f5ea; --nav-strong: #1f8a6a; }
+
+.admin-page .main-content {
+    background-color: var(--fun-bg);
+    background-image:
+        radial-gradient(circle at 8% 12%, rgba(63, 207, 155, 0.10), transparent 28%),
+        radial-gradient(circle at 92% 30%, rgba(79, 179, 255, 0.12), transparent 30%),
+        radial-gradient(rgba(123, 92, 255, 0.10) 1.2px, transparent 1.2px);
+    background-size: auto, auto, 22px 22px;
+    background-attachment: fixed;
+}
+
+.admin-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.admin-page [hidden] {
+    display: none !important;
+}
+
+/* Header */
+.admin-header {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 24px 26px 22px;
+    margin-bottom: 18px;
+    border-radius: 24px;
+    border: 2px solid #ece8fb;
+    background: linear-gradient(120deg, #dcf7ee, #fff 65%);
+    box-shadow: 0 10px 26px rgba(91, 60, 196, 0.10);
+    animation: fadeUp 0.5s ease both;
+}
+
+.admin-header::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 6px;
+    background: var(--fun-rainbow);
+    background-size: 200% 100%;
+    animation: funSlide 6s linear infinite;
+}
+
+.admin-header-icon {
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--fun-mint), var(--fun-sky));
+    color: #fff;
+    font-size: 22px;
+    box-shadow: 0 8px 18px rgba(63, 207, 155, 0.35);
+}
+
+.admin-header-text h2 {
+    font-size: 26px;
+    font-weight: 800;
+    color: #111;
+}
+
+.admin-header-text p {
+    margin: 4px 0 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.admin-export {
+    margin-left: auto;
+}
+
+.admin-loading,
+.admin-empty {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 4px;
+    margin: 0;
+    color: #777;
+    font-size: 14px;
+}
+
+/* Not an admin */
+.admin-denied {
+    padding: 48px 20px;
+    border-radius: 24px;
+    border: 2px dashed #e4ddfb;
+    background: #fff;
+    text-align: center;
+}
+
+.admin-denied-icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #ffeadf;
+    color: #c2452b;
+    font-size: 28px;
+}
+
+.admin-denied p {
+    max-width: 420px;
+    margin: 6px auto 18px;
+    color: #666;
+}
+
+/* Tabs */
+.admin-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.admin-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    border: 2px solid #ece8fb;
+    border-radius: 999px;
+    background: #fff;
+    color: #555;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.3s var(--fun-bounce), background-color 0.2s, color 0.2s;
+}
+
+.admin-tab:hover {
+    transform: translateY(-2px);
+}
+
+.admin-tab.active {
+    background: linear-gradient(135deg, var(--fun-mint), var(--fun-sky));
+    border-color: transparent;
+    color: #fff;
+}
+
+/* Stat tiles */
+.admin-stats {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.admin-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 16px 18px;
+    border-radius: 20px;
+    border: 2px solid #ece8fb;
+    background: #fff;
+}
+
+.admin-stat i {
+    width: 34px;
+    height: 34px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: #ede7ff;
+    color: #6a4cf0;
+    font-size: 15px;
+}
+
+.admin-stat.is-warn i {
+    background: #ffeadf;
+    color: #c2452b;
+}
+
+.admin-stat strong {
+    font-size: 28px;
+    font-weight: 900;
+    line-height: 1.1;
+    color: #1d1640;
+}
+
+.admin-stat span {
+    font-size: 13px;
+    color: #777;
+}
+
+/* Cards */
+.admin-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.admin-card {
+    padding: 20px 22px;
+    border-radius: 20px;
+    border: 2px solid #ece8fb;
+    background: #fff;
+    box-shadow: 0 4px 14px rgba(91, 60, 196, 0.06);
+}
+
+.admin-card h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+    font-size: 17px;
+    color: #1d1640;
+}
+
+.admin-card h3 i {
+    color: var(--fun-grape);
+}
+
+.admin-card-note {
+    margin: 0 0 10px;
+    font-size: 12px;
+    color: #888;
+}
+
+/* Progress bars */
+.section-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.section-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 140px 42px;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+}
+
+.section-name {
+    min-width: 0;
+    font-weight: 700;
+    color: #333;
+}
+
+.section-name small {
+    display: block;
+    font-weight: 500;
+    color: #999;
+}
+
+.admin-progress {
+    display: inline-block;
+    width: 100%;
+    height: 8px;
+    border-radius: 8px;
+    background: #ebe6fb;
+    overflow: hidden;
+    vertical-align: middle;
+}
+
+.admin-progress span {
+    display: block;
+    height: 100%;
+    border-radius: 8px;
+    background: linear-gradient(90deg, var(--fun-mint), var(--fun-sky));
+}
+
+.section-bar b,
+.admin-progress-cell b {
+    font-size: 13px;
+    color: #333;
+}
+
+/* Lists */
+.admin-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.admin-list-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 9px 10px;
+    border: none;
+    border-radius: 14px;
+    background: none;
+    color: inherit;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.admin-list-item:hover {
+    background: #f6f4ff;
+}
+
+.admin-list-item.is-static {
+    cursor: default;
+}
+
+.admin-list-item.is-static:hover {
+    background: none;
+}
+
+.admin-list-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.admin-list-text strong {
+    font-size: 14px;
+    color: #1d1640;
+    line-height: 1.35;
+}
+
+.admin-list-text small {
+    font-size: 12px;
+    color: #888;
+}
+
+.admin-avatar {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--fun-grape), var(--fun-pink));
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.admin-avatar.is-big {
+    width: 60px;
+    height: 60px;
+    font-size: 20px;
+}
+
+.admin-tag {
+    flex-shrink: 0;
+    padding: 3px 9px;
+    border-radius: 8px;
+    background: #ede7ff;
+    color: #6a4cf0;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.admin-tag.is-case  { background: #ffeadf; color: #c2452b; }
+.admin-tag.is-card  { background: #fff3c4; color: #8a6a00; }
+.admin-tag.is-video { background: #e3f2ff; color: #2668b8; }
+
+.admin-pill {
+    flex-shrink: 0;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: #defaee;
+    color: #23805a;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.admin-pill.is-warn {
+    background: #ffeadf;
+    color: #c2452b;
+}
+
+.admin-streak {
+    color: #e06a2c;
+    font-weight: 800;
+}
+
+/* Students toolbar + table */
+.admin-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.admin-toolbar .admin-search {
+    flex: 1;
+    min-width: 220px;
+    width: auto;
+}
+
+.admin-toolbar .admin-search input {
+    border-radius: 999px;
+    border: 2px solid #ece8fb;
+    background: #fff;
+}
+
+.admin-toolbar select {
+    padding: 9px 14px;
+    border: 2px solid #ece8fb;
+    border-radius: 999px;
+    background: #fff;
+    color: #444;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.admin-count {
+    margin: 0 0 10px;
+    font-size: 13px;
+    color: #888;
+}
+
+.admin-table-wrap {
+    overflow-x: auto;
+    border-radius: 20px;
+    border: 2px solid #ece8fb;
+    background: #fff;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.admin-table th {
+    padding: 12px 14px;
+    background: #f6f4ff;
+    color: #6d6890;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.admin-table td {
+    padding: 12px 14px;
+    border-top: 1px solid #f0eef7;
+    color: #333;
+    vertical-align: middle;
+}
+
+.admin-table tbody tr {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.admin-table tbody tr:hover,
+.admin-table tbody tr:focus-visible {
+    background: #f9f7ff;
+    outline: none;
+}
+
+.admin-student {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-student strong {
+    display: block;
+    color: #1d1640;
+}
+
+.admin-student small {
+    color: #999;
+}
+
+.admin-progress-cell {
+    min-width: 150px;
+}
+
+.admin-progress-cell .admin-progress {
+    width: 90px;
+    margin-right: 8px;
+}
+
+/* Student details drawer */
+.admin-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10003;
+    display: flex;
+    justify-content: flex-end;
+    background: rgba(20, 16, 45, 0.45);
+    opacity: 0;
+    transition: opacity 0.25s;
+}
+
+.admin-drawer-overlay.is-open {
+    opacity: 1;
+}
+
+.admin-drawer {
+    position: relative;
+    width: min(560px, 100%);
+    height: 100%;
+    overflow-y: auto;
+    padding: 26px 24px 40px;
+    background: #fff;
+    box-shadow: -18px 0 40px rgba(20, 16, 45, 0.25);
+    transform: translateX(30px);
+    transition: transform 0.35s var(--fun-bounce);
+}
+
+.admin-drawer-overlay.is-open .admin-drawer {
+    transform: none;
+}
+
+.admin-drawer-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    margin: 0;
+}
+
+.admin-drawer h4 {
+    margin: 22px 0 10px;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: #9a95b0;
+}
+
+.student-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-right: 48px;
+}
+
+.student-head h3 {
+    font-size: 20px;
+    color: #1d1640;
+}
+
+.student-head p {
+    margin: 2px 0;
+    font-size: 14px;
+    color: #555;
+}
+
+.student-head small {
+    font-size: 12px;
+    color: #999;
+}
+
+.student-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.student-stats div {
+    padding: 12px 10px;
+    border-radius: 16px;
+    background: #f6f4ff;
+    text-align: center;
+}
+
+.student-stats strong {
+    display: block;
+    font-size: 22px;
+    font-weight: 900;
+    color: #1d1640;
+}
+
+.student-stats span {
+    font-size: 11px;
+    color: #777;
+}
+
+.student-days {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 90px;
+    padding: 8px 10px 0;
+    border-radius: 16px;
+    background: #f6f4ff;
+}
+
+.student-day {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 4px;
+}
+
+.student-day-bar {
+    width: 100%;
+    max-width: 22px;
+    border-radius: 6px 6px 2px 2px;
+    background: linear-gradient(180deg, var(--fun-grape), var(--fun-pink));
+}
+
+.student-day small {
+    padding-bottom: 4px;
+    font-size: 10px;
+    color: #9a95b0;
+}
+
+.student-modules {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.student-modules > div {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 14px;
+}
+
+.student-modules > div > span:first-child {
+    font-weight: 700;
+    color: #333;
+}
+
+.student-modules small {
+    font-size: 12px;
+    line-height: 1.5;
+    color: #888;
+}
+
+.student-decks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.student-decks span {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: #f0eef7;
+    color: #9a95b0;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.student-decks span.is-done {
+    background: linear-gradient(135deg, var(--fun-sun), var(--fun-coral));
+    color: #fff;
+}
+
+.student-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.student-badges .badge-mini {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    font-size: 15px;
+}
+
+@media screen and (max-width: 1100px) {
+    .admin-stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .admin-header {
+        padding: 20px 18px 18px;
+        border-radius: 20px;
+    }
+
+    .admin-export {
+        margin-left: 0;
+    }
+
+    .admin-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .section-bar {
+        grid-template-columns: minmax(0, 1fr) 90px 40px;
+    }
+
+    .admin-toolbar select {
+        flex: 1 1 45%;
+    }
+
+    /* Table becomes cards on phones */
+    .admin-table-wrap {
+        border: none;
+        background: none;
+        overflow: visible;
+    }
+
+    .admin-table thead {
+        display: none;
+    }
+
+    .admin-table,
+    .admin-table tbody,
+    .admin-table tr,
+    .admin-table td {
+        display: block;
+    }
+
+    .admin-table tbody tr {
+        margin-bottom: 12px;
+        padding: 12px 14px;
+        border-radius: 18px;
+        border: 2px solid #ece8fb;
+        background: #fff;
+    }
+
+    .admin-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 0;
+        border-top: none;
+    }
+
+    .admin-table td::before {
+        content: attr(data-label);
+        font-size: 12px;
+        font-weight: 700;
+        color: #9a95b0;
+    }
+
+    .admin-table td[data-label="Student"]::before {
+        display: none;
+    }
+
+    .student-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .admin-header,
+    .admin-header::before {
+        animation: none !important;
+    }
+
+    .admin-drawer {
+        transition: none;
+    }
+}
+
+/* --- Login page: admin mode --- */
+.login-page .admin-login-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    margin-top: 12px;
+    padding: 10px;
+    border: 2px dashed rgba(63, 207, 155, 0.6);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.5);
+    color: #1f8a6a;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.3s var(--fun-bounce);
+}
+
+.login-page .admin-login-toggle:hover {
+    background: rgba(255, 255, 255, 0.85);
+    transform: translateY(-2px);
+}
+
+.login-page .admin-mode-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--fun-mint), var(--fun-sky));
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+}
+
+.login-page .admin-mode-badge[hidden],
+.login-page #studentExtras[hidden] {
+    display: none;
+}
+
+/* Admin mode: mint/sky accents instead of grape/pink */
+.login-page .glass-panel.is-admin-mode::before {
+    background: linear-gradient(90deg, var(--fun-mint), var(--fun-sky), var(--fun-mint));
+    background-size: 200% 100%;
+}
+
+.login-page .glass-panel.is-admin-mode .login-btn,
+.login-page .glass-panel.is-admin-mode .login-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--fun-mint), var(--fun-sky));
+    box-shadow: 0 8px 18px rgba(63, 207, 155, 0.35);
+}
+
+.admin-denied-actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.admin-denied-actions button.tool-btn {
+    font-family: inherit;
+}

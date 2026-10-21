@@ -44,6 +44,10 @@ sa Supabase at Cloudinary — hindi na sa disk ng server mismo.
      doon ang Gmail SMTP. Kumuha ng libreng key sa https://brevo.com
      (SMTP & API > API Keys), at gumamit ng sender email na na-verify mo sa Brevo.
 
+   - `ADMIN_EMAILS` = email ng mga instructor na puwedeng magbukas ng Admin
+     Dashboard, hiwalay ng kuwit (hal. `teacher1@uep.edu.ph,teacher2@uep.edu.ph`).
+     Kailangan munang mag-sign up ng account gamit ang email na iyon.
+
    Para gumawa ng random string para sa mga secret:
    `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`
 5. I-deploy. Sa unang pag-start, awtomatikong gagawin ni `src/db.js` ang lahat ng

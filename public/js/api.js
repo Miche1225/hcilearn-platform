@@ -32,20 +32,21 @@ const api = {
 
 // Call at the top of every protected page. Redirects to login if the
 // session cookie is missing/expired; otherwise resolves with the user.
-async function requireAuth() {
+// (The Admin page passes 'login.html#admin' to open the admin login.)
+async function requireAuth(loginUrl = 'login.html') {
   try {
     const { user } = await api.get('/auth/me');
     renderSidebarUser(user);
     return user;
   } catch (err) {
-    window.location.href = 'login.html';
+    window.location.href = loginUrl;
     return null;
   }
 }
 
-async function logout() {
+async function logout(redirectTo = 'login.html') {
   try { await api.post('/auth/logout'); } catch (e) { /* ignore */ }
-  window.location.href = 'login.html';
+  window.location.href = redirectTo;
 }
 
 // Fills the profile card at the bottom of the sidebar (if the page has one).
@@ -72,6 +73,24 @@ function renderSidebarUser(user) {
       img.onload = () => { avatar.textContent = ''; avatar.appendChild(img); };
       img.src = user.profilePhoto;
     }
+
+    if (user.isAdmin) addAdminLink();
+  };
+
+  // "Admin" menu item, only for admins (the admin API checks again on the server)
+  const addAdminLink = () => {
+    const nav = document.querySelector('.sidebar-nav');
+    if (!nav || nav.querySelector('a[href="Admin.html"]')) return;
+    const label = document.createElement('span');
+    label.className = 'sidebar-label sidebar-label-group';
+    label.textContent = 'Admin';
+    const link = document.createElement('a');
+    link.href = 'Admin.html';
+    link.className = 'nav-item';
+    link.innerHTML = '<i class="fa-solid fa-user-shield"></i> <span class="nav-text">Admin</span>';
+    const themeToggle = nav.querySelector('.theme-toggle');
+    nav.insertBefore(label, themeToggle);
+    nav.insertBefore(link, themeToggle);
   };
 
   if (document.readyState === 'loading') {
@@ -238,7 +257,8 @@ document.addEventListener('click', (e) => {
     cancelText: 'Stay',
     icon: 'fa-arrow-right-from-bracket',
     danger: true,
-    onConfirm: logout,
+    // data-logout="login.html#admin" picks where to go afterwards
+    onConfirm: () => logout(trigger.dataset.logout || 'login.html'),
   });
 });
 

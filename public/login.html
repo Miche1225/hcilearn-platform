@@ -10,8 +10,8 @@
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
-    <link rel="stylesheet" href="style.css?v=40">
-    <link rel="stylesheet" href="dark.css?v=3">
+    <link rel="stylesheet" href="style.css?v=42">
+    <link rel="stylesheet" href="dark.css?v=5">
     <script src="js/theme.js?v=1"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -46,8 +46,9 @@
                     </div>
                 </div>
 
-                <h1>Hello, welcome!</h1>
-                <p class="login-subtitle">Log in to continue your learning journey.</p>
+                <span class="admin-mode-badge" id="adminBadge" hidden><i class="fa-solid fa-user-shield"></i> Admin access</span>
+                <h1 id="loginTitle">Hello, welcome!</h1>
+                <p class="login-subtitle" id="loginSubtitle">Log in to continue your learning journey.</p>
 
                 <form id="loginForm" novalidate>
 
@@ -139,15 +140,22 @@
                         Log in
                     </button>
 
+                    <!-- Switch between student and admin login -->
+                    <button type="button" class="admin-login-toggle" id="adminToggle" aria-pressed="false">
+                        <i class="fa-solid fa-user-shield"></i> <span>Log in as admin</span>
+                    </button>
+
                 </form>
 
 
-                <!-- SIGNUP LINK -->
-                <div class="form-divider"><span>New to HCILearn?</span></div>
+                <!-- SIGNUP LINK (students only) -->
+                <div id="studentExtras">
+                    <div class="form-divider"><span>New to HCILearn?</span></div>
 
-                <a href="signup.html" class="signup-btn-outline">
-                    <i class="fa-solid fa-user-plus"></i> Create an account
-                </a>
+                    <a href="signup.html" class="signup-btn-outline">
+                        <i class="fa-solid fa-user-plus"></i> Create an account
+                    </a>
+                </div>
 
                 <p class="secure-note">
                     <i class="fa-solid fa-shield-halved"></i> Your session is protected and encrypted
@@ -220,7 +228,7 @@
     </div>
 
 
-    <script src="js/api.js?v=7"></script>
+    <script src="js/api.js?v=10"></script>
 
     <script>
 
@@ -381,9 +389,49 @@
            CHECK IF ALREADY LOGGED IN
            ========================================== */
 
+        /* ==========================================
+           STUDENT / ADMIN LOGIN MODE
+           (login.html#admin opens in admin mode)
+           ========================================== */
+
+        let adminMode = window.location.hash === '#admin';
+
+        function applyLoginMode() {
+            document.querySelector('.glass-panel').classList.toggle('is-admin-mode', adminMode);
+            document.getElementById('adminBadge').hidden = !adminMode;
+            document.getElementById('studentExtras').hidden = adminMode;
+            document.getElementById('loginTitle').textContent = adminMode ? 'Admin login' : 'Hello, welcome!';
+            document.getElementById('loginSubtitle').textContent = adminMode
+                ? 'For instructors. Log in to open the Admin Dashboard.'
+                : 'Log in to continue your learning journey.';
+
+            const toggle = document.getElementById('adminToggle');
+            toggle.setAttribute('aria-pressed', adminMode ? 'true' : 'false');
+            toggle.innerHTML = adminMode
+                ? '<i class="fa-solid fa-arrow-left"></i> <span>Back to student login</span>'
+                : '<i class="fa-solid fa-user-shield"></i> <span>Log in as admin</span>';
+
+            const btn = document.getElementById('loginBtn');
+            if (!btn.disabled) btn.innerHTML = loginBtnHtml();
+            document.getElementById('loginError').classList.remove('visible');
+            history.replaceState(null, '', adminMode ? '#admin' : window.location.pathname + window.location.search);
+        }
+
+        function loginBtnHtml() {
+            return adminMode ? '<i class="fa-solid fa-user-shield"></i> Log in as admin' : 'Log in';
+        }
+
+        document.getElementById('adminToggle').addEventListener('click', () => {
+            adminMode = !adminMode;
+            applyLoginMode();
+            document.getElementById('email').focus();
+        });
+
+        applyLoginMode();
+
         api.get('/auth/me')
-            .then(() => {
-                window.location.href = 'Dashboard.html';
+            .then(({ user }) => {
+                window.location.href = adminMode && user.isAdmin ? 'Admin.html' : 'Dashboard.html';
             })
             .catch(() => {});
 
@@ -392,7 +440,6 @@
            LOGIN
            ========================================== */
 
-        const LOGIN_BTN_HTML = 'Log in';
 
         const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -530,7 +577,8 @@
                             '/auth/login',
                             {
                                 email,
-                                password
+                                password,
+                                asAdmin: adminMode
                             }
                         );
 
@@ -544,7 +592,7 @@
 
                         setTimeout(() => {
                             window.location.href =
-                                'Dashboard.html';
+                                adminMode ? 'Admin.html' : 'Dashboard.html';
                         }, 600);
 
                     } catch (err) {
@@ -554,7 +602,7 @@
                         btn.disabled = false;
 
                         btn.innerHTML =
-                            LOGIN_BTN_HTML;
+                            loginBtnHtml();
                     }
 
                 }

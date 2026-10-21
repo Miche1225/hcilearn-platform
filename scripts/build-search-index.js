@@ -91,6 +91,7 @@ const topics = topicBlocks.map((block, index) => {
 for (const t of topics) {
   items.push({
     type: 'topic',
+    key: String(t.number),
     title: t.title,
     meta: `Topic ${t.number}`,
     snippet: clip(t.body, SNIPPET_LENGTH),
@@ -105,6 +106,7 @@ const videoTopics = extractLiteral(videoHtml, 'TOPICS');
 extractLiteral(videoHtml, 'VIDEOS').forEach((v, index) => {
   items.push({
     type: 'video',
+    key: v.id,
     title: v.title,
     meta: `Lesson ${index + 1} · ${videoTopics[v.topic] ? videoTopics[v.topic].label : 'Video'} · ${v.duration}`,
     snippet: '',
@@ -118,6 +120,7 @@ const caseHtml = read('CaseStudies.html');
 Object.entries(extractLiteral(caseHtml, 'scenariosData')).forEach(([id, s]) => {
   items.push({
     type: 'case',
+    key: id,
     title: s.question,
     meta: `Scenario ${id}`,
     snippet: clip(s.text, SNIPPET_LENGTH),
@@ -131,9 +134,10 @@ const cardHtml = read('StudyCards.html');
 const lessonInfo = extractLiteral(cardHtml, 'LESSON_INFO');
 Object.entries(extractLiteral(cardHtml, 'reviewerData')).forEach(([lesson, questions]) => {
   const deckTitle = lessonInfo[lesson] ? lessonInfo[lesson].title : `Lesson ${lesson}`;
-  questions.forEach(q => {
+  questions.forEach((q, index) => {
     items.push({
       type: 'card',
+      key: `${lesson}-${index}`,
       title: q.question,
       meta: `Study Cards · Lesson ${lesson}: ${deckTitle}`,
       snippet: '',

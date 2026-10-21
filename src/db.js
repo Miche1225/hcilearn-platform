@@ -406,6 +406,40 @@ async function init() {
         );
 
 
+        /* What admins did (viewed a student, exported data...),
+           for accountability. Kept if either user is deleted. */
+        CREATE TABLE IF NOT EXISTS admin_audit_log (
+
+            id
+                SERIAL
+                PRIMARY KEY,
+
+            admin_id
+                INTEGER
+                REFERENCES users(id)
+                ON DELETE SET NULL,
+
+            action
+                TEXT
+                NOT NULL,
+
+            target_user_id
+                INTEGER
+                REFERENCES users(id)
+                ON DELETE SET NULL,
+
+            details
+                TEXT
+                NOT NULL
+                DEFAULT '',
+
+            created_at
+                TIMESTAMPTZ
+                NOT NULL
+                DEFAULT NOW()
+        );
+
+
         /* Badges a user has earned. */
         CREATE TABLE IF NOT EXISTS user_badges (
 

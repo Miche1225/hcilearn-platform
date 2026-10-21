@@ -6,11 +6,11 @@ const express = require('express');
 const { pool } = require('../db');
 const { requireAuth } = require('../middleware/authGuard');
 const { TOTAL_CASE_STUDIES, TOTAL_STUDY_CARD_LESSONS, VIDEOS, TOTAL_VIDEOS } = require('../content');
+const { todayLocal, addDays, toYmd, weekdayLabel, computeStreaks } = require('../utils/dates');
 
 const router = express.Router();
 router.use(requireAuth);
 
-const TIME_ZONE = 'Asia/Manila';
 const GOAL_CHOICES = [5, 10, 20, 30];
 const MAX_ANSWERS_PER_DAY = 5000; // stops a runaway script from inflating stats
 
@@ -32,55 +32,6 @@ const BADGES = [
   { id: 'clean_slate',      name: 'Clean Slate',      description: 'Clear 10 mistakes in review.',         icon: 'fa-broom',            color: 'mint',  stat: 'cleared',        target: 10 },
   { id: 'note_taker',       name: 'Note Taker',       description: 'Write notes on 5 saved items.',        icon: 'fa-pen-nib',          color: 'pink',  stat: 'notes',          target: 5 },
 ];
-
-// ---------- Dates (YYYY-MM-DD strings in Philippine time) ----------
-function todayLocal() {
-  // en-CA formats as YYYY-MM-DD
-  return new Intl.DateTimeFormat('en-CA', { timeZone: TIME_ZONE }).format(new Date());
-}
-
-function addDays(ymd, n) {
-  const [y, m, d] = ymd.split('-').map(Number);
-  return new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10);
-}
-
-// DATE values from Postgres: node-pg gives a Date at local midnight
-// (so use the local parts), other drivers may give a string.
-function toYmd(value) {
-  if (typeof value === 'string') return value.slice(0, 10);
-  const pad = (n) => String(n).padStart(2, '0');
-  return `${value.getFullYear()}-${pad(value.getMonth() + 1)}-${pad(value.getDate())}`;
-}
-
-function weekdayLabel(ymd) {
-  const [y, m, d] = ymd.split('-').map(Number);
-  return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' });
-}
-
-// Active days (newest first) -> current and longest streak
-function computeStreaks(activeDays, today) {
-  const set = new Set(activeDays);
-
-  // The streak stays alive until the end of today, so start from
-  // yesterday if nothing has been done yet today.
-  let current = 0;
-  let cursor = set.has(today) ? today : addDays(today, -1);
-  while (set.has(cursor)) {
-    current++;
-    cursor = addDays(cursor, -1);
-  }
-
-  let longest = 0;
-  let run = 0;
-  let previous = null;
-  for (const day of [...activeDays].sort()) {
-    run = previous && addDays(previous, 1) === day ? run + 1 : 1;
-    longest = Math.max(longest, run);
-    previous = day;
-  }
-
-  return { current, longest: Math.max(longest, current), activeToday: set.has(today) };
-}
 
 // ---------- Data helpers ----------
 async function getGoal(userId) {
@@ -308,4 +259,4 @@ router.put('/goal', async (req, res, next) => {
 });
 
 module.exports = router;
-module.exports.computeStreaks = computeStreaks; // exported for tests
+module.exports.BADGES = BADGES; // used by the admin dashboard

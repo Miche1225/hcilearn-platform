@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin · HCILearn</title>
+    <meta name="description" content="HCILearn admin dashboard: student progress and class insights.">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="theme-color" content="#0d3b75">
+    <link rel="stylesheet" href="style.css?v=42">
+    <link rel="stylesheet" href="dark.css?v=5">
+    <script src="js/theme.js?v=1"></script>
+    <!-- FontAwesome para sa icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="admin-page">
+    <noscript>
+        <div class="noscript-note">HCILearn needs JavaScript to work. Please turn it on in your browser settings.</div>
+    </noscript>
+
+    <div class="dashboard-container">
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="favicon.svg" alt="" class="sidebar-logo">
+                <div class="sidebar-brand">
+                    <span class="logo-text">HCILearn</span>
+                    <small class="logo-tag">HCI 2 Study Hub</small>
+                </div>
+            </div>
+
+            <span class="sidebar-label">Overview</span>
+
+            <nav class="sidebar-nav">
+                <a href="Dashboard.html" class="nav-item">
+                    <i class="fa-solid fa-border-all"></i> <span class="nav-text">Dashboard</span>
+                </a>
+                <span class="sidebar-label sidebar-label-group">Learn</span>
+                <a href="WatchVideo.html" class="nav-item">
+                    <i class="fa-solid fa-play"></i> <span class="nav-text">Watch Video</span>
+                </a>
+                <a href="ReadLesson.html" class="nav-item">
+                    <i class="fa-solid fa-book"></i> <span class="nav-text">Read Lesson</span>
+                </a>
+                <a href="CaseStudies.html" class="nav-item">
+                    <i class="fa-solid fa-folder"></i> <span class="nav-text">Case Studies</span>
+                </a>
+                <a href="StudyCards.html" class="nav-item">
+                    <i class="fa-solid fa-rotate"></i> <span class="nav-text">Study Cards</span>
+                </a>
+                <span class="sidebar-label sidebar-label-group">You</span>
+                <a href="Saved.html" class="nav-item">
+                    <i class="fa-solid fa-bookmark"></i> <span class="nav-text">Saved</span>
+                </a>
+                <a href="Account.html" class="nav-item">
+                    <i class="fa-solid fa-circle-user"></i> <span class="nav-text">Account</span>
+                </a>
+                <span class="sidebar-label sidebar-label-group">Admin</span>
+                <a href="Admin.html" class="nav-item active">
+                    <i class="fa-solid fa-user-shield"></i> <span class="nav-text">Admin</span>
+                </a>
+            </nav>
+            <!-- Profile card + log out (pinupuno ng renderSidebarUser() sa js/api.js) -->
+            <div class="sidebar-user">
+                <a href="Account.html" class="sidebar-user-link" title="View your account">
+                    <span class="sidebar-avatar" id="sidebarAvatar"><i class="fa-regular fa-user"></i></span>
+                    <span class="sidebar-user-text">
+                        <strong id="sidebarName">My Account</strong>
+                        <small id="sidebarMeta">View profile</small>
+                    </span>
+                </a>
+                <button type="button" class="sidebar-logout" data-logout aria-label="Log out" title="Log out">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+
+            <div class="admin-wrapper">
+
+                <!-- Header -->
+                <div class="admin-header">
+                    <div class="admin-header-icon"><i class="fa-solid fa-user-shield"></i></div>
+                    <div class="admin-header-text">
+                        <h2>Admin Dashboard</h2>
+                        <p>Track how every student is doing across HCILearn.</p>
+                    </div>
+                    <a href="/api/admin/export.csv" class="tool-btn admin-export" id="exportBtn" hidden>
+                        <i class="fa-solid fa-file-csv"></i> Export CSV
+                    </a>
+                </div>
+
+                <!-- Not an admin -->
+                <div class="admin-denied" id="adminDenied" hidden>
+                    <div class="admin-denied-icon"><i class="fa-solid fa-lock"></i></div>
+                    <h3>Admins only</h3>
+                    <p>This page is for instructors. If you think you should have access, ask the site owner to add your email to the admin list.</p>
+                    <div class="admin-denied-actions">
+                        <a href="Dashboard.html" class="tool-btn"><i class="fa-solid fa-border-all"></i> Back to Dashboard</a>
+                        <button type="button" class="tool-btn" data-logout="login.html#admin"><i class="fa-solid fa-user-shield"></i> Log in with an admin account</button>
+                    </div>
+                </div>
+
+                <p class="admin-loading" id="adminLoading"><span class="btn-spinner"></span> Loading student data...</p>
+
+                <div id="adminApp" hidden>
+
+                    <!-- Tabs -->
+                    <div class="admin-tabs" role="tablist" aria-label="Admin sections">
+                        <button type="button" class="admin-tab active" role="tab" aria-selected="true" aria-controls="tab-overview" data-tab="overview"><i class="fa-solid fa-chart-pie"></i> Overview</button>
+                        <button type="button" class="admin-tab" role="tab" aria-selected="false" aria-controls="tab-students" data-tab="students"><i class="fa-solid fa-users"></i> Students</button>
+                        <button type="button" class="admin-tab" role="tab" aria-selected="false" aria-controls="tab-audit" data-tab="audit"><i class="fa-solid fa-clipboard-list"></i> Activity log</button>
+                    </div>
+
+                    <!-- OVERVIEW -->
+                    <section class="admin-panel" id="tab-overview" role="tabpanel">
+                        <div class="admin-stats">
+                            <div class="admin-stat"><i class="fa-solid fa-users"></i><strong id="statStudents">0</strong><span>Students</span></div>
+                            <div class="admin-stat"><i class="fa-solid fa-bolt"></i><strong id="statToday">0</strong><span>Active today</span></div>
+                            <div class="admin-stat"><i class="fa-solid fa-calendar-week"></i><strong id="statWeek">0</strong><span>Active this week</span></div>
+                            <div class="admin-stat is-warn"><i class="fa-solid fa-moon"></i><strong id="statInactive">0</strong><span>Inactive 7+ days</span></div>
+                            <div class="admin-stat"><i class="fa-solid fa-chart-line"></i><strong id="statAvg">0%</strong><span>Average progress</span></div>
+                        </div>
+
+                        <div class="admin-grid">
+                            <div class="admin-card">
+                                <h3><i class="fa-solid fa-layer-group"></i> Progress by section</h3>
+                                <div class="section-bars" id="sectionBars"></div>
+                            </div>
+                            <div class="admin-card">
+                                <h3><i class="fa-solid fa-triangle-exclamation"></i> Needs attention</h3>
+                                <p class="admin-card-note">No activity in the last 7 days.</p>
+                                <div class="admin-list" id="inactiveList"></div>
+                            </div>
+                            <div class="admin-card">
+                                <h3><i class="fa-solid fa-circle-xmark"></i> Most-missed questions</h3>
+                                <p class="admin-card-note">Questions students got wrong and haven't cleared yet.</p>
+                                <div class="admin-list" id="missedList"></div>
+                            </div>
+                            <div class="admin-card">
+                                <h3><i class="fa-solid fa-video-slash"></i> Least-watched videos</h3>
+                                <div class="admin-list" id="videoList"></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- STUDENTS -->
+                    <section class="admin-panel" id="tab-students" role="tabpanel" hidden>
+                        <div class="admin-toolbar">
+                            <div class="search-container admin-search">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="studentSearch" placeholder="Search name or student ID..." aria-label="Search students">
+                            </div>
+                            <select id="filterProgram" aria-label="Program"><option value="">All programs</option></select>
+                            <select id="filterSection" aria-label="Year and section"><option value="">All sections</option></select>
+                            <select id="filterStatus" aria-label="Status">
+                                <option value="">Everyone</option>
+                                <option value="active">Active this week</option>
+                                <option value="inactive">Inactive 7+ days</option>
+                            </select>
+                            <select id="sortBy" aria-label="Sort by">
+                                <option value="name">Sort: Name</option>
+                                <option value="progress">Sort: Progress (high → low)</option>
+                                <option value="progressAsc">Sort: Progress (low → high)</option>
+                                <option value="active">Sort: Last active</option>
+                                <option value="streak">Sort: Streak</option>
+                            </select>
+                        </div>
+                        <p class="admin-count" id="studentCount"></p>
+
+                        <div class="admin-table-wrap">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Student</th>
+                                        <th scope="col">Section</th>
+                                        <th scope="col">Progress</th>
+                                        <th scope="col">Case studies</th>
+                                        <th scope="col">Decks</th>
+                                        <th scope="col">Videos</th>
+                                        <th scope="col">Streak</th>
+                                        <th scope="col">Badges</th>
+                                        <th scope="col">Last active</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="studentRows"></tbody>
+                            </table>
+                        </div>
+                        <p class="admin-empty" id="studentEmpty" hidden>No students match these filters.</p>
+                    </section>
+
+                    <!-- ACTIVITY LOG -->
+                    <section class="admin-panel" id="tab-audit" role="tabpanel" hidden>
+                        <div class="admin-card">
+                            <h3><i class="fa-solid fa-clipboard-list"></i> Admin activity log</h3>
+                            <p class="admin-card-note">Every time an admin views a student's details or exports data, it is recorded here.</p>
+                            <div class="admin-list" id="auditList"></div>
+                        </div>
+                    </section>
+
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="site-footer">
+                <span><strong>HCILearn</strong></span>
+                <span class="site-footer-dot" aria-hidden="true">·</span>
+                <span>HCI 2 Study Hub for UEP IT Students</span>
+            </footer>
+        </main>
+    </div>
+
+    <!-- Student details -->
+    <div class="admin-drawer-overlay" id="drawerOverlay" hidden>
+        <aside class="admin-drawer" role="dialog" aria-modal="true" aria-labelledby="drawerName">
+            <button type="button" class="qs-close admin-drawer-close" id="drawerClose" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+            <div id="drawerBody"></div>
+        </aside>
+    </div>
+
+    <script src="js/api.js?v=10"></script>
+    <script src="js/search.js?v=3"></script>
+    <script>
+        const ACTIVITY_LABELS = { case_study: 'Case Study', study_card: 'Study Card', video: 'Video', lesson: 'Lesson' };
+        const AUDIT_LABELS = {
+            view_student: (e) => `Viewed ${e.targetName || 'a deleted student'}'s progress`,
+            export_csv: (e) => `Exported progress CSV${e.details ? ` (${e.details})` : ''}`,
+        };
+
+        let students = [];
+        let today = '';
+        let questionText = new Map();   // "case_study:12" / "study_card:3-7" -> question
+
+        const $ = (id) => document.getElementById(id);
+        const escapeHtml = (text) => String(text).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const initials = (name) => name.split(' ').filter(Boolean).slice(0, 2).map(n => n[0].toUpperCase()).join('');
+
+        function daysBetween(a, b) {
+            return Math.round((Date.parse(b) - Date.parse(a)) / 86400000);
+        }
+
+        function lastActiveText(day) {
+            if (!day) return 'Never';
+            const diff = daysBetween(day, today);
+            if (diff <= 0) return 'Today';
+            if (diff === 1) return 'Yesterday';
+            if (diff < 30) return `${diff} days ago`;
+            return new Date(day + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        function formatDateTime(iso) {
+            return new Date(iso).toLocaleString(undefined, { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+        }
+
+        function sectionOf(s) {
+            return [s.program, s.yearSection].filter(Boolean).join(' ') || 'No section';
+        }
+
+        function progressBar(percent) {
+            return `<span class="admin-progress"><span style="width:${percent}%"></span></span><b>${percent}%</b>`;
+        }
+
+        // ---------------- Overview ----------------
+        function renderOverview(insights) {
+            const activeWeek = students.filter(s => !s.inactive);
+            $('statStudents').textContent = students.length;
+            $('statToday').textContent = students.filter(s => s.lastActive === today).length;
+            $('statWeek').textContent = activeWeek.length;
+            $('statInactive').textContent = students.length - activeWeek.length;
+            $('statAvg').textContent = students.length
+                ? `${Math.round(students.reduce((sum, s) => sum + s.overallPercent, 0) / students.length)}%`
+                : '0%';
+
+            // Progress by section (average overall %)
+            const groups = new Map();
+            students.forEach(s => {
+                const key = sectionOf(s);
+                if (!groups.has(key)) groups.set(key, []);
+                groups.get(key).push(s);
+            });
+            const rows = [...groups.entries()]
+                .map(([name, list]) => ({ name, count: list.length, avg: Math.round(list.reduce((sum, s) => sum + s.overallPercent, 0) / list.length) }))
+                .sort((a, b) => a.name.localeCompare(b.name));
+            $('sectionBars').innerHTML = rows.length ? rows.map(r => `
+                <div class="section-bar">
+                    <span class="section-name">${escapeHtml(r.name)} <small>${r.count} student${r.count === 1 ? '' : 's'}</small></span>
+                    ${progressBar(r.avg)}
+                </div>`).join('') : '<p class="admin-empty">No students yet.</p>';
+
+            // Needs attention
+            const inactive = students.filter(s => s.inactive)
+                .sort((a, b) => (a.lastActive || '').localeCompare(b.lastActive || ''));
+            $('inactiveList').innerHTML = inactive.length ? inactive.slice(0, 8).map(s => `
+                <button type="button" class="admin-list-item" data-student="${s.id}">
+                    <span class="admin-avatar">${escapeHtml(initials(s.fullName))}</span>
+                    <span class="admin-list-text"><strong>${escapeHtml(s.fullName)}</strong><small>${escapeHtml(sectionOf(s))} · ${s.overallPercent}% done</small></span>
+                    <span class="admin-pill is-warn">${lastActiveText(s.lastActive)}</span>
+                </button>`).join('') + (inactive.length > 8 ? `<p class="admin-card-note">+ ${inactive.length - 8} more in the Students tab.</p>` : '')
+                : '<p class="admin-empty"><i class="fa-solid fa-circle-check"></i> Everyone studied this week!</p>';
+
+            // Most-missed questions
+            $('missedList').innerHTML = insights.mostMissed.length ? insights.mostMissed.map(m => `
+                <div class="admin-list-item is-static">
+                    <span class="admin-tag ${m.source === 'case_study' ? 'is-case' : 'is-card'}">${m.source === 'case_study' ? `Case ${escapeHtml(m.itemKey)}` : `Card ${escapeHtml(m.itemKey)}`}</span>
+                    <span class="admin-list-text"><strong>${escapeHtml(questionText.get(`${m.source}:${m.itemKey}`) || 'Question')}</strong>
+                    <small>${m.students} student${m.students === 1 ? '' : 's'} · missed ${m.wrong} time${m.wrong === 1 ? '' : 's'}</small></span>
+                </div>`).join('') : '<p class="admin-empty">No missed questions right now.</p>';
+
+            // Least-watched videos
+            $('videoList').innerHTML = insights.leastWatched.map(v => `
+                <div class="admin-list-item is-static">
+                    <span class="admin-tag is-video"><i class="fa-solid fa-play"></i></span>
+                    <span class="admin-list-text"><strong>${escapeHtml(v.title)}</strong></span>
+                    <span class="admin-pill">${v.watchedBy} of ${insights.studentCount}</span>
+                </div>`).join('');
+        }
+
+        // ---------------- Students table ----------------
+        function fillFilters() {
+            const programs = [...new Set(students.map(s => s.program).filter(Boolean))].sort();
+            const sections = [...new Set(students.map(s => s.yearSection).filter(Boolean))].sort();
+            $('filterProgram').insertAdjacentHTML('beforeend', programs.map(p => `<option>${escapeHtml(p)}</option>`).join(''));
+            $('filterSection').insertAdjacentHTML('beforeend', sections.map(s => `<option>${escapeHtml(s)}</option>`).join(''));
+        }
+
+        function renderStudents() {
+            const q = $('studentSearch').value.trim().toLowerCase();
+            const program = $('filterProgram').value;
+            const section = $('filterSection').value;
+            const status = $('filterStatus').value;
+            const sort = $('sortBy').value;
+
+            const list = students.filter(s =>
+                (!q || s.fullName.toLowerCase().includes(q) || s.studentId.toLowerCase().includes(q)) &&
+                (!program || s.program === program) &&
+                (!section || s.yearSection === section) &&
+                (!status || (status === 'inactive' ? s.inactive : !s.inactive)));
+
+            const sorters = {
+                name: (a, b) => a.fullName.localeCompare(b.fullName),
+                progress: (a, b) => b.overallPercent - a.overallPercent,
+                progressAsc: (a, b) => a.overallPercent - b.overallPercent,
+                active: (a, b) => (b.lastActive || '').localeCompare(a.lastActive || ''),
+                streak: (a, b) => b.currentStreak - a.currentStreak,
+            };
+            list.sort(sorters[sort]);
+
+            $('studentCount').textContent = `Showing ${list.length} of ${students.length} students`;
+            $('studentEmpty').hidden = list.length > 0;
+            $('studentRows').innerHTML = list.map(s => `
+                <tr data-student="${s.id}" tabindex="0">
+                    <td data-label="Student">
+                        <span class="admin-student">
+                            <span class="admin-avatar">${escapeHtml(initials(s.fullName))}</span>
+                            <span><strong>${escapeHtml(s.fullName)}</strong><small>${escapeHtml(s.studentId || '—')}</small></span>
+                        </span>
+                    </td>
+                    <td data-label="Section">${escapeHtml(sectionOf(s))}</td>
+                    <td data-label="Progress" class="admin-progress-cell">${progressBar(s.overallPercent)}</td>
+                    <td data-label="Case studies">${s.caseSolved}</td>
+                    <td data-label="Decks">${s.decksMastered}</td>
+                    <td data-label="Videos">${s.videosWatched}</td>
+                    <td data-label="Streak">${s.currentStreak ? `<span class="admin-streak"><i class="fa-solid fa-fire"></i> ${s.currentStreak}</span>` : '—'}</td>
+                    <td data-label="Badges">${s.badges}</td>
+                    <td data-label="Last active"><span class="admin-pill${s.inactive ? ' is-warn' : ''}">${lastActiveText(s.lastActive)}</span></td>
+                </tr>`).join('');
+        }
+
+        // ---------------- Student details ----------------
+        async function openStudent(id) {
+            $('drawerOverlay').hidden = false;
+            requestAnimationFrame(() => $('drawerOverlay').classList.add('is-open'));
+            $('drawerBody').innerHTML = '<p class="admin-loading"><span class="btn-spinner"></span> Loading...</p>';
+            $('drawerClose').focus();
+
+            try {
+                const d = await api.get(`/admin/students/${id}`);
+                const s = d.student;
+                const accuracy = s.answers ? Math.round((s.correct / s.answers) * 100) : 0;
+                const maxAnswers = Math.max(1, ...d.last14.map(x => x.answers));
+
+                $('drawerBody').innerHTML = `
+                    <div class="student-head">
+                        <span class="admin-avatar is-big">${escapeHtml(initials(s.fullName))}</span>
+                        <div>
+                            <h3 id="drawerName">${escapeHtml(s.fullName)}</h3>
+                            <p>${escapeHtml(s.studentId || 'No student ID')} · ${escapeHtml(sectionOf(s))}</p>
+                            <small>Joined ${new Date(s.joinedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} · Last active ${lastActiveText(s.lastActive).toLowerCase()}</small>
+                        </div>
+                    </div>
+
+                    <div class="student-stats">
+                        <div><strong>${s.overallPercent}%</strong><span>Overall</span></div>
+                        <div><strong>${s.currentStreak}</strong><span>Streak (best ${s.longestStreak})</span></div>
+                        <div><strong>${s.answers}</strong><span>Answered · ${accuracy}% right</span></div>
+                        <div><strong>${s.badges}</strong><span>Badges</span></div>
+                    </div>
+
+                    <h4>Last 14 days</h4>
+                    <div class="student-days" aria-label="Questions answered per day">
+                        ${d.last14.map(x => `
+                            <span class="student-day" title="${x.day}: ${x.answers} answered, ${x.videos} videos, ${x.topicsRead} topics">
+                                <span class="student-day-bar" style="height:${Math.max(4, (x.answers / maxAnswers) * 100)}%"></span>
+                                <small>${x.day.slice(8)}</small>
+                            </span>`).join('')}
+                    </div>
+
+                    <h4>Modules</h4>
+                    <div class="student-modules">
+                        <div><span>Case studies</span>${progressBar(Math.round((d.caseStudies.solvedIds.length / d.caseStudies.total) * 100))}<small>${d.caseStudies.solvedIds.length} of ${d.caseStudies.total} solved · unlocked up to ${d.caseStudies.unlockedLevel}</small></div>
+                        <div><span>Study card decks</span>
+                            <span class="student-decks">${Array.from({ length: d.studyCards.total }, (_, i) => `<span class="${d.studyCards.completedIds.includes(i + 1) ? 'is-done' : ''}" title="Lesson ${i + 1}">${i + 1}</span>`).join('')}</span>
+                            <small>${d.studyCards.completedIds.length} of ${d.studyCards.total} mastered</small></div>
+                        <div><span>Videos watched (${d.videos.length})</span>
+                            <small>${d.videos.length ? d.videos.map(v => escapeHtml(v.title)).join(' · ') : 'None yet'}</small></div>
+                    </div>
+
+                    <h4>Questions to review (${d.mistakes.length})</h4>
+                    <div class="admin-list">
+                        ${d.mistakes.length ? d.mistakes.slice(0, 10).map(m => `
+                            <div class="admin-list-item is-static">
+                                <span class="admin-tag ${m.source === 'case_study' ? 'is-case' : 'is-card'}">${m.source === 'case_study' ? `Case ${escapeHtml(m.itemKey)}` : `Card ${escapeHtml(m.itemKey)}`}</span>
+                                <span class="admin-list-text"><strong>${escapeHtml(questionText.get(`${m.source}:${m.itemKey}`) || 'Question')}</strong><small>Missed ${m.wrongCount} time${m.wrongCount === 1 ? '' : 's'}</small></span>
+                            </div>`).join('') : '<p class="admin-empty">No unresolved mistakes.</p>'}
+                    </div>
+
+                    <h4>Badges</h4>
+                    <div class="student-badges">
+                        ${d.badges.map(b => `<span class="badge-mini badge-${b.color}${b.earnedAt ? ' is-earned' : ''}" title="${escapeHtml(b.name)}${b.earnedAt ? '' : ' (locked)'}"><i class="fa-solid ${b.earnedAt ? b.icon : 'fa-lock'}"></i></span>`).join('')}
+                    </div>
+
+                    <h4>Recent activity</h4>
+                    <div class="admin-list">
+                        ${d.recentActivity.length ? d.recentActivity.map(a => `
+                            <div class="admin-list-item is-static">
+                                <span class="admin-tag">${escapeHtml(ACTIVITY_LABELS[a.type] || 'Activity')}</span>
+                                <span class="admin-list-text"><strong>${escapeHtml(a.description)}</strong><small>${formatDateTime(a.created_at)}</small></span>
+                            </div>`).join('') : '<p class="admin-empty">No activity yet.</p>'}
+                    </div>`;
+                loadAudit(); // the view was just recorded
+            } catch (err) {
+                $('drawerBody').innerHTML = `<p class="admin-empty"><i class="fa-solid fa-circle-exclamation"></i> ${escapeHtml(err.message)}</p>`;
+            }
+        }
+
+        function closeStudent() {
+            $('drawerOverlay').classList.remove('is-open');
+            setTimeout(() => { $('drawerOverlay').hidden = true; }, 250);
+        }
+
+        // ---------------- Activity log ----------------
+        async function loadAudit() {
+            try {
+                const { entries } = await api.get('/admin/audit');
+                $('auditList').innerHTML = entries.length ? entries.map(e => `
+                    <div class="admin-list-item is-static">
+                        <span class="admin-tag"><i class="fa-solid ${e.action === 'export_csv' ? 'fa-file-csv' : 'fa-eye'}"></i></span>
+                        <span class="admin-list-text"><strong>${escapeHtml((AUDIT_LABELS[e.action] || (() => e.action))(e))}</strong>
+                        <small>${escapeHtml(e.adminName)} · ${formatDateTime(e.createdAt)}</small></span>
+                    </div>`).join('') : '<p class="admin-empty">Nothing recorded yet.</p>';
+            } catch (err) {
+                $('auditList').innerHTML = '<p class="admin-empty">Could not load the activity log.</p>';
+            }
+        }
+
+        // ---------------- Wiring ----------------
+        function showTab(name) {
+            document.querySelectorAll('.admin-tab').forEach(t => {
+                const on = t.dataset.tab === name;
+                t.classList.toggle('active', on);
+                t.setAttribute('aria-selected', on ? 'true' : 'false');
+            });
+            document.querySelectorAll('.admin-panel').forEach(p => { p.hidden = p.id !== `tab-${name}`; });
+        }
+
+        document.querySelectorAll('.admin-tab').forEach(t => t.addEventListener('click', () => showTab(t.dataset.tab)));
+        ['studentSearch', 'filterProgram', 'filterSection', 'filterStatus', 'sortBy'].forEach(id =>
+            $(id).addEventListener(id === 'studentSearch' ? 'input' : 'change', renderStudents));
+
+        // Open a student from the table or the "Needs attention" list
+        document.addEventListener('click', (e) => {
+            const row = e.target.closest('[data-student]');
+            if (row) openStudent(Number(row.dataset.student));
+        });
+        $('studentRows').addEventListener('keydown', (e) => {
+            const row = e.target.closest('[data-student]');
+            if (row && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault();
+                openStudent(Number(row.dataset.student));
+            }
+        });
+        $('drawerClose').addEventListener('click', closeStudent);
+        $('drawerOverlay').addEventListener('click', (e) => { if (e.target === $('drawerOverlay')) closeStudent(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('drawerOverlay').hidden) closeStudent(); });
+        // Export is a plain download; refresh the log afterwards
+        $('exportBtn').addEventListener('click', () => setTimeout(loadAudit, 1500));
+
+        (async function init() {
+            const user = await requireAuth('login.html#admin');
+            if (!user) return;
+            if (!user.isAdmin) {
+                $('adminLoading').hidden = true;
+                $('adminDenied').hidden = false;
+                return;
+            }
+
+            try {
+                // Question text for the "missed questions" lists comes from the search index
+                const [list, insights, index] = await Promise.all([
+                    api.get('/admin/students'),
+                    api.get('/admin/insights'),
+                    fetch('search-index.json?v=2').then(r => r.json()).catch(() => ({ items: [] })),
+                ]);
+                index.items.forEach(item => {
+                    if (item.type === 'case') questionText.set(`case_study:${item.key}`, item.title);
+                    if (item.type === 'card') questionText.set(`study_card:${item.key}`, item.title);
+                });
+
+                students = list.students;
+                today = list.today;
+                renderOverview(insights);
+                fillFilters();
+                renderStudents();
+                loadAudit();
+
+                $('adminLoading').hidden = true;
+                $('adminApp').hidden = false;
+                $('exportBtn').hidden = false;
+            } catch (err) {
+                $('adminLoading').innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${escapeHtml(err.message)}`;
+            }
+        })();
+    </script>
+</body>
+</html>

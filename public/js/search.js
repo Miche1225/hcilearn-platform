@@ -8,7 +8,7 @@
 (function () {
   'use strict';
 
-  const INDEX_URL = 'search-index.json?v=1';
+  const INDEX_URL = 'search-index.json?v=2';
   const MAX_PER_GROUP = 6;
 
   const GROUPS = [

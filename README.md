@@ -15,6 +15,7 @@ flashcards, and their progress is saved to their account.
 | **Case Studies** | 50 scenarios that unlock one at a time as you answer correctly, plus "Review mistakes" |
 | **Study Cards** | 11 flashcard decks; wrong answers come back until the deck is mastered, plus a "Review my mistakes" deck |
 | **Saved** | Bookmarked topics and videos with personal notes; search, filter, edit and remove |
+| **Admin** | For instructors ("Log in as admin" on the login page): class overview, student list with filters, per-student details, CSV export and an audit log |
 | **Account** | Badge collection with progress, edit profile, upload a photo, change password, delete account |
 
 Every logged-in page has **Quick Search** (menu item, Ctrl+K or "/") over
@@ -55,9 +56,10 @@ hcilearn-platform/
 │   │   ├── account.js        # profile, photo upload, delete account
 │   │   ├── progress.js       # dashboard summary, per-module progress, video positions, mistakes
 │   │   ├── bookmarks.js      # saved topics/videos + notes
-│   │   └── gamify.js         # study streak, daily goal, badges
+│   │   ├── gamify.js         # study streak, daily goal, badges
+│   │   └── admin.js          # admin dashboard (progress, insights, CSV, audit log)
 │   ├── content.js            # course content the server validates against (videos, totals)
-│   └── utils/                # mailer, password rules, email hashing
+│   └── utils/                # mailer, password rules, email hashing, dates/streaks
 ├── scripts/
 │   ├── build-dark-css.js     # generates public/dark.css from style.css
 │   ├── dark-manual.css       # hand-written dark mode fixes
@@ -136,6 +138,7 @@ See [`.env.example`](.env.example) for the full list with comments.
 | `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | For photos | Profile photo uploads |
 | `EMAIL_USER`, `EMAIL_PASS` | For email (option A) | Gmail address + App Password |
 | `BREVO_API_KEY`, `EMAIL_FROM` | For email (option B) | Needed on Render's free plan, which blocks SMTP |
+| `ADMIN_EMAILS` | For admins | Comma-separated emails that can open the Admin Dashboard |
 | `NODE_ENV` | No | `production` enables secure cookies |
 | `PORT` | No | Defaults to 3000 |
 
@@ -182,6 +185,11 @@ the password-reset routes requires the login cookie.
 | POST | `/gamify/activity` | Record an answer / finished video / opened topic / cleared mistake |
 | POST | `/gamify/check` | Award any badges earned from other progress |
 | PUT | `/gamify/goal` | Change the daily goal (5, 10, 20 or 30) |
+| GET | `/admin/students` | *Admin:* every student with progress numbers |
+| GET | `/admin/insights` | *Admin:* most-missed questions, least-watched videos |
+| GET | `/admin/students/:id` | *Admin:* one student's details (recorded in the audit log) |
+| GET | `/admin/export.csv` | *Admin:* progress CSV (recorded in the audit log) |
+| GET | `/admin/audit` | *Admin:* latest admin actions |
 
 ## Database
 
@@ -196,6 +204,7 @@ the password-reset routes requires the login cookie.
 - `bookmarks`: saved topics/videos with notes
 - `daily_activity`: what each user did per day, for the streak, daily goal and badges
 - `user_badges`: badges each user has earned (the goal itself is `users.daily_goal`)
+- `admin_audit_log`: admin actions (viewing a student, exporting data)
 
 ## Security
 
@@ -204,6 +213,9 @@ the password-reset routes requires the login cookie.
 - Changing or resetting a password signs out every other session
 - httpOnly, `SameSite` cookies (`Secure` in production)
 - Photo uploads checked for type and size before going to Cloudinary
+- Admin access comes only from `ADMIN_EMAILS` on the server and is checked on
+  every admin request; admin views and exports are written to an audit log.
+  Exported CSV cells are escaped so they can't run as spreadsheet formulas
 
 ## Deployment
 
