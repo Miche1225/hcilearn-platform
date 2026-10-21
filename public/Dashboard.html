@@ -9,8 +9,8 @@
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
-    <link rel="stylesheet" href="style.css?v=48">
-    <link rel="stylesheet" href="dark.css?v=11">
+    <link rel="stylesheet" href="style.css?v=49">
+    <link rel="stylesheet" href="dark.css?v=12">
     <script src="js/theme.js?v=1"></script>
     <!-- FontAwesome for the input icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -98,9 +98,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Announcements from instructors (pinupuno ng loadAnnouncements()) -->
-            <div class="announce-stack" id="announceStack"></div>
 
             <!-- Study streak, daily goal and badges (pinupuno ng loadGamify()) -->
             <div class="streak-row">
@@ -554,46 +551,6 @@
 
         loadGamify();
 
-
-        // ========================================================
-        // ANNOUNCEMENTS galing sa instructor (puwedeng i-hide ng student)
-        // ========================================================
-        const HIDDEN_KEY = 'hcilearn_hidden_announcements';
-        const hiddenAnnouncements = () => {
-            try { return JSON.parse(localStorage.getItem(HIDDEN_KEY) || '[]'); } catch (e) { return []; }
-        };
-
-        async function loadAnnouncements() {
-            try {
-                const { announcements } = await api.get('/announcements');
-                const hidden = hiddenAnnouncements();
-                const stack = document.getElementById('announceStack');
-                stack.innerHTML = '';
-                // Newest 3 here; the bell has the full list
-                announcements.filter(a => !hidden.includes(a.id)).slice(0, 3).forEach(a => {
-                    const card = document.createElement('div');
-                    card.className = 'announce-card';
-                    card.setAttribute('role', 'status');
-                    card.innerHTML = `
-                        <span class="announce-icon"><i class="fa-solid fa-bullhorn"></i></span>
-                        <div class="announce-text"><strong></strong><p></p><small></small></div>
-                        <button type="button" class="announce-close" aria-label="Hide this announcement"><i class="fa-solid fa-xmark"></i></button>`;
-                    card.querySelector('strong').textContent = a.title;
-                    card.querySelector('p').textContent = a.body;
-                    card.querySelector('p').hidden = !a.body;
-                    card.querySelector('small').textContent = `${a.by} · ${timeAgo(a.createdAt)}`;
-                    card.querySelector('.announce-close').addEventListener('click', () => {
-                        try { localStorage.setItem(HIDDEN_KEY, JSON.stringify([...hiddenAnnouncements(), a.id].slice(-50))); } catch (e) { /* storage blocked */ }
-                        card.remove();
-                    });
-                    stack.appendChild(card);
-                });
-            } catch (err) {
-                console.error('Could not load announcements:', err);
-            }
-        }
-
-        loadAnnouncements();
     </script>
 
 </body>

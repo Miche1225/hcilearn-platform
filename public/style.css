@@ -11145,52 +11145,6 @@ div.qs-result {
     color: #555 !important;
 }
 
-/* Announcements (student Dashboard) */
-.announce-stack {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.announce-stack:empty { display: none; }
-
-.announce-card {
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    padding: 14px 16px;
-    border-radius: 18px;
-    border: 2px solid #ffe08a;
-    background: linear-gradient(120deg, #fff8db, #fff);
-    animation: fadeUp 0.4s ease both;
-}
-
-.announce-icon {
-    flex-shrink: 0;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-    background: linear-gradient(135deg, var(--fun-sun), var(--fun-coral));
-    color: #fff;
-}
-
-.announce-text { flex: 1; min-width: 0; }
-.announce-text strong { display: block; font-size: 15px; color: #5c4a10; }
-.announce-text p { margin: 4px 0; font-size: 14px; color: #5c4a10; white-space: pre-wrap; }
-.announce-text small { font-size: 12px; color: #8a7a4a; }
-
-.announce-close {
-    border: none;
-    background: none;
-    color: #a08a4a;
-    font-size: 16px;
-    cursor: pointer;
-}
-
 /* Student management */
 .student-manage {
     display: flex;

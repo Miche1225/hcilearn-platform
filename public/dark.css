@@ -3496,28 +3496,6 @@
 :root[data-theme="dark"] .announce-body {
     color: hsl(250 12% 78%) !important;
 }
-:root[data-theme="dark"] .announce-card {
-    border: 2px solid #ffe08a;
-    background: linear-gradient(120deg, hsl(48 45% 21%), hsl(250 14% 17%));
-}
-:root[data-theme="dark"] .announce-icon {
-    background: linear-gradient(135deg, var(--fun-sun), var(--fun-coral));
-    color: #fff;
-}
-:root[data-theme="dark"] .announce-text strong {
-    color: hsl(46 70% 84%);
-}
-:root[data-theme="dark"] .announce-text p {
-    color: hsl(46 70% 84%);
-}
-:root[data-theme="dark"] .announce-text small {
-    color: hsl(45 30% 73%);
-}
-:root[data-theme="dark"] .announce-close {
-    border: none;
-    background: none;
-    color: hsl(45 37% 71%);
-}
 :root[data-theme="dark"] .admin-pill.is-off {
     background: hsl(240 15% 21%);
     color: hsl(248 16% 69%);
