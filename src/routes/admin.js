@@ -34,7 +34,7 @@ async function loadStudents() {
   const videoIds = [...content.videoTitles.keys()];
   const { rows } = await pool.query(
     `SELECT u.id, u.full_name, u.program, u.year_section, u.student_id, u.profile_photo,
-            u.created_at,
+            u.created_at, u.disabled_at,
             cs.solved_ids, sc.completed_ids
      FROM users u
      LEFT JOIN case_study_progress cs ON cs.user_id = u.id
@@ -106,6 +106,7 @@ async function loadStudents() {
       badges: badges.get(s.id) ? badges.get(s.id).n : 0,
       lastActive,
       inactive: !lastActive || lastActive < addDays(today, -INACTIVE_AFTER_DAYS),
+      deactivated: !!s.disabled_at,
     };
   });
 }
@@ -257,6 +258,119 @@ router.get('/export.csv', async (req, res, next) => {
     next(err);
   }
 });
+
+// ---------- Student management ----------
+// Each action is confirmed in the page and recorded in the audit log.
+async function studentFor(req) {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id) || id < 1) return null;
+  const { rows } = await pool.query('SELECT id, full_name, disabled_at FROM users WHERE id = $1', [id]);
+  return rows[0] || null;
+}
+
+const studentAction = (action, run) => async (req, res, next) => {
+  try {
+    const student = await studentFor(req);
+    if (!student) return res.status(404).json({ error: 'Student not found.' });
+    await run(student);
+    await audit(req.instructor.id, action, student.id);
+    res.json({ ok: true });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Log the student out on every device
+router.post('/students/:id/signout', studentAction('signout_student', (s) =>
+  pool.query('UPDATE users SET session_version = session_version + 1 WHERE id = $1', [s.id])));
+
+// Block / unblock logging in (deactivating also logs them out)
+router.post('/students/:id/deactivate', studentAction('deactivate_student', (s) =>
+  pool.query('UPDATE users SET disabled_at = NOW(), session_version = session_version + 1 WHERE id = $1', [s.id])));
+router.post('/students/:id/reactivate', studentAction('reactivate_student', (s) =>
+  pool.query('UPDATE users SET disabled_at = NULL WHERE id = $1', [s.id])));
+
+// Start over: clears learning progress (keeps the account, profile and saved items)
+const PROGRESS_TABLES = ['case_study_progress', 'study_card_progress', 'lesson_progress', 'video_progress',
+  'video_positions', 'mistakes', 'daily_activity', 'user_badges', 'activity_log'];
+router.post('/students/:id/reset', studentAction('reset_progress', async (s) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    for (const table of PROGRESS_TABLES) {
+      await client.query(`DELETE FROM ${table} WHERE user_id = $1`, [s.id]);
+    }
+    await client.query('COMMIT');
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+}));
+
+
+// ---------- Announcements ----------
+// GET /api/admin/announcements
+router.get('/announcements', async (req, res, next) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT a.id, a.title, a.body, a.ends_on, a.created_at, i.full_name AS instructor_name
+       FROM announcements a LEFT JOIN instructors i ON i.id = a.instructor_id
+       ORDER BY a.created_at DESC, a.id DESC`
+    );
+    res.json({
+      today: todayLocal(),
+      announcements: rows.map(r => ({
+        id: r.id, title: r.title, body: r.body, endsOn: r.ends_on ? toYmd(r.ends_on) : null,
+        createdAt: r.created_at, by: r.instructor_name || '(removed instructor)',
+      })),
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/admin/announcements  { title, body, endsOn? }
+router.post('/announcements', async (req, res, next) => {
+  try {
+    const { title, body, endsOn } = req.body || {};
+    const t = typeof title === 'string' ? title.trim() : '';
+    const b = typeof body === 'string' ? body.trim() : '';
+    if (!t || t.length > 120) return res.status(400).json({ error: 'Give a title (up to 120 characters).' });
+    if (b.length > 1000) return res.status(400).json({ error: 'The message can be up to 1000 characters.' });
+    let ends = null;
+    if (endsOn) {
+      if (typeof endsOn !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(endsOn) || Number.isNaN(Date.parse(endsOn))) {
+        return res.status(400).json({ error: 'Pick a valid end date.' });
+      }
+      if (endsOn < todayLocal()) return res.status(400).json({ error: 'The end date is already in the past.' });
+      ends = endsOn;
+    }
+    const { rows } = await pool.query(
+      'INSERT INTO announcements (instructor_id, title, body, ends_on) VALUES ($1, $2, $3, $4) RETURNING id',
+      [req.instructor.id, t, b, ends]
+    );
+    await audit(req.instructor.id, 'post_announcement', null, t);
+    res.json({ id: rows[0].id });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// DELETE /api/admin/announcements/:id
+router.delete('/announcements/:id', async (req, res, next) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id < 1) return res.status(400).json({ error: 'Invalid announcement.' });
+    const { rows } = await pool.query('DELETE FROM announcements WHERE id = $1 RETURNING title', [id]);
+    if (rows[0]) await audit(req.instructor.id, 'delete_announcement', null, rows[0].title);
+    res.json({ ok: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
 
 // GET /api/admin/audit — latest admin actions
 router.get('/audit', async (req, res, next) => {

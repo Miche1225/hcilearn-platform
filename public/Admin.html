@@ -9,8 +9,8 @@
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
-    <link rel="stylesheet" href="style.css?v=44">
-    <link rel="stylesheet" href="dark.css?v=7">
+    <link rel="stylesheet" href="style.css?v=45">
+    <link rel="stylesheet" href="dark.css?v=8">
     <script src="js/theme.js?v=1"></script>
     <!-- FontAwesome para sa icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -80,6 +80,8 @@
                     <div class="admin-tabs" role="tablist" aria-label="Admin sections">
                         <button type="button" class="admin-tab active" role="tab" aria-selected="true" aria-controls="tab-overview" data-tab="overview"><i class="fa-solid fa-chart-pie"></i> Overview</button>
                         <button type="button" class="admin-tab" role="tab" aria-selected="false" aria-controls="tab-students" data-tab="students"><i class="fa-solid fa-users"></i> Students</button>
+                        <button type="button" class="admin-tab" role="tab" aria-selected="false" aria-controls="tab-content" data-tab="content"><i class="fa-solid fa-pen-to-square"></i> Content <span class="ce-dot" id="contentPending" hidden></span></button>
+                        <button type="button" class="admin-tab" role="tab" aria-selected="false" aria-controls="tab-announcements" data-tab="announcements"><i class="fa-solid fa-bullhorn"></i> Announcements</button>
                         <button type="button" class="admin-tab" role="tab" aria-selected="false" aria-controls="tab-audit" data-tab="audit"><i class="fa-solid fa-clipboard-list"></i> Activity log</button>
                     </div>
 
@@ -160,6 +162,30 @@
                         <p class="admin-empty" id="studentEmpty" hidden>No students match these filters.</p>
                     </section>
 
+                    <!-- CONTENT (js/admin-content.js) -->
+                    <section class="admin-panel" id="tab-content" role="tabpanel" hidden>
+                        <div id="contentEditor"></div>
+                    </section>
+
+                    <!-- ANNOUNCEMENTS -->
+                    <section class="admin-panel" id="tab-announcements" role="tabpanel" hidden>
+                        <div class="admin-grid">
+                            <form class="admin-card announce-form" id="announceForm" novalidate>
+                                <h3><i class="fa-solid fa-bullhorn"></i> New announcement</h3>
+                                <p class="admin-card-note">Shown at the top of every student's Dashboard right away.</p>
+                                <label class="ce-field"><span>Title</span><input type="text" name="title" maxlength="120" placeholder="Quiz on Friday!"></label>
+                                <label class="ce-field"><span>Message <small>(optional)</small></span><textarea name="body" rows="4" maxlength="1000" placeholder="It covers Lessons 1 to 3. Review your study cards!"></textarea></label>
+                                <label class="ce-field"><span>Show until <small>(optional)</small></span><input type="date" name="endsOn"></label>
+                                <p class="ce-error" id="announceError" role="alert" hidden></p>
+                                <button type="submit" class="tool-btn ce-publish"><i class="fa-solid fa-paper-plane"></i> Post announcement</button>
+                            </form>
+                            <div class="admin-card">
+                                <h3><i class="fa-solid fa-list"></i> Posted</h3>
+                                <div class="admin-list" id="announceList"></div>
+                            </div>
+                        </div>
+                    </section>
+
                     <!-- ACTIVITY LOG -->
                     <section class="admin-panel" id="tab-audit" role="tabpanel" hidden>
                         <div class="admin-card">
@@ -190,11 +216,26 @@
     </div>
 
     <script src="js/api.js?v=10"></script>
+    <script src="js/richtext.js?v=1"></script>
+    <script src="js/admin-content.js?v=1"></script>
     <script>
         const ACTIVITY_LABELS = { case_study: 'Case Study', study_card: 'Study Card', video: 'Video', lesson: 'Lesson' };
+        const AUDIT_ICONS = {
+            export_csv: 'fa-file-csv', publish_content: 'fa-upload', discard_content: 'fa-rotate-left',
+            post_announcement: 'fa-bullhorn', delete_announcement: 'fa-bullhorn', reset_progress: 'fa-eraser',
+            signout_student: 'fa-arrow-right-from-bracket', deactivate_student: 'fa-user-slash', reactivate_student: 'fa-user-check',
+        };
         const AUDIT_LABELS = {
             view_student: (e) => `Viewed ${e.targetName || 'a deleted student'}'s progress`,
             export_csv: (e) => `Exported progress CSV${e.details ? ` (${e.details})` : ''}`,
+            publish_content: (e) => `Published content changes${e.details ? ` (${e.details})` : ''}`,
+            discard_content: () => 'Discarded unpublished content changes',
+            post_announcement: (e) => `Posted announcement "${e.details}"`,
+            delete_announcement: (e) => `Deleted announcement "${e.details}"`,
+            reset_progress: (e) => `Reset ${e.targetName || 'a student'}'s progress`,
+            signout_student: (e) => `Signed ${e.targetName || 'a student'} out everywhere`,
+            deactivate_student: (e) => `Deactivated ${e.targetName || 'a student'}'s account`,
+            reactivate_student: (e) => `Reactivated ${e.targetName || 'a student'}'s account`,
         };
 
         let students = [];
@@ -332,7 +373,7 @@
                     <td data-label="Videos">${s.videosWatched}</td>
                     <td data-label="Streak">${s.currentStreak ? `<span class="admin-streak"><i class="fa-solid fa-fire"></i> ${s.currentStreak}</span>` : '—'}</td>
                     <td data-label="Badges">${s.badges}</td>
-                    <td data-label="Last active"><span class="admin-pill${s.inactive ? ' is-warn' : ''}">${lastActiveText(s.lastActive)}</span></td>
+                    <td data-label="Last active">${s.deactivated ? '<span class="admin-pill is-off">Deactivated</span>' : `<span class="admin-pill${s.inactive ? ' is-warn' : ''}">${lastActiveText(s.lastActive)}</span>`}</td>
                 </tr>`).join('');
         }
 
@@ -356,6 +397,7 @@
                             <h3 id="drawerName">${escapeHtml(s.fullName)}</h3>
                             <p>${escapeHtml(s.studentId || 'No student ID')} · ${escapeHtml(sectionOf(s))}</p>
                             <small>Joined ${new Date(s.joinedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} · Last active ${lastActiveText(s.lastActive).toLowerCase()}</small>
+                            ${s.deactivated ? '<span class="admin-pill is-off">Deactivated: cannot log in</span>' : ''}
                         </div>
                     </div>
 
@@ -406,7 +448,17 @@
                                 <span class="admin-tag">${escapeHtml(ACTIVITY_LABELS[a.type] || 'Activity')}</span>
                                 <span class="admin-list-text"><strong>${escapeHtml(a.description)}</strong><small>${formatDateTime(a.created_at)}</small></span>
                             </div>`).join('') : '<p class="admin-empty">No activity yet.</p>'}
+                    </div>
+
+                    <h4>Manage account</h4>
+                    <div class="student-manage">
+                        <button type="button" class="tool-btn" data-manage="signout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sign out everywhere</button>
+                        <button type="button" class="tool-btn" data-manage="reset"><i class="fa-solid fa-eraser"></i> Reset progress</button>
+                        ${s.deactivated
+                            ? '<button type="button" class="tool-btn" data-manage="reactivate"><i class="fa-solid fa-user-check"></i> Reactivate account</button>'
+                            : '<button type="button" class="tool-btn is-danger" data-manage="deactivate"><i class="fa-solid fa-user-slash"></i> Deactivate account</button>'}
                     </div>`;
+                $('drawerBody').querySelectorAll('[data-manage]').forEach(b => b.addEventListener('click', () => manageStudent(s, b.dataset.manage)));
                 loadAudit(); // the view was just recorded
             } catch (err) {
                 $('drawerBody').innerHTML = `<p class="admin-empty"><i class="fa-solid fa-circle-exclamation"></i> ${escapeHtml(err.message)}</p>`;
@@ -418,13 +470,105 @@
             setTimeout(() => { $('drawerOverlay').hidden = true; }, 250);
         }
 
+        // ---------------- Student management ----------------
+        const MANAGE = {
+            signout: { title: 'Sign out everywhere?', message: (n) => `${n} will be logged out on every device and will need to log in again.`, confirm: 'Sign out', icon: 'fa-arrow-right-from-bracket', done: 'Signed out everywhere' },
+            reset: { title: 'Reset all progress?', message: (n) => `This clears ${n}'s case studies, study cards, videos, mistakes, streak and badges. Their account and saved items stay. This cannot be undone.`, confirm: 'Reset progress', icon: 'fa-eraser', danger: true, done: 'Progress reset' },
+            deactivate: { title: 'Deactivate this account?', message: (n) => `${n} will be logged out and won't be able to log in until you reactivate the account. Their progress is kept.`, confirm: 'Deactivate', icon: 'fa-user-slash', danger: true, done: 'Account deactivated' },
+            reactivate: { title: 'Reactivate this account?', message: (n) => `${n} will be able to log in again.`, confirm: 'Reactivate', icon: 'fa-user-check', done: 'Account reactivated' },
+        };
+
+        function manageStudent(student, action) {
+            const m = MANAGE[action];
+            confirmDialog({
+                title: m.title, message: m.message(student.fullName), confirmText: m.confirm, icon: m.icon, danger: !!m.danger,
+                onConfirm: async () => {
+                    try {
+                        await api.post(`/admin/students/${student.id}/${action}`);
+                        adminToast(m.done);
+                        const list = await api.get('/admin/students');
+                        students = list.students;
+                        renderStudents();
+                        openStudent(student.id);
+                    } catch (err) {
+                        adminToast(err.message, true);
+                    }
+                },
+            });
+        }
+
+        function adminToast(message, isError) {
+            const el = document.createElement('div');
+            el.className = 'hci-toast';
+            el.setAttribute('role', 'status');
+            el.innerHTML = `<i class="fa-solid ${isError ? 'fa-circle-exclamation' : 'fa-circle-check'}"></i> <span></span>`;
+            el.querySelector('span').textContent = message;
+            document.body.appendChild(el);
+            requestAnimationFrame(() => el.classList.add('is-open'));
+            setTimeout(() => { el.classList.remove('is-open'); setTimeout(() => el.remove(), 300); }, 2600);
+        }
+
+        // ---------------- Announcements ----------------
+        async function loadAnnouncements() {
+            try {
+                const { announcements, today: day } = await api.get('/admin/announcements');
+                $('announceList').innerHTML = announcements.length ? announcements.map(a => {
+                    const expired = a.endsOn && a.endsOn < day;
+                    return `<div class="admin-list-item is-static">
+                        <span class="admin-tag ${expired ? '' : 'is-video'}"><i class="fa-solid fa-bullhorn"></i></span>
+                        <span class="admin-list-text"><strong>${escapeHtml(a.title)}</strong>
+                            ${a.body ? `<small class="announce-body">${escapeHtml(a.body)}</small>` : ''}
+                            <small>${escapeHtml(a.by)} · ${formatDateTime(a.createdAt)} · ${expired ? 'ended' : a.endsOn ? `until ${a.endsOn}` : 'no end date'}</small></span>
+                        <button type="button" class="ce-icon-btn is-danger" data-announce-delete="${a.id}" aria-label="Delete announcement"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>`;
+                }).join('') : '<p class="admin-empty">No announcements yet.</p>';
+            } catch (err) {
+                $('announceList').innerHTML = '<p class="admin-empty">Could not load announcements.</p>';
+            }
+        }
+
+        $('announceForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const btn = form.querySelector('[type="submit"]');
+            $('announceError').hidden = true;
+            btn.disabled = true;
+            try {
+                await api.post('/admin/announcements', {
+                    title: form.elements.title.value, body: form.elements.body.value, endsOn: form.elements.endsOn.value || null,
+                });
+                form.reset();
+                adminToast('Announcement posted');
+                loadAnnouncements();
+                loadAudit();
+            } catch (err) {
+                $('announceError').textContent = err.message;
+                $('announceError').hidden = false;
+            }
+            btn.disabled = false;
+        });
+
+        $('announceList').addEventListener('click', (e) => {
+            const b = e.target.closest('[data-announce-delete]');
+            if (!b) return;
+            confirmDialog({
+                title: 'Delete this announcement?', message: 'Students will stop seeing it right away.',
+                confirmText: 'Delete', icon: 'fa-trash-can', danger: true,
+                onConfirm: async () => {
+                    try { await api.del(`/admin/announcements/${b.dataset.announceDelete}`); } catch (err) { adminToast(err.message, true); }
+                    loadAnnouncements();
+                    loadAudit();
+                },
+            });
+        });
+
         // ---------------- Activity log ----------------
         async function loadAudit() {
             try {
                 const { entries } = await api.get('/admin/audit');
                 $('auditList').innerHTML = entries.length ? entries.map(e => `
                     <div class="admin-list-item is-static">
-                        <span class="admin-tag"><i class="fa-solid ${e.action === 'export_csv' ? 'fa-file-csv' : 'fa-eye'}"></i></span>
+                        <span class="admin-tag"><i class="fa-solid ${AUDIT_ICONS[e.action] || 'fa-eye'}"></i></span>
                         <span class="admin-list-text"><strong>${escapeHtml((AUDIT_LABELS[e.action] || (() => e.action))(e))}</strong>
                         <small>${escapeHtml(e.adminName)} · ${formatDateTime(e.createdAt)}</small></span>
                     </div>`).join('') : '<p class="admin-empty">Nothing recorded yet.</p>';
@@ -512,6 +656,14 @@
                 fillFilters();
                 renderStudents();
                 loadAudit();
+                loadAnnouncements();
+                HCIContentEditor.mount($('contentEditor'), {
+                    onPending: (n) => {
+                        $('contentPending').hidden = !n;
+                        $('contentPending').textContent = n;
+                        loadAudit();
+                    },
+                });
 
                 $('adminLoading').hidden = true;
                 $('adminApp').hidden = false;

@@ -13,7 +13,9 @@ const progressRoutes = require('./src/routes/progress');
 const bookmarkRoutes = require('./src/routes/bookmarks');
 const gamifyRoutes = require('./src/routes/gamify');
 const contentRoutes = require('./src/routes/content');
+const announcementRoutes = require('./src/routes/announcements');
 const instructorRoutes = require('./src/routes/instructor');
+const adminContentRoutes = require('./src/routes/adminContent');
 const adminRoutes = require('./src/routes/admin');
 
 const app = express();
@@ -59,7 +61,9 @@ app.use('/api/progress', progressRoutes);
 app.use('/api/bookmarks', bookmarkRoutes);
 app.use('/api/gamify', gamifyRoutes);
 app.use('/api/content', contentRoutes);
+app.use('/api/announcements', announcementRoutes);
 app.use('/api/instructor', instructorRoutes);
+app.use('/api/admin/content', adminContentRoutes);
 app.use('/api/admin', adminRoutes);
 
 // ----- Static front-end -----

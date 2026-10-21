@@ -64,6 +64,11 @@ Itatanong nito ang password (hindi ito makikita habang tina-type). Pagkatapos,
 mag-login sa `/login.html#admin` gamit ang Instructor ID at password.
 Iba pang commands: `reset-password`, `rename`, `remove`, `list` (tingnan ang README).
 
+> **Unang start:** awtomatikong ilalagay ng server sa database ang orihinal na
+> course content (videos, lessons, case studies, study cards) mula sa
+> `src/seed/content.json`. Pagkatapos noon, sa **Content** tab ng Admin
+> Dashboard na ito ine-edit (draft muna, saka **Publish**).
+
 ## 5. I-test
 
 - Buksan ang Render URL mo, mag-sign up ng test account, mag-unlock ng case study o

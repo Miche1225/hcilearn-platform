@@ -679,6 +679,18 @@ router.post(
 
 
             /*
+                Deactivated by an instructor (checked after the password,
+                so it does not reveal which accounts exist).
+            */
+            if (user.disabled_at) {
+                return res.status(403).json({
+                    error:
+                        'This account has been deactivated. Please contact your instructor.'
+                });
+            }
+
+
+            /*
                 Login session.
             */
             issueSession(

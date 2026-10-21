@@ -56,11 +56,11 @@ async function requireAuth(req, res, next) {
     // The cookie is only valid while its session version matches the user's
     // current one (it changes when the password is changed or reset).
     const { rows } = await pool.query(
-      'SELECT session_version FROM users WHERE id = $1',
+      'SELECT session_version, disabled_at FROM users WHERE id = $1',
       [payload.userId]
     );
 
-    if (!rows[0] || rows[0].session_version !== (payload.sv || 0)) {
+    if (!rows[0] || rows[0].session_version !== (payload.sv || 0) || rows[0].disabled_at) {
       clearSession(res);
       return res.status(401).json({ error: 'Session expired. Please log in again.' });
     }
