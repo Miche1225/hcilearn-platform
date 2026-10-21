@@ -1,161 +1,138 @@
-# HCILearn — Backend & Database
+# HCILearn
 
-This is the backend + database that plugs into the HCILearn front-end you
-already built, so the whole site actually works: accounts are real, logins
-are checked against a database, and progress on videos, the lesson, case
-studies and study cards is saved per-user instead of resetting on refresh.
+An HCI 2 study hub for UEP IT students. Students sign up, watch video
+lessons, read the course material, solve case-study scenarios and drill
+flashcards, and their progress is saved to their account.
 
-## What's inside
+## Features
 
-- **Node.js + Express** server that serves your existing HTML/CSS pages
-  *and* a small JSON API.
-- **SQLite** database (via `better-sqlite3`) — a single file, no database
-  server to install or configure. Perfect for a school project.
-- **bcrypt** password hashing — passwords are never stored in plain text.
-- **JWT stored in an httpOnly cookie** for login sessions (no separate
-  session table needed).
+| Page | What it does |
+|---|---|
+| **Login / Sign up** | Accounts with hashed passwords, "remember me", and forgot-password by email |
+| **Dashboard** | Overall progress ring, per-module stats, "up next" suggestion and recent activity |
+| **Watch Video** | YouTube lessons with search and filters; a video is marked watched automatically when it ends |
+| **Read Lesson** | Learning objectives, outline and expandable lessons with search and "jump to lesson" |
+| **Case Studies** | 50 scenarios that unlock one at a time as you answer correctly |
+| **Study Cards** | 11 flashcard decks; wrong answers come back until the deck is mastered |
+| **Account** | Edit profile, upload a photo, change password, delete account |
+
+Quizzes have sound effects (with a mute button) and confetti on correct
+answers. All animations turn off when the device has "reduce motion"
+enabled.
+
+## Tech stack
+
+- **Node.js + Express**: serves the pages in `public/` and a JSON API under `/api`
+- **PostgreSQL** (Supabase or Neon) via `pg`: tables are created automatically on startup
+- **Cloudinary**: profile photo storage
+- **bcrypt + JWT** in an httpOnly cookie for login sessions
+- **Nodemailer (Gmail) or Brevo API**: signup, login-alert and password-reset emails
+- Plain HTML, CSS and JavaScript on the front end (no build step)
+
+## Project structure
 
 ```
-hcilearn/
-├── server.js              # entry point
-├── package.json
-├── .env.example            # copy to .env
-├── data/                    # hcilearn.db is created here automatically
+hcilearn-platform/
+├── server.js                 # entry point, security headers, static files
 ├── src/
-│   ├── db.js                # creates all tables on first run
-│   ├── middleware/authGuard.js
-│   └── routes/
-│       ├── auth.js          # signup, login, logout, /me
-│       ├── account.js       # get/update profile, photo upload
-│       └── progress.js      # dashboard stats, videos, lesson, case studies, study cards
-└── public/                  # your front-end, lightly patched to call the API
-    ├── login.html, signup.html, Dashboard.html, Account.html, ...
-    ├── js/api.js             # shared fetch helper used by every page
-    └── uploads/              # profile photos land here
+│   ├── db.js                 # Postgres pool + table setup/migrations
+│   ├── middleware/
+│   │   ├── authGuard.js      # session cookie check
+│   │   └── rateLimit.js      # in-memory rate limiter
+│   ├── routes/
+│   │   ├── auth.js           # signup, login, logout, forgot/reset password, /me
+│   │   ├── account.js        # profile, photo upload, delete account
+│   │   └── progress.js       # dashboard summary + per-module progress
+│   └── utils/                # mailer, password rules, email hashing
+└── public/                   # front-end pages
+    ├── style.css             # shared stylesheet for every page
+    └── js/
+        ├── api.js            # fetch helper, auth check, sidebar
+        └── sfx.js            # quiz sounds + confetti
 ```
 
-## 1. Install
+## Running locally
 
-You'll need [Node.js](https://nodejs.org) 18 or newer.
+You need [Node.js](https://nodejs.org) 18+ and a Postgres database (a free
+[Supabase](https://supabase.com) project works).
 
 ```bash
-cd hcilearn
 npm install
-cp .env.example .env
+cp .env.example .env    # then fill in the values
+npm run dev             # restarts on file changes; use `npm start` otherwise
 ```
 
-Open `.env` and set `JWT_SECRET` to any long random string (this signs the
-login sessions).
+Open http://localhost:3000 and create an account. For local use, set
+`NODE_ENV=development` and `APP_URL=http://localhost:3000` in `.env`.
 
-## 2. Run it
+## Environment variables
+
+See [`.env.example`](.env.example) for the full list with comments.
+
+| Variable | Required | Purpose |
+|---|---|---|
+| `DATABASE_URL` | Yes | Postgres connection string |
+| `JWT_SECRET` | Yes (production) | Signs login cookies, 32+ characters |
+| `EMAIL_HASH_SECRET` | Yes | Hashes emails for lookup, 32+ characters. **Never change it once users exist** |
+| `APP_URL` | Yes (production) | Public site URL, used in password-reset links |
+| `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | For photos | Profile photo uploads |
+| `EMAIL_USER`, `EMAIL_PASS` | For email (option A) | Gmail address + App Password |
+| `BREVO_API_KEY`, `EMAIL_FROM` | For email (option B) | Needed on Render's free plan, which blocks SMTP |
+| `NODE_ENV` | No | `production` enables secure cookies |
+| `PORT` | No | Defaults to 3000 |
+
+Generate a secret with:
 
 ```bash
-npm start
+node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
 ```
 
-Then open **http://localhost:3000** in your browser. You'll land on the
-login page — click "Sign Up" to create the first account. The database
-file is created automatically at `data/hcilearn.db` the first time you run
-the server, so there's nothing to set up by hand.
+## API reference
 
-For development, `npm run dev` restarts the server automatically when you
-edit a file.
-
-## 3. How the pieces fit together
-
-### Accounts
-- `signup.html` → `POST /api/auth/signup` creates a user (password is
-  hashed with bcrypt) and logs them straight in.
-- `login.html` → `POST /api/auth/login` checks the email/password and sets
-  a secure, httpOnly cookie.
-- Every other page calls `requireAuth()` (from `public/js/api.js`) on load,
-  which pings `GET /api/auth/me` — if there's no valid session it bounces
-  the visitor back to `login.html`.
-- `Dashboard.html`'s "Log out" button calls `POST /api/auth/logout`, which
-  clears the cookie.
-
-### Account page
-- Loads the signed-in user's real profile into the form fields.
-- Saving calls `PUT /api/account`. Leave the password field blank to keep
-  the current password.
-- Choosing a new profile photo uploads it immediately to
-  `POST /api/account/photo` (stored in `public/uploads/`).
-
-### Progress tracking (this is the part that was missing entirely before)
-- **Watch Video**: the player page loads the YouTube IFrame API and calls
-  `POST /api/progress/videos/watch` automatically when a video finishes
-  (there's also a manual "Mark as Watched" button as a fallback). Watched
-  videos get a green "Watched" badge back on the video list.
-- **Read Lesson**: a "Mark Lesson as Completed" button at the bottom saves
-  completion via `POST /api/progress/lesson/complete`.
-- **Case Studies**: previously the unlocked level and solved scenarios
-  lived only in a JavaScript variable, so refreshing the page reset all 50
-  scenarios back to locked. Now `GET /api/progress/case-studies` loads your
-  real unlocked level + solved list on page load, and every correct answer
-  is saved with `POST /api/progress/case-studies/submit`.
-- **Study Cards**: same fix as Case Studies, for the 11 lessons —
-  `GET/POST /api/progress/study-cards...`.
-- **Dashboard**: `GET /api/progress/summary` powers the welcome banner, the
-  overall progress ring, the three stat counters, and the "Recent
-  Activities" list (pulled from an activity log that every completed
-  action writes to).
-
-## 4. API reference
-
-All endpoints are prefixed with `/api` and (except signup/login) require
-the login cookie, which the browser sends automatically thanks to
-`credentials: 'include'` in `public/js/api.js`.
+All paths start with `/api`. Everything except signup, login, logout and
+the password-reset routes requires the login cookie.
 
 | Method | Path | Purpose |
 |---|---|---|
-| POST | `/auth/signup` | Create an account `{fullName, yearSection, program, email, studentId, password}` |
-| POST | `/auth/login` | `{email, password}` |
-| POST | `/auth/logout` | Clears the session cookie |
-| GET | `/auth/me` | Current logged-in user |
+| POST | `/auth/signup` | Create an account |
+| POST | `/auth/login` | Log in |
+| POST | `/auth/logout` | Clear the session cookie |
+| POST | `/auth/forgot-password` | Email a reset link (valid 30 min, single use) |
+| POST | `/auth/reset-password` | Set a new password with the emailed token |
+| GET | `/auth/me` | Current user |
 | GET | `/account` | Current profile |
-| PUT | `/account` | Update profile fields / password |
-| POST | `/account/photo` | Multipart upload, field name `photo` |
+| PUT | `/account` | Update profile and/or password |
+| POST | `/account/photo` | Upload a photo (field `photo`; JPEG/PNG/WebP/GIF, max 3 MB) |
+| DELETE | `/account` | Delete the account and its progress |
 | GET | `/progress/summary` | Dashboard stats + recent activity |
-| GET | `/progress/case-studies` | `{unlockedLevel, solvedIds}` |
-| POST | `/progress/case-studies/submit` | `{scenarioId, correct}` |
-| GET | `/progress/study-cards` | `{unlockedLesson, completedIds}` |
-| POST | `/progress/study-cards/complete` | `{lessonId}` |
-| GET | `/progress/videos` | List of watched videos |
-| POST | `/progress/videos/watch` | `{videoId, title}` |
-| GET | `/progress/lesson` | `{completed, completedAt}` |
-| POST | `/progress/lesson/complete` | Marks the lesson page as read |
+| GET | `/progress/case-studies` | Unlocked level + solved scenarios |
+| POST | `/progress/case-studies/submit` | Save a correct answer |
+| GET | `/progress/study-cards` | Unlocked lesson + completed decks |
+| POST | `/progress/study-cards/complete` | Mark a deck as mastered |
+| GET | `/progress/videos` | Watched videos |
+| POST | `/progress/videos/watch` | Mark a video as watched |
+| GET | `/progress/lesson` | Lesson completion status |
+| POST | `/progress/lesson/complete` | Mark the lesson as read |
 
-## 5. Database schema
+## Database
 
-Six tables, created automatically by `src/db.js`:
+`src/db.js` creates these tables on first run (`CREATE TABLE IF NOT EXISTS`):
 
-- `users` — profile + hashed password
-- `case_study_progress` — one row per user: unlocked level (1–50) + JSON array of solved scenario ids
-- `study_card_progress` — one row per user: unlocked lesson (1–11) + JSON array of mastered lesson ids
-- `lesson_progress` — one row per user: whether the Read Lesson page is completed
-- `video_progress` — one row per (user, video) that's been watched
-- `activity_log` — feeds the Dashboard's "Recent Activities" list
+- `users`: profile, hashed password, hashed email, session version
+- `case_study_progress`, `study_card_progress`, `lesson_progress`, `video_progress`: per-user progress
+- `password_resets`: one-time reset tokens
+- `activity_log`: feeds "Recent Activities" on the Dashboard
 
-## 6. Notes & next steps
+## Security
 
-- The database file lives in `data/hcilearn.db`. Delete it (with the
-  server stopped) to start completely fresh.
-- If you ever deploy this somewhere real, set `NODE_ENV=production` in
-  `.env` so cookies are marked `secure` (HTTPS only), and put a real random
-  string in `JWT_SECRET`.
-- Everything runs on plain HTTP on localhost by default, which is fine for
-  local development and demos.
+- Passwords hashed with bcrypt; emails stored with an HMAC hash for lookup
+- Rate limits on signup, login, forgot/reset password and password changes
+- Changing or resetting a password signs out every other session
+- httpOnly, `SameSite` cookies (`Secure` in production)
+- Photo uploads checked for type and size before going to Cloudinary
 
-## Email notifications
+## Deployment
 
-| Event | Email sent to the user |
-|-------|------------------------|
-| Sign up | "Welcome — your account was created" |
-| Log in | "Security alert: new login" |
-| Forgot password | Reset link (valid 30 min, single use) |
-| Password reset done | "Your password was changed" |
-
-Forgot-password flow: `login.html` → `POST /api/auth/forgot-password` → email with
-`update-password.html?token=...` → `POST /api/auth/reset-password`.
-Set `APP_URL`, and either `EMAIL_USER`/`EMAIL_PASS` (Gmail App Password) or
-`BREVO_API_KEY`/`EMAIL_FROM` — see `.env.example`.
+The app is set up for **Render** (web service) + **Supabase** (database) +
+**Cloudinary** (photos), all on free plans. Step-by-step instructions are in
+[DEPLOY-GUIDE.md](DEPLOY-GUIDE.md).

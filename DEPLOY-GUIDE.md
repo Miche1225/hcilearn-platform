@@ -22,7 +22,7 @@ sa Supabase at Cloudinary — hindi na sa disk ng server mismo.
 
 ## 3. I-deploy sa Render
 
-1. I-push ang code na ito (kasama ang mga binagong file) sa isang GitHub repo.
+1. I-push ang code na ito sa isang GitHub repo.
 2. Sa https://render.com, gumawa ng bagong **Web Service**, ikonekta ang repo mo.
 3. Settings:
    - **Build command:** `npm install`
@@ -30,10 +30,22 @@ sa Supabase at Cloudinary — hindi na sa disk ng server mismo.
 4. Sa **Environment** tab, idagdag ang mga sumusunod (huwag i-commit ang mga ito sa
    Git — dito lang sila ilalagay, sa dashboard ng Render):
    - `DATABASE_URL` = yung Supabase connection string mo
-   - `JWT_SECRET` = kahit anong mahabang random string
+   - `JWT_SECRET` = mahabang random string (hindi bababa sa 32 characters)
+   - `EMAIL_HASH_SECRET` = isa pang mahabang random string (32+ characters).
+     **Huwag na itong palitan kapag may users na**, kundi hindi na sila
+     makakapag-login gamit ang email nila.
    - `NODE_ENV` = `production`
+   - `APP_URL` = ang Render URL mo (hal. `https://your-app.onrender.com`), para
+     tama ang link sa "reset password" email
    - `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` = mula
      sa Cloudinary dashboard
+   - `BREVO_API_KEY` at `EMAIL_FROM` = para sa mga email (signup, login alert,
+     forgot password). Kailangan ang Brevo sa **free** Render dahil naka-block
+     doon ang Gmail SMTP. Kumuha ng libreng key sa https://brevo.com
+     (SMTP & API > API Keys), at gumamit ng sender email na na-verify mo sa Brevo.
+
+   Para gumawa ng random string para sa mga secret:
+   `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`
 5. I-deploy. Sa unang pag-start, awtomatikong gagawin ni `src/db.js` ang lahat ng
    tables sa Supabase (`CREATE TABLE IF NOT EXISTS...`) — hindi mo na kailangan
    manual mag-run ng SQL.
@@ -42,6 +54,8 @@ sa Supabase at Cloudinary — hindi na sa disk ng server mismo.
 
 - Buksan ang Render URL mo, mag-sign up ng test account, mag-unlock ng case study o
   video, i-upload ang isang profile photo.
+- Subukan ang "Forgot password" para makita kung dumarating ang email at gumagana
+  ang reset link.
 - Hintayin ~15 minuto nang walang activity (para matulog ang free Render service),
   pagkatapos mag-request ulit (gagawa ito ng "cold start" na 30–50 segundo). Dapat
   naka-login ka pa rin at buo pa rin ang progress mo — dahil hindi na naka-depende
