@@ -29,17 +29,21 @@
     document.querySelectorAll('[data-theme-toggle]').forEach(renderButton);
   }
 
+  // The toggle is an on/off switch: on = dark mode
   function renderButton(btn) {
     var dark = current() === 'dark';
-    var label = dark ? 'Light mode' : 'Dark mode';
-    var icon = dark ? 'fa-sun' : 'fa-moon';
+    var knobIcon = dark ? 'fa-moon' : 'fa-sun';
+    var track = '<span class="theme-switch" aria-hidden="true">' +
+      '<span class="theme-switch-knob"><i class="fa-solid ' + knobIcon + '"></i></span></span>';
     if (btn.classList.contains('nav-item')) {
-      btn.innerHTML = '<i class="fa-solid ' + icon + '"></i> <span class="nav-text">' + label + '</span>';
+      btn.innerHTML = '<i class="fa-solid fa-moon"></i> <span class="nav-text">Dark mode</span>' + track;
     } else {
-      btn.innerHTML = '<i class="fa-solid ' + icon + '"></i>';
+      btn.innerHTML = '<i class="fa-solid fa-sun theme-fab-sun" aria-hidden="true"></i>' +
+        '<i class="fa-solid fa-moon theme-fab-moon" aria-hidden="true"></i>' + track;
     }
-    btn.setAttribute('aria-label', 'Switch to ' + label.toLowerCase());
-    btn.title = 'Switch to ' + label.toLowerCase();
+    btn.classList.toggle('is-on', dark);
+    btn.setAttribute('aria-checked', dark ? 'true' : 'false');
+    btn.title = dark ? 'Dark mode is on' : 'Dark mode is off';
   }
 
   function toggle() {
@@ -66,6 +70,8 @@
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.setAttribute('data-theme-toggle', '');
+    btn.setAttribute('role', 'switch');
+    btn.setAttribute('aria-label', 'Dark mode');
 
     if (nav) {
       btn.className = 'nav-item theme-toggle';
