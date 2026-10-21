@@ -10,8 +10,8 @@
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
-    <link rel="stylesheet" href="style.css?v=38">
-    <link rel="stylesheet" href="dark.css?v=1">
+    <link rel="stylesheet" href="style.css?v=40">
+    <link rel="stylesheet" href="dark.css?v=3">
     <script src="js/theme.js?v=1"></script>
 
     <link
@@ -138,6 +138,21 @@
 
                 </div>
 
+
+                <!-- Badges (pinupuno ng loadBadges()) -->
+                <div class="acct-card acct-badges" id="badges">
+                    <div class="acct-card-head">
+                        <div class="acct-card-icon"><i class="fa-solid fa-medal"></i></div>
+                        <div>
+                            <h3>Badges</h3>
+                            <p id="badgeSummary">Earn badges by studying, finishing decks and keeping your streak.</p>
+                        </div>
+                        <span class="acct-streak-chip" id="acctStreak" hidden><i class="fa-solid fa-fire"></i> <span></span></span>
+                    </div>
+                    <div class="badge-grid" id="badgeGrid">
+                        <p class="badge-loading"><span class="btn-spinner"></span> Loading badges...</p>
+                    </div>
+                </div>
 
                 <!-- Message -->
                 <div id="accountMsg" class="acct-alert" role="status" hidden></div>
@@ -295,6 +310,9 @@
 
 
     <script src="js/api.js?v=7"></script>
+    <script src="js/sfx.js?v=5"></script>
+    <script src="js/gamify.js?v=1"></script>
+    <script src="js/search.js?v=2"></script>
 
 
     <script>
@@ -669,6 +687,55 @@
 
         loadAccount();
 
+    </script>
+
+    <script>
+        /* =================================================
+           BADGES
+           ================================================= */
+
+        function renderBadges(data) {
+            const grid = document.getElementById('badgeGrid');
+            const earnedCount = data.badges.filter(b => b.earned).length;
+            document.getElementById('badgeSummary').textContent =
+                `${earnedCount} of ${data.badges.length} earned. Keep studying to unlock the rest!`;
+
+            const streakChip = document.getElementById('acctStreak');
+            streakChip.hidden = data.streak.current === 0;
+            streakChip.querySelector('span').textContent = `${data.streak.current}-day streak`;
+
+            grid.innerHTML = '';
+            data.badges.forEach(b => {
+                const tile = document.createElement('div');
+                tile.className = `badge-tile badge-${b.color}${b.earned ? ' is-earned' : ''}`;
+                tile.innerHTML = `
+                    <div class="badge-tile-icon"><i class="fa-solid ${b.icon}"></i>${b.earned ? '' : '<span class="badge-lock"><i class="fa-solid fa-lock"></i></span>'}</div>
+                    <strong></strong>
+                    <span class="badge-desc"></span>
+                    <div class="badge-progress"><div></div></div>
+                    <small class="badge-state"></small>`;
+                tile.querySelector('strong').textContent = b.name;
+                tile.querySelector('.badge-desc').textContent = b.description;
+                tile.querySelector('.badge-progress div').style.width = `${(b.progress / b.target) * 100}%`;
+                tile.querySelector('.badge-state').textContent = b.earned
+                    ? `Earned ${new Date(b.earnedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}`
+                    : `${b.progress} / ${b.target}`;
+                grid.appendChild(tile);
+            });
+        }
+
+        api.get('/gamify/summary')
+            .then(data => {
+                renderBadges(data);
+                HCIGamify.celebrate(data.newBadges);
+                if (window.location.hash === '#badges') {
+                    document.getElementById('badges').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            })
+            .catch(() => {
+                document.getElementById('badgeGrid').innerHTML =
+                    '<p class="badge-loading"><i class="fa-solid fa-circle-exclamation"></i> Could not load badges. Please refresh the page.</p>';
+            });
     </script>
 
 </body>

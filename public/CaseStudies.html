@@ -10,8 +10,8 @@
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
     <!-- Link to the separated CSS file -->
-    <link rel="stylesheet" href="style.css?v=38">
-    <link rel="stylesheet" href="dark.css?v=1">
+    <link rel="stylesheet" href="style.css?v=40">
+    <link rel="stylesheet" href="dark.css?v=3">
     <script src="js/theme.js?v=1"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
@@ -21,7 +21,9 @@
     </noscript>
 
     <script src="js/api.js?v=7"></script>
-    <script src="js/sfx.js?v=4"></script>
+    <script src="js/gamify.js?v=1"></script>
+    <script src="js/search.js?v=2"></script>
+    <script src="js/sfx.js?v=5"></script>
     <script>
         requireAuth();
         document.addEventListener('DOMContentLoaded', function() {
@@ -281,7 +283,29 @@
                 mistakeIds = mistakes.mistakes.map(m => Number(m.itemKey));
             }
             renderScenariosList();
+            openFromHash();
         });
+
+        // Link mula sa Quick Search (CaseStudies.html#scenario-12):
+        // buksan kung unlocked na, kung hindi ipakita lang ang card
+        function openFromHash() {
+            const match = /^#scenario-(\d+)$/.exec(window.location.hash);
+            if (!match) return;
+            const id = Number(match[1]);
+            if (id < 1 || id > TOTAL_SCENARIOS) return;
+            if (id <= unlockedLevel) {
+                reviewQueue = null;
+                openScenario(id);
+                return;
+            }
+            closeScenario();
+            const card = document.getElementById(`scenario-${id}`);
+            if (!card) return;
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            card.classList.add('is-highlighted');
+            setTimeout(() => card.classList.remove('is-highlighted'), 2200);
+        }
+        window.addEventListener('hashchange', openFromHash);
 
         function recordMistake(id) {
             if (!mistakeIds.includes(id)) mistakeIds = [...mistakeIds, id];
@@ -292,6 +316,7 @@
         function clearMistake(id) {
             mistakeIds = mistakeIds.filter(m => m !== id);
             api.post('/progress/mistakes/resolve', { source: 'case_study', itemKey: String(id) })
+                .then(() => HCIGamify.record('cleared'))
                 .catch(err => console.error('Could not clear mistake:', err));
         }
 
@@ -335,6 +360,7 @@
                 // CHANGED: Gumamit ng 'scenario-card' para basahin yung magandang background sa CSS
                 const scenarioDiv = document.createElement(isUnlocked ? 'button' : 'div');
                 scenarioDiv.className = `scenario-card ${isUnlocked ? 'unlocked' : 'locked'} is-${state}`;
+                scenarioDiv.id = `scenario-${i}`;
                 if (isUnlocked) scenarioDiv.type = 'button';
                 else scenarioDiv.title = `Solve Scenario ${i - 1} to unlock`;
 
@@ -547,12 +573,15 @@
                         solvedIds = result.solvedIds;
                         renderScenariosList();
                     })
-                    .catch(err => console.error('Could not save case study progress:', err));
+                    .catch(err => console.error('Could not save case study progress:', err))
+                    // Streak / daily goal / badges (pagkatapos ma-save para tama ang bilang)
+                    .then(() => HCIGamify.record('answer', true));
                 renderScenariosList();
             } else {
                 // MALI ANG SAGOT Logic
                 labels[selectedAnswer].classList.add('wrong-answer');
                 HCISfx.play('wrong');
+                HCIGamify.record('answer', false);
 
                 // Itala para sa "Review mistakes" (isang beses lang bawat bukas)
                 if (!missedThisAttempt) {

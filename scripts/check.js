@@ -5,6 +5,7 @@
 //   1. every .js file in the project parses
 //   2. every inline <script> in public/*.html parses
 //   3. public/dark.css is up to date with style.css
+//   4. public/search-index.json is up to date with the page content
 
 const fs = require('fs');
 const path = require('path');
@@ -54,10 +55,12 @@ for (const file of htmlFiles) {
 }
 console.log(`Checked ${inlineCount} inline scripts in ${htmlFiles.length} pages.`);
 
-// 3. Generated dark mode CSS
-const dark = spawnSync(process.execPath, [path.join(__dirname, 'build-dark-css.js'), '--check'], { encoding: 'utf8' });
-if (dark.status !== 0) fail(dark.stderr.trim() || 'dark.css check failed');
-else console.log(dark.stdout.trim());
+// 3 + 4. Generated files are up to date
+for (const script of ['build-dark-css.js', 'build-search-index.js']) {
+  const result = spawnSync(process.execPath, [path.join(__dirname, script), '--check'], { encoding: 'utf8' });
+  if (result.status !== 0) fail(result.stderr.trim() || `${script} --check failed`);
+  else console.log(result.stdout.trim());
+}
 
 if (failures) {
   console.error(`\n${failures} check(s) failed.`);

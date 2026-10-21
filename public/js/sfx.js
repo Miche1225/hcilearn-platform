@@ -6,7 +6,8 @@
 //
 // Usage:   HCISfx.play('correct' | 'wrong' | 'levelUp' | 'mastered')            (Case Studies)
 //          HCISfx.play('cardCorrect' | 'cardWrong' | 'cardMastered')             (Study Cards)
-// May maliit na mute button (kanang-itaas) na naaalala ng browser.
+// May maliit na mute button (kanang-itaas) sa Case Studies at Study Cards
+// na naaalala ng browser. Sa ibang pages, confetti lang ang ginagamit.
 
 (function () {
   'use strict';
@@ -207,6 +208,8 @@
 
   function mountButton() {
     if (document.getElementById('sfxToggle')) return;
+    // Other pages load this file only for the confetti (badge pop-ups)
+    if (!document.body.matches('.case-page, .study-page')) return;
 
     var btn = document.createElement('button');
     btn.id = 'sfxToggle';

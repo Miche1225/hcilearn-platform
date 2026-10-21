@@ -9,8 +9,8 @@
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
-    <link rel="stylesheet" href="style.css?v=38">
-    <link rel="stylesheet" href="dark.css?v=1">
+    <link rel="stylesheet" href="style.css?v=40">
+    <link rel="stylesheet" href="dark.css?v=3">
     <script src="js/theme.js?v=1"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
@@ -20,7 +20,9 @@
     </noscript>
 
     <script src="js/api.js?v=7"></script>
-    <script src="js/sfx.js?v=4"></script>
+    <script src="js/gamify.js?v=1"></script>
+    <script src="js/search.js?v=2"></script>
+    <script src="js/sfx.js?v=5"></script>
     <script>
         requireAuth();
         document.addEventListener('DOMContentLoaded', function() {
@@ -394,7 +396,21 @@
                 });
             }
             applyLessonLockState();
+            showDeckFromHash();
         }
+
+        // Link mula sa Quick Search (StudyCards.html#deck-3): ipakita ang deck
+        function showDeckFromHash() {
+            const match = /^#deck-(\d+)$/.exec(window.location.hash);
+            if (!match) return;
+            if (document.getElementById('quizView').style.display === 'block') exitQuiz();
+            const deck = document.getElementById(`deck-${match[1]}`);
+            if (!deck) return;
+            deck.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            deck.classList.add('is-highlighted');
+            setTimeout(() => deck.classList.remove('is-highlighted'), 2200);
+        }
+        window.addEventListener('hashchange', showDeckFromHash);
 
         function recordMistake(card) {
             const key = cardKey(card);
@@ -407,6 +423,7 @@
             const key = cardKey(card);
             mistakeKeys = mistakeKeys.filter(k => k !== key);
             api.post('/progress/mistakes/resolve', { source: 'study_card', itemKey: key })
+                .then(() => HCIGamify.record('cleared'))
                 .catch(err => console.error('Could not clear mistake:', err));
         }
 
@@ -457,6 +474,7 @@
 
                 const deck = document.createElement(isUnlocked ? 'button' : 'div');
                 deck.className = `deck is-${state}`;
+                deck.id = `deck-${i}`;
                 if (isUnlocked) {
                     deck.type = 'button';
                     deck.onclick = () => startQuiz(i);
@@ -613,6 +631,7 @@
                 questionQueue.shift();
                 // Fanfare kapag huling tanong na (na-master na ang lesson), chime kung hindi pa
                 HCISfx.play(questionQueue.length === 0 ? 'cardMastered' : 'cardCorrect');
+                HCIGamify.record('answer', true);
 
                 // Review mode: tama sa unang subok ngayong round = cleared na
                 if (reviewMode && !missedThisRound.has(cardKey(card))) {
@@ -625,6 +644,7 @@
                 // MALI ANG SAGOT
                 selectedLabel.classList.add("wrong-answer");
                 HCISfx.play('cardWrong');
+                HCIGamify.record('answer', false);
 
                 // Itala para sa "Review my mistakes" (isang beses lang bawat round)
                 if (!missedThisRound.has(cardKey(card))) {
@@ -689,7 +709,9 @@
                     completedIds = result.completedIds;
                     applyLessonLockState();
                 })
-                .catch(err => console.error('Could not save study card progress:', err));
+                .catch(err => console.error('Could not save study card progress:', err))
+                // Badges (hal. Deck Master) pagkatapos ma-save ang deck
+                .then(() => HCIGamify.check());
             applyLessonLockState();
         }
 
