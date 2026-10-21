@@ -10,15 +10,17 @@ flashcards, and their progress is saved to their account.
 |---|---|
 | **Login / Sign up** | Accounts with hashed passwords, "remember me", and forgot-password by email |
 | **Dashboard** | Overall progress ring, per-module stats, "up next" suggestion and recent activity |
-| **Watch Video** | YouTube lessons with search and filters; a video is marked watched automatically when it ends |
-| **Read Lesson** | Learning objectives, outline and expandable lessons with search and "jump to lesson" |
-| **Case Studies** | 50 scenarios that unlock one at a time as you answer correctly |
-| **Study Cards** | 11 flashcard decks; wrong answers come back until the deck is mastered |
+| **Watch Video** | YouTube lessons with search and filters; a video is marked watched automatically when it ends, and resumes where you left off |
+| **Read Lesson** | Learning objectives, outline and expandable lessons with search and "jump to lesson"; any topic can be saved with a note |
+| **Case Studies** | 50 scenarios that unlock one at a time as you answer correctly, plus "Review mistakes" |
+| **Study Cards** | 11 flashcard decks; wrong answers come back until the deck is mastered, plus a "Review my mistakes" deck |
+| **Saved** | Bookmarked topics and videos with personal notes; search, filter, edit and remove |
 | **Account** | Edit profile, upload a photo, change password, delete account |
 
 Quizzes have sound effects (with a mute button) and confetti on correct
-answers. All animations turn off when the device has "reduce motion"
-enabled.
+answers. Every page has a **dark mode** (menu item, or the round button on
+the login pages); it follows the device setting until the user picks one.
+All animations turn off when the device has "reduce motion" enabled.
 
 ## Tech stack
 
@@ -27,7 +29,8 @@ enabled.
 - **Cloudinary**: profile photo storage
 - **bcrypt + JWT** in an httpOnly cookie for login sessions
 - **Nodemailer (Gmail) or Brevo API**: signup, login-alert and password-reset emails
-- Plain HTML, CSS and JavaScript on the front end (no build step)
+- Plain HTML, CSS and JavaScript on the front end (the only build step is
+  regenerating `dark.css`, see below)
 
 ## Project structure
 
@@ -42,12 +45,20 @@ hcilearn-platform/
 │   ├── routes/
 │   │   ├── auth.js           # signup, login, logout, forgot/reset password, /me
 │   │   ├── account.js        # profile, photo upload, delete account
-│   │   └── progress.js       # dashboard summary + per-module progress
+│   │   ├── progress.js       # dashboard summary, per-module progress, video positions, mistakes
+│   │   └── bookmarks.js      # saved topics/videos + notes
+│   ├── content.js            # course content the server validates against (videos, totals)
 │   └── utils/                # mailer, password rules, email hashing
+├── scripts/
+│   ├── build-dark-css.js     # generates public/dark.css from style.css
+│   └── dark-manual.css       # hand-written dark mode fixes
 └── public/                   # front-end pages
     ├── style.css             # shared stylesheet for every page
+    ├── dark.css              # dark mode (generated, don't edit by hand)
     └── js/
         ├── api.js            # fetch helper, auth check, sidebar
+        ├── theme.js          # light/dark mode switch
+        ├── bookmarks.js      # bookmarks + note dialog
         └── sfx.js            # quiz sounds + confetti
 ```
 
@@ -64,6 +75,19 @@ npm run dev             # restarts on file changes; use `npm start` otherwise
 
 Open http://localhost:3000 and create an account. For local use, set
 `NODE_ENV=development` and `APP_URL=http://localhost:3000` in `.env`.
+
+### Dark mode CSS
+
+`public/dark.css` is generated from `style.css`: light backgrounds become dark
+surfaces and dark text becomes light, keeping each colour's hue. **After
+changing `style.css`, run:**
+
+```bash
+npm run build:dark
+```
+
+For anything the generator gets wrong, add a rule to `scripts/dark-manual.css`
+(it is appended to the end of `dark.css`) and run the command again.
 
 ## Environment variables
 
@@ -109,10 +133,17 @@ the password-reset routes requires the login cookie.
 | POST | `/progress/case-studies/submit` | Save a correct answer |
 | GET | `/progress/study-cards` | Unlocked lesson + completed decks |
 | POST | `/progress/study-cards/complete` | Mark a deck as mastered |
-| GET | `/progress/videos` | Watched videos |
+| GET | `/progress/videos` | Watched videos + saved playback positions |
 | POST | `/progress/videos/watch` | Mark a video as watched |
 | GET | `/progress/lesson` | Lesson completion status |
 | POST | `/progress/lesson/complete` | Mark the lesson as read |
+| PUT | `/progress/videos/position` | Remember where the user stopped in a video |
+| GET | `/progress/mistakes?source=` | Missed questions (`case_study` or `study_card`) |
+| POST | `/progress/mistakes` | Record a wrong answer |
+| POST | `/progress/mistakes/resolve` | Clear a mistake (answered right in review) |
+| GET | `/bookmarks` | Saved topics and videos |
+| PUT | `/bookmarks` | Save an item or update its note |
+| DELETE | `/bookmarks/:id` | Remove a saved item |
 
 ## Database
 
@@ -122,6 +153,9 @@ the password-reset routes requires the login cookie.
 - `case_study_progress`, `study_card_progress`, `lesson_progress`, `video_progress`: per-user progress
 - `password_resets`: one-time reset tokens
 - `activity_log`: feeds "Recent Activities" on the Dashboard
+- `video_positions`: where each user stopped in each video
+- `mistakes`: questions answered wrong, for "Review my mistakes"
+- `bookmarks`: saved topics/videos with notes
 
 ## Security
 

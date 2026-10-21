@@ -237,6 +237,123 @@ async function init() {
                 DEFAULT NOW()
         );
 
+
+        /* Where the user stopped in each video ("Resume where you left off"). */
+        CREATE TABLE IF NOT EXISTS video_positions (
+
+            user_id
+                INTEGER
+                NOT NULL
+                REFERENCES users(id)
+                ON DELETE CASCADE,
+
+            video_id
+                TEXT
+                NOT NULL,
+
+            position_seconds
+                INTEGER
+                NOT NULL,
+
+            duration_seconds
+                INTEGER
+                NOT NULL,
+
+            updated_at
+                TIMESTAMPTZ
+                NOT NULL
+                DEFAULT NOW(),
+
+            PRIMARY KEY (
+                user_id,
+                video_id
+            )
+        );
+
+
+        /* Questions answered wrong, for "Review my mistakes".
+           source = 'case_study' (item_key "12") or 'study_card' (item_key "3-7"). */
+        CREATE TABLE IF NOT EXISTS mistakes (
+
+            user_id
+                INTEGER
+                NOT NULL
+                REFERENCES users(id)
+                ON DELETE CASCADE,
+
+            source
+                TEXT
+                NOT NULL,
+
+            item_key
+                TEXT
+                NOT NULL,
+
+            wrong_count
+                INTEGER
+                NOT NULL
+                DEFAULT 1,
+
+            last_wrong_at
+                TIMESTAMPTZ
+                NOT NULL
+                DEFAULT NOW(),
+
+            PRIMARY KEY (
+                user_id,
+                source,
+                item_key
+            )
+        );
+
+
+        /* Saved lesson topics / videos with an optional personal note. */
+        CREATE TABLE IF NOT EXISTS bookmarks (
+
+            id
+                SERIAL
+                PRIMARY KEY,
+
+            user_id
+                INTEGER
+                NOT NULL
+                REFERENCES users(id)
+                ON DELETE CASCADE,
+
+            kind
+                TEXT
+                NOT NULL,
+
+            item_key
+                TEXT
+                NOT NULL,
+
+            title
+                TEXT
+                NOT NULL,
+
+            note
+                TEXT
+                NOT NULL
+                DEFAULT '',
+
+            created_at
+                TIMESTAMPTZ
+                NOT NULL
+                DEFAULT NOW(),
+
+            updated_at
+                TIMESTAMPTZ
+                NOT NULL
+                DEFAULT NOW(),
+
+            UNIQUE (
+                user_id,
+                kind,
+                item_key
+            )
+        );
+
     `);
 
 

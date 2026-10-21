@@ -10,6 +10,7 @@ const { ready } = require('./src/db'); // resolves once Postgres tables exist
 const authRoutes = require('./src/routes/auth');
 const accountRoutes = require('./src/routes/account');
 const progressRoutes = require('./src/routes/progress');
+const bookmarkRoutes = require('./src/routes/bookmarks');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -51,6 +52,7 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/account', accountRoutes);
 app.use('/api/progress', progressRoutes);
+app.use('/api/bookmarks', bookmarkRoutes);
 
 // ----- Static front-end -----
 app.use(express.static(path.join(__dirname, 'public')));

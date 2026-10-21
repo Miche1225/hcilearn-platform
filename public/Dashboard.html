@@ -9,7 +9,9 @@
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
-    <link rel="stylesheet" href="style.css?v=37">
+    <link rel="stylesheet" href="style.css?v=38">
+    <link rel="stylesheet" href="dark.css?v=1">
+    <script src="js/theme.js?v=1"></script>
     <!-- FontAwesome for the input icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -50,6 +52,9 @@
                     <i class="fa-solid fa-rotate"></i> <span class="nav-text">Study Cards</span>
                 </a>
                 <span class="sidebar-label sidebar-label-group">You</span>
+                <a href="Saved.html" class="nav-item">
+                    <i class="fa-solid fa-bookmark"></i> <span class="nav-text">Saved</span>
+                </a>
                 <a href="Account.html" class="nav-item">
                     <i class="fa-solid fa-circle-user"></i> <span class="nav-text">Account</span>
                 </a>
@@ -238,7 +243,7 @@
         </main>
     </div>
 
-    <script src="js/api.js?v=6"></script>
+    <script src="js/api.js?v=7"></script>
     <script>
         const ACTIVITY_ICONS = {
             video: 'fa-play',
@@ -362,7 +367,7 @@
                 const value = target * eased;
                 label.textContent = `${Math.round(value)}%`;
                 if (ring) {
-                    ring.style.background = `conic-gradient(#1e7e45 ${value * 3.6}deg, #e0e0e0 0deg)`;
+                    ring.style.background = `conic-gradient(#1e7e45 ${value * 3.6}deg, var(--ring-track, #e0e0e0) 0deg)`;
                 }
                 if (t < 1) requestAnimationFrame(frame);
             }

@@ -9,7 +9,9 @@
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
-    <link rel="stylesheet" href="style.css?v=37">
+    <link rel="stylesheet" href="style.css?v=38">
+    <link rel="stylesheet" href="dark.css?v=1">
+    <script src="js/theme.js?v=1"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="lesson-page">
@@ -17,7 +19,8 @@
         <div class="noscript-note">HCILearn needs JavaScript to work. Please turn it on in your browser settings.</div>
     </noscript>
 
-    <script src="js/api.js?v=6"></script>
+    <script src="js/api.js?v=7"></script>
+    <script src="js/bookmarks.js?v=1"></script>
     <script>
         requireAuth();
         document.addEventListener('DOMContentLoaded', function() {
@@ -60,6 +63,9 @@
                     <i class="fa-solid fa-rotate"></i> <span class="nav-text">Study Cards</span>
                 </a>
                 <span class="sidebar-label sidebar-label-group">You</span>
+                <a href="Saved.html" class="nav-item">
+                    <i class="fa-solid fa-bookmark"></i> <span class="nav-text">Saved</span>
+                </a>
                 <a href="Account.html" class="nav-item">
                     <i class="fa-solid fa-circle-user"></i> <span class="nav-text">Account</span>
                 </a>
@@ -4254,6 +4260,86 @@
             // Linisin ang lumang "read topics" data na hindi na ginagamit
             try { localStorage.removeItem('readLessonTopics'); } catch (e) { }
 
+            // Search text ng bawat topic (kinuha bago idagdag ang bookmark buttons,
+            // para hindi lumabas sa search ang "Save topic" / "Add note")
+            const searchTexts = [...accordionItems].map(item => normalizeText(item.textContent));
+
+
+            // ========================================================
+            // 1b. BOOKMARKS + NOTES SA BAWAT TOPIC
+            // ========================================================
+            accordionItems.forEach((item, index) => {
+                const topicNum = String(index + 1);
+                const title = item.querySelector('.topic-title').dataset.original;
+                item.id = `topic-${topicNum}`;
+
+                // Maliit na bookmark icon sa title kapag naka-save
+                const mark = document.createElement('i');
+                mark.className = 'fa-solid fa-bookmark topic-saved-mark';
+                mark.hidden = true;
+                mark.setAttribute('aria-label', 'Saved');
+                item.querySelector('.topic-title').after(mark);
+
+                const tools = document.createElement('div');
+                tools.className = 'topic-tools';
+                tools.innerHTML = `
+                    <div class="player-tool-buttons">
+                        <button type="button" class="tool-btn bm-toggle" aria-pressed="false"></button>
+                        <button type="button" class="tool-btn bm-note"></button>
+                    </div>
+                    <div class="saved-note" hidden>
+                        <strong><i class="fa-solid fa-note-sticky"></i> My note</strong>
+                        <p></p>
+                    </div>`;
+                item.querySelector('.accordion-content').prepend(tools);
+
+                const toggleBtn = tools.querySelector('.bm-toggle');
+                const noteBtn = tools.querySelector('.bm-note');
+
+                const render = () => {
+                    const saved = HCIBookmarks.get('lesson', topicNum);
+                    mark.hidden = !saved;
+                    toggleBtn.classList.toggle('is-active', !!saved);
+                    toggleBtn.setAttribute('aria-pressed', saved ? 'true' : 'false');
+                    toggleBtn.innerHTML = saved
+                        ? '<i class="fa-solid fa-bookmark"></i> <span>Saved</span>'
+                        : '<i class="fa-regular fa-bookmark"></i> <span>Save topic</span>';
+                    const note = saved ? saved.note : '';
+                    noteBtn.innerHTML = `<i class="fa-regular fa-pen-to-square"></i> <span>${note ? 'Edit note' : 'Add note'}</span>`;
+                    tools.querySelector('.saved-note').hidden = !note;
+                    tools.querySelector('.saved-note p').textContent = note;
+                };
+                item._renderBookmark = render;
+                render();
+
+                toggleBtn.addEventListener('click', async () => {
+                    toggleBtn.disabled = true;
+                    try {
+                        const saved = await HCIBookmarks.toggle('lesson', topicNum, title);
+                        HCIBookmarks.toast(saved ? 'Topic saved' : 'Removed from Saved');
+                    } catch (err) {
+                        HCIBookmarks.toast(err.message, 'fa-circle-exclamation');
+                    } finally {
+                        toggleBtn.disabled = false;
+                        render();
+                    }
+                });
+
+                noteBtn.addEventListener('click', async () => {
+                    try {
+                        const saved = await HCIBookmarks.editNote('lesson', topicNum, title);
+                        if (saved) HCIBookmarks.toast('Note saved', 'fa-pen-to-square');
+                    } catch (err) {
+                        HCIBookmarks.toast(err.message, 'fa-circle-exclamation');
+                    }
+                    render();
+                });
+            });
+
+            HCIBookmarks.load()
+                .then(() => accordionItems.forEach(item => item._renderBookmark()))
+                .catch(() => {});
+
 
             // ========================================================
             // 2. LOGIC PARA SA ACCORDION (Pampabuka ng mga Lessons)
@@ -4309,9 +4395,9 @@
                 const filterText = normalizeText(raw);
                 let visible = 0;
 
-                accordionItems.forEach(item => {
+                accordionItems.forEach((item, index) => {
                     // Idaan din sa translator ang title at laman ng lesson
-                    const matches = normalizeText(item.textContent).includes(filterText);
+                    const matches = searchTexts[index].includes(filterText);
                     item.style.display = matches ? '' : 'none';
                     if (matches) visible++;
                     highlightTitle(item.querySelector('.topic-title'), raw);
@@ -4359,6 +4445,22 @@
                 scroller.scrollTo({ top: 0, behavior: 'smooth' });
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
+
+
+            // ========================================================
+            // 5. LINK MULA SA "SAVED" PAGE (ReadLesson.html#topic-12)
+            // ========================================================
+            function openFromHash() {
+                const match = /^#topic-(\d+)$/.exec(window.location.hash);
+                const item = match && document.getElementById(`topic-${match[1]}`);
+                if (!item) return;
+                setOpen(item, true);
+                item.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                item.classList.add('is-highlighted');
+                setTimeout(() => item.classList.remove('is-highlighted'), 2000);
+            }
+            openFromHash();
+            window.addEventListener('hashchange', openFromHash);
 
         });
 

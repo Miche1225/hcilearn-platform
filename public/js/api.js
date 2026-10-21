@@ -27,6 +27,7 @@ const api = {
   get: (url) => apiRequest('GET', url),
   post: (url, body) => apiRequest('POST', url, body),
   put: (url, body) => apiRequest('PUT', url, body),
+  del: (url) => apiRequest('DELETE', url),
 };
 
 // Call at the top of every protected page. Redirects to login if the
