@@ -3553,6 +3553,58 @@
 :root[data-theme="dark"] .instructor-list .admin-list-text strong small {
     color: #9a95b0;
 }
+:root[data-theme="dark"] .notif-count {
+    border: 2px solid #3d2a8a;
+    background: #ff4d6d;
+    color: #fff;
+}
+:root[data-theme="dark"] .notif-panel {
+    background: hsl(250 14% 17%);
+    box-shadow: 0 24px 60px rgba(20, 16, 45, 0.3);
+}
+:root[data-theme="dark"] .notif-head {
+    border-bottom: 2px solid hsl(253 36% 20%);
+    color: hsl(250 49% 87%);
+}
+:root[data-theme="dark"] .notif-head b i {
+    color: var(--fun-coral);
+}
+:root[data-theme="dark"] .notif-item.is-unread {
+    background: hsl(48 45% 21%);
+}
+:root[data-theme="dark"] .notif-icon {
+    background: linear-gradient(135deg, var(--fun-sun), var(--fun-coral));
+    color: #fff;
+}
+:root[data-theme="dark"] .notif-text strong {
+    color: hsl(250 49% 87%);
+}
+:root[data-theme="dark"] .notif-text p {
+    color: hsl(250 12% 78%);
+}
+:root[data-theme="dark"] .notif-text small {
+    color: #999;
+}
+:root[data-theme="dark"] .notif-new {
+    background: #ff4d6d;
+    color: #fff;
+}
+:root[data-theme="dark"] .notif-empty {
+    color: hsl(250 12% 67%);
+}
+:root[data-theme="dark"] .notif-pop {
+    border: 2px solid #ffe08a;
+    background: hsl(250 14% 17%);
+    box-shadow: 0 18px 40px rgba(29, 22, 64, 0.25);
+}
+:root[data-theme="dark"] .notif-pop .notif-text small {
+    color: hsl(27 63% 65%);
+}
+:root[data-theme="dark"] .notif-pop-close {
+    border: none;
+    background: none;
+    color: #999;
+}
 
 /* ---------- from update-password.html ---------- */
 :root[data-theme="dark"] body.update-password-page {

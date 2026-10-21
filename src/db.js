@@ -686,6 +686,12 @@ async function init() {
             'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS disabled_at TIMESTAMPTZ'
         );
 
+        /* When the student last opened their notifications (announcements
+           posted after this are "unread"). */
+        await client.query(
+            'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS announcements_seen_at TIMESTAMPTZ'
+        );
+
         /* Instructor role: 'admin' (sees and manages everything) or
            'instructor' (sees only their assigned sections). */
         await client.query(

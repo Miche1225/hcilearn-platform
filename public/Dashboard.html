@@ -9,8 +9,8 @@
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
-    <link rel="stylesheet" href="style.css?v=47">
-    <link rel="stylesheet" href="dark.css?v=10">
+    <link rel="stylesheet" href="style.css?v=48">
+    <link rel="stylesheet" href="dark.css?v=11">
     <script src="js/theme.js?v=1"></script>
     <!-- FontAwesome for the input icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -287,6 +287,7 @@
     </div>
 
     <script src="js/api.js?v=10"></script>
+    <script src="js/notifications.js?v=1"></script>
     <script src="js/sfx.js?v=5"></script>
     <script src="js/gamify.js?v=1"></script>
     <script src="js/search.js?v=3"></script>
@@ -568,7 +569,8 @@
                 const hidden = hiddenAnnouncements();
                 const stack = document.getElementById('announceStack');
                 stack.innerHTML = '';
-                announcements.filter(a => !hidden.includes(a.id)).forEach(a => {
+                // Newest 3 here; the bell has the full list
+                announcements.filter(a => !hidden.includes(a.id)).slice(0, 3).forEach(a => {
                     const card = document.createElement('div');
                     card.className = 'announce-card';
                     card.setAttribute('role', 'status');

@@ -26,6 +26,11 @@ the main admin can **roll back** to any earlier version (the rollback is
 saved too, so it can be undone). Each item keeps a permanent key, so students' progress,
 mistakes and bookmarks survive edits, reordering and additions.
 
+**Notifications:** when an instructor posts an announcement, students get a
+pop-up on whatever page they are on (checked every minute) and a red count
+on the **bell** in the sidebar. The bell lists the announcements meant for
+their section; opening it marks them read (saved per account).
+
 Every logged-in page has **Quick Search** (menu item, Ctrl+K or "/") over
 lesson topics, videos, case studies, study cards and an HCI glossary.
 
@@ -91,6 +96,7 @@ hcilearn-platform/
         ├── bookmarks.js      # bookmarks + note dialog
         ├── gamify.js         # reports activity, badge / goal pop-ups
         ├── search.js         # Quick Search window
+        ├── notifications.js  # student notification bell + pop-ups
         ├── richtext.js       # lesson text format (shared by Read Lesson and the editor)
         ├── admin-content.js  # Admin Dashboard content editor
         └── sfx.js            # quiz sounds + confetti
@@ -242,7 +248,8 @@ the password-reset routes requires the login cookie.
 | GET | `/instructor/me` | Current instructor |
 | GET | `/content/videos` · `/content/lessons` · `/content/case-studies` · `/content/study-cards` | Published course content (no login needed) |
 | GET | `/content/search-index` | Quick Search data (published content + glossary) |
-| GET | `/announcements` | Active announcements for the Dashboard |
+| GET | `/announcements` | Announcements for this student (with unread flags) |
+| POST | `/announcements/seen` | Mark notifications as read |
 | GET | `/admin/students` | *Admin:* every student with progress numbers |
 | GET | `/admin/insights` | *Admin:* most-missed questions, least-watched videos |
 | GET | `/admin/students/:id` | *Admin:* one student's details (recorded in the audit log) |
@@ -281,6 +288,7 @@ the password-reset routes requires the login cookie.
 - `instructor_sections`: which sections each instructor sees (`instructors.role` = `admin` or `instructor`)
 - `announcements`: messages for the student Dashboard (optional end date, optional target sections)
 - `users.disabled_at`: set when an instructor deactivates an account
+- `users.announcements_seen_at`: when the student last opened their notifications
 
 ## Security
 
