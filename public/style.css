@@ -11488,3 +11488,57 @@ fieldset.ce-field legend {
     justify-self: center;
     font-size: clamp(16px, 2.2vw, 22px);
 }
+
+/* --- Content editor: drag to reorder --- */
+.ce-sortable {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ce-drag {
+    flex-shrink: 0;
+    width: 26px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 -4px 0 -4px;
+    border: none;
+    border-radius: 8px;
+    background: none;
+    color: #b9b4cc;
+    font-size: 14px;
+    cursor: grab;
+    touch-action: none; /* finger drags move the row, not the page */
+}
+
+.ce-drag:hover { background: #f3f1fb; color: #6a4cf0; }
+.ce-drag.is-off { cursor: default; }
+.ce-drag.is-off:hover { background: none; }
+
+.ce-is-dragging,
+.ce-is-dragging * {
+    cursor: grabbing !important;
+    user-select: none;
+}
+
+.is-dragging {
+    position: fixed;
+    z-index: 10010;
+    margin: 0;
+    pointer-events: none;
+    opacity: 0.95;
+    transform: rotate(-1deg) scale(1.02);
+    box-shadow: 0 18px 40px rgba(29, 22, 64, 0.25);
+    border-radius: 14px;
+}
+
+.ce-group.is-dragging { background: #fff; }
+
+.ce-placeholder {
+    flex-shrink: 0;
+    border: 2px dashed #c9bcff;
+    border-radius: 14px;
+    background: #f6f3ff;
+}

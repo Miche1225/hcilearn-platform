@@ -103,7 +103,11 @@ const HCIContentEditor = (function () {
   }
 
   function row(item, siblings, number, title, meta, extra = '') {
-    return `<div class="ce-row is-${item.status}">
+    const handle = item.draft
+      ? `<button type="button" class="ce-drag" data-drag-handle aria-label="Drag to reorder" title="Drag to reorder"><i class="fa-solid fa-grip-vertical"></i></button>`
+      : '<span class="ce-drag is-off"></span>';
+    return `<div class="ce-row is-${item.status}"${item.draft ? ` data-drag-id="${item.id}"` : ''}>
+      ${handle}
       <span class="ce-num">${number}</span>
       ${extra}
       <span class="ce-main"><strong>${esc(title)}</strong>${meta ? `<small>${meta}</small>` : ''}</span>
@@ -119,41 +123,43 @@ const HCIContentEditor = (function () {
     const next = numberer();
     const topics = new Map(data.videoTopics.map(t => [t.key, t.label]));
     return `<button type="button" class="tool-btn ce-add" data-act="add" data-kind="video"><i class="fa-solid fa-plus"></i> Add video</button>
-      ${list.map(v => row(v, list, next(v), view(v).title,
+      <div class="ce-sortable">${list.map(v => row(v, list, next(v), view(v).title,
         `${esc(topics.get(view(v).topic) || '')}${view(v).duration ? ` · ${esc(view(v).duration)}` : ''} · ${esc(v.key)}`,
-        `<img class="ce-thumb" src="https://img.youtube.com/vi/${encodeURIComponent(v.key)}/default.jpg" alt="" loading="lazy">`)).join('')}`;
+        `<img class="ce-thumb" src="https://img.youtube.com/vi/${encodeURIComponent(v.key)}/default.jpg" alt="" loading="lazy">`)).join('')}</div>`;
   }
 
   function renderCases() {
     const list = ofKind('case');
     const next = numberer();
     return `<button type="button" class="tool-btn ce-add" data-act="add" data-kind="case"><i class="fa-solid fa-plus"></i> Add case study</button>
-      ${list.map(c => row(c, list, next(c), view(c).question, esc(view(c).text.slice(0, 120)) + (view(c).text.length > 120 ? '…' : ''))).join('')}`;
+      <div class="ce-sortable">${list.map(c => row(c, list, next(c), view(c).question, esc(view(c).text.slice(0, 120)) + (view(c).text.length > 120 ? '…' : ''))).join('')}</div>`;
   }
 
   function renderGroups(groupKind, childKind) {
+    // (the group element carries data-drag-id; its header row must not)
+    const groupRow = (...args) => row(...args).replace(/ data-drag-id="\d+"/, '');
     const groups = ofKind(groupKind);
     const next = numberer();
     const addLabel = groupKind === 'module' ? 'Add lesson' : 'Add deck';
     const childLabel = childKind === 'topic' ? 'topic' : 'card';
     return `<button type="button" class="tool-btn ce-add" data-act="add" data-kind="${groupKind}"><i class="fa-solid fa-plus"></i> ${addLabel}</button>
-      ${groups.map(g => {
+      <div class="ce-sortable">${groups.map(g => {
         const children = ofKind(childKind, g.key);
         const isOpen = open.has(`${groupKind}:${g.key}`);
         const nextChild = numberer();
         const liveCount = children.filter(c => c.draft).length;
-        return `<div class="ce-group${isOpen ? ' is-open' : ''}">
-          ${row(g, groups, next(g), view(g).title, `${liveCount} ${childLabel}${liveCount === 1 ? '' : 's'}`,
+        return `<div class="ce-group${isOpen ? ' is-open' : ''}"${g.draft ? ` data-drag-id="${g.id}"` : ''}>
+          ${groupRow(g, groups, next(g), view(g).title, `${liveCount} ${childLabel}${liveCount === 1 ? '' : 's'}`,
             `<button type="button" class="ce-toggle" data-act="toggle" data-group="${groupKind}:${esc(g.key)}" aria-expanded="${isOpen}" aria-label="Show ${childLabel}s"><i class="fa-solid fa-chevron-right"></i></button>
              <span class="ce-group-icon"><i class="fa-solid ${HCIRichText.safeIcon(view(g).icon)}"></i></span>`)}
           ${isOpen ? `<div class="ce-children">
             ${g.draft ? `<button type="button" class="tool-btn ce-add is-small" data-act="add" data-kind="${childKind}" data-parent="${esc(g.key)}"><i class="fa-solid fa-plus"></i> Add ${childLabel}</button>` : ''}
-            ${children.map(c => row(c, children, nextChild(c),
+            <div class="ce-sortable">${children.map(c => row(c, children, nextChild(c),
               childKind === 'topic' ? view(c).title : view(c).question,
-              childKind === 'topic' ? `${view(c).sections.length} section${view(c).sections.length === 1 ? '' : 's'}` : esc(`Answer: ${view(c).options[view(c).answer]}`))).join('') || '<p class="admin-empty">Nothing here yet.</p>'}
+              childKind === 'topic' ? `${view(c).sections.length} section${view(c).sections.length === 1 ? '' : 's'}` : esc(`Answer: ${view(c).options[view(c).answer]}`))).join('') || '<p class="admin-empty">Nothing here yet.</p>'}</div>
           </div>` : ''}
         </div>`;
-      }).join('')}`;
+      }).join('')}</div>`;
   }
 
   // ---------- Actions ----------
@@ -466,10 +472,78 @@ const HCIContentEditor = (function () {
     if (first) first.focus();
   }
 
+  // ---------- Drag & drop (mouse and touch, via pointer events) ----------
+  // Grab the ⠿ handle and move the row; the order is saved when you let go.
+  let drag = null;
+
+  function startDrag(e) {
+    const handle = e.target.closest('[data-drag-handle]');
+    if (!handle || e.button > 0) return;
+    const rowEl = handle.closest('.ce-row');
+    const item = rowEl.closest('[data-drag-id]') && (rowEl.matches('[data-drag-id]') ? rowEl : rowEl.closest('.ce-group'));
+    if (!item) return;
+    const list = item.parentElement; // the .ce-sortable it belongs to
+    e.preventDefault();
+
+    const rect = item.getBoundingClientRect();
+    const placeholder = document.createElement('div');
+    placeholder.className = 'ce-placeholder';
+    placeholder.style.height = `${rect.height}px`;
+    item.after(placeholder);
+
+    item.classList.add('is-dragging');
+    item.style.width = `${rect.width}px`;
+    item.style.left = `${rect.left}px`;
+    item.style.top = `${rect.top}px`;
+    document.body.appendChild(item); // float above everything while dragging
+
+    drag = { item, list, placeholder, offsetY: e.clientY - rect.top, before: [...list.querySelectorAll(':scope > [data-drag-id]')].map(el => el.dataset.dragId).join() };
+    handle.setPointerCapture && handle.setPointerCapture(e.pointerId);
+    document.documentElement.classList.add('ce-is-dragging');
+  }
+
+  function moveDrag(e) {
+    if (!drag) return;
+    e.preventDefault();
+    drag.item.style.top = `${e.clientY - drag.offsetY}px`;
+
+    // Put the placeholder before the first sibling whose middle is below the pointer
+    const siblings = [...drag.list.querySelectorAll(':scope > [data-drag-id]')];
+    const target = siblings.find(el => {
+      const r = el.getBoundingClientRect();
+      return e.clientY < r.top + r.height / 2;
+    });
+    if (target) drag.list.insertBefore(drag.placeholder, target);
+    else drag.list.appendChild(drag.placeholder);
+
+    // Scroll the page when dragging near the top/bottom edge
+    const edge = 60;
+    if (e.clientY < edge) window.scrollBy(0, -12);
+    else if (e.clientY > window.innerHeight - edge) window.scrollBy(0, 12);
+  }
+
+  function endDrag() {
+    if (!drag) return;
+    const { item, list, placeholder, before } = drag;
+    drag = null;
+    document.documentElement.classList.remove('ce-is-dragging');
+    item.classList.remove('is-dragging');
+    item.style.width = item.style.left = item.style.top = '';
+    placeholder.replaceWith(item);
+
+    const ids = [...list.querySelectorAll(':scope > [data-drag-id]')].map(el => el.dataset.dragId);
+    if (ids.join() === before) return; // dropped where it started
+    run(api.post('/admin/content/reorder', { ids: ids.map(Number) }), 'New order saved (not published yet)');
+  }
+
   function mount(element, { onPending } = {}) {
     root = element;
     if (onPending) onPendingChange = onPending;
     root.addEventListener('click', handleClick);
+    root.addEventListener('pointerdown', startDrag);
+    document.addEventListener('pointermove', moveDrag, { passive: false });
+    document.addEventListener('pointerup', endDrag);
+    document.addEventListener('pointercancel', endDrag);
     root.innerHTML = '<p class="admin-loading"><span class="btn-spinner"></span> Loading content...</p>';
     return load().catch(err => {
       root.innerHTML = `<p class="admin-empty"><i class="fa-solid fa-circle-exclamation"></i> ${esc(err.message)}</p>`;

@@ -3583,6 +3583,28 @@
     background: none;
     color: #999;
 }
+:root[data-theme="dark"] .ce-drag {
+    border: none;
+    background: none;
+    color: #b9b4cc;
+}
+:root[data-theme="dark"] .ce-drag:hover {
+    background: hsl(252 45% 19%);
+    color: #6a4cf0;
+}
+:root[data-theme="dark"] .ce-drag.is-off:hover {
+    background: none;
+}
+:root[data-theme="dark"] .is-dragging {
+    box-shadow: 0 18px 40px rgba(29, 22, 64, 0.25);
+}
+:root[data-theme="dark"] .ce-group.is-dragging {
+    background: hsl(250 14% 17%);
+}
+:root[data-theme="dark"] .ce-placeholder {
+    border: 2px dashed hsl(252 45% 25%);
+    background: hsl(255 45% 18%);
+}
 
 /* ---------- from update-password.html ---------- */
 :root[data-theme="dark"] body.update-password-page {
