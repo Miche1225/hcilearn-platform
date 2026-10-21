@@ -165,8 +165,10 @@
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduce || !document.body || !Element.prototype.animate) return;
 
-    var originX = window.innerWidth / 2;
-    var originY = window.innerHeight * 0.45;
+    // The page may be zoomed on small laptops (see --ui-zoom in style.css)
+    var zoom = parseFloat(getComputedStyle(document.documentElement).zoom) || 1;
+    var originX = window.innerWidth / 2 / zoom;
+    var originY = window.innerHeight * 0.45 / zoom;
 
     for (var i = 0; i < amount; i++) {
       var piece = document.createElement('span');

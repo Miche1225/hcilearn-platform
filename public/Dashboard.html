@@ -9,8 +9,8 @@
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
-    <link rel="stylesheet" href="style.css?v=64">
-    <link rel="stylesheet" href="dark.css?v=27">
+    <link rel="stylesheet" href="style.css?v=66">
+    <link rel="stylesheet" href="dark.css?v=29">
     <script src="js/theme.js?v=3"></script>
     <!-- FontAwesome for the input icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -230,6 +230,37 @@
                     </div>
                 </div>
 
+                <!-- Quick Actions (row 2, right; "Continue Learning" became "My saved notes" since the Continue card does that job) -->
+                <div class="card quick-links-card">
+                    <h3 class="card-title"><i class="fa-solid fa-bolt icon-title"></i> Quick Actions</h3>
+                    <div class="quick-list">
+                        <a href="Saved.html" class="quick-item">
+                            <div class="quick-icon book-icon"><i class="fa-solid fa-bookmark"></i></div>
+                            <div class="quick-info">
+                                <h4>My saved notes</h4>
+                                <p>Topics and videos you saved</p>
+                            </div>
+                            <i class="fa-solid fa-chevron-right quick-arrow"></i>
+                        </a>
+                        <a href="StudyCards.html" class="quick-item">
+                            <div class="quick-icon check-action-icon"><i class="fa-regular fa-file-lines"></i></div>
+                            <div class="quick-info">
+                                <h4>Take knowledge check</h4>
+                                <p>Test your understanding</p>
+                            </div>
+                            <i class="fa-solid fa-chevron-right quick-arrow"></i>
+                        </a>
+                        <a href="Account.html" class="quick-item">
+                            <div class="quick-icon user-icon"><i class="fa-regular fa-user"></i></div>
+                            <div class="quick-info">
+                                <h4>View Profile</h4>
+                                <p>Manage your account</p>
+                            </div>
+                            <i class="fa-solid fa-chevron-right quick-arrow"></i>
+                        </a>
+                    </div>
+                </div>
+
                 <!-- Continue where you left off (in the old Quick Actions spot; keeps its layout class) -->
                 <div class="card quick-actions-card continue-card">
                     <h3 class="card-title"><i class="fa-solid fa-forward icon-title"></i> Continue where you left off</h3>
@@ -250,7 +281,7 @@
 
     <script src="js/api.js?v=10"></script>
     <script src="js/notifications.js?v=2"></script>
-    <script src="js/sfx.js?v=6"></script>
+    <script src="js/sfx.js?v=8"></script>
     <script src="js/gamify.js?v=3"></script>
     <script src="js/search.js?v=3"></script>
     <script>

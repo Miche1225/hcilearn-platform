@@ -623,21 +623,25 @@ const HCIContentEditor = (function () {
     if (e.target.closest('[data-drag-handle]')) e.preventDefault();
   }
 
+  // Screen pixels -> CSS pixels when the page is zoomed (see --ui-zoom in style.css)
+  const pageZoom = () => parseFloat(getComputedStyle(document.documentElement).zoom) || 1;
+
   function beginDrag(item, clientY) {
     const list = item.parentElement; // the .ce-sortable it belongs to
     const rect = item.getBoundingClientRect();
+    const z = pageZoom();
     const placeholder = document.createElement('div');
     placeholder.className = 'ce-placeholder';
-    placeholder.style.height = `${rect.height}px`;
+    placeholder.style.height = `${rect.height / z}px`;
     item.after(placeholder);
 
     item.classList.add('is-dragging');
-    item.style.width = `${rect.width}px`;
-    item.style.left = `${rect.left}px`;
-    item.style.top = `${rect.top}px`;
+    item.style.width = `${rect.width / z}px`;
+    item.style.left = `${rect.left / z}px`;
+    item.style.top = `${rect.top / z}px`;
     document.body.appendChild(item); // float above everything while dragging
 
-    drag = { item, list, placeholder, offsetY: clientY - rect.top, before: [...list.querySelectorAll(':scope > [data-drag-id]')].map(el => el.dataset.dragId).join() };
+    drag = { item, list, placeholder, zoom: z, offsetY: clientY - rect.top, before: [...list.querySelectorAll(':scope > [data-drag-id]')].map(el => el.dataset.dragId).join() };
     document.documentElement.classList.add('ce-is-dragging');
     window.getSelection && window.getSelection().removeAllRanges();
   }
@@ -651,7 +655,7 @@ const HCIContentEditor = (function () {
     }
     if (!drag) return;
     e.preventDefault();
-    drag.item.style.top = `${e.clientY - drag.offsetY}px`;
+    drag.item.style.top = `${(e.clientY - drag.offsetY) / drag.zoom}px`;
 
     // Put the placeholder before the first sibling whose middle is below the pointer
     const siblings = [...drag.list.querySelectorAll(':scope > [data-drag-id]')];
