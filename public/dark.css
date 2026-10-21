@@ -3814,6 +3814,9 @@
 :root[data-theme="dark"] .lb-gap {
     color: #aaa;
 }
+:root[data-theme="dark"] .risk-more {
+    color: var(--fun-grape);
+}
 :root[data-theme="dark"] .ce-bulk-status {
     color: hsl(250 12% 74%);
 }

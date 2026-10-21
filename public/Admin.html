@@ -9,8 +9,8 @@
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
-    <link rel="stylesheet" href="style.css?v=71">
-    <link rel="stylesheet" href="dark.css?v=35">
+    <link rel="stylesheet" href="style.css?v=72">
+    <link rel="stylesheet" href="dark.css?v=36">
     <script src="js/theme.js?v=3"></script>
     <!-- FontAwesome para sa icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -121,24 +121,29 @@
                             <div class="admin-stat"><i class="fa-solid fa-chart-line"></i><strong id="statAvg">0%</strong><span>Average progress</span></div>
                         </div>
 
-                        <div class="admin-grid">
-                            <div class="admin-card">
-                                <h3><i class="fa-solid fa-layer-group"></i> Progress by section</h3>
-                                <div class="section-bars" id="sectionBars"></div>
+                        <!-- Two columns that stack on their own, so a tall card never leaves a gap beside it -->
+                        <div class="admin-grid overview-columns">
+                            <div class="overview-col">
+                                <div class="admin-card">
+                                    <h3><i class="fa-solid fa-triangle-exclamation"></i> At-risk students</h3>
+                                    <p class="admin-card-note">Inactive 7+ days, under 50% correct, or far behind the class.</p>
+                                    <div class="admin-list" id="inactiveList"></div>
+                                </div>
+                                <div class="admin-card">
+                                    <h3><i class="fa-solid fa-circle-xmark"></i> Most-missed questions</h3>
+                                    <p class="admin-card-note">Questions students got wrong and haven't cleared yet.</p>
+                                    <div class="admin-list" id="missedList"></div>
+                                </div>
                             </div>
-                            <div class="admin-card">
-                                <h3><i class="fa-solid fa-triangle-exclamation"></i> At-risk students</h3>
-                                <p class="admin-card-note">Inactive 7+ days, under 50% correct, or far behind the class.</p>
-                                <div class="admin-list" id="inactiveList"></div>
-                            </div>
-                            <div class="admin-card">
-                                <h3><i class="fa-solid fa-circle-xmark"></i> Most-missed questions</h3>
-                                <p class="admin-card-note">Questions students got wrong and haven't cleared yet.</p>
-                                <div class="admin-list" id="missedList"></div>
-                            </div>
-                            <div class="admin-card">
-                                <h3><i class="fa-solid fa-video-slash"></i> Least-watched videos</h3>
-                                <div class="admin-list" id="videoList"></div>
+                            <div class="overview-col">
+                                <div class="admin-card">
+                                    <h3><i class="fa-solid fa-layer-group"></i> Progress by section</h3>
+                                    <div class="section-bars" id="sectionBars"></div>
+                                </div>
+                                <div class="admin-card">
+                                    <h3><i class="fa-solid fa-video-slash"></i> Least-watched videos</h3>
+                                    <div class="admin-list" id="videoList"></div>
+                                </div>
                             </div>
                         </div>
                     </section>
@@ -325,6 +330,7 @@
         const RISK_MIN_ANSWERS = 10;
         const RISK_LOW_ACCURACY = 50;
         const RISK_BEHIND_AFTER_DAYS = 14;
+        const RISK_SHOWN = 5; // on the overview; the Students tab has everyone
 
         function classAverage() {
             return students.length ? students.reduce((sum, s) => sum + s.overallPercent, 0) / students.length : 0;
@@ -379,15 +385,16 @@
             const atRisk = students.map(s => ({ s, reasons: riskReasons(s, avg) }))
                 .filter(r => r.reasons.length)
                 .sort((a, b) => b.reasons.length - a.reasons.length || (a.s.lastActive || '').localeCompare(b.s.lastActive || ''));
-            $('inactiveList').innerHTML = atRisk.length ? atRisk.slice(0, 8).map(({ s, reasons }) => `
+            // One line per student (reasons beside the name), top 5; the rest are one click away
+            $('inactiveList').innerHTML = atRisk.length ? atRisk.slice(0, RISK_SHOWN).map(({ s, reasons }) => `
                 <div class="risk-row">
                     <button type="button" class="admin-list-item" data-student="${s.id}">
                         <span class="admin-avatar">${escapeHtml(initials(s.fullName))}</span>
-                        <span class="admin-list-text"><strong>${escapeHtml(s.fullName)}</strong><small>${escapeHtml(sectionOf(s))} · last active ${lastActiveText(s.lastActive).toLowerCase()}</small>
-                            <span class="risk-reasons">${reasons.map(r => `<span class="admin-pill is-warn">${escapeHtml(r)}</span>`).join('')}</span></span>
+                        <span class="admin-list-text"><strong>${escapeHtml(s.fullName)}</strong><small>${escapeHtml(sectionOf(s))}</small></span>
+                        <span class="risk-reasons">${reasons.map(r => `<span class="admin-pill is-warn">${escapeHtml(r)}</span>`).join('')}</span>
                     </button>
-                    ${s.inactive && s.canEmail ? `<button type="button" class="ce-icon-btn risk-remind" data-remind="${s.id}" ${remindedRecently(s) ? 'disabled title="Reminder already sent today" aria-label="Reminder already sent today"' : 'title="Send reminder email" aria-label="Send reminder email"'}><i class="fa-solid ${remindedRecently(s) ? 'fa-check' : 'fa-bell'}"></i></button>` : ''}
-                </div>`).join('') + (atRisk.length > 8 ? `<p class="admin-card-note">+ ${atRisk.length - 8} more: <a href="#students" data-quick="atrisk">see all at-risk students</a>.</p>` : '')
+                    ${s.inactive && s.canEmail ? `<button type="button" class="ce-icon-btn risk-remind" data-remind="${s.id}" ${remindedRecently(s) ? 'disabled title="Reminder already sent today" aria-label="Reminder already sent today"' : 'title="Send reminder email" aria-label="Send reminder email"'}><i class="fa-solid ${remindedRecently(s) ? 'fa-check' : 'fa-bell'}"></i></button>` : '<span class="risk-remind" aria-hidden="true"></span>'}
+                </div>`).join('') + (atRisk.length > RISK_SHOWN ? `<a href="#students" class="risk-more" data-quick="atrisk">See all ${atRisk.length} at-risk students <i class="fa-solid fa-arrow-right"></i></a>` : '')
                 : '<p class="admin-empty"><i class="fa-solid fa-circle-check"></i> Nobody looks at risk right now!</p>';
 
             // One-line row that opens to show the full title and details (all args already escaped)
