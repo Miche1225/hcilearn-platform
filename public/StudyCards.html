@@ -26,6 +26,12 @@
     <script src="js/sfx.js?v=6"></script>
     <script>
         requireAuth();
+        // Bawal kopyahin ang tanong at sagot (pwede pa rin sa search box at inputs)
+        ['copy', 'cut', 'contextmenu', 'dragstart'].forEach(function(type) {
+            document.addEventListener(type, function(e) {
+                if (!e.target.closest || !e.target.closest('input, textarea')) e.preventDefault();
+            });
+        });
         document.addEventListener('DOMContentLoaded', function() {
             let currentPageName = window.location.pathname.split('/').pop();
             if (currentPageName && currentPageName !== '') {
@@ -125,15 +131,6 @@
                             <i class="fa-solid fa-arrow-left"></i> All decks
                         </button>
                         <span class="fc-topbar-right">
-                            <label class="fc-timer-pick" title="Time per card">
-                                <i class="fa-solid fa-stopwatch"></i>
-                                <select id="timerSelect" aria-label="Time per card">
-                                    <option value="0">No timer</option>
-                                    <option value="10">10 sec</option>
-                                    <option value="20">20 sec</option>
-                                    <option value="30">30 sec</option>
-                                </select>
-                            </label>
                             <span class="fc-counter" id="masteredText"></span>
                         </span>
                     </div>
@@ -481,15 +478,9 @@
         }
 
         // ========================================================
-        // TIMER bawat card (puwedeng patayin; naaalala ng browser)
+        // TIMER bawat card (laging 20 segundo, hindi mababago ng student)
         // ========================================================
-        const TIMER_KEY = 'hcilearn_card_timer';
-        let timerSeconds = 20;
-        try {
-            const saved = localStorage.getItem(TIMER_KEY);
-            if (saved !== null && ['0', '10', '20', '30'].includes(saved)) timerSeconds = Number(saved);
-        } catch (e) { /* storage blocked */ }
-        document.getElementById('timerSelect').value = String(timerSeconds);
+        const timerSeconds = 20;
 
         let timerId = null;
         let timerEndsAt = 0;
@@ -504,8 +495,7 @@
         function startTimer() {
             stopTimer();
             const box = document.getElementById('cardTimer');
-            box.hidden = !timerSeconds;
-            if (!timerSeconds) return;
+            box.hidden = false;
             timerEndsAt = Date.now() + timerSeconds * 1000;
             lastTick = null;
             box.classList.remove('is-low');
@@ -548,12 +538,6 @@
             nextCardTimer = setTimeout(loadQuestion, 1800);
         }
 
-        document.getElementById('timerSelect').addEventListener('change', (e) => {
-            timerSeconds = Number(e.target.value);
-            try { localStorage.setItem(TIMER_KEY, String(timerSeconds)); } catch (err) { /* storage blocked */ }
-            // Ilapat agad sa kasalukuyang card kung hindi pa nasasagot
-            if (!document.getElementById('submitBtn').disabled) startTimer();
-        });
 
         function loadQuestion() {
             clearTimeout(nextCardTimer);
