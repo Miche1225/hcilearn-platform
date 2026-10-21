@@ -16,6 +16,7 @@ const contentRoutes = require('./src/routes/content');
 const announcementRoutes = require('./src/routes/announcements');
 const instructorRoutes = require('./src/routes/instructor');
 const adminContentRoutes = require('./src/routes/adminContent');
+const adminInstructorRoutes = require('./src/routes/adminInstructors');
 const adminRoutes = require('./src/routes/admin');
 
 const app = express();
@@ -64,6 +65,7 @@ app.use('/api/content', contentRoutes);
 app.use('/api/announcements', announcementRoutes);
 app.use('/api/instructor', instructorRoutes);
 app.use('/api/admin/content', adminContentRoutes);
+app.use('/api/admin/instructors', adminInstructorRoutes);
 app.use('/api/admin', adminRoutes);
 
 // ----- Static front-end -----

@@ -2,7 +2,8 @@
 //
 // Manage instructor accounts for the Admin Dashboard (uses DATABASE_URL from .env).
 //
-//   npm run instructor -- add --id 122524 --name "Juan Dela Cruz"
+//   npm run instructor -- add --id 122524 --name "Juan Dela Cruz" [--role admin]
+//   npm run instructor -- set-role --id 122524 --role admin|instructor
 //   npm run instructor -- reset-password --id 122524
 //   npm run instructor -- rename --id 122524 --name "New Name"
 //   npm run instructor -- remove --id 122524
@@ -28,7 +29,8 @@ const option = (name) => {
 
 function usage() {
   console.log(`Usage:
-  npm run instructor -- add --id <instructor ID> --name "<full name>"
+  npm run instructor -- add --id <instructor ID> --name "<full name>" [--role admin]
+  npm run instructor -- set-role --id <instructor ID> --role admin|instructor
   npm run instructor -- reset-password --id <instructor ID>
   npm run instructor -- rename --id <instructor ID> --name "<full name>"
   npm run instructor -- remove --id <instructor ID>
@@ -70,7 +72,7 @@ async function main() {
   const id = option('id');
   const name = option('name');
 
-  if (!['add', 'reset-password', 'rename', 'remove', 'list'].includes(command)) {
+  if (!['add', 'reset-password', 'rename', 'remove', 'list', 'set-role'].includes(command)) {
     usage();
     process.exitCode = 1;
     return;
@@ -82,9 +84,9 @@ async function main() {
   await ready;
 
   if (command === 'list') {
-    const { rows } = await pool.query('SELECT instructor_id, full_name, created_at, last_login_at FROM instructors ORDER BY full_name');
+    const { rows } = await pool.query('SELECT instructor_id, full_name, role, created_at, last_login_at FROM instructors ORDER BY full_name');
     if (!rows.length) console.log('No instructor accounts yet.');
-    rows.forEach(r => console.log(`${r.instructor_id}\t${r.full_name}\tlast login: ${r.last_login_at ? r.last_login_at.toISOString() : 'never'}`));
+    rows.forEach(r => console.log(`${r.instructor_id}\t${r.full_name}\t${r.role}\tlast login: ${r.last_login_at ? r.last_login_at.toISOString() : 'never'}`));
     return;
   }
 
@@ -95,11 +97,14 @@ async function main() {
     if (existing) throw new Error(`Instructor ID ${id} already exists. Use reset-password or rename.`);
     const password = await getPassword();
     if (!isValidPassword(password)) throw new Error(PASSWORD_RULES_MESSAGE);
+    // The very first account is always the main admin
+    const { rows: admins } = await pool.query("SELECT COUNT(*)::int AS n FROM instructors WHERE role = 'admin'");
+    const role = admins[0].n === 0 || option('role') === 'admin' ? 'admin' : 'instructor';
     await pool.query(
-      'INSERT INTO instructors (instructor_id, full_name, password_hash) VALUES ($1, $2, $3)',
-      [id, name, await bcrypt.hash(password, 12)]
+      'INSERT INTO instructors (instructor_id, full_name, password_hash, role) VALUES ($1, $2, $3, $4)',
+      [id, name, await bcrypt.hash(password, 12), role]
     );
-    console.log(`Added instructor ${name} (ID ${id}).`);
+    console.log(`Added ${role === 'admin' ? 'main admin' : 'instructor'} ${name} (ID ${id}).`);
     return;
   }
 
@@ -113,6 +118,15 @@ async function main() {
       [await bcrypt.hash(password, 12), existing.id]
     );
     console.log(`Password changed for ${existing.full_name} (ID ${id}). They were logged out everywhere.`);
+  } else if (command === 'set-role') {
+    const role = option('role');
+    if (role !== 'admin' && role !== 'instructor') throw new Error('Give --role admin or --role instructor.');
+    if (existing.role === 'admin' && role !== 'admin') {
+      const { rows: admins } = await pool.query("SELECT COUNT(*)::int AS n FROM instructors WHERE role = 'admin'");
+      if (admins[0].n <= 1) throw new Error('There must be at least one main admin.');
+    }
+    await pool.query('UPDATE instructors SET role = $1 WHERE id = $2', [role, existing.id]);
+    console.log(`${existing.full_name} (ID ${id}) is now ${role === 'admin' ? 'a main admin' : 'an instructor'}.`);
   } else if (command === 'rename') {
     if (!name) throw new Error('Give the new name with --name "Full Name".');
     await pool.query('UPDATE instructors SET full_name = $1 WHERE id = $2', [name, existing.id]);

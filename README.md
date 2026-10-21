@@ -15,13 +15,15 @@ flashcards, and their progress is saved to their account.
 | **Case Studies** | Scenarios that unlock one at a time as you answer correctly, plus "Review mistakes" |
 | **Study Cards** | Flashcard decks; wrong answers come back until the deck is mastered, plus a "Review my mistakes" deck |
 | **Saved** | Bookmarked topics and videos with personal notes; search, filter, edit and remove |
-| **Admin** | For instructors (Instructor ID + password via "Log in as admin"): class overview, student list with filters, per-student details and account actions, **content editor** with draft/publish, **announcements**, CSV export and an audit log |
+| **Admin** | For instructors (Instructor ID + password via "Log in as admin"): class overview, student list with filters, per-student details and account actions, **content editor** with draft/publish and **publish history / roll back**, **announcements** (to everyone or chosen sections), **instructors** with their own sections, CSV export and an audit log |
 | **Account** | Badge collection with progress, edit profile, upload a photo, change password, delete account |
 
 **Course content lives in the database.** Videos, lessons, case studies and
 study cards are edited by instructors in the Admin Dashboard. Edits are
 drafts until an instructor presses **Publish**; then every student sees the
-new content at once. Each item keeps a permanent key, so students' progress,
+new content at once. Every publish is saved in a **publish history**, and
+the main admin can **roll back** to any earlier version (the rollback is
+saved too, so it can be undone). Each item keeps a permanent key, so students' progress,
 mistakes and bookmarks survive edits, reordering and additions.
 
 Every logged-in page has **Quick Search** (menu item, Ctrl+K or "/") over
@@ -65,11 +67,13 @@ hcilearn-platform/
 │   │   ├── bookmarks.js      # saved topics/videos + notes
 │   │   ├── gamify.js         # study streak, daily goal, badges
 │   │   ├── admin.js          # admin dashboard (progress, insights, CSV, audit log, student actions, announcements)
-│   │   ├── adminContent.js   # content editor API (drafts, publish, discard)
+│   │   ├── adminContent.js   # content editor API (drafts, publish, discard, history, rollback)
+│   │   ├── adminInstructors.js # instructors + their sections (main admin only)
 │   │   ├── content.js        # published content for the student pages + Quick Search index
 │   │   ├── announcements.js  # active announcements for students
 │   │   └── instructor.js     # instructor login / logout
 │   ├── contentStore.js       # cached published content (refreshed on publish)
+│   ├── contentVersions.js    # publish history snapshots
 │   ├── seed/content.json     # original course content, loaded into an empty database once
 │   ├── glossary.json         # HCI glossary terms for Quick Search
 │   └── utils/                # mailer, password rules, email hashing, dates/streaks
@@ -121,12 +125,27 @@ For anything the generator gets wrong, add a rule to `scripts/dark-manual.css`
 
 ### Instructor accounts (Admin Dashboard)
 
+There are two roles:
+
+- **Main admin**: sees every student, edits and publishes content, manages
+  instructors (Instructors tab). The first instructor account is always a
+  main admin, and there must always be at least one.
+- **Instructor**: sees only the sections assigned to them (a section is the
+  program + year/section students chose at sign-up, e.g. "BSIT 3rd Year -
+  Section A"). Student list, insights, CSV, student actions, announcements
+  and the activity log are all limited to those sections.
+
+The main admin adds instructors and sets their sections in the Admin
+Dashboard. Instructors can change their own password (key button in the
+sidebar).
+
 Instructors are separate from students and log in with an **Instructor ID and
 password** ("Log in as admin" on the login page, or `login.html#admin`).
 Accounts are managed from the terminal (uses `DATABASE_URL` in `.env`):
 
 ```bash
-npm run instructor -- add --id 122524 --name "Full Name"   # asks for the password
+npm run instructor -- add --id 122524 --name "Full Name"   # asks for the password (add --role admin for a main admin)
+npm run instructor -- set-role --id 122524 --role admin     # or --role instructor
 npm run instructor -- reset-password --id 122524           # also logs them out everywhere
 npm run instructor -- rename --id 122524 --name "New Name"
 npm run instructor -- remove --id 122524
@@ -234,6 +253,12 @@ the password-reset routes requires the login cookie.
 | PUT · DELETE | `/admin/content/:id` | *Admin:* edit / remove (draft) |
 | POST | `/admin/content/:id/restore` · `/reorder` | *Admin:* undo changes / new order |
 | POST | `/admin/content/publish` · `/discard` | *Admin:* make drafts live / throw them away (audited) |
+| GET | `/admin/content/versions` · `/versions/:id/preview` | *Main admin:* publish history / what a rollback would change |
+| POST | `/admin/content/versions/:id/rollback` | *Main admin:* make an earlier version live again (audited) |
+| GET · POST | `/admin/instructors` | *Main admin:* list / add instructors |
+| PUT · DELETE | `/admin/instructors/:id` | *Main admin:* edit name, role, sections / remove |
+| POST | `/admin/instructors/:id/password` | *Main admin:* reset an instructor's password |
+| POST | `/instructor/password` | Change your own instructor password |
 | GET | `/admin/audit` | *Admin:* latest admin actions |
 
 ## Database
@@ -252,7 +277,9 @@ the password-reset routes requires the login cookie.
 - `instructors`: instructor accounts (Instructor ID, name, password hash)
 - `instructor_audit_log`: what instructors did on the Admin Dashboard (viewing, exporting, publishing, account actions)
 - `content_items`: course content; each row has a permanent `key`, a `draft` and a `published` version
-- `announcements`: messages for the student Dashboard (optional end date)
+- `content_versions`: snapshot of the published content after every publish / rollback (last 60 kept)
+- `instructor_sections`: which sections each instructor sees (`instructors.role` = `admin` or `instructor`)
+- `announcements`: messages for the student Dashboard (optional end date, optional target sections)
 - `users.disabled_at`: set when an instructor deactivates an account
 
 ## Security

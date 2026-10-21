@@ -26,8 +26,16 @@ function tsToYmd(ts) {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Manila' }).format(new Date(ts));
 }
 
-// Every student account with its progress numbers
-async function loadStudents() {
+// Can this instructor see this student? Admins see everyone; other
+// instructors only the sections assigned to them (program + year/section).
+function canSee(instructor, student) {
+  if (instructor.isAdmin) return true;
+  return instructor.sections.some(sec =>
+    sec.program === (student.program || '') && sec.yearSection === (student.year_section || ''));
+}
+
+// Every student this instructor can see, with progress numbers
+async function loadStudents(instructor) {
   const content = await getContent();
   const { caseStudies, decks: deckTotal, videos: videoTotal } = content.totals;
   const totalActivities = caseStudies + deckTotal + videoTotal;
@@ -41,7 +49,7 @@ async function loadStudents() {
      LEFT JOIN study_card_progress sc ON sc.user_id = u.id
      ORDER BY u.full_name`
   );
-  const students = rows;
+  const students = rows.filter(r => canSee(instructor, r));
   const ids = students.map(s => s.id);
   if (!ids.length) return [];
 
@@ -120,7 +128,7 @@ router.get('/students', async (req, res, next) => {
       today: todayLocal(),
       inactiveAfterDays: INACTIVE_AFTER_DAYS,
       totals: { ...(await getContent()).totals, badges: getBadges((await getContent()).totals).length },
-      students: await loadStudents(),
+      students: await loadStudents(req.instructor),
     });
   } catch (err) {
     next(err);
@@ -130,7 +138,7 @@ router.get('/students', async (req, res, next) => {
 // GET /api/admin/insights — most-missed questions and least-watched videos
 router.get('/insights', async (req, res, next) => {
   try {
-    const students = await loadStudents();
+    const students = await loadStudents(req.instructor);
     const ids = students.map(s => s.id);
 
     const { rows: missed } = await pool.query(
@@ -168,7 +176,7 @@ router.get('/students/:id', async (req, res, next) => {
     const id = Number(req.params.id);
     if (!Number.isInteger(id) || id < 1) return res.status(400).json({ error: 'Invalid student.' });
 
-    const student = (await loadStudents()).find(s => s.id === id);
+    const student = (await loadStudents(req.instructor)).find(s => s.id === id);
     if (!student) return res.status(404).json({ error: 'Student not found.' });
 
     const content = await getContent();
@@ -227,7 +235,7 @@ router.get('/students/:id', async (req, res, next) => {
 // GET /api/admin/export.csv — progress of every student, for grading/reports
 router.get('/export.csv', async (req, res, next) => {
   try {
-    const students = await loadStudents();
+    const students = await loadStudents(req.instructor);
     const { totals } = await getContent();
     // Cells starting with = + - @ could run as formulas in Excel
     const cell = (value) => {
@@ -264,8 +272,8 @@ router.get('/export.csv', async (req, res, next) => {
 async function studentFor(req) {
   const id = Number(req.params.id);
   if (!Number.isInteger(id) || id < 1) return null;
-  const { rows } = await pool.query('SELECT id, full_name, disabled_at FROM users WHERE id = $1', [id]);
-  return rows[0] || null;
+  const { rows } = await pool.query('SELECT id, full_name, program, year_section, disabled_at FROM users WHERE id = $1', [id]);
+  return rows[0] && canSee(req.instructor, rows[0]) ? rows[0] : null;
 }
 
 const studentAction = (action, run) => async (req, res, next) => {
@@ -311,27 +319,35 @@ router.post('/students/:id/reset', studentAction('reset_progress', async (s) => 
 
 
 // ---------- Announcements ----------
+// The admin sees all announcements; other instructors only their own.
 // GET /api/admin/announcements
 router.get('/announcements', async (req, res, next) => {
   try {
     const { rows } = await pool.query(
-      `SELECT a.id, a.title, a.body, a.ends_on, a.created_at, i.full_name AS instructor_name
+      `SELECT a.id, a.instructor_id, a.title, a.body, a.ends_on, a.created_at, a.target_sections, i.full_name AS instructor_name
        FROM announcements a LEFT JOIN instructors i ON i.id = a.instructor_id
        ORDER BY a.created_at DESC, a.id DESC`
     );
     res.json({
       today: todayLocal(),
-      announcements: rows.map(r => ({
-        id: r.id, title: r.title, body: r.body, endsOn: r.ends_on ? toYmd(r.ends_on) : null,
-        createdAt: r.created_at, by: r.instructor_name || '(removed instructor)',
-      })),
+      canPostToEveryone: req.instructor.isAdmin,
+      sections: req.instructor.sections,
+      announcements: rows
+        .filter(r => req.instructor.isAdmin || r.instructor_id === req.instructor.id)
+        .map(r => ({
+          id: r.id, title: r.title, body: r.body, endsOn: r.ends_on ? toYmd(r.ends_on) : null,
+          createdAt: r.created_at, by: r.instructor_name || '(removed instructor)',
+          audience: r.target_sections || null,
+        })),
     });
   } catch (err) {
     next(err);
   }
 });
 
-// POST /api/admin/announcements  { title, body, endsOn? }
+// POST /api/admin/announcements  { title, body, endsOn?, sections? }
+// sections = [{ program, yearSection }]; null/empty = everyone (admin only).
+// Other instructors can only post to their own sections.
 router.post('/announcements', async (req, res, next) => {
   try {
     const { title, body, endsOn } = req.body || {};
@@ -347,9 +363,22 @@ router.post('/announcements', async (req, res, next) => {
       if (endsOn < todayLocal()) return res.status(400).json({ error: 'The end date is already in the past.' });
       ends = endsOn;
     }
+
+    const mine = req.instructor.sections;
+    const wanted = Array.isArray(req.body.sections) ? req.body.sections : [];
+    let audience = wanted
+      .filter(x => x && typeof x.program === 'string' && typeof x.yearSection === 'string')
+      .map(x => ({ program: x.program, yearSection: x.yearSection }));
+    if (!req.instructor.isAdmin) {
+      if (!mine.length) return res.status(400).json({ error: 'You have no sections yet. Ask the main admin to assign them.' });
+      if (!audience.length) audience = mine; // default: all of my sections
+      const ok = audience.every(a => mine.some(m => m.program === a.program && m.yearSection === a.yearSection));
+      if (!ok) return res.status(403).json({ error: 'You can only post to your own sections.' });
+    }
+
     const { rows } = await pool.query(
-      'INSERT INTO announcements (instructor_id, title, body, ends_on) VALUES ($1, $2, $3, $4) RETURNING id',
-      [req.instructor.id, t, b, ends]
+      'INSERT INTO announcements (instructor_id, title, body, ends_on, target_sections) VALUES ($1, $2, $3, $4, $5::jsonb) RETURNING id',
+      [req.instructor.id, t, b, ends, audience.length ? JSON.stringify(audience) : null]
     );
     await audit(req.instructor.id, 'post_announcement', null, t);
     res.json({ id: rows[0].id });
@@ -363,7 +392,9 @@ router.delete('/announcements/:id', async (req, res, next) => {
   try {
     const id = Number(req.params.id);
     if (!Number.isInteger(id) || id < 1) return res.status(400).json({ error: 'Invalid announcement.' });
-    const { rows } = await pool.query('DELETE FROM announcements WHERE id = $1 RETURNING title', [id]);
+    const owner = req.instructor.isAdmin ? '' : ' AND instructor_id = $2';
+    const params = req.instructor.isAdmin ? [id] : [id, req.instructor.id];
+    const { rows } = await pool.query(`DELETE FROM announcements WHERE id = $1${owner} RETURNING title`, params);
     if (rows[0]) await audit(req.instructor.id, 'delete_announcement', null, rows[0].title);
     res.json({ ok: true });
   } catch (err) {
@@ -382,8 +413,10 @@ router.get('/audit', async (req, res, next) => {
        FROM instructor_audit_log l
        LEFT JOIN instructors i ON i.id = l.instructor_id
        LEFT JOIN users t ON t.id = l.target_user_id
+       WHERE $1::boolean OR l.instructor_id = $2
        ORDER BY l.created_at DESC, l.id DESC
-       LIMIT 200`
+       LIMIT 200`,
+      [req.instructor.isAdmin, req.instructor.id]
     );
     res.json({
       entries: rows.map(r => ({

@@ -519,6 +519,67 @@ async function init() {
         );
 
 
+        /* A snapshot of the published content after every publish or
+           rollback, so instructors can go back to an earlier version.
+           snapshot = [{ kind, key, parentKey, data }, ...] */
+        CREATE TABLE IF NOT EXISTS content_versions (
+
+            id
+                SERIAL
+                PRIMARY KEY,
+
+            instructor_id
+                INTEGER
+                REFERENCES instructors(id)
+                ON DELETE SET NULL,
+
+            summary
+                TEXT
+                NOT NULL
+                DEFAULT '',
+
+            snapshot
+                JSONB
+                NOT NULL,
+
+            item_count
+                INTEGER
+                NOT NULL
+                DEFAULT 0,
+
+            created_at
+                TIMESTAMPTZ
+                NOT NULL
+                DEFAULT NOW()
+        );
+
+
+        /* Which student sections each (non-admin) instructor can see.
+           A section = program + year_section, exactly as students entered it. */
+        CREATE TABLE IF NOT EXISTS instructor_sections (
+
+            instructor_id
+                INTEGER
+                NOT NULL
+                REFERENCES instructors(id)
+                ON DELETE CASCADE,
+
+            program
+                TEXT
+                NOT NULL,
+
+            year_section
+                TEXT
+                NOT NULL,
+
+            PRIMARY KEY (
+                instructor_id,
+                program,
+                year_section
+            )
+        );
+
+
         /* Messages from instructors shown on every student's Dashboard. */
         CREATE TABLE IF NOT EXISTS announcements (
 
@@ -623,6 +684,25 @@ async function init() {
         /* Set by an instructor to block an account from logging in. */
         await client.query(
             'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS disabled_at TIMESTAMPTZ'
+        );
+
+        /* Instructor role: 'admin' (sees and manages everything) or
+           'instructor' (sees only their assigned sections). */
+        await client.query(
+            "ALTER TABLE public.instructors ADD COLUMN IF NOT EXISTS role TEXT NOT NULL DEFAULT 'instructor'"
+        );
+
+        /* There must always be an admin: the first instructor becomes one. */
+        await client.query(`
+            UPDATE public.instructors SET role = 'admin'
+            WHERE id = (SELECT MIN(id) FROM public.instructors)
+              AND NOT EXISTS (SELECT 1 FROM public.instructors WHERE role = 'admin')
+        `);
+
+        /* Announcement audience: NULL = everyone, otherwise a list of
+           { program, yearSection } sections. */
+        await client.query(
+            'ALTER TABLE public.announcements ADD COLUMN IF NOT EXISTS target_sections JSONB'
         );
 
 

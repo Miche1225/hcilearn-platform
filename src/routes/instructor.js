@@ -1,11 +1,13 @@
 // src/routes/instructor.js
 // Instructor login / logout for the Admin Dashboard (Instructor ID + password).
-// Accounts are created with "npm run instructor -- add" (scripts/instructor.js).
+// Accounts are managed by the main admin (Instructors tab) or with
+// "npm run instructor" (scripts/instructor.js).
 const crypto = require('crypto');
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const { pool } = require('../db');
 const { rateLimit } = require('../middleware/rateLimit');
+const { isValidPassword, PASSWORD_RULES_MESSAGE } = require('../utils/passwords');
 const {
   requireInstructor,
   issueInstructorSession,
@@ -66,7 +68,38 @@ router.post('/logout', (req, res) => {
 
 // GET /api/instructor/me
 router.get('/me', requireInstructor, (req, res) => {
-  res.json({ instructor: { instructorId: req.instructor.instructorId, fullName: req.instructor.fullName } });
+  const { instructorId, fullName, role, isAdmin, sections } = req.instructor;
+  res.json({ instructor: { instructorId, fullName, role, isAdmin, sections } });
+});
+
+const passwordLimiter = rateLimit({
+  windowMs: 15 * MINUTE,
+  max: 10,
+  keyFn: (req) => `instructor-pw:${req.ip}`,
+  message: 'Too many attempts. Please wait 15 minutes and try again.',
+});
+
+// POST /api/instructor/password  { currentPassword, newPassword }
+// Logs out other devices; this one gets a fresh session.
+router.post('/password', requireInstructor, passwordLimiter, async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = req.body || {};
+    const { rows } = await pool.query('SELECT password_hash, session_version FROM instructors WHERE id = $1', [req.instructor.id]);
+    if (typeof currentPassword !== 'string' || !(await bcrypt.compare(currentPassword, rows[0].password_hash))) {
+      return res.status(400).json({ error: 'Your current password is not correct.' });
+    }
+    if (!isValidPassword(newPassword)) return res.status(400).json({ error: PASSWORD_RULES_MESSAGE });
+    if (newPassword === currentPassword) return res.status(400).json({ error: 'Choose a password different from the current one.' });
+
+    const { rows: updated } = await pool.query(
+      'UPDATE instructors SET password_hash = $1, session_version = session_version + 1 WHERE id = $2 RETURNING session_version',
+      [await bcrypt.hash(newPassword, 12), req.instructor.id]
+    );
+    issueInstructorSession(res, req.instructor.id, updated[0].session_version);
+    res.json({ ok: true });
+  } catch (err) {
+    next(err);
+  }
 });
 
 module.exports = router;

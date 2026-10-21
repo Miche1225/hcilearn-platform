@@ -1,6 +1,7 @@
 // src/routes/adminContent.js
-// Content editor for instructors (mounted at /api/admin/content).
+// Content editor for the main admin (mounted at /api/admin/content).
 // Edits only change the draft; students see nothing until "Publish".
+// Every publish / rollback is saved in content_versions (publish history).
 //
 // Item status (from draft vs published):
 //   new       draft only (never published)
@@ -9,11 +10,13 @@
 //   live      both, the same
 const express = require('express');
 const { pool } = require('../db');
-const { requireInstructor } = require('../middleware/instructorGuard');
+const { requireInstructor, requireAdminRole } = require('../middleware/instructorGuard');
 const { invalidate, VIDEO_TOPICS } = require('../contentStore');
+const versions = require('../contentVersions');
 
 const router = express.Router();
-router.use(requireInstructor);
+// Content is shared by every student, so only the main admin edits it
+router.use(requireInstructor, requireAdminRole);
 
 const KINDS = ['video', 'module', 'topic', 'case', 'deck', 'card'];
 const PARENT_KIND = { topic: 'module', card: 'deck' };
@@ -97,10 +100,7 @@ function validate(kind, data) {
 }
 
 // ---------- Helpers ----------
-// JSON compare that ignores key order
-const canon = (v) => (v && typeof v === 'object' && !Array.isArray(v))
-  ? `{${Object.keys(v).sort().map(k => `${JSON.stringify(k)}:${canon(v[k])}`).join(',')}}`
-  : Array.isArray(v) ? `[${v.map(canon).join(',')}]` : JSON.stringify(v);
+const { canon } = versions;
 
 function statusOf(row) {
   if (row.draft && !row.published) return 'new';
@@ -275,9 +275,12 @@ router.post('/reorder', handle(async (req, res) => {
 
 // POST /api/admin/content/publish — make the draft live for students
 router.post('/publish', handle(async (req, res) => {
+  await versions.ensureBaseline(); // so there is a version to go back to
   const { rows } = await pool.query('SELECT * FROM content_items WHERE draft IS NOT NULL OR published IS NOT NULL');
   const pending = rows.filter(r => statusOf(r) !== 'live');
   if (!pending.length) return res.json({ published: 0 });
+  const counts = pending.reduce((acc, r) => ({ ...acc, [statusOf(r)]: (acc[statusOf(r)] || 0) + 1 }), {});
+  const summary = ['new', 'changed', 'deleted'].filter(k => counts[k]).map(k => `${counts[k]} ${k === 'new' ? 'added' : k === 'changed' ? 'edited' : 'removed'}`).join(', ');
 
   const client = await pool.connect();
   try {
@@ -285,6 +288,7 @@ router.post('/publish', handle(async (req, res) => {
     for (const r of pending) {
       await client.query('UPDATE content_items SET published = draft, updated_at = NOW() WHERE id = $1', [r.id]);
     }
+    await versions.saveVersion(client, req.instructor.id, summary);
     await client.query('COMMIT');
   } catch (err) {
     await client.query('ROLLBACK');
@@ -294,8 +298,6 @@ router.post('/publish', handle(async (req, res) => {
   }
 
   invalidate();
-  const counts = pending.reduce((acc, r) => ({ ...acc, [statusOf(r)]: (acc[statusOf(r)] || 0) + 1 }), {});
-  const summary = ['new', 'changed', 'deleted'].filter(k => counts[k]).map(k => `${counts[k]} ${k === 'new' ? 'added' : k === 'changed' ? 'edited' : 'removed'}`).join(', ');
   await audit(req.instructor.id, 'publish_content', summary);
   res.json({ published: pending.length, summary });
 }));
@@ -308,6 +310,67 @@ router.post('/discard', handle(async (req, res) => {
     await pool.query('UPDATE content_items SET draft = published, updated_at = NOW() WHERE id = $1', [r.id]);
   }
   await audit(req.instructor.id, 'discard_content', '');
+  res.json({ ok: true });
+}));
+
+// ---------- Publish history ----------
+
+// GET /api/admin/content/versions
+router.get('/versions', handle(async (req, res) => {
+  res.json({ versions: await versions.listVersions() });
+}));
+
+// GET /api/admin/content/versions/:id/preview — what a rollback would change
+router.get('/versions/:id/preview', handle(async (req, res) => {
+  const target = await versions.getSnapshot(req.params.id);
+  if (!target) fail('Version not found.');
+  const { rows } = await pool.query('SELECT * FROM content_items WHERE draft IS NOT NULL OR published IS NOT NULL');
+  res.json({
+    ...versions.diff(target, await versions.currentSnapshot()),
+    pendingDrafts: rows.filter(r => statusOf(r) !== 'live').length,
+  });
+}));
+
+// POST /api/admin/content/versions/:id/rollback — make that version live again
+// (unpublished drafts are replaced). Saved as a new version, so it can be undone.
+router.post('/versions/:id/rollback', handle(async (req, res) => {
+  await versions.ensureBaseline();
+  const id = Number(req.params.id);
+  const target = await versions.getSnapshot(id);
+  if (!target) fail('Version not found.');
+  const wanted = new Map(target.map(i => [`${i.kind}:${i.key}`, i]));
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const { rows } = await client.query('SELECT id, kind, key FROM content_items');
+    const existing = new Set();
+    for (const r of rows) {
+      const item = wanted.get(`${r.kind}:${r.key}`);
+      existing.add(`${r.kind}:${r.key}`);
+      await client.query(
+        'UPDATE content_items SET draft = $1::jsonb, published = $1::jsonb, updated_at = NOW() WHERE id = $2',
+        [item ? JSON.stringify(item.data) : null, r.id]
+      );
+    }
+    for (const [k, item] of wanted) {
+      if (existing.has(k)) continue;
+      await client.query(
+        'INSERT INTO content_items (kind, key, parent_key, draft, published) VALUES ($1, $2, $3, $4::jsonb, $4::jsonb)',
+        [item.kind, item.key, item.parentKey || null, JSON.stringify(item.data)]
+      );
+    }
+    await versions.saveVersion(client, req.instructor.id, `Rolled back to version #${id}`);
+    await client.query('COMMIT');
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+
+  invalidate();
+  await audit(req.instructor.id, 'rollback_content', `version #${id}`);
   res.json({ ok: true });
 }));
 

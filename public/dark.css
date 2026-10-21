@@ -3522,6 +3522,37 @@
     background: hsl(240 15% 21%);
     color: hsl(248 16% 69%);
 }
+:root[data-theme="dark"] .ce-version {
+    border: 2px solid hsl(253 45% 20%);
+    background: hsl(250 14% 17%);
+}
+:root[data-theme="dark"] .ce-version.is-current {
+    border-color: hsl(153 45% 28%);
+    background: hsl(153 45% 19%);
+}
+:root[data-theme="dark"] .ce-version-num {
+    color: #9a95b0;
+}
+:root[data-theme="dark"] .ce-check {
+    color: hsl(250 12% 81%);
+}
+:root[data-theme="dark"] .ce-check small {
+    color: #999;
+}
+:root[data-theme="dark"] fieldset.ce-field {
+    border: none;
+}
+:root[data-theme="dark"] fieldset.ce-field legend {
+    color: hsl(250 12% 81%);
+}
+:root[data-theme="dark"] .admin-notice {
+    border: 2px solid #ffe08a;
+    background: hsl(48 45% 21%);
+    color: hsl(46 70% 84%);
+}
+:root[data-theme="dark"] .instructor-list .admin-list-text strong small {
+    color: #9a95b0;
+}
 
 /* ---------- from update-password.html ---------- */
 :root[data-theme="dark"] body.update-password-page {

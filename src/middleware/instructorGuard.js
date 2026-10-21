@@ -32,7 +32,8 @@ function clearInstructorSession(res) {
   res.clearCookie(COOKIE_NAME, options);
 }
 
-// Sets req.instructor = { id, instructorId, fullName } or answers 401.
+// Sets req.instructor = { id, instructorId, fullName, role, isAdmin, sections }
+// or answers 401. sections = [{ program, yearSection }] (admins see everyone).
 async function requireInstructor(req, res, next) {
   const token = req.cookies && req.cookies[COOKIE_NAME];
   if (!token) {
@@ -51,18 +52,37 @@ async function requireInstructor(req, res, next) {
 
   try {
     const { rows } = await pool.query(
-      'SELECT id, instructor_id, full_name, session_version FROM instructors WHERE id = $1',
+      'SELECT id, instructor_id, full_name, role, session_version FROM instructors WHERE id = $1',
       [payload.instructorId]
     );
     if (!rows[0] || rows[0].session_version !== (payload.sv || 0)) {
       clearInstructorSession(res);
       return res.status(401).json({ error: 'Session expired. Please log in again.' });
     }
-    req.instructor = { id: rows[0].id, instructorId: rows[0].instructor_id, fullName: rows[0].full_name };
+    const { rows: sections } = await pool.query(
+      'SELECT program, year_section FROM instructor_sections WHERE instructor_id = $1 ORDER BY program, year_section',
+      [rows[0].id]
+    );
+    req.instructor = {
+      id: rows[0].id,
+      instructorId: rows[0].instructor_id,
+      fullName: rows[0].full_name,
+      role: rows[0].role,
+      isAdmin: rows[0].role === 'admin',
+      sections: sections.map(r => ({ program: r.program, yearSection: r.year_section })),
+    };
     next();
   } catch (err) {
     next(err);
   }
 }
 
-module.exports = { requireInstructor, issueInstructorSession, clearInstructorSession };
+// Use after requireInstructor: only the main admin may continue.
+function requireAdminRole(req, res, next) {
+  if (!req.instructor || !req.instructor.isAdmin) {
+    return res.status(403).json({ error: 'Only the main admin can do this.' });
+  }
+  next();
+}
+
+module.exports = { requireInstructor, requireAdminRole, issueInstructorSession, clearInstructorSession };

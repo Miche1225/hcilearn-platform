@@ -9,8 +9,8 @@
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
-    <link rel="stylesheet" href="style.css?v=45">
-    <link rel="stylesheet" href="dark.css?v=8">
+    <link rel="stylesheet" href="style.css?v=47">
+    <link rel="stylesheet" href="dark.css?v=10">
     <script src="js/theme.js?v=1"></script>
     <!-- FontAwesome para sa icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -49,6 +49,9 @@
                         <small id="sidebarMeta">Instructor</small>
                     </span>
                 </span>
+                <button type="button" class="sidebar-logout" id="changePasswordBtn" aria-label="Change password" title="Change password">
+                    <i class="fa-solid fa-key"></i>
+                </button>
                 <button type="button" class="sidebar-logout" id="instructorLogout" aria-label="Log out" title="Log out">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 </button>
@@ -80,10 +83,16 @@
                     <div class="admin-tabs" role="tablist" aria-label="Admin sections">
                         <button type="button" class="admin-tab active" role="tab" aria-selected="true" aria-controls="tab-overview" data-tab="overview"><i class="fa-solid fa-chart-pie"></i> Overview</button>
                         <button type="button" class="admin-tab" role="tab" aria-selected="false" aria-controls="tab-students" data-tab="students"><i class="fa-solid fa-users"></i> Students</button>
-                        <button type="button" class="admin-tab" role="tab" aria-selected="false" aria-controls="tab-content" data-tab="content"><i class="fa-solid fa-pen-to-square"></i> Content <span class="ce-dot" id="contentPending" hidden></span></button>
+                        <button type="button" class="admin-tab" role="tab" aria-selected="false" aria-controls="tab-content" data-tab="content" id="tabBtnContent" hidden><i class="fa-solid fa-pen-to-square"></i> Content <span class="ce-dot" id="contentPending" hidden></span></button>
                         <button type="button" class="admin-tab" role="tab" aria-selected="false" aria-controls="tab-announcements" data-tab="announcements"><i class="fa-solid fa-bullhorn"></i> Announcements</button>
+                        <button type="button" class="admin-tab" role="tab" aria-selected="false" aria-controls="tab-instructors" data-tab="instructors" id="tabBtnInstructors" hidden><i class="fa-solid fa-chalkboard-user"></i> Instructors</button>
                         <button type="button" class="admin-tab" role="tab" aria-selected="false" aria-controls="tab-audit" data-tab="audit"><i class="fa-solid fa-clipboard-list"></i> Activity log</button>
                     </div>
+
+                    <p class="admin-notice" id="noSectionsNote" hidden>
+                        <i class="fa-solid fa-circle-info"></i>
+                        You don't have any sections yet, so no students are shown. Ask the main admin to assign your sections.
+                    </p>
 
                     <!-- OVERVIEW -->
                     <section class="admin-panel" id="tab-overview" role="tabpanel">
@@ -172,10 +181,11 @@
                         <div class="admin-grid">
                             <form class="admin-card announce-form" id="announceForm" novalidate>
                                 <h3><i class="fa-solid fa-bullhorn"></i> New announcement</h3>
-                                <p class="admin-card-note">Shown at the top of every student's Dashboard right away.</p>
+                                <p class="admin-card-note">Shown at the top of the students' Dashboard right away.</p>
                                 <label class="ce-field"><span>Title</span><input type="text" name="title" maxlength="120" placeholder="Quiz on Friday!"></label>
                                 <label class="ce-field"><span>Message <small>(optional)</small></span><textarea name="body" rows="4" maxlength="1000" placeholder="It covers Lessons 1 to 3. Review your study cards!"></textarea></label>
                                 <label class="ce-field"><span>Show until <small>(optional)</small></span><input type="date" name="endsOn"></label>
+                                <fieldset class="ce-field announce-audience" id="announceAudience"></fieldset>
                                 <p class="ce-error" id="announceError" role="alert" hidden></p>
                                 <button type="submit" class="tool-btn ce-publish"><i class="fa-solid fa-paper-plane"></i> Post announcement</button>
                             </form>
@@ -183,6 +193,16 @@
                                 <h3><i class="fa-solid fa-list"></i> Posted</h3>
                                 <div class="admin-list" id="announceList"></div>
                             </div>
+                        </div>
+                    </section>
+
+                    <!-- INSTRUCTORS (main admin only) -->
+                    <section class="admin-panel" id="tab-instructors" role="tabpanel" hidden>
+                        <div class="admin-card">
+                            <h3><i class="fa-solid fa-chalkboard-user"></i> Instructors</h3>
+                            <p class="admin-card-note">Main admins see every student and manage content. Instructors only see the sections you assign to them.</p>
+                            <button type="button" class="tool-btn ce-publish" id="addInstructorBtn"><i class="fa-solid fa-user-plus"></i> Add instructor</button>
+                            <div class="admin-list instructor-list" id="instructorList"></div>
                         </div>
                     </section>
 
@@ -217,13 +237,15 @@
 
     <script src="js/api.js?v=10"></script>
     <script src="js/richtext.js?v=1"></script>
-    <script src="js/admin-content.js?v=1"></script>
+    <script src="js/admin-content.js?v=2"></script>
     <script>
         const ACTIVITY_LABELS = { case_study: 'Case Study', study_card: 'Study Card', video: 'Video', lesson: 'Lesson' };
         const AUDIT_ICONS = {
             export_csv: 'fa-file-csv', publish_content: 'fa-upload', discard_content: 'fa-rotate-left',
             post_announcement: 'fa-bullhorn', delete_announcement: 'fa-bullhorn', reset_progress: 'fa-eraser',
             signout_student: 'fa-arrow-right-from-bracket', deactivate_student: 'fa-user-slash', reactivate_student: 'fa-user-check',
+            rollback_content: 'fa-clock-rotate-left', add_instructor: 'fa-user-plus', update_instructor: 'fa-user-pen',
+            reset_instructor_password: 'fa-key', remove_instructor: 'fa-user-minus',
         };
         const AUDIT_LABELS = {
             view_student: (e) => `Viewed ${e.targetName || 'a deleted student'}'s progress`,
@@ -236,6 +258,11 @@
             signout_student: (e) => `Signed ${e.targetName || 'a student'} out everywhere`,
             deactivate_student: (e) => `Deactivated ${e.targetName || 'a student'}'s account`,
             reactivate_student: (e) => `Reactivated ${e.targetName || 'a student'}'s account`,
+            rollback_content: (e) => `Rolled content back to ${e.details}`,
+            add_instructor: (e) => `Added instructor ${e.details}`,
+            update_instructor: (e) => `Updated instructor ${e.details}`,
+            reset_instructor_password: (e) => `Reset the password of ${e.details}`,
+            remove_instructor: (e) => `Removed instructor ${e.details}`,
         };
 
         let students = [];
@@ -509,16 +536,30 @@
         }
 
         // ---------------- Announcements ----------------
+        const sectionLabel = (sec) => `${sec.program} ${sec.yearSection}`;
+
         async function loadAnnouncements() {
             try {
-                const { announcements, today: day } = await api.get('/admin/announcements');
+                const { announcements, today: day, canPostToEveryone, sections } = await api.get('/admin/announcements');
+
+                // Audience picker (keeps choices made before a reload)
+                const box = $('announceAudience');
+                if (!box.dataset.ready) {
+                    box.dataset.ready = '1';
+                    box.innerHTML = `<legend>Who sees it</legend>${canPostToEveryone
+                        ? '<label class="ce-check"><input type="radio" name="audienceMode" value="all" checked> Everyone</label><label class="ce-check"><input type="radio" name="audienceMode" value="sections"> Only these sections:</label>'
+                        : '<small>Your sections (untick to leave one out):</small>'}
+                        <div class="ce-checks">${(canPostToEveryone ? knownSections : sections).map(sec => `
+                            <label class="ce-check"><input type="checkbox" name="audienceSection" value="${escapeHtml(JSON.stringify(sec))}" ${canPostToEveryone ? '' : 'checked'}> ${escapeHtml(sectionLabel(sec))}</label>`).join('') || '<small>No sections yet.</small>'}</div>`;
+                }
+
                 $('announceList').innerHTML = announcements.length ? announcements.map(a => {
                     const expired = a.endsOn && a.endsOn < day;
                     return `<div class="admin-list-item is-static">
                         <span class="admin-tag ${expired ? '' : 'is-video'}"><i class="fa-solid fa-bullhorn"></i></span>
                         <span class="admin-list-text"><strong>${escapeHtml(a.title)}</strong>
                             ${a.body ? `<small class="announce-body">${escapeHtml(a.body)}</small>` : ''}
-                            <small>${escapeHtml(a.by)} · ${formatDateTime(a.createdAt)} · ${expired ? 'ended' : a.endsOn ? `until ${a.endsOn}` : 'no end date'}</small></span>
+                            <small>${escapeHtml(a.by)} · ${formatDateTime(a.createdAt)} · ${expired ? 'ended' : a.endsOn ? `until ${a.endsOn}` : 'no end date'} · ${a.audience ? escapeHtml(a.audience.map(sectionLabel).join(', ')) : 'everyone'}</small></span>
                         <button type="button" class="ce-icon-btn is-danger" data-announce-delete="${a.id}" aria-label="Delete announcement"><i class="fa-solid fa-trash-can"></i></button>
                     </div>`;
                 }).join('') : '<p class="admin-empty">No announcements yet.</p>';
@@ -534,10 +575,16 @@
             $('announceError').hidden = true;
             btn.disabled = true;
             try {
+                const mode = form.querySelector('input[name="audienceMode"]:checked');
+                const picked = [...form.querySelectorAll('input[name="audienceSection"]:checked')].map(c => JSON.parse(c.value));
+                const toEveryone = mode && mode.value === 'all';
+                if (!toEveryone && !picked.length) throw new Error('Pick at least one section.');
                 await api.post('/admin/announcements', {
                     title: form.elements.title.value, body: form.elements.body.value, endsOn: form.elements.endsOn.value || null,
+                    sections: toEveryone ? null : picked,
                 });
                 form.reset();
+                form.querySelectorAll('input[name="audienceSection"]').forEach(c => { c.checked = !mode; });
                 adminToast('Announcement posted');
                 loadAnnouncements();
                 loadAudit();
@@ -560,6 +607,177 @@
                     loadAudit();
                 },
             });
+        });
+
+        // ---------------- Small form dialog (same look as the content editor) ----------------
+        function formModal({ title, subtitle = '', body, submitLabel, onSubmit }) {
+            const overlay = document.createElement('div');
+            overlay.className = 'ce-overlay';
+            overlay.innerHTML = `
+                <form class="ce-modal" role="dialog" aria-modal="true" aria-labelledby="fmTitle" novalidate>
+                    <div class="ce-modal-head">
+                        <div><h3 id="fmTitle"></h3><small class="fm-sub"></small></div>
+                        <button type="button" class="qs-close" data-close aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div class="ce-modal-body">${body}</div>
+                    <p class="ce-error" role="alert" hidden></p>
+                    <div class="ce-modal-foot"><span></span><span>
+                        <button type="button" class="tool-btn" data-close>Cancel</button>
+                        <button type="submit" class="tool-btn ce-publish"></button></span></div>
+                </form>`;
+            overlay.querySelector('#fmTitle').textContent = title;
+            overlay.querySelector('.fm-sub').textContent = subtitle;
+            overlay.querySelector('[type="submit"]').textContent = submitLabel;
+            document.body.appendChild(overlay);
+            requestAnimationFrame(() => overlay.classList.add('is-open'));
+            const form = overlay.querySelector('form');
+            const close = () => {
+                overlay.classList.remove('is-open');
+                document.removeEventListener('keydown', onKey);
+                setTimeout(() => overlay.remove(), 200);
+            };
+            const onKey = (e) => { if (e.key === 'Escape') close(); };
+            document.addEventListener('keydown', onKey);
+            overlay.addEventListener('click', (e) => { if (e.target === overlay || e.target.closest('[data-close]')) close(); });
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const err = form.querySelector('.ce-error');
+                const btn = form.querySelector('[type="submit"]');
+                err.hidden = true;
+                btn.disabled = true;
+                try {
+                    await onSubmit(form);
+                    close();
+                } catch (ex) {
+                    err.textContent = ex.message;
+                    err.hidden = false;
+                    btn.disabled = false;
+                }
+            });
+            const first = form.querySelector('input:not([disabled]), select, textarea');
+            if (first) first.focus();
+        }
+
+        // ---------------- Change my password ----------------
+        $('changePasswordBtn').addEventListener('click', () => formModal({
+            title: 'Change your password', submitLabel: 'Change password',
+            body: `<label class="ce-field"><span>Current password</span><input type="password" name="current" autocomplete="current-password"></label>
+                   <label class="ce-field"><span>New password</span><input type="password" name="next" autocomplete="new-password"><small>8+ characters, not all letters or all numbers.</small></label>
+                   <label class="ce-field"><span>Type the new password again</span><input type="password" name="again" autocomplete="new-password"></label>`,
+            onSubmit: async (form) => {
+                if (form.elements.next.value !== form.elements.again.value) throw new Error('The new passwords do not match.');
+                await api.post('/instructor/password', { currentPassword: form.elements.current.value, newPassword: form.elements.next.value });
+                adminToast('Password changed. Other devices were logged out.');
+            },
+        }));
+
+        // ---------------- Instructors (main admin only) ----------------
+        let instructorData = { instructors: [], availableSections: [], me: null };
+        let knownSections = [];   // every section students are in (for pickers)
+
+        function sectionPicker(selected) {
+            const all = [...instructorData.availableSections];
+            selected.forEach(sec => {
+                if (!all.some(a => a.program === sec.program && a.yearSection === sec.yearSection)) all.push({ ...sec, students: 0 });
+            });
+            if (!all.length) return '<small>No students have signed up yet, so there are no sections to pick.</small>';
+            return `<div class="ce-checks">${all.map(sec => {
+                const on = selected.some(x => x.program === sec.program && x.yearSection === sec.yearSection);
+                return `<label class="ce-check"><input type="checkbox" name="section" value="${escapeHtml(JSON.stringify({ program: sec.program, yearSection: sec.yearSection }))}" ${on ? 'checked' : ''}>
+                    ${escapeHtml(sectionLabel(sec))} <small>(${sec.students} student${sec.students === 1 ? '' : 's'})</small></label>`;
+            }).join('')}</div>`;
+        }
+        const pickedSections = (form) => [...form.querySelectorAll('input[name="section"]:checked')].map(c => JSON.parse(c.value));
+
+        async function loadInstructors() {
+            try {
+                instructorData = await api.get('/admin/instructors');
+                knownSections = instructorData.availableSections.map(a => ({ program: a.program, yearSection: a.yearSection }));
+                $('instructorList').innerHTML = instructorData.instructors.map(i => `
+                    <div class="admin-list-item is-static">
+                        <span class="admin-avatar">${escapeHtml(initials(i.fullName))}</span>
+                        <span class="admin-list-text"><strong>${escapeHtml(i.fullName)} ${i.id === instructorData.me ? '<small>(you)</small>' : ''}</strong>
+                            <small>ID ${escapeHtml(i.instructorId)} · last login ${i.lastLoginAt ? formatDateTime(i.lastLoginAt) : 'never'}</small>
+                            <small>${i.role === 'admin' ? 'Sees every section' : i.sections.length ? escapeHtml(i.sections.map(sectionLabel).join(', ')) : 'No sections yet'}</small></span>
+                        <span class="admin-pill ${i.role === 'admin' ? '' : 'is-off'}">${i.role === 'admin' ? 'Main admin' : 'Instructor'}</span>
+                        <span class="ce-actions">
+                            <button type="button" class="ce-btn" data-instr="edit" data-id="${i.id}"><i class="fa-solid fa-pen"></i> Edit</button>
+                            <button type="button" class="ce-icon-btn" data-instr="password" data-id="${i.id}" aria-label="Reset password" title="Reset password"><i class="fa-solid fa-key"></i></button>
+                            ${i.id === instructorData.me ? '' : `<button type="button" class="ce-icon-btn is-danger" data-instr="remove" data-id="${i.id}" aria-label="Remove" title="Remove"><i class="fa-solid fa-trash-can"></i></button>`}
+                        </span>
+                    </div>`).join('');
+            } catch (err) {
+                $('instructorList').innerHTML = `<p class="admin-empty">${escapeHtml(err.message)}</p>`;
+            }
+        }
+
+        const roleSelect = (role) => `<select name="role">
+            <option value="instructor" ${role === 'instructor' ? 'selected' : ''}>Instructor (only their sections)</option>
+            <option value="admin" ${role === 'admin' ? 'selected' : ''}>Main admin (everything)</option></select>`;
+
+        $('addInstructorBtn').addEventListener('click', () => formModal({
+            title: 'Add instructor', submitLabel: 'Add instructor',
+            subtitle: 'Share the ID and password with them; they can change the password after logging in.',
+            body: `<div class="ce-row2">
+                    <label class="ce-field"><span>Instructor ID</span><input type="text" name="instructorId" placeholder="e.g. 200001"></label>
+                    <label class="ce-field"><span>Full name</span><input type="text" name="fullName"></label></div>
+                   <div class="ce-row2">
+                    <label class="ce-field"><span>Temporary password</span><input type="text" name="password" autocomplete="off"></label>
+                    <label class="ce-field"><span>Role</span>${roleSelect('instructor')}</label></div>
+                   <fieldset class="ce-field"><legend>Sections</legend>${sectionPicker([])}</fieldset>`,
+            onSubmit: async (form) => {
+                await api.post('/admin/instructors', {
+                    instructorId: form.elements.instructorId.value, fullName: form.elements.fullName.value,
+                    password: form.elements.password.value, role: form.elements.role.value, sections: pickedSections(form),
+                });
+                adminToast('Instructor added');
+                loadInstructors();
+                loadAudit();
+            },
+        }));
+
+        $('instructorList').addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-instr]');
+            if (!btn) return;
+            const i = instructorData.instructors.find(x => x.id === Number(btn.dataset.id));
+            if (btn.dataset.instr === 'edit') {
+                formModal({
+                    title: `Edit ${i.fullName}`, subtitle: `Instructor ID ${i.instructorId}`, submitLabel: 'Save',
+                    body: `<div class="ce-row2">
+                            <label class="ce-field"><span>Full name</span><input type="text" name="fullName" value="${escapeHtml(i.fullName)}"></label>
+                            <label class="ce-field"><span>Role</span>${roleSelect(i.role)}</label></div>
+                           <fieldset class="ce-field"><legend>Sections <small>(used when the role is Instructor)</small></legend>${sectionPicker(i.sections)}</fieldset>`,
+                    onSubmit: async (form) => {
+                        await api.put(`/admin/instructors/${i.id}`, { fullName: form.elements.fullName.value, role: form.elements.role.value, sections: pickedSections(form) });
+                        adminToast('Instructor updated');
+                        loadInstructors();
+                        loadAudit();
+                    },
+                });
+            }
+            if (btn.dataset.instr === 'password') {
+                formModal({
+                    title: `Reset ${i.fullName}'s password`, subtitle: 'They will be logged out everywhere.', submitLabel: 'Set password',
+                    body: '<label class="ce-field"><span>New temporary password</span><input type="text" name="password" autocomplete="off"><small>8+ characters, not all letters or all numbers.</small></label>',
+                    onSubmit: async (form) => {
+                        await api.post(`/admin/instructors/${i.id}/password`, { password: form.elements.password.value });
+                        adminToast('Password reset');
+                        loadAudit();
+                    },
+                });
+            }
+            if (btn.dataset.instr === 'remove') {
+                confirmDialog({
+                    title: `Remove ${i.fullName}?`, message: 'They will no longer be able to log in. Their entries in the activity log are kept.',
+                    confirmText: 'Remove', icon: 'fa-user-minus', danger: true,
+                    onConfirm: async () => {
+                        try { await api.del(`/admin/instructors/${i.id}`); adminToast('Instructor removed'); }
+                        catch (err) { adminToast(err.message, true); }
+                        loadInstructors();
+                        loadAudit();
+                    },
+                });
+            }
         });
 
         // ---------------- Activity log ----------------
@@ -636,6 +854,10 @@
             }
             $('sidebarName').textContent = instructor.fullName;
             $('sidebarMeta').textContent = `ID ${instructor.instructorId}`;
+            $('sidebarMeta').title = instructor.isAdmin ? 'Main admin' : 'Instructor';
+            $('tabBtnContent').hidden = !instructor.isAdmin;
+            $('tabBtnInstructors').hidden = !instructor.isAdmin;
+            $('noSectionsNote').hidden = instructor.isAdmin || instructor.sections.length > 0;
             $('sidebarAvatar').textContent = initials(instructor.fullName) || 'IN';
 
             try {
@@ -656,8 +878,9 @@
                 fillFilters();
                 renderStudents();
                 loadAudit();
+                if (instructor.isAdmin) await loadInstructors(); // also fills the section lists
                 loadAnnouncements();
-                HCIContentEditor.mount($('contentEditor'), {
+                if (instructor.isAdmin) HCIContentEditor.mount($('contentEditor'), {
                     onPending: (n) => {
                         $('contentPending').hidden = !n;
                         $('contentPending').textContent = n;

@@ -11215,3 +11215,114 @@ div.qs-result {
     .ce-row2 { grid-template-columns: 1fr; }
     .ce-bar-actions { margin-left: 0; }
 }
+
+/* --- Admin: publish history, sections, instructors --- */
+.ce-history {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.ce-version {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    border: 2px solid #ece8fb;
+    background: #fff;
+}
+
+.ce-version.is-current {
+    border-color: #b8ecd5;
+    background: #f3fcf8;
+}
+
+.ce-version-num {
+    flex-shrink: 0;
+    min-width: 40px;
+    font-size: 13px;
+    font-weight: 800;
+    color: #9a95b0;
+}
+
+.ce-checks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    margin-top: 6px;
+}
+
+.ce-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #444;
+    cursor: pointer;
+}
+
+.ce-check input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--fun-grape);
+}
+
+.ce-check small { color: #999; font-weight: 500; }
+
+fieldset.ce-field {
+    padding: 0;
+    border: none;
+}
+
+fieldset.ce-field legend {
+    margin-bottom: 4px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #444;
+}
+
+.announce-audience {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.admin-notice {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    margin: 0 0 16px;
+    border-radius: 16px;
+    border: 2px solid #ffe08a;
+    background: #fff8db;
+    color: #5c4a10;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.admin-page .admin-notice[hidden] { display: none !important; }
+
+.instructor-list {
+    margin-top: 14px;
+}
+
+.instructor-list .admin-list-text strong small {
+    font-weight: 600;
+    color: #9a95b0;
+}
+
+.admin-page .sidebar-user {
+    gap: 6px;
+}
+
+/* Admin sidebar: two small buttons next to the name */
+.admin-page .sidebar-user .sidebar-logout {
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+}

@@ -72,6 +72,7 @@ const HCIContentEditor = (function () {
           ? `<i class="fa-solid fa-pen-to-square"></i> <b>${data.pending}</b> unpublished change${data.pending === 1 ? '' : 's'}. Students won't see ${data.pending === 1 ? 'it' : 'them'} until you publish.`
           : '<i class="fa-solid fa-circle-check"></i> Everything is published. Students see exactly what is listed here.'}</span>
         <span class="ce-bar-actions">
+          <button type="button" class="tool-btn" data-act="history"><i class="fa-solid fa-clock-rotate-left"></i> History</button>
           <button type="button" class="tool-btn" data-act="discard" ${data.pending ? '' : 'disabled'}><i class="fa-solid fa-rotate-left"></i> Discard changes</button>
           <button type="button" class="tool-btn ce-publish" data-act="publish" ${data.pending ? '' : 'disabled'}><i class="fa-solid fa-upload"></i> Publish</button>
         </span>
@@ -204,6 +205,7 @@ const HCIContentEditor = (function () {
         },
       });
     }
+    if (act === 'history') return openHistory();
     if (act === 'discard') {
       return confirmDialog({
         title: 'Discard all changes?',
@@ -212,6 +214,65 @@ const HCIContentEditor = (function () {
         onConfirm: () => run(api.post('/admin/content/discard'), 'Changes discarded'),
       });
     }
+  }
+
+  // ---------- Publish history ----------
+  async function openHistory() {
+    const overlay = document.createElement('div');
+    overlay.className = 'ce-overlay';
+    overlay.innerHTML = `
+      <div class="ce-modal" role="dialog" aria-modal="true" aria-labelledby="ceHistoryTitle">
+        <div class="ce-modal-head">
+          <div><h3 id="ceHistoryTitle">Publish history</h3><small>Every publish is saved. Roll back to make an older version live again.</small></div>
+          <button type="button" class="qs-close" data-close aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="ce-history"><p class="admin-loading"><span class="btn-spinner"></span> Loading...</p></div>
+      </div>`;
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => overlay.classList.add('is-open'));
+    const close = () => {
+      overlay.classList.remove('is-open');
+      document.removeEventListener('keydown', onKey);
+      setTimeout(() => overlay.remove(), 200);
+    };
+    const onKey = (e) => { if (e.key === 'Escape') close(); };
+    document.addEventListener('keydown', onKey);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay || e.target.closest('[data-close]')) close(); });
+
+    const list = overlay.querySelector('.ce-history');
+    try {
+      const { versions } = await api.get('/admin/content/versions');
+      list.innerHTML = versions.map(v => `
+        <div class="ce-version${v.isCurrent ? ' is-current' : ''}">
+          <span class="ce-version-num">#${v.id}</span>
+          <span class="ce-main"><strong>${esc(v.summary || 'Published')}</strong>
+            <small>${esc(v.by)} · ${new Date(v.createdAt).toLocaleString(undefined, { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })} · ${v.itemCount} items</small></span>
+          ${v.isCurrent ? '<span class="ce-chip is-new">Live now</span>' : `<button type="button" class="ce-btn" data-rollback="${v.id}"><i class="fa-solid fa-clock-rotate-left"></i> Roll back</button>`}
+        </div>`).join('');
+    } catch (err) {
+      list.innerHTML = `<p class="admin-empty">${esc(err.message)}</p>`;
+    }
+
+    list.addEventListener('click', async (e) => {
+      const btn = e.target.closest('[data-rollback]');
+      if (!btn) return;
+      const id = btn.dataset.rollback;
+      let preview;
+      try { preview = await api.get(`/admin/content/versions/${id}/preview`); }
+      catch (err) { toast(err.message, true); return; }
+      const parts = [
+        preview.added && `${preview.added} item${preview.added === 1 ? '' : 's'} come back`,
+        preview.removed && `${preview.removed} item${preview.removed === 1 ? '' : 's'} disappear`,
+        preview.changed && `${preview.changed} item${preview.changed === 1 ? '' : 's'} change back`,
+      ].filter(Boolean);
+      close();
+      confirmDialog({
+        title: `Roll back to version #${id}?`,
+        message: `${parts.length ? `Students will see: ${parts.join(', ')}.` : 'This version has the same content as now.'}${preview.pendingDrafts ? ` Your ${preview.pendingDrafts} unpublished change${preview.pendingDrafts === 1 ? '' : 's'} will be discarded.` : ''} You can roll forward again from the history.`,
+        confirmText: 'Roll back', icon: 'fa-clock-rotate-left', danger: true,
+        onConfirm: () => run(api.post(`/admin/content/versions/${id}/rollback`), `Rolled back to version #${id}`),
+      });
+    });
   }
 
   // ---------- Editor ----------
