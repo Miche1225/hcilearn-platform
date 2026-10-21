@@ -12204,19 +12204,51 @@ fieldset.ce-field legend {
     min-width: 0;
 }
 
+/* Reasons sit to the right of the name, so each student is one line */
 .risk-reasons {
+    flex-shrink: 0;
+    max-width: 55%;
     display: flex;
     flex-wrap: wrap;
+    justify-content: flex-end;
     gap: 4px;
-    margin-top: 4px;
 }
 
 .risk-reasons .admin-pill {
     font-size: 11px;
 }
 
+/* Same width with or without the bell, so the rows line up */
 .risk-remind {
     flex-shrink: 0;
+    width: 32px;
+}
+
+.risk-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 6px 10px 0;
+    color: var(--fun-grape);
+    font-size: 13px;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.risk-more:hover {
+    text-decoration: underline;
+}
+
+/* Overview: two columns that stack on their own (no gap beside a tall card) */
+.overview-columns {
+    align-items: start;
+}
+
+.overview-col {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    min-width: 0;
 }
 
 .ce-bulk-status {

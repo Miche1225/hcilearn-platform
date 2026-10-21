@@ -5,6 +5,8 @@
    ========================================================== */
 
 /* ---------- from style.css ---------- */
+:root[data-theme="dark"] 600;700;800;900&display=swap");
+
 
 :root {
     --ui-zoom: 1;
@@ -3814,6 +3816,9 @@
 }
 :root[data-theme="dark"] .lb-gap {
     color: #aaa;
+}
+:root[data-theme="dark"] .risk-more {
+    color: var(--fun-grape);
 }
 :root[data-theme="dark"] .ce-bulk-status {
     color: hsl(250 12% 74%);

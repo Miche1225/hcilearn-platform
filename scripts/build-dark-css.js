@@ -115,17 +115,34 @@ function stripComments(css) {
   return css.replace(/\/\*[\s\S]*?\*\//g, '');
 }
 
+// End of a statement at-rule (@import ...;). Semicolons inside quotes or
+// url(...) don't count, e.g. the font URL "...wght@400;600;700&display=swap".
+function statementEnd(css, from) {
+  let quote = null, depth = 0;
+  for (let k = from; k < css.length; k++) {
+    const ch = css[k];
+    if (quote) { if (ch === quote) quote = null; continue; }
+    if (ch === '"' || ch === "'") quote = ch;
+    else if (ch === '(') depth++;
+    else if (ch === ')') depth--;
+    else if (ch === ';' && depth === 0) return k;
+  }
+  return -1;
+}
+
 function parseBlocks(css) {
   const nodes = [];
   let i = 0;
   while (i < css.length) {
     const open = css.indexOf('{', i);
-    const semi = css.indexOf(';', i);
     if (open === -1) break;
     // Statement at-rules like @import ...;
-    if (semi !== -1 && semi < open && css.slice(i, semi).trim().startsWith('@')) {
-      i = semi + 1;
-      continue;
+    if (css.slice(i, open).trim().startsWith('@')) {
+      const semi = statementEnd(css, i);
+      if (semi !== -1 && semi < open) {
+        i = semi + 1;
+        continue;
+      }
     }
     const prelude = css.slice(i, open).trim();
     let depth = 1, j = open + 1;
