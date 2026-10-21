@@ -42,6 +42,41 @@ async function getLessonRow(userId) {
   return rows[0];
 }
 
+// "Continue where you left off": the video paused most recently (or the
+// next unwatched one), plus the next deck and case study not done yet.
+// Same resume window as the player: at least 5s in, more than 15s left.
+async function continueItems(userId, content, solvedIds, completedIds) {
+  const videoIds = [...content.videoTitles.keys()];
+  const { rows: [paused] } = await pool.query(
+    `SELECT video_id, position_seconds, duration_seconds FROM video_positions
+     WHERE user_id = $1 AND video_id = ANY($2) AND position_seconds >= 5 AND position_seconds < duration_seconds - 15
+     ORDER BY updated_at DESC LIMIT 1`,
+    [userId, videoIds]
+  );
+  let video = null;
+  if (paused) {
+    video = { key: paused.video_id, title: content.videoTitles.get(paused.video_id), position: paused.position_seconds, duration: paused.duration_seconds };
+  } else {
+    const { rows } = await pool.query('SELECT video_id FROM video_progress WHERE user_id = $1', [userId]);
+    const watched = new Set(rows.map(r => r.video_id));
+    const next = content.videos.find(v => !watched.has(v.key));
+    if (next) video = { key: next.key, title: next.title, position: 0, duration: 0 };
+  }
+
+  const solved = new Set(solvedIds.map(Number));
+  const caseKey = content.caseOrder.find(k => !solved.has(k));
+  const done = new Set(completedIds.map(Number));
+  const deckKey = content.deckOrder.find(k => !done.has(k));
+  const deck = deckKey !== undefined && content.deckByKey.get(deckKey);
+  const scenario = caseKey !== undefined && content.caseByKey.get(caseKey);
+
+  return {
+    video,
+    deck: deck ? { key: deckKey, number: deck.number, title: deck.title, cards: deck.cards.length } : null,
+    caseStudy: scenario ? { key: caseKey, number: scenario.number, question: scenario.question } : null,
+  };
+}
+
 // ---------- Dashboard summary ----------
 // GET /api/progress/summary
 router.get('/summary', async (req, res, next) => {
@@ -74,6 +109,7 @@ router.get('/summary', async (req, res, next) => {
     );
 
     res.json({
+      continue: await continueItems(userId, content, JSON.parse(cs.solved_ids), JSON.parse(sc.completed_ids)),
       overallPercent,
       caseStudiesSolved: solvedCount,
       caseStudiesTotal: caseStudies,

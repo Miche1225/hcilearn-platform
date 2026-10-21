@@ -1,5 +1,5 @@
 // public/js/gamify.js
-// Study streak, daily goal and badges (needs js/api.js; js/sfx.js for confetti).
+// Study streak and badges (needs js/api.js; js/sfx.js for confetti).
 //
 //   HCIGamify.record('answer', true);   // answered a question (right/wrong)
 //   HCIGamify.record('perfect');        // finished a deck without a mistake
@@ -19,15 +19,6 @@ const HCIGamify = (function () {
 
   function handle(result) {
     if (!result) return result;
-    if (result.justMetGoal && result.today) {
-      queue.push({
-        icon: 'fa-bullseye', color: 'mint',
-        title: 'Daily goal reached!',
-        name: `${result.today.correct} correct answers today`,
-        description: 'Come back tomorrow to keep your streak going.',
-        confetti: 90,
-      });
-    }
     (result.newBadges || []).forEach(badge => queue.push({
       icon: badge.icon, color: badge.color,
       title: 'Badge unlocked!',

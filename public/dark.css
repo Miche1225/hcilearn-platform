@@ -2834,9 +2834,6 @@
 :root[data-theme="dark"] .dashboard-page .streak-card {
     --fun-stripe: linear-gradient(90deg, var(--fun-coral), var(--fun-sun));
 }
-:root[data-theme="dark"] .dashboard-page .goal-card {
-    --fun-stripe: linear-gradient(90deg, var(--fun-mint), var(--fun-sky));
-}
 :root[data-theme="dark"] .dashboard-page .badges-card {
     --fun-stripe: linear-gradient(90deg, var(--fun-grape), var(--fun-pink));
 }
@@ -2877,37 +2874,6 @@
 }
 :root[data-theme="dark"] .streak-day.is-today small {
     color: var(--fun-coral);
-}
-:root[data-theme="dark"] .goal-ring {
-    --goal: 0deg;
-    background: conic-gradient(var(--fun-mint) var(--goal), var(--ring-track, hsl(250 14% 24%)) 0deg);
-}
-:root[data-theme="dark"] .goal-ring.is-done {
-    background: conic-gradient(var(--fun-mint), var(--fun-sky), var(--fun-mint));
-    box-shadow: 0 0 0 4px rgba(63, 207, 155, 0.2);
-}
-:root[data-theme="dark"] .goal-ring-inner {
-    background: hsl(250 14% 17%);
-}
-:root[data-theme="dark"] .goal-ring-inner strong {
-    color: hsl(250 49% 87%);
-}
-:root[data-theme="dark"] .goal-ring-inner small {
-    color: hsl(250 12% 67%);
-}
-:root[data-theme="dark"] .goal-text h3 {
-    color: hsl(250 49% 87%);
-}
-:root[data-theme="dark"] .goal-text p {
-    color: hsl(250 12% 74%);
-}
-:root[data-theme="dark"] .goal-select {
-    color: hsl(250 12% 70%);
-}
-:root[data-theme="dark"] .goal-select select {
-    border: 2px solid hsl(253 45% 20%);
-    background: hsl(250 14% 17%);
-    color: hsl(247 54% 69%);
 }
 :root[data-theme="dark"] .badge-count {
     background: hsl(255 45% 20%);
@@ -3778,6 +3744,238 @@
 }
 :root[data-theme="dark"] .student-manage .tool-btn.is-danger:hover {
     background: hsl(13 45% 19%);
+}
+:root[data-theme="dark"] .dashboard-page .continue-card {
+    --fun-stripe: linear-gradient(90deg, var(--fun-sky), var(--fun-grape));
+}
+:root[data-theme="dark"] .dashboard-page .leaderboard-card {
+    --fun-stripe: linear-gradient(90deg, var(--fun-sun), var(--fun-pink));
+}
+:root[data-theme="dark"] .continue-tile {
+    border: 2px solid hsl(253 45% 20%);
+    background: hsl(250 14% 17%);
+    color: inherit;
+}
+:root[data-theme="dark"] .continue-tile:hover {
+    border-color: hsl(251 45% 23%);
+    box-shadow: 0 12px 24px rgba(91, 60, 196, 0.14);
+}
+:root[data-theme="dark"] .continue-thumb {
+    background: hsl(254 45% 20%);
+}
+:root[data-theme="dark"] .continue-play {
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+}
+:root[data-theme="dark"] .continue-tile:hover .continue-play {
+    background: var(--fun-grape);
+}
+:root[data-theme="dark"] .continue-bar {
+    background: rgba(0, 0, 0, 0.35);
+}
+:root[data-theme="dark"] .continue-bar span {
+    background: var(--fun-coral);
+}
+:root[data-theme="dark"] .continue-text small {
+    color: var(--fun-grape);
+}
+:root[data-theme="dark"] .continue-text strong {
+    color: hsl(250 49% 87%);
+}
+:root[data-theme="dark"] .continue-empty {
+    color: hsl(250 12% 70%);
+}
+:root[data-theme="dark"] .continue-empty i {
+    color: var(--fun-sun);
+}
+:root[data-theme="dark"] .lb-note,
+:root[data-theme="dark"] .lb-sub {
+    color: hsl(250 12% 74%);
+}
+:root[data-theme="dark"] .lb-sub {
+    color: var(--fun-grape);
+}
+:root[data-theme="dark"] .lb-row {
+    background: hsl(250 14% 17%);
+    border: 2px solid hsl(253 45% 20%);
+}
+:root[data-theme="dark"] .lb-row.is-top1 {
+    background: linear-gradient(90deg, hsl(47 45% 22%), hsl(250 14% 17%));
+    border-color: #ffe08a;
+}
+:root[data-theme="dark"] .lb-row.is-top2 {
+    background: linear-gradient(90deg, hsl(223 30% 20%), hsl(250 14% 17%));
+}
+:root[data-theme="dark"] .lb-row.is-top3 {
+    background: linear-gradient(90deg, hsl(21 45% 21%), hsl(250 14% 17%));
+}
+:root[data-theme="dark"] .lb-row.is-me {
+    border-color: var(--fun-grape);
+    box-shadow: 0 4px 12px rgba(123, 92, 255, 0.18);
+}
+:root[data-theme="dark"] .lb-rank {
+    color: hsl(250 12% 70%);
+}
+:root[data-theme="dark"] .lb-name small,
+:root[data-theme="dark"] .lb-points small {
+    color: hsl(250 12% 67%);
+}
+:root[data-theme="dark"] .lb-points b {
+    color: var(--fun-grape);
+}
+:root[data-theme="dark"] .lb-gap {
+    color: #aaa;
+}
+:root[data-theme="dark"] .ce-bulk-status {
+    color: hsl(250 12% 74%);
+}
+:root[data-theme="dark"] .ce-bulk-status.is-ok {
+    color: hsl(144 62% 79%);
+}
+:root[data-theme="dark"] .ce-bulk-status.is-bad {
+    color: hsl(6 63% 71%);
+}
+:root[data-theme="dark"] .video-page .video-card::before {
+    background: var(--card-stripe, var(--fun-sky));
+}
+:root[data-theme="dark"] .video-page .video-link:nth-child(6n + 1) .video-card {
+    --card-stripe: linear-gradient(90deg, var(--fun-sky), var(--fun-grape));
+}
+:root[data-theme="dark"] .video-page .video-link:nth-child(6n + 2) .video-card {
+    --card-stripe: linear-gradient(90deg, var(--fun-pink), var(--fun-coral));
+}
+:root[data-theme="dark"] .video-page .video-link:nth-child(6n + 3) .video-card {
+    --card-stripe: linear-gradient(90deg, var(--fun-mint), var(--fun-sky));
+}
+:root[data-theme="dark"] .video-page .video-link:nth-child(6n + 4) .video-card {
+    --card-stripe: linear-gradient(90deg, var(--fun-sun), var(--fun-coral));
+}
+:root[data-theme="dark"] .video-page .video-link:nth-child(6n + 5) .video-card {
+    --card-stripe: linear-gradient(90deg, var(--fun-grape), var(--fun-pink));
+}
+:root[data-theme="dark"] .video-page .video-link:nth-child(6n + 6) .video-card {
+    --card-stripe: linear-gradient(90deg, var(--fun-coral), var(--fun-sun));
+}
+:root[data-theme="dark"] .video-page .video-card:hover .video-info h4 {
+    color: var(--fun-grape);
+}
+:root[data-theme="dark"] .video-page .watched-badge {
+    box-shadow: 0 4px 10px rgba(30, 126, 69, 0.35);
+}
+:root[data-theme="dark"] .video-page .video-toolbar.is-complete {
+    border: 2px solid transparent;
+    background: linear-gradient(hsl(250 14% 17%), hsl(250 14% 17%)) padding-box,
+        var(--fun-rainbow) border-box;
+    background-size: auto, 200% 100%;
+}
+:root[data-theme="dark"] .video-page .video-toolbar.is-complete .video-progress-bar div {
+    background-color: transparent;
+    background-image: var(--fun-rainbow);
+    background-size: 200% 100%;
+}
+:root[data-theme="dark"] .lb-see-all {
+    border: none;
+    background: linear-gradient(135deg, var(--fun-sun), var(--fun-coral), var(--fun-pink));
+    background-size: 200% 100%;
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(255, 111, 165, 0.3);
+}
+:root[data-theme="dark"] .lb-see-all:hover {
+    background-position: 100% 0;
+    color: #fff;
+}
+:root[data-theme="dark"] .lb-avatar {
+    color: #fff;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+}
+:root[data-theme="dark"] .lb-av-0 {
+    background: linear-gradient(135deg, var(--fun-sky), var(--fun-grape));
+}
+:root[data-theme="dark"] .lb-av-1 {
+    background: linear-gradient(135deg, var(--fun-pink), var(--fun-coral));
+}
+:root[data-theme="dark"] .lb-av-2 {
+    background: linear-gradient(135deg, var(--fun-mint), var(--fun-sky));
+}
+:root[data-theme="dark"] .lb-av-3 {
+    background: linear-gradient(135deg, var(--fun-sun), var(--fun-coral));
+}
+:root[data-theme="dark"] .lb-av-4 {
+    background: linear-gradient(135deg, var(--fun-grape), var(--fun-pink));
+}
+:root[data-theme="dark"] .lb-av-5 {
+    background: linear-gradient(135deg, var(--fun-coral), var(--fun-sun));
+}
+:root[data-theme="dark"] .lb-points i {
+    color: var(--fun-sun);
+}
+:root[data-theme="dark"] .lb-row.is-me {
+    background: linear-gradient(90deg, hsl(256 45% 19%), hsl(250 14% 17%));
+}
+:root[data-theme="dark"] .lb-full {
+    border: 3px solid hsl(250 14% 17%);
+}
+:root[data-theme="dark"] .lb-hero {
+    background: var(--fun-hero);
+    background-size: 200% 200%;
+    color: #fff;
+}
+:root[data-theme="dark"] .lb-hero::after {
+    background: var(--fun-rainbow);
+    background-size: 200% 100%;
+}
+:root[data-theme="dark"] .lb-hero h3 {
+    color: #fff;
+}
+:root[data-theme="dark"] .lb-hero p {
+    color: rgba(255, 255, 255, 0.85);
+}
+:root[data-theme="dark"] .lb-close {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+:root[data-theme="dark"] .lb-close:hover {
+    background: hsl(250 14% 17% / 0.35);
+    color: #fff;
+}
+:root[data-theme="dark"] .lb-search input {
+    border: 2px solid hsl(253 45% 20%);
+}
+:root[data-theme="dark"] .lb-search input:focus {
+    border-color: var(--fun-grape);
+}
+:root[data-theme="dark"] .lb-step .lb-avatar {
+    border: 3px solid hsl(250 14% 17%);
+}
+:root[data-theme="dark"] .lb-step.is-place1 .lb-avatar {
+    box-shadow: 0 0 0 3px var(--fun-sun), 0 8px 18px rgba(255, 201, 60, 0.45);
+}
+:root[data-theme="dark"] .lb-step strong {
+    color: hsl(250 49% 87%);
+}
+:root[data-theme="dark"] .lb-step strong small {
+    color: var(--fun-grape);
+}
+:root[data-theme="dark"] .lb-step-points {
+    color: hsl(250 30% 68%);
+}
+:root[data-theme="dark"] .lb-step-points i {
+    color: var(--fun-sun);
+}
+:root[data-theme="dark"] .lb-step-block {
+    color: #fff;
+}
+:root[data-theme="dark"] .lb-step.is-place1 .lb-step-block {
+    background: linear-gradient(180deg, #ffd75e, #ff9f2e);
+}
+:root[data-theme="dark"] .lb-step.is-place2 .lb-step-block {
+    background: linear-gradient(180deg, hsl(217 32% 27%), hsl(219 20% 39%));
+}
+:root[data-theme="dark"] .lb-step.is-place3 .lb-step-block {
+    background: linear-gradient(180deg, #ffb08a, #e07a4f);
+}
+:root[data-theme="dark"] .lb-step.is-me .lb-step-block {
+    box-shadow: 0 0 0 3px var(--fun-grape);
 }
 
 /* ---------- from update-password.html ---------- */

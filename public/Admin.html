@@ -9,8 +9,8 @@
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
-    <link rel="stylesheet" href="style.css?v=58">
-    <link rel="stylesheet" href="dark.css?v=21">
+    <link rel="stylesheet" href="style.css?v=63">
+    <link rel="stylesheet" href="dark.css?v=26">
     <script src="js/theme.js?v=2"></script>
     <!-- FontAwesome para sa icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -108,7 +108,7 @@
                             <h3 id="welcomeLine">Welcome back!</h3>
                             <div class="admin-quick">
                                 <a href="#announcements" class="admin-quick-btn"><i class="fa-solid fa-bullhorn"></i><span><b>Post an announcement</b><small>Tell your students something</small></span></a>
-                                <a href="#students" class="admin-quick-btn" data-quick="inactive"><i class="fa-solid fa-user-clock"></i><span><b>Who needs attention</b><small id="quickInactive">Students inactive 7+ days</small></span></a>
+                                <a href="#students" class="admin-quick-btn" data-quick="atrisk"><i class="fa-solid fa-user-clock"></i><span><b>Who needs attention</b><small id="quickInactive">At-risk students</small></span></a>
                                 <a href="#content" class="admin-quick-btn" id="quickContent" hidden><i class="fa-solid fa-pen-to-square"></i><span><b>Edit content</b><small id="quickContentNote">Videos, lessons, questions</small></span></a>
                                 <a href="/api/admin/export.csv" class="admin-quick-btn" id="quickExport"><i class="fa-solid fa-file-csv"></i><span><b>Export progress</b><small>Spreadsheet (CSV) of everyone</small></span></a>
                             </div>
@@ -127,8 +127,8 @@
                                 <div class="section-bars" id="sectionBars"></div>
                             </div>
                             <div class="admin-card">
-                                <h3><i class="fa-solid fa-triangle-exclamation"></i> Needs attention</h3>
-                                <p class="admin-card-note">No activity in the last 7 days.</p>
+                                <h3><i class="fa-solid fa-triangle-exclamation"></i> At-risk students</h3>
+                                <p class="admin-card-note">Inactive 7+ days, under 50% correct, or far behind the class.</p>
                                 <div class="admin-list" id="inactiveList"></div>
                             </div>
                             <div class="admin-card">
@@ -156,6 +156,7 @@
                                 <option value="">Everyone</option>
                                 <option value="active">Active this week</option>
                                 <option value="inactive">Inactive 7+ days</option>
+                                <option value="atrisk">At risk</option>
                             </select>
                             <select id="sortBy" aria-label="Sort by">
                                 <option value="name">Sort: Name</option>
@@ -254,7 +255,7 @@
 
     <script src="js/api.js?v=10"></script>
     <script src="js/richtext.js?v=1"></script>
-    <script src="js/admin-content.js?v=4"></script>
+    <script src="js/admin-content.js?v=5"></script>
     <script>
         const ACTIVITY_LABELS = { case_study: 'Case Study', study_card: 'Study Card', video: 'Video', lesson: 'Lesson' };
         const AUDIT_ICONS = {
@@ -318,8 +319,36 @@
             return `<span class="admin-progress"><span style="width:${percent}%"></span></span><b>${percent}%</b>`;
         }
 
+        // ---------------- At-risk students ----------------
+        // Reasons a student may need help. Accuracy needs enough answers to mean
+        // something, and "behind" waits two weeks after joining.
+        const RISK_MIN_ANSWERS = 10;
+        const RISK_LOW_ACCURACY = 50;
+        const RISK_BEHIND_AFTER_DAYS = 14;
+
+        function classAverage() {
+            return students.length ? students.reduce((sum, s) => sum + s.overallPercent, 0) / students.length : 0;
+        }
+
+        function riskReasons(s, avg) {
+            if (s.deactivated) return [];
+            const reasons = [];
+            if (!s.lastActive) reasons.push('Never started');
+            else if (s.inactive) reasons.push(`Inactive ${daysBetween(s.lastActive, today)} days`);
+            const accuracy = s.answers ? Math.round((s.correct / s.answers) * 100) : 100;
+            if (s.answers >= RISK_MIN_ANSWERS && accuracy < RISK_LOW_ACCURACY) reasons.push(`${accuracy}% correct`);
+            if (s.lastActive && daysBetween(s.joinedAt.slice(0, 10), today) >= RISK_BEHIND_AFTER_DAYS
+                && s.overallPercent < Math.max(10, avg / 2)) reasons.push(`Behind: ${s.overallPercent}% done`);
+            return reasons;
+        }
+
+        // A reminder can go out once a day, only to inactive students with an email on file
+        const remindedRecently = (s) => s.remindedAt && Date.now() - Date.parse(s.remindedAt) < 24 * 3600 * 1000;
+
         // ---------------- Overview ----------------
+        let lastInsights = null;
         function renderOverview(insights) {
+            lastInsights = insights;
             const activeWeek = students.filter(s => !s.inactive);
             $('statStudents').textContent = students.length;
             $('statToday').textContent = students.filter(s => s.lastActive === today).length;
@@ -345,16 +374,21 @@
                     ${progressBar(r.avg)}
                 </div>`).join('') : '<p class="admin-empty">No students yet.</p>';
 
-            // Needs attention
-            const inactive = students.filter(s => s.inactive)
-                .sort((a, b) => (a.lastActive || '').localeCompare(b.lastActive || ''));
-            $('inactiveList').innerHTML = inactive.length ? inactive.slice(0, 8).map(s => `
-                <button type="button" class="admin-list-item" data-student="${s.id}">
-                    <span class="admin-avatar">${escapeHtml(initials(s.fullName))}</span>
-                    <span class="admin-list-text"><strong>${escapeHtml(s.fullName)}</strong><small>${escapeHtml(sectionOf(s))} · ${s.overallPercent}% done</small></span>
-                    <span class="admin-pill is-warn">${lastActiveText(s.lastActive)}</span>
-                </button>`).join('') + (inactive.length > 8 ? `<p class="admin-card-note">+ ${inactive.length - 8} more in the Students tab.</p>` : '')
-                : '<p class="admin-empty"><i class="fa-solid fa-circle-check"></i> Everyone studied this week!</p>';
+            // At-risk students: most reasons first, then longest inactive
+            const avg = classAverage();
+            const atRisk = students.map(s => ({ s, reasons: riskReasons(s, avg) }))
+                .filter(r => r.reasons.length)
+                .sort((a, b) => b.reasons.length - a.reasons.length || (a.s.lastActive || '').localeCompare(b.s.lastActive || ''));
+            $('inactiveList').innerHTML = atRisk.length ? atRisk.slice(0, 8).map(({ s, reasons }) => `
+                <div class="risk-row">
+                    <button type="button" class="admin-list-item" data-student="${s.id}">
+                        <span class="admin-avatar">${escapeHtml(initials(s.fullName))}</span>
+                        <span class="admin-list-text"><strong>${escapeHtml(s.fullName)}</strong><small>${escapeHtml(sectionOf(s))} · last active ${lastActiveText(s.lastActive).toLowerCase()}</small>
+                            <span class="risk-reasons">${reasons.map(r => `<span class="admin-pill is-warn">${escapeHtml(r)}</span>`).join('')}</span></span>
+                    </button>
+                    ${s.inactive && s.canEmail ? `<button type="button" class="ce-icon-btn risk-remind" data-remind="${s.id}" ${remindedRecently(s) ? 'disabled title="Reminder already sent today" aria-label="Reminder already sent today"' : 'title="Send reminder email" aria-label="Send reminder email"'}><i class="fa-solid ${remindedRecently(s) ? 'fa-check' : 'fa-bell'}"></i></button>` : ''}
+                </div>`).join('') + (atRisk.length > 8 ? `<p class="admin-card-note">+ ${atRisk.length - 8} more: <a href="#students" data-quick="atrisk">see all at-risk students</a>.</p>` : '')
+                : '<p class="admin-empty"><i class="fa-solid fa-circle-check"></i> Nobody looks at risk right now!</p>';
 
             // One-line row that opens to show the full title and details (all args already escaped)
             const dropRow = (tag, title, pill, details) => `
@@ -410,12 +444,13 @@
             const section = $('filterSection').value;
             const status = $('filterStatus').value;
             const sort = $('sortBy').value;
+            const avg = classAverage();
 
             const list = students.filter(s =>
                 (!q || s.fullName.toLowerCase().includes(q) || s.studentId.toLowerCase().includes(q)) &&
                 (!program || s.program === program) &&
                 (!section || s.yearSection === section) &&
-                (!status || (status === 'inactive' ? s.inactive : !s.inactive)));
+                (!status || (status === 'atrisk' ? riskReasons(s, avg).length > 0 : status === 'inactive' ? s.inactive : !s.inactive)));
 
             const sorters = {
                 name: (a, b) => a.fullName.localeCompare(b.fullName),
@@ -563,7 +598,9 @@
                         const list = await api.get('/admin/students');
                         students = list.students;
                         renderStudents();
-                        if (m.removed) closeStudent(); else openStudent(student.id);
+                        if (lastInsights) renderOverview(lastInsights);
+                        // The overview's reminder button doesn't open the drawer
+                        if (m.removed) closeStudent(); else if (!$('drawerOverlay').hidden) openStudent(student.id);
                         loadAudit();
                     } catch (err) {
                         adminToast(err.message, true);
@@ -896,10 +933,18 @@
 
         window.addEventListener('hashchange', () => showTab(location.hash.slice(1)));
 
-        // "Who needs attention" opens Students filtered to inactive
-        document.querySelector('[data-quick="inactive"]').addEventListener('click', () => {
-            $('filterStatus').value = 'inactive';
+        // "Who needs attention" (and "see all" under the at-risk list) opens Students filtered to at-risk
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('[data-quick="atrisk"]')) return;
+            $('filterStatus').value = 'atrisk';
             renderStudents();
+        });
+        // Reminder email straight from the at-risk list
+        $('inactiveList').addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-remind]');
+            if (!btn) return;
+            const s = students.find(x => x.id === Number(btn.dataset.remind));
+            if (s) manageStudent(s, 'remind');
         });
         ['studentSearch', 'filterProgram', 'filterSection', 'filterStatus', 'sortBy'].forEach(id =>
             $(id).addEventListener(id === 'studentSearch' ? 'input' : 'change', renderStudents));
@@ -1001,8 +1046,9 @@
                 $('adminLoading').hidden = true;
                 $('adminApp').hidden = false;
                 $('quickInactive').textContent = (() => {
-                    const n = students.filter(x => x.inactive).length;
-                    return n ? `${n} student${n === 1 ? '' : 's'} inactive 7+ days` : 'Everyone studied this week';
+                    const avg = classAverage();
+                    const n = students.filter(x => riskReasons(x, avg).length).length;
+                    return n ? `${n} at-risk student${n === 1 ? '' : 's'}` : 'Nobody looks at risk';
                 })();
                 showTab(location.hash.slice(1) || 'overview');
             } catch (err) {
