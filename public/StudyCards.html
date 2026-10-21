@@ -23,9 +23,15 @@
     <script src="js/notifications.js?v=2"></script>
     <script src="js/gamify.js?v=2"></script>
     <script src="js/search.js?v=3"></script>
-    <script src="js/sfx.js?v=6"></script>
+    <script src="js/sfx.js?v=7"></script>
     <script>
         requireAuth();
+        // Bawal kopyahin ang tanong at sagot (pwede pa rin sa search box at inputs)
+        ['copy', 'cut', 'contextmenu', 'dragstart'].forEach(function(type) {
+            document.addEventListener(type, function(e) {
+                if (!e.target.closest || !e.target.closest('input, textarea')) e.preventDefault();
+            });
+        });
         document.addEventListener('DOMContentLoaded', function() {
             let currentPageName = window.location.pathname.split('/').pop();
             if (currentPageName && currentPageName !== '') {
@@ -108,6 +114,9 @@
                         <button type="button" class="sc-hero-btn" id="continueBtn" hidden>
                             <i class="fa-solid fa-play"></i> <span id="continueText">Continue</span>
                         </button>
+                        <button type="button" class="sc-hero-btn is-quiet" id="examBtn" onclick="startExam()" hidden>
+                            <i class="fa-solid fa-file-pen"></i> Practice exam
+                        </button>
                     </div>
                 </div>
 
@@ -122,15 +131,6 @@
                             <i class="fa-solid fa-arrow-left"></i> All decks
                         </button>
                         <span class="fc-topbar-right">
-                            <label class="fc-timer-pick" title="Time per card">
-                                <i class="fa-solid fa-stopwatch"></i>
-                                <select id="timerSelect" aria-label="Time per card">
-                                    <option value="0">No timer</option>
-                                    <option value="10">10 sec</option>
-                                    <option value="20">20 sec</option>
-                                    <option value="30">30 sec</option>
-                                </select>
-                            </label>
                             <span class="fc-counter" id="masteredText"></span>
                         </span>
                     </div>
@@ -188,6 +188,7 @@
                         <div class="fc-done-icon"><i class="fa-solid fa-trophy"></i></div>
                         <h3 id="doneTitle">Deck mastered!</h3>
                         <p id="doneText">You answered every card correctly.</p>
+                        <div class="exam-breakdown" id="examBreakdown" hidden></div>
                         <div class="fc-actions fc-done-actions">
                             <button type="button" class="fc-btn fc-btn-ghost" onclick="exitQuiz()">Back to decks</button>
                             <button type="button" class="fc-btn fc-btn-primary" id="nextLessonBtn">
@@ -232,6 +233,12 @@
         // Review my mistakes: card keys, hal. "3-7"
         let mistakeKeys = [];
         let reviewMode = false;
+
+        // Practice exam: isang beses lang bawat tanong, walang feedback hanggang dulo
+        const EXAM_SIZE = 20;
+        const EXAM_MIN = 5;          // kailangan ng ganito karaming card para lumabas
+        let examMode = false;
+        let examResults = [];        // { key, deck, correct }
         const missedThisRound = new Set();  // mga card na nagkamali na sa round na ito
 
         const cardKey = (card) => card.key;
@@ -331,6 +338,9 @@
                 listView.appendChild(review);
             }
 
+            // "Practice exam" button sa banner, lalabas lang kapag sapat ang card
+            document.getElementById('examBtn').hidden = examCards().length < EXAM_MIN;
+
             const STATUS = {
                 done:     '<i class="fa-solid fa-circle-check"></i> Mastered',
                 next:     '<i class="fa-solid fa-play"></i> Start',
@@ -395,7 +405,7 @@
         }
 
         function updateMastered() {
-            const label = reviewMode ? 'cleared' : 'mastered';
+            const label = examMode ? 'answered' : reviewMode ? 'cleared' : 'mastered';
             document.getElementById('masteredText').innerHTML =
                 `<i class="fa-regular fa-clone"></i> ${roundTotal - questionQueue.length} / ${roundTotal} ${label}`;
         }
@@ -418,8 +428,10 @@
             document.getElementById('scHeaderSide').style.display = 'none';
             document.getElementById('quizView').style.display = 'block';
             document.getElementById('quizView').classList.toggle('is-review', reviewMode);
+            document.getElementById('quizView').classList.toggle('is-exam', examMode);
             document.getElementById('quizBody').hidden = false;
             document.getElementById('quizDone').hidden = true;
+            document.getElementById('examBreakdown').hidden = true;
             updateMastered();
             scrollToTop();
             loadQuestion();
@@ -434,8 +446,24 @@
             }
 
             reviewMode = false;
+            examMode = false;
             currentLessonId = lessonId;
             questionQueue = deck.cards.map(card => ({ deck: lessonId, key: card.key }));
+            showQuizView();
+        }
+
+        // Lahat ng card sa mga deck na bukas na
+        function examCards() {
+            return decks.filter(d => isUnlocked(d.key))
+                .flatMap(d => d.cards.map(card => ({ deck: d.key, key: card.key })));
+        }
+
+        function startExam() {
+            reviewMode = false;
+            examMode = true;
+            currentLessonId = null;
+            examResults = [];
+            questionQueue = shuffle(examCards()).slice(0, EXAM_SIZE);
             showQuizView();
         }
 
@@ -443,21 +471,16 @@
         function startReview() {
             if (!mistakeKeys.length) return;
             reviewMode = true;
+            examMode = false;
             currentLessonId = null;
             questionQueue = mistakeKeys.map(key => ({ deck: cardByKey.get(key).deck.key, key }));
             showQuizView();
         }
 
         // ========================================================
-        // TIMER bawat card (puwedeng patayin; naaalala ng browser)
+        // TIMER bawat card (laging 20 segundo, hindi mababago ng student)
         // ========================================================
-        const TIMER_KEY = 'hcilearn_card_timer';
-        let timerSeconds = 20;
-        try {
-            const saved = localStorage.getItem(TIMER_KEY);
-            if (saved !== null && ['0', '10', '20', '30'].includes(saved)) timerSeconds = Number(saved);
-        } catch (e) { /* storage blocked */ }
-        document.getElementById('timerSelect').value = String(timerSeconds);
+        const timerSeconds = 20;
 
         let timerId = null;
         let timerEndsAt = 0;
@@ -472,8 +495,7 @@
         function startTimer() {
             stopTimer();
             const box = document.getElementById('cardTimer');
-            box.hidden = !timerSeconds;
-            if (!timerSeconds) return;
+            box.hidden = false;
             timerEndsAt = Date.now() + timerSeconds * 1000;
             lastTick = null;
             box.classList.remove('is-low');
@@ -487,10 +509,10 @@
             document.getElementById('timerFill').style.width = `${(left / (timerSeconds * 1000)) * 100}%`;
             document.getElementById('timerNum').textContent = `${secs}s`;
             document.getElementById('cardTimer').classList.toggle('is-low', secs <= 5);
-            // Mahinang tick sa huling 5 segundo
+            // Tick-tock sa huling 5 segundo
             if (secs <= 5 && secs > 0 && secs !== lastTick) {
                 lastTick = secs;
-                HCISfx.play('tick');
+                HCISfx.play(secs % 2 ? 'tick' : 'tock');
             }
             if (left <= 0) {
                 stopTimer();
@@ -505,6 +527,7 @@
             document.querySelectorAll('input[name="quizChoice"]').forEach(r => { r.disabled = true; r.checked = false; });
             HCISfx.play('timeUp');
             HCIGamify.record('answer', false);
+            if (examMode) return examAnswered(card, false, "<i class=\"fa-solid fa-hourglass-end\"></i> Time's up! On to the next question.");
             if (!missedThisRound.has(cardKey(card))) {
                 missedThisRound.add(cardKey(card));
                 recordMistake(card);
@@ -515,12 +538,6 @@
             nextCardTimer = setTimeout(loadQuestion, 1800);
         }
 
-        document.getElementById('timerSelect').addEventListener('change', (e) => {
-            timerSeconds = Number(e.target.value);
-            try { localStorage.setItem(TIMER_KEY, String(timerSeconds)); } catch (err) { /* storage blocked */ }
-            // Ilapat agad sa kasalukuyang card kung hindi pa nasasagot
-            if (!document.getElementById('submitBtn').disabled) startTimer();
-        });
 
         function loadQuestion() {
             clearTimeout(nextCardTimer);
@@ -528,9 +545,11 @@
             const { card: data, deck } = cardByKey.get(card.key);
             currentQuestionObj = data;
 
-            document.getElementById('quizLessonTitle').textContent = reviewMode
-                ? `Review · Lesson ${deck.number}: ${deck.title}`
-                : `Lesson ${deck.number}: ${deck.title}`;
+            document.getElementById('quizLessonTitle').textContent = examMode
+                ? `Practice exam · Question ${examResults.length + 1} of ${roundTotal}`
+                : reviewMode
+                    ? `Review · Lesson ${deck.number}: ${deck.title}`
+                    : `Lesson ${deck.number}: ${deck.title}`;
             document.getElementById('flashcardQuestion').textContent = currentQuestionObj.question;
             // Iba-iba rin ang ayos ng mga sagot bawat lumabas ang card.
             // optionOrder[slot] = index ng sagot (sa options ng card) na nasa slot na iyon
@@ -575,6 +594,13 @@
             const selectedLabel = document.getElementById(`label${selectedValue}`);
 
             const card = questionQueue[0];
+
+            // Exam: walang tama/mali na kulay o tunog hanggang sa dulo
+            if (examMode) {
+                const correct = selectedValue === correctValue;
+                HCIGamify.record('answer', correct);
+                return examAnswered(card, correct, '<i class="fa-solid fa-check"></i> Answer saved.');
+            }
 
             if (selectedValue === correctValue) {
                 // TAMA ANG SAGOT
@@ -621,6 +647,60 @@
             }, 1500); // 1.5 seconds delay bago lumipat sa next question
         }
 
+        // Exam: itala ang sagot (mali = papasok sa "Review my mistakes"), tapos susunod
+        function examAnswered(card, correct, message) {
+            examResults.push({ key: card.key, deck: card.deck, correct });
+            if (!correct) recordMistake(card);
+            questionQueue.shift();
+            showFeedback('info', message);
+            updateMastered();
+            nextCardTimer = setTimeout(() => {
+                if (questionQueue.length === 0) finishExam();
+                else loadQuestion();
+            }, 900);
+        }
+
+        function finishExam() {
+            stopTimer();
+            const right = examResults.filter(r => r.correct).length;
+            const percent = Math.round((right / examResults.length) * 100);
+            HCISfx.play(percent >= 75 ? 'cardMastered' : 'cardCorrect');
+            document.getElementById('quizBody').hidden = true;
+            document.getElementById('quizDone').hidden = false;
+            document.getElementById('doneTitle').textContent = `You scored ${right} / ${examResults.length} (${percent}%)`;
+            document.getElementById('doneText').textContent = percent >= 75
+                ? 'Great job! Questions you missed were added to "Review my mistakes".'
+                : 'Keep practicing. Questions you missed were added to "Review my mistakes", and the lessons below show where to focus.';
+            document.getElementById('nextLessonBtn').hidden = true;
+
+            // Score bawat lesson, pinakamahina muna
+            const byDeck = new Map();
+            examResults.forEach(r => {
+                const row = byDeck.get(r.deck) || { right: 0, total: 0 };
+                row.total++;
+                if (r.correct) row.right++;
+                byDeck.set(r.deck, row);
+            });
+            const box = document.getElementById('examBreakdown');
+            box.innerHTML = '';
+            [...byDeck.entries()]
+                .sort((a, b) => (a[1].right / a[1].total) - (b[1].right / b[1].total))
+                .forEach(([deckKey, row]) => {
+                    const deck = deckByKey.get(deckKey);
+                    const pct = Math.round((row.right / row.total) * 100);
+                    const line = document.createElement('div');
+                    line.className = `exam-row${pct < 75 ? ' is-weak' : ''}`;
+                    line.innerHTML = `
+                        <span class="exam-row-name"></span>
+                        <span class="exam-row-bar"><span style="width:${pct}%"></span></span>
+                        <b>${row.right}/${row.total}</b>`;
+                    line.querySelector('.exam-row-name').textContent = `Lesson ${deck.number}: ${deck.title}`;
+                    box.appendChild(line);
+                });
+            box.hidden = false;
+            applyLessonLockState();
+        }
+
         function finishReview() {
             document.getElementById('quizBody').hidden = true;
             document.getElementById('quizDone').hidden = false;
@@ -634,6 +714,7 @@
 
         function finishLesson() {
             stopTimer();
+            if (examMode) return finishExam();
             if (reviewMode) return finishReview();
             // "Flawless" badge: whole deck without a single mistake (or time-out)
             if (missedThisRound.size === 0) HCIGamify.record('perfect');

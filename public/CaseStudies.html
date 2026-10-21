@@ -27,6 +27,12 @@
     <script src="js/sfx.js?v=6"></script>
     <script>
         requireAuth();
+        // Bawal kopyahin ang tanong at sagot (pwede pa rin sa search box at inputs)
+        ['copy', 'cut', 'contextmenu', 'dragstart'].forEach(function(type) {
+            document.addEventListener(type, function(e) {
+                if (!e.target.closest || !e.target.closest('input, textarea')) e.preventDefault();
+            });
+        });
         document.addEventListener('DOMContentLoaded', function() {
             let currentPageName = window.location.pathname.split('/').pop();
             if (currentPageName && currentPageName !== '') {
