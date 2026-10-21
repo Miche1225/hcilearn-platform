@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved · HCILearn</title>
+    <meta name="description" content="Your saved lesson topics and videos, with your own notes.">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="theme-color" content="#0d3b75">
+    <link rel="stylesheet" href="style.css?v=38">
+    <link rel="stylesheet" href="dark.css?v=1">
+    <script src="js/theme.js?v=1"></script>
+    <!-- FontAwesome para sa icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="saved-page">
+    <noscript>
+        <div class="noscript-note">HCILearn needs JavaScript to work. Please turn it on in your browser settings.</div>
+    </noscript>
+
+    <div class="dashboard-container">
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="favicon.svg" alt="" class="sidebar-logo">
+                <div class="sidebar-brand">
+                    <span class="logo-text">HCILearn</span>
+                    <small class="logo-tag">HCI 2 Study Hub</small>
+                </div>
+            </div>
+
+            <span class="sidebar-label">Overview</span>
+
+            <nav class="sidebar-nav">
+                <a href="Dashboard.html" class="nav-item">
+                    <i class="fa-solid fa-border-all"></i> <span class="nav-text">Dashboard</span>
+                </a>
+                <span class="sidebar-label sidebar-label-group">Learn</span>
+                <a href="WatchVideo.html" class="nav-item">
+                    <i class="fa-solid fa-play"></i> <span class="nav-text">Watch Video</span>
+                </a>
+                <a href="ReadLesson.html" class="nav-item">
+                    <i class="fa-solid fa-book"></i> <span class="nav-text">Read Lesson</span>
+                </a>
+                <a href="CaseStudies.html" class="nav-item">
+                    <i class="fa-solid fa-folder"></i> <span class="nav-text">Case Studies</span>
+                </a>
+                <a href="StudyCards.html" class="nav-item">
+                    <i class="fa-solid fa-rotate"></i> <span class="nav-text">Study Cards</span>
+                </a>
+                <span class="sidebar-label sidebar-label-group">You</span>
+                <a href="Saved.html" class="nav-item active">
+                    <i class="fa-solid fa-bookmark"></i> <span class="nav-text">Saved</span>
+                </a>
+                <a href="Account.html" class="nav-item">
+                    <i class="fa-solid fa-circle-user"></i> <span class="nav-text">Account</span>
+                </a>
+            </nav>
+            <!-- Profile card + log out (pinupuno ng renderSidebarUser() sa js/api.js) -->
+            <div class="sidebar-user">
+                <a href="Account.html" class="sidebar-user-link" title="View your account">
+                    <span class="sidebar-avatar" id="sidebarAvatar"><i class="fa-regular fa-user"></i></span>
+                    <span class="sidebar-user-text">
+                        <strong id="sidebarName">My Account</strong>
+                        <small id="sidebarMeta">View profile</small>
+                    </span>
+                </a>
+                <button type="button" class="sidebar-logout" data-logout aria-label="Log out" title="Log out">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+
+            <div class="saved-wrapper">
+
+                <!-- Header -->
+                <div class="saved-header">
+                    <div class="saved-header-icon"><i class="fa-solid fa-bookmark"></i></div>
+                    <div class="saved-header-text">
+                        <h2>Saved</h2>
+                        <p>Lesson topics and videos you bookmarked, with your own notes.</p>
+                    </div>
+                    <div class="saved-search search-container">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="savedSearch" placeholder="Search saved items and notes..." aria-label="Search saved items">
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="saved-filters" role="tablist" aria-label="Filter saved items">
+                    <button type="button" class="filter-btn active" data-filter="all" role="tab" aria-selected="true">All <span class="filter-count" id="countAll">0</span></button>
+                    <button type="button" class="filter-btn" data-filter="lesson" role="tab" aria-selected="false"><i class="fa-solid fa-book"></i> Topics <span class="filter-count" id="countLesson">0</span></button>
+                    <button type="button" class="filter-btn" data-filter="video" role="tab" aria-selected="false"><i class="fa-solid fa-play"></i> Videos <span class="filter-count" id="countVideo">0</span></button>
+                    <button type="button" class="filter-btn" data-filter="notes" role="tab" aria-selected="false"><i class="fa-solid fa-note-sticky"></i> With notes <span class="filter-count" id="countNotes">0</span></button>
+                </div>
+
+                <!-- List -->
+                <div class="saved-list" id="savedList" aria-live="polite">
+                    <div class="saved-loading"><span class="btn-spinner"></span> Loading your saved items...</div>
+                </div>
+
+                <!-- Empty states -->
+                <div class="saved-empty" id="savedEmpty" hidden>
+                    <div class="saved-empty-icon"><i class="fa-regular fa-bookmark"></i></div>
+                    <h3>Nothing saved yet</h3>
+                    <p>Tap <strong>Save topic</strong> inside any lesson topic, or <strong>Save video</strong> under a video, to keep it here with your notes.</p>
+                    <div class="saved-empty-actions">
+                        <a href="ReadLesson.html" class="tool-btn"><i class="fa-solid fa-book"></i> Read Lesson</a>
+                        <a href="WatchVideo.html" class="tool-btn"><i class="fa-solid fa-play"></i> Watch Video</a>
+                    </div>
+                </div>
+                <p class="saved-no-match" id="savedNoMatch" hidden>No saved items match your search or filter.</p>
+
+            </div>
+
+            <!-- Footer -->
+            <footer class="site-footer">
+                <span><strong>HCILearn</strong></span>
+                <span class="site-footer-dot" aria-hidden="true">·</span>
+                <span>HCI 2 Study Hub for UEP IT Students</span>
+            </footer>
+        </main>
+    </div>
+
+    <script src="js/api.js?v=7"></script>
+    <script src="js/bookmarks.js?v=1"></script>
+    <script>
+        requireAuth();
+
+        const listEl = document.getElementById('savedList');
+        const searchInput = document.getElementById('savedSearch');
+        let activeFilter = 'all';
+
+        function linkFor(b) {
+            if (b.kind === 'video') {
+                return `WatchVideo-Player.html?video=${encodeURIComponent(b.itemKey)}&title=${encodeURIComponent(b.title)}`;
+            }
+            return `ReadLesson.html#topic-${encodeURIComponent(b.itemKey)}`;
+        }
+
+        function formatDate(iso) {
+            const date = new Date(iso);
+            return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        function updateCounts(items) {
+            document.getElementById('countAll').textContent = items.length;
+            document.getElementById('countLesson').textContent = items.filter(b => b.kind === 'lesson').length;
+            document.getElementById('countVideo').textContent = items.filter(b => b.kind === 'video').length;
+            document.getElementById('countNotes').textContent = items.filter(b => b.note).length;
+        }
+
+        function render() {
+            const items = HCIBookmarks.all().sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+            const query = searchInput.value.trim().toLowerCase();
+            updateCounts(items);
+
+            const visible = items.filter(b => {
+                const matchesFilter =
+                    activeFilter === 'all' ||
+                    (activeFilter === 'notes' && b.note) ||
+                    b.kind === activeFilter;
+                const matchesSearch = !query || `${b.title} ${b.note}`.toLowerCase().includes(query);
+                return matchesFilter && matchesSearch;
+            });
+
+            listEl.innerHTML = '';
+            document.getElementById('savedEmpty').hidden = items.length > 0;
+            document.getElementById('savedNoMatch').hidden = items.length === 0 || visible.length > 0;
+            document.querySelector('.saved-filters').hidden = items.length === 0;
+
+            visible.forEach(b => {
+                const card = document.createElement('article');
+                card.className = `saved-card is-${b.kind}`;
+                card.innerHTML = `
+                    <div class="saved-card-icon">
+                        ${b.kind === 'video'
+                            ? '<img alt="" loading="lazy">'
+                            : '<i class="fa-solid fa-book-open"></i>'}
+                    </div>
+                    <div class="saved-card-body">
+                        <div class="saved-card-meta">
+                            <span class="saved-kind"></span>
+                            <span class="saved-date"></span>
+                        </div>
+                        <h3><a class="saved-title"></a></h3>
+                        <p class="saved-card-note"></p>
+                        <div class="saved-card-actions">
+                            <a class="tool-btn saved-open"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open</a>
+                            <button type="button" class="tool-btn saved-edit"><i class="fa-regular fa-pen-to-square"></i> <span></span></button>
+                            <button type="button" class="tool-btn saved-remove"><i class="fa-regular fa-trash-can"></i> Remove</button>
+                        </div>
+                    </div>`;
+
+                const href = linkFor(b);
+                card.querySelector('.saved-kind').innerHTML = b.kind === 'video'
+                    ? '<i class="fa-solid fa-play"></i> Video'
+                    : `<i class="fa-solid fa-book"></i> Topic ${Number(b.itemKey)}`;
+                card.querySelector('.saved-date').textContent = `Saved ${formatDate(b.createdAt)}`;
+                card.querySelector('.saved-title').textContent = b.title;
+                card.querySelector('.saved-title').href = href;
+                card.querySelector('.saved-open').href = href;
+
+                const noteEl = card.querySelector('.saved-card-note');
+                noteEl.textContent = b.note || 'No note yet.';
+                noteEl.classList.toggle('is-empty', !b.note);
+                card.querySelector('.saved-edit span').textContent = b.note ? 'Edit note' : 'Add note';
+
+                if (b.kind === 'video') {
+                    const img = card.querySelector('img');
+                    img.src = `https://img.youtube.com/vi/${encodeURIComponent(b.itemKey)}/mqdefault.jpg`;
+                }
+
+                card.querySelector('.saved-edit').addEventListener('click', async () => {
+                    try {
+                        const saved = await HCIBookmarks.editNote(b.kind, b.itemKey, b.title);
+                        if (saved) HCIBookmarks.toast('Note saved', 'fa-pen-to-square');
+                        render();
+                    } catch (err) {
+                        HCIBookmarks.toast(err.message, 'fa-circle-exclamation');
+                    }
+                });
+
+                card.querySelector('.saved-remove').addEventListener('click', () => {
+                    confirmDialog({
+                        title: 'Remove from Saved?',
+                        message: b.note
+                            ? 'Your note for this item will be deleted too.'
+                            : 'You can save it again anytime.',
+                        confirmText: 'Remove',
+                        icon: 'fa-trash-can',
+                        danger: true,
+                        onConfirm: async () => {
+                            try {
+                                await HCIBookmarks.remove(b.kind, b.itemKey);
+                                HCIBookmarks.toast('Removed from Saved');
+                            } catch (err) {
+                                HCIBookmarks.toast(err.message, 'fa-circle-exclamation');
+                            }
+                            render();
+                        },
+                    });
+                });
+
+                listEl.appendChild(card);
+            });
+        }
+
+        document.querySelectorAll('.saved-filters .filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.saved-filters .filter-btn').forEach(b => {
+                    b.classList.toggle('active', b === btn);
+                    b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
+                });
+                activeFilter = btn.dataset.filter;
+                render();
+            });
+        });
+
+        searchInput.addEventListener('input', render);
+
+        HCIBookmarks.load()
+            .then(render)
+            .catch(() => {
+                listEl.innerHTML = '<p class="saved-error"><i class="fa-solid fa-circle-exclamation"></i> Could not load your saved items. Please refresh the page.</p>';
+            });
+    </script>
+</body>
+</html>

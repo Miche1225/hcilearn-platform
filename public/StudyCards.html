@@ -9,7 +9,9 @@
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
-    <link rel="stylesheet" href="style.css?v=37">
+    <link rel="stylesheet" href="style.css?v=38">
+    <link rel="stylesheet" href="dark.css?v=1">
+    <script src="js/theme.js?v=1"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body class="study-page">
@@ -17,7 +19,7 @@
         <div class="noscript-note">HCILearn needs JavaScript to work. Please turn it on in your browser settings.</div>
     </noscript>
 
-    <script src="js/api.js?v=6"></script>
+    <script src="js/api.js?v=7"></script>
     <script src="js/sfx.js?v=4"></script>
     <script>
         requireAuth();
@@ -61,6 +63,9 @@
                     <i class="fa-solid fa-rotate"></i> <span class="nav-text">Study Cards</span>
                 </a>
                 <span class="sidebar-label sidebar-label-group">You</span>
+                <a href="Saved.html" class="nav-item">
+                    <i class="fa-solid fa-bookmark"></i> <span class="nav-text">Saved</span>
+                </a>
                 <a href="Account.html" class="nav-item">
                     <i class="fa-solid fa-circle-user"></i> <span class="nav-text">Account</span>
                 </a>
@@ -163,7 +168,7 @@
                     <!-- Lesson finished screen -->
                     <div class="fc-done" id="quizDone" hidden>
                         <div class="fc-done-icon"><i class="fa-solid fa-trophy"></i></div>
-                        <h3>Deck mastered!</h3>
+                        <h3 id="doneTitle">Deck mastered!</h3>
                         <p id="doneText">You answered every card correctly.</p>
                         <div class="fc-actions fc-done-actions">
                             <button type="button" class="fc-btn fc-btn-ghost" onclick="exitQuiz()">Back to decks</button>
@@ -354,21 +359,54 @@
         const TOTAL_LESSONS = 11;
 
         let currentLessonId = null;
-        let questionQueue = [];
+        let questionQueue = [];      // mga card na natitira: { lesson, index }
+        let roundTotal = 0;          // ilang card ang nasa deck na ito
         let currentQuestionObj = null;
         let unlockedLesson = 1;
         let completedIds = [];
 
+        // Review my mistakes: "lesson-index" keys, hal. "3-7"
+        let mistakeKeys = [];
+        let reviewMode = false;
+        const missedThisRound = new Set();  // mga card na nagkamali na sa round na ito
+
+        const cardKey = (card) => `${card.lesson}-${card.index}`;
+
         // Pull real progress from the backend and reflect it in the lesson list.
         async function loadStudyCardProgress() {
-            try {
-                const progress = await api.get('/progress/study-cards');
+            const [progress, mistakes] = await Promise.all([
+                api.get('/progress/study-cards').catch(err => {
+                    console.error('Could not load study card progress:', err);
+                    return null;
+                }),
+                api.get('/progress/mistakes?source=study_card').catch(() => null),
+            ]);
+            if (progress) {
                 unlockedLesson = progress.unlockedLesson;
                 completedIds = progress.completedIds;
-            } catch (err) {
-                console.error('Could not load study card progress:', err);
+            }
+            if (mistakes) {
+                // Itapon ang mga key na wala na sa deck (kung nabago ang mga tanong)
+                mistakeKeys = mistakes.mistakes.map(m => m.itemKey).filter(key => {
+                    const [lesson, index] = key.split('-').map(Number);
+                    return reviewerData[lesson] && reviewerData[lesson][index];
+                });
             }
             applyLessonLockState();
+        }
+
+        function recordMistake(card) {
+            const key = cardKey(card);
+            if (!mistakeKeys.includes(key)) mistakeKeys = [...mistakeKeys, key];
+            api.post('/progress/mistakes', { source: 'study_card', itemKey: key })
+                .catch(err => console.error('Could not save mistake:', err));
+        }
+
+        function clearMistake(card) {
+            const key = cardKey(card);
+            mistakeKeys = mistakeKeys.filter(k => k !== key);
+            api.post('/progress/mistakes/resolve', { source: 'study_card', itemKey: key })
+                .catch(err => console.error('Could not clear mistake:', err));
         }
 
         // Unang unlocked lesson na hindi pa tapos (ang "Up next")
@@ -384,6 +422,22 @@
             const listView = document.getElementById('lessonListView');
             listView.innerHTML = '';
             const nextId = getNextLesson();
+
+            // "Review my mistakes" deck (lalabas lang kapag may mali)
+            if (mistakeKeys.length) {
+                const review = document.createElement('button');
+                review.type = 'button';
+                review.className = 'review-deck';
+                review.onclick = startReview;
+                review.innerHTML = `
+                    <div class="review-deck-icon"><i class="fa-solid fa-rotate-left"></i></div>
+                    <div class="review-deck-text">
+                        <strong>Review my mistakes</strong>
+                        <span>${mistakeKeys.length} card${mistakeKeys.length === 1 ? '' : 's'} you missed before. Get each one right to clear it.</span>
+                    </div>
+                    <span class="review-deck-go">Start <i class="fa-solid fa-arrow-right"></i></span>`;
+                listView.appendChild(review);
+            }
 
             const STATUS = {
                 done:     '<i class="fa-solid fa-circle-check"></i> Mastered',
@@ -447,9 +501,23 @@
         }
 
         function updateMastered() {
-            const total = reviewerData[currentLessonId].length;
+            const label = reviewMode ? 'cleared' : 'mastered';
             document.getElementById('masteredText').innerHTML =
-                `<i class="fa-regular fa-clone"></i> ${total - questionQueue.length} / ${total} mastered`;
+                `<i class="fa-regular fa-clone"></i> ${roundTotal - questionQueue.length} / ${roundTotal} ${label}`;
+        }
+
+        function showQuizView() {
+            missedThisRound.clear();
+            roundTotal = questionQueue.length;
+            document.getElementById('lessonListView').style.display = 'none';
+            document.getElementById('scHeaderSide').style.display = 'none';
+            document.getElementById('quizView').style.display = 'block';
+            document.getElementById('quizView').classList.toggle('is-review', reviewMode);
+            document.getElementById('quizBody').hidden = false;
+            document.getElementById('quizDone').hidden = true;
+            updateMastered();
+            scrollToTop();
+            loadQuestion();
         }
 
         function startQuiz(lessonId) {
@@ -459,29 +527,31 @@
                 return;
             }
 
+            reviewMode = false;
             currentLessonId = lessonId;
-            questionQueue = [];
+            questionQueue = reviewerData[lessonId].map((_, index) => ({ lesson: lessonId, index }));
+            showQuizView();
+        }
 
-            for (let i = 0; i < reviewerData[lessonId].length; i++) {
-                questionQueue.push(i);
-            }
-
-            document.getElementById('quizLessonTitle').textContent = `Lesson ${lessonId}: ${LESSONS[lessonId]}`;
-            document.getElementById('lessonListView').style.display = 'none';
-            document.getElementById('scHeaderSide').style.display = 'none';
-            document.getElementById('quizView').style.display = 'block';
-            document.getElementById('quizBody').hidden = false;
-            document.getElementById('quizDone').hidden = true;
-            updateMastered();
-            scrollToTop();
-
-            loadQuestion();
+        // Deck ng lahat ng card na nagkamali dati (galing sa iba't ibang lesson)
+        function startReview() {
+            if (!mistakeKeys.length) return;
+            reviewMode = true;
+            currentLessonId = null;
+            questionQueue = mistakeKeys.map(key => {
+                const [lesson, index] = key.split('-').map(Number);
+                return { lesson, index };
+            });
+            showQuizView();
         }
 
         function loadQuestion() {
-            const currentQIndex = questionQueue[0];
-            currentQuestionObj = reviewerData[currentLessonId][currentQIndex];
+            const card = questionQueue[0];
+            currentQuestionObj = reviewerData[card.lesson][card.index];
 
+            document.getElementById('quizLessonTitle').textContent = reviewMode
+                ? `Review · Lesson ${card.lesson}: ${LESSONS[card.lesson]}`
+                : `Lesson ${card.lesson}: ${LESSONS[card.lesson]}`;
             document.getElementById('flashcardQuestion').textContent = currentQuestionObj.question;
             // Tanggalin ang "A. " o "A) " sa unahan dahil may letter badge na
             for (let i = 0; i < 4; i++) {
@@ -519,24 +589,38 @@
             const correctValue = currentQuestionObj.answer;
             const selectedLabel = document.getElementById(`label${selectedValue}`);
 
+            const card = questionQueue[0];
+
             if (selectedValue === correctValue) {
                 // TAMA ANG SAGOT
                 selectedLabel.classList.add("correct-answer");
                 questionQueue.shift();
                 // Fanfare kapag huling tanong na (na-master na ang lesson), chime kung hindi pa
                 HCISfx.play(questionQueue.length === 0 ? 'cardMastered' : 'cardCorrect');
-                showFeedback('correct', '<i class="fa-solid fa-circle-check"></i> Correct!');
+
+                // Review mode: tama sa unang subok ngayong round = cleared na
+                if (reviewMode && !missedThisRound.has(cardKey(card))) {
+                    clearMistake(card);
+                    showFeedback('correct', '<i class="fa-solid fa-circle-check"></i> Correct! Mistake cleared.');
+                } else {
+                    showFeedback('correct', '<i class="fa-solid fa-circle-check"></i> Correct!');
+                }
             } else {
                 // MALI ANG SAGOT
                 selectedLabel.classList.add("wrong-answer");
                 HCISfx.play('cardWrong');
 
+                // Itala para sa "Review my mistakes" (isang beses lang bawat round)
+                if (!missedThisRound.has(cardKey(card))) {
+                    missedThisRound.add(cardKey(card));
+                    recordMistake(card);
+                }
+
                 // TINANGGAL NA NATIN DITO YUNG NAGPAPAKITA NG TAMANG SAGOT (GREEN)
                 // Para hindi nila malaman kung ano ang tama hanggang sa masagot nila nang wasto
                 showFeedback('wrong', '<i class="fa-solid fa-circle-xmark"></i> Not quite. This card goes back into the deck.');
 
-                const failedQuestionIndex = questionQueue.shift();
-                questionQueue.push(failedQuestionIndex);
+                questionQueue.push(questionQueue.shift());
             }
 
             updateMastered();
@@ -550,7 +634,20 @@
             }, 1500); // 1.5 seconds delay bago lumipat sa next question
         }
 
+        function finishReview() {
+            document.getElementById('quizBody').hidden = true;
+            document.getElementById('quizDone').hidden = false;
+            document.getElementById('doneTitle').textContent = 'Review finished!';
+            document.getElementById('doneText').textContent = mistakeKeys.length
+                ? `Nice work! ${mistakeKeys.length} card${mistakeKeys.length === 1 ? '' : 's'} you missed again will stay in your review deck.`
+                : 'You cleared every mistake. Your review deck is empty!';
+            document.getElementById('nextLessonBtn').hidden = true;
+            applyLessonLockState();
+        }
+
         function finishLesson() {
+            if (reviewMode) return finishReview();
+            document.getElementById('doneTitle').textContent = 'Deck mastered!';
             const lessonId = currentLessonId;
             const nextId = lessonId + 1;
             const hasNext = nextId <= TOTAL_LESSONS;

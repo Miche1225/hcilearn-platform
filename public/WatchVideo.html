@@ -9,7 +9,9 @@
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
-    <link rel="stylesheet" href="style.css?v=37">
+    <link rel="stylesheet" href="style.css?v=38">
+    <link rel="stylesheet" href="dark.css?v=1">
+    <script src="js/theme.js?v=1"></script>
     <!-- Updated FontAwesome link para lumabas ang mga icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
@@ -18,7 +20,8 @@
         <div class="noscript-note">HCILearn needs JavaScript to work. Please turn it on in your browser settings.</div>
     </noscript>
 
-    <script src="js/api.js?v=6"></script>
+    <script src="js/api.js?v=7"></script>
+    <script src="js/bookmarks.js?v=1"></script>
     <script>
         requireAuth();
         document.addEventListener('DOMContentLoaded', function() {
@@ -61,6 +64,9 @@
                     <i class="fa-solid fa-rotate"></i> <span class="nav-text">Study Cards</span>
                 </a>
                 <span class="sidebar-label sidebar-label-group">You</span>
+                <a href="Saved.html" class="nav-item">
+                    <i class="fa-solid fa-bookmark"></i> <span class="nav-text">Saved</span>
+                </a>
                 <a href="Account.html" class="nav-item">
                     <i class="fa-solid fa-circle-user"></i> <span class="nav-text">Account</span>
                 </a>
@@ -314,8 +320,27 @@
 
             updateWatchedProgress();
 
-            api.get('/progress/videos').then(({ watched }) => {
+            api.get('/progress/videos').then(({ watched, positions = [] }) => {
                 const watchedIds = new Set(watched.map(w => w.video_id));
+
+                // "Resume where you left off": progress bar sa thumbnail
+                positions.forEach(p => {
+                    const link = grid.querySelector(`.video-link[data-video-id="${CSS.escape(p.video_id)}"]`);
+                    if (!link || p.position_seconds < 5 || p.position_seconds >= p.duration_seconds - 15) return;
+                    const percent = Math.min(100, (p.position_seconds / p.duration_seconds) * 100);
+                    const thumb = link.querySelector('.thumbnail-container');
+                    const bar = document.createElement('div');
+                    bar.className = 'resume-bar';
+                    bar.innerHTML = '<div></div>';
+                    bar.firstChild.style.width = `${percent}%`;
+                    thumb.appendChild(bar);
+
+                    const chip = document.createElement('span');
+                    chip.className = 'resume-chip';
+                    chip.innerHTML = '<i class="fa-solid fa-clock-rotate-left"></i> Resume';
+                    link.querySelector('.video-meta').appendChild(chip);
+                });
+
                 videoCards.forEach(link => {
                     if (watchedIds.has(link.dataset.videoId)) {
                         link.classList.add('is-watched');
@@ -330,6 +355,18 @@
                 });
                 updateWatchedProgress();
                 applyFilters();
+            }).catch(() => {});
+
+            // Bookmark badge sa mga naka-save na video
+            HCIBookmarks.load().then(() => {
+                videoCards.forEach(link => {
+                    if (!HCIBookmarks.get('video', link.dataset.videoId)) return;
+                    const badge = document.createElement('span');
+                    badge.className = 'saved-badge';
+                    badge.title = 'Saved';
+                    badge.innerHTML = '<i class="fa-solid fa-bookmark"></i><span class="sr-only">Saved</span>';
+                    link.querySelector('.thumbnail-container').appendChild(badge);
+                });
             }).catch(() => {});
 
         });

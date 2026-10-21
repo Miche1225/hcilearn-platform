@@ -1,0 +1,54 @@
+
+/* Base: page colours, native controls and scrollbars */
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --fun-bg: #13111f;
+}
+
+:root[data-theme="dark"] body {
+    background-color: #13111f;
+    color: #e7e5f4;
+}
+
+:root[data-theme="dark"] .main-content,
+:root[data-theme="dark"] .dashboard-container {
+    background-color: var(--fun-bg) !important;
+}
+
+:root[data-theme="dark"] input::placeholder,
+:root[data-theme="dark"] textarea::placeholder {
+    color: #8d8aa6;
+}
+
+/* Inline colours written straight into the HTML */
+:root[data-theme="dark"] [style*="color: #555"],
+:root[data-theme="dark"] [style*="color:#555"] {
+    color: #b9b6cf !important;
+}
+
+:root[data-theme="dark"] [style*="color:#1e7e45"] {
+    color: #6fdc9f !important;
+}
+
+/* Photos: slightly dimmer so they don't glare */
+:root[data-theme="dark"] .thumbnail-container img,
+:root[data-theme="dark"] .image-section {
+    filter: brightness(0.88);
+}
+
+/* Login / sign up: darker glass over the blurred campus photo */
+:root[data-theme="dark"] .login-section::before {
+    filter: blur(4px) brightness(0.55);
+}
+
+/* Smooth colour change when switching themes */
+:root.theme-switching *,
+:root.theme-switching *::before,
+:root.theme-switching *::after {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+}
+
+/* Dashboard progress ring: empty part of the track */
+:root[data-theme="dark"] {
+    --ring-track: #2c2840;
+}

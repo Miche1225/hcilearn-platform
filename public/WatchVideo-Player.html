@@ -9,10 +9,13 @@
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
-    <link rel="stylesheet" href="style.css?v=37">
+    <link rel="stylesheet" href="style.css?v=38">
+    <link rel="stylesheet" href="dark.css?v=1">
+    <script src="js/theme.js?v=1"></script>
     <!-- FontAwesome para sa icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="js/api.js?v=6"></script>
+    <script src="js/api.js?v=7"></script>
+    <script src="js/bookmarks.js?v=1"></script>
 </head>
 <body>
     <noscript>
@@ -52,6 +55,9 @@
                     <i class="fa-solid fa-rotate"></i> <span class="nav-text">Study Cards</span>
                 </a>
                 <span class="sidebar-label sidebar-label-group">You</span>
+                <a href="Saved.html" class="nav-item">
+                    <i class="fa-solid fa-bookmark"></i> <span class="nav-text">Saved</span>
+                </a>
                 <a href="Account.html" class="nav-item">
                     <i class="fa-solid fa-circle-user"></i> <span class="nav-text">Account</span>
                 </a>
@@ -90,6 +96,28 @@
                 <div class="video-container" id="videoContainer">
                     <!-- DITO PAPASOK ANG YOUTUBE API -->
                     <div id="youtubePlayer"></div>
+                </div>
+
+                <!-- Resume notice + bookmark / note -->
+                <div class="player-tools">
+                    <div class="resume-note" id="resumeNote" hidden>
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                        <span id="resumeText"></span>
+                        <button type="button" class="link-btn" id="startOverBtn">Start over</button>
+                    </div>
+                    <div class="player-tool-buttons">
+                        <button type="button" class="tool-btn" id="bookmarkBtn" aria-pressed="false">
+                            <i class="fa-regular fa-bookmark"></i> <span>Save video</span>
+                        </button>
+                        <button type="button" class="tool-btn" id="noteBtn">
+                            <i class="fa-regular fa-pen-to-square"></i> <span>Add note</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="saved-note" id="playerNote" hidden>
+                    <strong><i class="fa-solid fa-note-sticky"></i> My note</strong>
+                    <p id="playerNoteText"></p>
                 </div>
 
                 <p id="watchedMsg" style="text-align:center; color:#1e7e45; font-weight:600; display:none; margin-top:10px;">
@@ -135,30 +163,153 @@
 
         document.getElementById('markWatchedBtn').addEventListener('click', logWatched);
 
+
+        // ========================================================
+        // RESUME WHERE YOU LEFT OFF
+        // Sine-save ang oras habang nanonood (bawat 10s, pag-pause at pag-alis
+        // sa page), tapos doon magsisimula ang video sa susunod na bukas.
+        // ========================================================
+        const RESUME_MIN_SECONDS = 5;   // huwag mag-resume kung halos kakasimula pa lang
+        const RESUME_END_MARGIN = 15;   // o kung halos tapos na
+        let player = null;
+        let lastSavedPosition = -1;
+
+        // Kunin agad ang naka-save na oras habang naglo-load ang YouTube API
+        const progressPromise = api.get('/progress/videos').catch(() => null);
+
+        function formatTime(totalSeconds) {
+            const s = Math.floor(totalSeconds);
+            const h = Math.floor(s / 3600);
+            const m = Math.floor((s % 3600) / 60);
+            const sec = String(s % 60).padStart(2, '0');
+            return h ? `${h}:${String(m).padStart(2, '0')}:${sec}` : `${m}:${sec}`;
+        }
+
+        function sendPosition(position, duration, leavingPage) {
+            // keepalive: para matapos ang request kahit umaalis na sa page
+            fetch('/api/progress/videos/position', {
+                method: 'PUT',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ videoId, position, duration }),
+                keepalive: !!leavingPage,
+            }).catch(() => {});
+        }
+
+        function savePosition(leavingPage) {
+            if (!player || typeof player.getCurrentTime !== 'function') return;
+            const position = Math.floor(player.getCurrentTime());
+            const duration = Math.floor(player.getDuration());
+            if (!duration || position === lastSavedPosition) return;
+            lastSavedPosition = position;
+            sendPosition(position, duration, leavingPage);
+        }
+
+        setInterval(() => {
+            if (player && player.getPlayerState && player.getPlayerState() === YT.PlayerState.PLAYING) {
+                savePosition(false);
+            }
+        }, 10000);
+
+        window.addEventListener('pagehide', () => savePosition(true));
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') savePosition(true);
+        });
+
+        document.getElementById('startOverBtn').addEventListener('click', () => {
+            if (player) player.seekTo(0, true);
+            document.getElementById('resumeNote').hidden = true;
+        });
+
         // Load the YouTube IFrame API so we can detect when the video actually ends.
         const ytScript = document.createElement('script');
         ytScript.src = 'https://www.youtube.com/iframe_api';
         document.head.appendChild(ytScript);
 
-        window.onYouTubeIframeAPIReady = function () {
-            new YT.Player('youtubePlayer', {
+        window.onYouTubeIframeAPIReady = async function () {
+            const progress = await progressPromise;
+            const saved = progress && (progress.positions || []).find(p => p.video_id === videoId);
+            const resumeAt = saved &&
+                saved.position_seconds >= RESUME_MIN_SECONDS &&
+                saved.position_seconds < saved.duration_seconds - RESUME_END_MARGIN
+                ? saved.position_seconds : 0;
+
+            const playerVars = { autoplay: 1, rel: 0 };
+            if (resumeAt) playerVars.start = resumeAt;
+
+            player = new YT.Player('youtubePlayer', {
                 height: '500',
                 width: '100%',
                 videoId: videoId,
-                playerVars: { 
-                    autoplay: 1, 
-                    rel: 0 
-                },
+                playerVars,
                 events: {
                     onStateChange: function (event) {
+                        if (event.data === YT.PlayerState.PAUSED) {
+                            savePosition(false);
+                        }
                         // Kapag tapos na ang video (State 0 = ENDED)
                         if (event.data === YT.PlayerState.ENDED) {
                             logWatched();
+                            // Tapos na: sa umpisa na ulit magsisimula sa susunod
+                            const duration = Math.floor(player.getDuration());
+                            if (duration) sendPosition(0, duration, false);
+                            lastSavedPosition = 0;
                         }
                     },
                 },
             });
+
+            if (resumeAt) {
+                document.getElementById('resumeText').textContent = `Resumed at ${formatTime(resumeAt)}`;
+                document.getElementById('resumeNote').hidden = false;
+            }
         };
+
+
+        // ========================================================
+        // BOOKMARK + NOTE
+        // ========================================================
+        const bookmarkBtn = document.getElementById('bookmarkBtn');
+        const noteBtn = document.getElementById('noteBtn');
+
+        function renderBookmark() {
+            const saved = HCIBookmarks.get('video', videoId);
+            bookmarkBtn.classList.toggle('is-active', !!saved);
+            bookmarkBtn.setAttribute('aria-pressed', saved ? 'true' : 'false');
+            bookmarkBtn.innerHTML = saved
+                ? '<i class="fa-solid fa-bookmark"></i> <span>Saved</span>'
+                : '<i class="fa-regular fa-bookmark"></i> <span>Save video</span>';
+
+            const note = saved ? saved.note : '';
+            noteBtn.querySelector('span').textContent = note ? 'Edit note' : 'Add note';
+            document.getElementById('playerNote').hidden = !note;
+            document.getElementById('playerNoteText').textContent = note;
+        }
+
+        bookmarkBtn.addEventListener('click', async () => {
+            bookmarkBtn.disabled = true;
+            try {
+                const saved = await HCIBookmarks.toggle('video', videoId, videoTitle);
+                HCIBookmarks.toast(saved ? 'Video saved' : 'Removed from Saved');
+            } catch (err) {
+                HCIBookmarks.toast(err.message, 'fa-circle-exclamation');
+            } finally {
+                bookmarkBtn.disabled = false;
+                renderBookmark();
+            }
+        });
+
+        noteBtn.addEventListener('click', async () => {
+            try {
+                const saved = await HCIBookmarks.editNote('video', videoId, videoTitle);
+                if (saved) HCIBookmarks.toast('Note saved', 'fa-pen-to-square');
+            } catch (err) {
+                HCIBookmarks.toast(err.message, 'fa-circle-exclamation');
+            }
+            renderBookmark();
+        });
+
+        HCIBookmarks.load().then(renderBookmark).catch(() => {});
 
         // PAG-TRACK NG LAST VISITED LESSON PARA SA DASHBOARD
         localStorage.setItem('lastLessonVisited', window.location.pathname.split('/').pop() + window.location.search);

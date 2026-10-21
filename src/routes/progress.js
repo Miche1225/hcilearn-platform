@@ -3,33 +3,10 @@ const express = require('express');
 const { pool } = require('../db');
 const { requireAuth } = require('../middleware/authGuard');
 
+const { TOTAL_CASE_STUDIES, TOTAL_STUDY_CARD_LESSONS, VIDEOS, TOTAL_VIDEOS } = require('../content');
+
 const router = express.Router();
 router.use(requireAuth);
-
-// These mirror the content that's hard-coded into the front-end pages.
-const TOTAL_CASE_STUDIES = 50;
-const TOTAL_STUDY_CARD_LESSONS = 11;
-// The only videos that count as "watched". Keep in sync with the VIDEOS
-// list in public/WatchVideo.html. Titles come from here, not the browser.
-const VIDEOS = new Map([
-  ['uB9LaBIAcRs', 'Introduction to Human Computer Interaction (HCI)'],
-  ['iGmIvuPjv6s', 'HCI: The What and the Importance'],
-  ['v__Yhk1U94k', 'Principles of Human Computer Interaction with Examples'],
-  ['ESRI4ovEOSo', 'Task-Centered Design | Introduction to HCI'],
-  ['4OVptMIxsT4', 'What is the User-Centered Design Process?'],
-  ['dRIavYjuXek', 'User-Centered Design (UCD) Process with Examples'],
-  ['_r0VX-aU_T8', 'The Design Thinking Process'],
-  ['meWKtrZNsRU', 'Principles of Design Thinking'],
-  ['_RnuN-e1wsk', "Donald Norman's Model: Execution & Evaluation Loop"],
-  ['BZbNNhBPIY8', "Design Rules: Nielsen's 10 Heuristics"],
-  ['ETGtsleVOpE', "Jakob Nielsen's 10 Usability Heuristics"],
-  ['Dh_6gZSF87Y', 'Gestalt Principles of Design'],
-  ['0OPmsy7SXoM', "User Experience Design: Fitts' Law"],
-  ['IVUeVUajtZI', "What is Fitts' Law and How to Use It?"],
-  ['YtBb-iVjwzw', 'Usability Evaluation in HCI'],
-  ['Md-huYID-Mg', 'Prototyping and Usability Testing'],
-]);
-const TOTAL_VIDEOS = VIDEOS.size;
 
 async function logActivity(userId, type, description) {
   await pool.query(
@@ -205,7 +182,40 @@ router.get('/videos', async (req, res, next) => {
       'SELECT video_id, title, watched_at FROM video_progress WHERE user_id = $1',
       [req.userId]
     );
-    res.json({ watched: rows });
+    const { rows: positions } = await pool.query(
+      'SELECT video_id, position_seconds, duration_seconds FROM video_positions WHERE user_id = $1',
+      [req.userId]
+    );
+    res.json({ watched: rows, positions });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// PUT /api/progress/videos/position  { videoId, position, duration }
+// Remembers where the user stopped so the player can resume there.
+router.put('/videos/position', async (req, res, next) => {
+  try {
+    const { videoId, position, duration } = req.body || {};
+    if (typeof videoId !== 'string' || !VIDEOS.has(videoId)) {
+      return res.status(400).json({ error: 'Unknown video.' });
+    }
+    const pos = Math.floor(Number(position));
+    const dur = Math.floor(Number(duration));
+    if (!Number.isFinite(pos) || !Number.isFinite(dur) || pos < 0 || dur <= 0 || dur > 6 * 3600 || pos > dur) {
+      return res.status(400).json({ error: 'Invalid position.' });
+    }
+
+    await pool.query(
+      `INSERT INTO video_positions (user_id, video_id, position_seconds, duration_seconds, updated_at)
+       VALUES ($1, $2, $3, $4, NOW())
+       ON CONFLICT (user_id, video_id)
+       DO UPDATE SET position_seconds = EXCLUDED.position_seconds,
+                     duration_seconds = EXCLUDED.duration_seconds,
+                     updated_at = NOW()`,
+      [req.userId, videoId, pos, dur]
+    );
+    res.json({ ok: true });
   } catch (err) {
     next(err);
   }
@@ -262,6 +272,82 @@ router.post('/lesson/complete', async (req, res, next) => {
       await logActivity(req.userId, 'lesson', 'Completed reading: Introduction to HCI 2 lesson');
     }
     res.json({ completed: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ---------- Review my mistakes ----------
+// Case Studies use the scenario number ("12"); Study Cards use
+// "<lesson>-<question index>" ("3-7"), matching the front-end data.
+function isValidMistakeKey(source, itemKey) {
+  if (typeof itemKey !== 'string') return false;
+  if (source === 'case_study') {
+    if (!/^\d{1,2}$/.test(itemKey)) return false;
+    const id = Number(itemKey);
+    return id >= 1 && id <= TOTAL_CASE_STUDIES;
+  }
+  if (source === 'study_card') {
+    const match = /^(\d{1,2})-(\d{1,3})$/.exec(itemKey);
+    if (!match) return false;
+    const lesson = Number(match[1]);
+    return lesson >= 1 && lesson <= TOTAL_STUDY_CARD_LESSONS;
+  }
+  return false;
+}
+
+// GET /api/progress/mistakes?source=case_study|study_card
+router.get('/mistakes', async (req, res, next) => {
+  try {
+    const { source } = req.query;
+    if (source !== 'case_study' && source !== 'study_card') {
+      return res.status(400).json({ error: 'Invalid source.' });
+    }
+    const { rows } = await pool.query(
+      `SELECT item_key, wrong_count, last_wrong_at FROM mistakes
+       WHERE user_id = $1 AND source = $2
+       ORDER BY last_wrong_at ASC`,
+      [req.userId, source]
+    );
+    res.json({
+      mistakes: rows.map(r => ({ itemKey: r.item_key, wrongCount: r.wrong_count, lastWrongAt: r.last_wrong_at })),
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/progress/mistakes  { source, itemKey }  — answered wrong
+router.post('/mistakes', async (req, res, next) => {
+  try {
+    const { source, itemKey } = req.body || {};
+    if (!isValidMistakeKey(source, itemKey)) {
+      return res.status(400).json({ error: 'Invalid question.' });
+    }
+    await pool.query(
+      `INSERT INTO mistakes (user_id, source, item_key) VALUES ($1, $2, $3)
+       ON CONFLICT (user_id, source, item_key)
+       DO UPDATE SET wrong_count = mistakes.wrong_count + 1, last_wrong_at = NOW()`,
+      [req.userId, source, itemKey]
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/progress/mistakes/resolve  { source, itemKey }  — answered right in review
+router.post('/mistakes/resolve', async (req, res, next) => {
+  try {
+    const { source, itemKey } = req.body || {};
+    if (!isValidMistakeKey(source, itemKey)) {
+      return res.status(400).json({ error: 'Invalid question.' });
+    }
+    await pool.query(
+      'DELETE FROM mistakes WHERE user_id = $1 AND source = $2 AND item_key = $3',
+      [req.userId, source, itemKey]
+    );
+    res.json({ ok: true });
   } catch (err) {
     next(err);
   }

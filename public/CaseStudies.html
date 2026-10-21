@@ -10,7 +10,9 @@
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
     <!-- Link to the separated CSS file -->
-    <link rel="stylesheet" href="style.css?v=37">
+    <link rel="stylesheet" href="style.css?v=38">
+    <link rel="stylesheet" href="dark.css?v=1">
+    <script src="js/theme.js?v=1"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body class="case-page">
@@ -18,7 +20,7 @@
         <div class="noscript-note">HCILearn needs JavaScript to work. Please turn it on in your browser settings.</div>
     </noscript>
 
-    <script src="js/api.js?v=6"></script>
+    <script src="js/api.js?v=7"></script>
     <script src="js/sfx.js?v=4"></script>
     <script>
         requireAuth();
@@ -62,6 +64,9 @@
                     <i class="fa-solid fa-rotate"></i> <span class="nav-text">Study Cards</span>
                 </a>
                 <span class="sidebar-label sidebar-label-group">You</span>
+                <a href="Saved.html" class="nav-item">
+                    <i class="fa-solid fa-bookmark"></i> <span class="nav-text">Saved</span>
+                </a>
                 <a href="Account.html" class="nav-item">
                     <i class="fa-solid fa-circle-user"></i> <span class="nav-text">Account</span>
                 </a>
@@ -99,6 +104,9 @@
                     </div>
                     <div class="cs-header-side" id="csHeaderSide">
                         <span class="cs-solved-chip"><i class="fa-solid fa-circle-check"></i> <span>Solved <strong id="solvedCount">0</strong>/50</span></span>
+                        <button type="button" class="review-btn" id="reviewBtn" hidden>
+                            <i class="fa-solid fa-rotate-left"></i> <span id="reviewText">Review mistakes</span>
+                        </button>
                         <button type="button" class="cs-continue-btn" id="continueBtn" hidden>
                             <i class="fa-solid fa-play"></i> <span id="continueText">Continue</span>
                         </button>
@@ -251,17 +259,47 @@
         let isAnswerSubmitted = false;
         let saveChain = Promise.resolve(); // para sunod-sunod ang pag-save sa server
 
+        // Review my mistakes
+        let mistakeIds = [];            // mga scenario na nagkamali (hindi pa na-clear)
+        let reviewQueue = null;         // mga natitirang scenario habang nagre-review, o null
+        let missedThisAttempt = false;  // nagkamali na ba sa scenario na ito ngayong bukas
+
         // Initialize Page: pull the user's real progress from the backend first.
         document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                const progress = await api.get('/progress/case-studies');
+            const [progress, mistakes] = await Promise.all([
+                api.get('/progress/case-studies').catch(err => {
+                    console.error('Could not load case study progress:', err);
+                    return null;
+                }),
+                api.get('/progress/mistakes?source=case_study').catch(() => null),
+            ]);
+            if (progress) {
                 unlockedLevel = progress.unlockedLevel;
                 solvedIds = progress.solvedIds;
-            } catch (err) {
-                console.error('Could not load case study progress:', err);
+            }
+            if (mistakes) {
+                mistakeIds = mistakes.mistakes.map(m => Number(m.itemKey));
             }
             renderScenariosList();
         });
+
+        function recordMistake(id) {
+            if (!mistakeIds.includes(id)) mistakeIds = [...mistakeIds, id];
+            api.post('/progress/mistakes', { source: 'case_study', itemKey: String(id) })
+                .catch(err => console.error('Could not save mistake:', err));
+        }
+
+        function clearMistake(id) {
+            mistakeIds = mistakeIds.filter(m => m !== id);
+            api.post('/progress/mistakes/resolve', { source: 'case_study', itemKey: String(id) })
+                .catch(err => console.error('Could not clear mistake:', err));
+        }
+
+        function startReview() {
+            if (!mistakeIds.length) return;
+            reviewQueue = [...mistakeIds];
+            openScenario(reviewQueue[0]);
+        }
 
         // Unang unlocked scenario na hindi pa nasasagot (ang "Up next")
         function getNextScenario() {
@@ -300,9 +338,13 @@
                 if (isUnlocked) scenarioDiv.type = 'button';
                 else scenarioDiv.title = `Solve Scenario ${i - 1} to unlock`;
 
+                const isMissed = isUnlocked && mistakeIds.includes(i);
+                if (isMissed) scenarioDiv.classList.add('is-missed');
+
                 scenarioDiv.innerHTML = `
                     <div class="sc-top">
                         <span class="sc-num">${i}</span>
+                        ${isMissed ? '<span class="missed-chip"><i class="fa-solid fa-rotate-left"></i> Review</span>' : ''}
                         <span class="sc-status">${STATUS[state]}</span>
                     </div>
                     <p class="sc-question"></p>`;
@@ -327,6 +369,11 @@
             } else {
                 continueBtn.hidden = true;
             }
+
+            const reviewBtn = document.getElementById('reviewBtn');
+            reviewBtn.hidden = mistakeIds.length === 0;
+            document.getElementById('reviewText').textContent = `Review mistakes (${mistakeIds.length})`;
+            reviewBtn.onclick = startReview;
         }
 
         function showFeedback(type, html) {
@@ -345,6 +392,7 @@
             currentActiveScenario = id;
             selectedAnswer = null;
             isAnswerSubmitted = false;
+            missedThisAttempt = false;
 
             const data = scenariosData[id];
 
@@ -352,10 +400,16 @@
             document.getElementById('scenarioTitle').innerText = `Scenario ${id}`;
             document.getElementById('scenarioText').innerText = data.text;
             document.getElementById('questionText').innerText = data.question;
-            document.getElementById('quizStatus').innerHTML = solvedIds.includes(id)
-                ? '<i class="fa-solid fa-circle-check"></i> Already solved'
-                : `${id} of ${TOTAL_SCENARIOS}`;
-            document.getElementById('quizStatus').classList.toggle('is-solved', solvedIds.includes(id));
+            const quizStatus = document.getElementById('quizStatus');
+            if (reviewQueue) {
+                quizStatus.innerHTML = `<i class="fa-solid fa-rotate-left"></i> Reviewing mistakes · ${reviewQueue.length} left`;
+            } else {
+                quizStatus.innerHTML = solvedIds.includes(id)
+                    ? '<i class="fa-solid fa-circle-check"></i> Already solved'
+                    : `${id} of ${TOTAL_SCENARIOS}`;
+            }
+            quizStatus.classList.toggle('is-solved', !reviewQueue && solvedIds.includes(id));
+            quizStatus.classList.toggle('is-review', !!reviewQueue);
 
             // Set Options (tanggalin ang "A. " sa unahan dahil may letter badge na)
             ['labelA', 'labelB', 'labelC', 'labelD'].forEach((labelId, index) => {
@@ -381,6 +435,8 @@
 
         // Close scenario and go back to list
         function closeScenario() {
+            reviewQueue = null;
+            renderScenariosList();
             document.getElementById('scenariosListView').style.display = '';
             document.getElementById('csHeaderSide').style.display = '';
             document.getElementById('scenarioView').style.display = 'none';
@@ -453,7 +509,23 @@
                     ? `<i class="fa-solid fa-circle-check"></i> Correct! Scenario ${nextId} is now unlocked.`
                     : '<i class="fa-solid fa-circle-check"></i> Correct! Great job.');
 
-                if (hasNext) {
+                if (reviewQueue) {
+                    // Review mode: tama sa unang subok = cleared na ang mistake
+                    reviewQueue = reviewQueue.filter(id => id !== currentActiveScenario);
+                    if (!missedThisAttempt) {
+                        clearMistake(currentActiveScenario);
+                        showFeedback('correct', '<i class="fa-solid fa-circle-check"></i> Correct! Mistake cleared.');
+                    } else {
+                        showFeedback('correct', '<i class="fa-solid fa-circle-check"></i> Correct! This one stays in your review list for next time.');
+                    }
+                    if (reviewQueue.length) {
+                        submitBtn.innerHTML = 'Next Mistake <i class="fa-solid fa-arrow-right"></i>';
+                        submitBtn.onclick = () => openScenario(reviewQueue[0]);
+                    } else {
+                        submitBtn.innerText = "Finish Review";
+                        submitBtn.onclick = closeScenario;
+                    }
+                } else if (hasNext) {
                     submitBtn.innerHTML = 'Next Scenario <i class="fa-solid fa-arrow-right"></i>';
                     submitBtn.onclick = () => openScenario(nextId);
                 } else {
@@ -481,6 +553,12 @@
                 // MALI ANG SAGOT Logic
                 labels[selectedAnswer].classList.add('wrong-answer');
                 HCISfx.play('wrong');
+
+                // Itala para sa "Review mistakes" (isang beses lang bawat bukas)
+                if (!missedThisAttempt) {
+                    missedThisAttempt = true;
+                    recordMistake(currentActiveScenario);
+                }
 
                 showFeedback('wrong', '<i class="fa-solid fa-circle-xmark"></i> Not quite. Pick another answer and try again.');
 
