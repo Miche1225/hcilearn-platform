@@ -3734,17 +3734,6 @@
     background: hsl(13 45% 19%);
     color: hsl(6 63% 71%);
 }
-:root[data-theme="dark"] .fc-timer-pick {
-    border: 2px solid hsl(253 45% 20%);
-    background: hsl(250 14% 17%);
-    color: #6a4cf0;
-}
-:root[data-theme="dark"] .fc-timer-pick select {
-    border: none;
-    background: transparent;
-    color: hsl(250 12% 81%);
-    outline: none;
-}
 :root[data-theme="dark"] .fc-timer-bar {
     background: hsl(254 45% 20%);
 }

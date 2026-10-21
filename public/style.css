@@ -11868,29 +11868,6 @@ fieldset.ce-field legend {
     gap: 10px;
 }
 
-.fc-timer-pick {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 6px 4px 12px;
-    border: 2px solid #ece8fb;
-    border-radius: 999px;
-    background: #fff;
-    color: #6a4cf0;
-    font-size: 13px;
-}
-
-.fc-timer-pick select {
-    border: none;
-    background: transparent;
-    color: #444;
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    outline: none;
-}
-
 .fc-timer {
     display: flex;
     align-items: center;
@@ -11950,4 +11927,20 @@ fieldset.ce-field legend {
 
 .student-manage .tool-btn.is-danger:hover {
     background: #fff0ec;
+}
+
+/* Study cards / case studies: hindi ma-highlight ang text para hindi makopya (search box at inputs, pwede pa rin) */
+.study-page,
+.case-page {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+
+.study-page input,
+.study-page textarea,
+.case-page input,
+.case-page textarea {
+    -webkit-user-select: text;
+    user-select: text;
 }
