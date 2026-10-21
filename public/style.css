@@ -5717,6 +5717,7 @@ p {
 
     .study-page .sc-hero-side {
         width: 100%;
+        flex-wrap: wrap;
         justify-content: space-between;
     }
 
@@ -8626,28 +8627,27 @@ body.update-password-page .update-container::before {
     border-color: #ffc2a6;
 }
 
-/* Study Cards: "Practice exam" (same shape as the review deck, purple) */
-.study-page .review-deck.is-exam {
-    border-color: #c3b5fb;
-    background: linear-gradient(120deg, #f1edff, #e8f1ff);
-    color: #2e2466;
+/* Study Cards: "Practice exam" next to Continue, pink so it reads as a separate action */
+.study-page .sc-hero-btn.is-quiet {
+    border: 1.5px solid rgba(255, 255, 255, 0.85);
+    background: linear-gradient(135deg, var(--fun-pink), var(--fun-grape));
+    color: #fff;
+    animation: examGlow 2.4s ease-in-out infinite;
 }
 
-.study-page .review-deck.is-exam:hover {
-    box-shadow: 0 12px 26px rgba(106, 76, 240, 0.2);
+.study-page .sc-hero-btn.is-quiet:hover {
+    background: linear-gradient(135deg, #ff85b4, #8f74ff);
 }
 
-.study-page .review-deck.is-exam .review-deck-icon {
-    background: linear-gradient(135deg, #6a4cf0, #4a8bf5);
+@keyframes examGlow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.55); }
+    50%      { box-shadow: 0 0 0 8px rgba(255, 255, 255, 0); }
 }
 
-.study-page .review-deck.is-exam .review-deck-text strong,
-.study-page .review-deck.is-exam .review-deck-go {
-    color: #4b33c4;
-}
-
-.study-page .review-deck.is-exam .review-deck-text span {
-    color: #5a5480;
+@media (prefers-reduced-motion: reduce) {
+    .study-page .sc-hero-btn.is-quiet {
+        animation: none;
+    }
 }
 
 .study-page .fc-stage.is-exam .fc-card {

@@ -108,6 +108,9 @@
                         <button type="button" class="sc-hero-btn" id="continueBtn" hidden>
                             <i class="fa-solid fa-play"></i> <span id="continueText">Continue</span>
                         </button>
+                        <button type="button" class="sc-hero-btn is-quiet" id="examBtn" onclick="startExam()" hidden>
+                            <i class="fa-solid fa-file-pen"></i> Practice exam
+                        </button>
                     </div>
                 </div>
 
@@ -338,22 +341,8 @@
                 listView.appendChild(review);
             }
 
-            // "Practice exam": halo-halong tanong mula sa mga bukas na deck
-            const examPool = examCards();
-            if (examPool.length >= EXAM_MIN) {
-                const exam = document.createElement('button');
-                exam.type = 'button';
-                exam.className = 'review-deck is-exam';
-                exam.onclick = startExam;
-                exam.innerHTML = `
-                    <div class="review-deck-icon"><i class="fa-solid fa-file-pen"></i></div>
-                    <div class="review-deck-text">
-                        <strong>Practice exam</strong>
-                        <span>${Math.min(EXAM_SIZE, examPool.length)} mixed questions from your unlocked lessons. No hints until the end, then see your score by lesson.</span>
-                    </div>
-                    <span class="review-deck-go">Start <i class="fa-solid fa-arrow-right"></i></span>`;
-                listView.appendChild(exam);
-            }
+            // "Practice exam" button sa banner, lalabas lang kapag sapat ang card
+            document.getElementById('examBtn').hidden = examCards().length < EXAM_MIN;
 
             const STATUS = {
                 done:     '<i class="fa-solid fa-circle-check"></i> Mastered',
