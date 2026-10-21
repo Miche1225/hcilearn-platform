@@ -362,6 +362,7 @@
         let questionQueue = [];      // mga card na natitira: { lesson, index }
         let roundTotal = 0;          // ilang card ang nasa deck na ito
         let currentQuestionObj = null;
+        let optionOrder = [0, 1, 2, 3]; // ayos ng mga sagot sa kasalukuyang card
         let unlockedLesson = 1;
         let completedIds = [];
 
@@ -506,8 +507,19 @@
                 `<i class="fa-regular fa-clone"></i> ${roundTotal - questionQueue.length} / ${roundTotal} ${label}`;
         }
 
+        // Fisher-Yates shuffle (pantay ang tsansa ng bawat ayos)
+        function shuffle(list) {
+            for (let i = list.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [list[i], list[j]] = [list[j], list[i]];
+            }
+            return list;
+        }
+
         function showQuizView() {
             missedThisRound.clear();
+            // Iba-iba ang ayos ng mga tanong bawat simula ng deck
+            shuffle(questionQueue);
             roundTotal = questionQueue.length;
             document.getElementById('lessonListView').style.display = 'none';
             document.getElementById('scHeaderSide').style.display = 'none';
@@ -553,10 +565,13 @@
                 ? `Review · Lesson ${card.lesson}: ${LESSONS[card.lesson]}`
                 : `Lesson ${card.lesson}: ${LESSONS[card.lesson]}`;
             document.getElementById('flashcardQuestion').textContent = currentQuestionObj.question;
+            // Iba-iba rin ang ayos ng mga sagot bawat lumabas ang card.
+            // optionOrder[slot] = index ng sagot sa reviewerData na nasa slot na iyon
+            optionOrder = shuffle([0, 1, 2, 3]);
             // Tanggalin ang "A. " o "A) " sa unahan dahil may letter badge na
             for (let i = 0; i < 4; i++) {
                 document.getElementById(`text${i}`).textContent =
-                    currentQuestionObj.options[i].replace(/^[A-D][.)]\s*/, '');
+                    currentQuestionObj.options[optionOrder[i]].replace(/^[A-D][.)]\s*/, '');
             }
 
             const radios = document.querySelectorAll('input[name="quizChoice"]');
@@ -586,7 +601,8 @@
             document.querySelectorAll('input[name="quizChoice"]').forEach(r => r.disabled = true);
 
             const selectedValue = parseInt(selected.value);
-            const correctValue = currentQuestionObj.answer;
+            // Saang slot napunta ang tamang sagot pagkatapos i-shuffle
+            const correctValue = optionOrder.indexOf(currentQuestionObj.answer);
             const selectedLabel = document.getElementById(`label${selectedValue}`);
 
             const card = questionQueue[0];
