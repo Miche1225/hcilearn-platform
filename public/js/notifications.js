@@ -115,7 +115,9 @@
       el.classList.remove('is-open');
       setTimeout(() => el.remove(), 300);
     };
-    el.querySelector('.notif-view').addEventListener('click', () => { close(); openPanel(); });
+    // stopPropagation: otherwise this same click reaches the "click outside
+    // closes the panel" listener and the panel shuts right after opening
+    el.querySelector('.notif-view').addEventListener('click', (e) => { e.stopPropagation(); close(); openPanel(); });
     el.querySelector('.notif-pop-close').addEventListener('click', close);
     setTimeout(close, 9000);
   }
@@ -164,7 +166,8 @@
     });
 
     document.addEventListener('click', (e) => {
-      if (panel && panel.classList.contains('is-open') && !panel.contains(e.target) && !bell.contains(e.target)) closePanel();
+      if (panel && panel.classList.contains('is-open') && !panel.contains(e.target) && !bell.contains(e.target)
+          && !e.target.closest('.notif-pop')) closePanel();
     });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePanel(); });
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') check(); });
