@@ -3716,6 +3716,13 @@
 :root[data-theme="dark"] .fc-timer.is-low .fc-timer-num {
     color: hsl(351 73% 66%);
 }
+:root[data-theme="dark"] .student-manage .tool-btn.is-danger {
+    border-color: #f5c2bb;
+    color: hsl(6 63% 71%);
+}
+:root[data-theme="dark"] .student-manage .tool-btn.is-danger:hover {
+    background: hsl(13 45% 19%);
+}
 
 /* ---------- from update-password.html ---------- */
 :root[data-theme="dark"] body.update-password-page {

@@ -9,8 +9,8 @@
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
-    <link rel="stylesheet" href="style.css?v=56">
-    <link rel="stylesheet" href="dark.css?v=19">
+    <link rel="stylesheet" href="style.css?v=57">
+    <link rel="stylesheet" href="dark.css?v=20">
     <script src="js/theme.js?v=1"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
@@ -126,9 +126,9 @@
                                 <i class="fa-solid fa-stopwatch"></i>
                                 <select id="timerSelect" aria-label="Time per card">
                                     <option value="0">No timer</option>
-                                    <option value="15">15 sec</option>
+                                    <option value="10">10 sec</option>
+                                    <option value="20">20 sec</option>
                                     <option value="30">30 sec</option>
-                                    <option value="60">60 sec</option>
                                 </select>
                             </label>
                             <span class="fc-counter" id="masteredText"></span>
@@ -452,10 +452,10 @@
         // TIMER bawat card (puwedeng patayin; naaalala ng browser)
         // ========================================================
         const TIMER_KEY = 'hcilearn_card_timer';
-        let timerSeconds = 30;
+        let timerSeconds = 20;
         try {
             const saved = localStorage.getItem(TIMER_KEY);
-            if (saved !== null && ['0', '15', '30', '60'].includes(saved)) timerSeconds = Number(saved);
+            if (saved !== null && ['0', '10', '20', '30'].includes(saved)) timerSeconds = Number(saved);
         } catch (e) { /* storage blocked */ }
         document.getElementById('timerSelect').value = String(timerSeconds);
 

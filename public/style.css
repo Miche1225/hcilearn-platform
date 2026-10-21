@@ -11756,3 +11756,13 @@ fieldset.ce-field legend {
     .fc-timer.is-low .fc-timer-num { animation: none; }
     .fc-timer-bar div { transition: none; }
 }
+
+/* Student panel: "Remove account" is always shown in red */
+.student-manage .tool-btn.is-danger {
+    border-color: #f5c2bb;
+    color: #c0392b;
+}
+
+.student-manage .tool-btn.is-danger:hover {
+    background: #fff0ec;
+}
