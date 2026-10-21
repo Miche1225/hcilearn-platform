@@ -23,7 +23,7 @@
     <script src="js/notifications.js?v=2"></script>
     <script src="js/gamify.js?v=2"></script>
     <script src="js/search.js?v=3"></script>
-    <script src="js/sfx.js?v=6"></script>
+    <script src="js/sfx.js?v=7"></script>
     <script>
         requireAuth();
         // Bawal kopyahin ang tanong at sagot (pwede pa rin sa search box at inputs)
@@ -509,10 +509,10 @@
             document.getElementById('timerFill').style.width = `${(left / (timerSeconds * 1000)) * 100}%`;
             document.getElementById('timerNum').textContent = `${secs}s`;
             document.getElementById('cardTimer').classList.toggle('is-low', secs <= 5);
-            // Mahinang tick sa huling 5 segundo
+            // Tick-tock sa huling 5 segundo
             if (secs <= 5 && secs > 0 && secs !== lastTick) {
                 lastTick = secs;
-                HCISfx.play('tick');
+                HCISfx.play(secs % 2 ? 'tick' : 'tock');
             }
             if (left <= 0) {
                 stopTimer();
