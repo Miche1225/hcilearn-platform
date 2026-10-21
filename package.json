@@ -7,7 +7,7 @@
     "start": "node server.js",
     "dev": "node --watch server.js",
     "build:dark": "node scripts/build-dark-css.js",
-    "build:search": "node scripts/build-search-index.js",
+    "instructor": "node scripts/instructor.js",
     "test": "node scripts/check.js"
   },
   "dependencies": {

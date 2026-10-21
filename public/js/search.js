@@ -3,12 +3,12 @@
 // study cards and the HCI glossary. Opens from the "Search" menu item,
 // Ctrl+K / Cmd+K, or "/" (when not typing in a field).
 //
-// The data comes from search-index.json (built by scripts/build-search-index.js).
+// The data comes from /api/content/search-index (published content + glossary).
 
 (function () {
   'use strict';
 
-  const INDEX_URL = 'search-index.json?v=1';
+  const INDEX_URL = '/api/content/search-index';
   const MAX_PER_GROUP = 6;
 
   const GROUPS = [

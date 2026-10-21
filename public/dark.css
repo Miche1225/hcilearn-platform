@@ -3058,6 +3058,553 @@
     border-top: 2px solid hsl(253 36% 20%);
     color: #9a95b0;
 }
+:root[data-theme="dark"] .nav-item[href="Admin.html"] {
+    --nav-c: #7fe0c4;
+    --nav-tint: rgba(127, 224, 196, 0.16);
+    --nav-soft: hsl(161 45% 23%);
+    --nav-strong: #1f8a6a;
+}
+:root[data-theme="dark"] .admin-page .main-content {
+    background-color: var(--fun-bg);
+    background-image: radial-gradient(circle at 8% 12%, rgba(63, 207, 155, 0.10), transparent 28%),
+        radial-gradient(circle at 92% 30%, rgba(79, 179, 255, 0.12), transparent 30%),
+        radial-gradient(rgba(123, 92, 255, 0.10) 1.2px, transparent 1.2px);
+    background-size: auto, auto, 22px 22px;
+    background-attachment: fixed;
+}
+:root[data-theme="dark"] .admin-header {
+    border: 2px solid hsl(253 45% 20%);
+    background: linear-gradient(120deg, hsl(160 45% 22%), hsl(250 14% 17%) 65%);
+    box-shadow: 0 10px 26px rgba(91, 60, 196, 0.10);
+}
+:root[data-theme="dark"] .admin-header::before {
+    background: var(--fun-rainbow);
+    background-size: 200% 100%;
+}
+:root[data-theme="dark"] .admin-header-icon {
+    background: linear-gradient(135deg, var(--fun-mint), var(--fun-sky));
+    color: #fff;
+    box-shadow: 0 8px 18px rgba(63, 207, 155, 0.35);
+}
+:root[data-theme="dark"] .admin-header-text h2 {
+    color: hsl(250 12% 92%);
+}
+:root[data-theme="dark"] .admin-header-text p {
+    color: hsl(250 12% 74%);
+}
+:root[data-theme="dark"] .admin-loading,
+:root[data-theme="dark"] .admin-empty {
+    color: hsl(250 12% 70%);
+}
+:root[data-theme="dark"] .admin-denied {
+    border: 2px dashed hsl(254 45% 21%);
+    background: hsl(250 14% 17%);
+}
+:root[data-theme="dark"] .admin-denied-icon {
+    background: hsl(21 45% 21%);
+    color: hsl(10 64% 70%);
+}
+:root[data-theme="dark"] .admin-denied p {
+    color: hsl(250 12% 74%);
+}
+:root[data-theme="dark"] .admin-tab {
+    border: 2px solid hsl(253 45% 20%);
+    background: hsl(250 14% 17%);
+    color: hsl(250 12% 78%);
+}
+:root[data-theme="dark"] .admin-tab.active {
+    background: linear-gradient(135deg, var(--fun-mint), var(--fun-sky));
+    border-color: transparent;
+    color: #fff;
+}
+:root[data-theme="dark"] .admin-stat {
+    border: 2px solid hsl(253 45% 20%);
+    background: hsl(250 14% 17%);
+}
+:root[data-theme="dark"] .admin-stat i {
+    background: hsl(255 45% 20%);
+    color: #6a4cf0;
+}
+:root[data-theme="dark"] .admin-stat.is-warn i {
+    background: hsl(21 45% 21%);
+    color: hsl(10 64% 70%);
+}
+:root[data-theme="dark"] .admin-stat strong {
+    color: hsl(250 49% 87%);
+}
+:root[data-theme="dark"] .admin-stat span {
+    color: hsl(250 12% 70%);
+}
+:root[data-theme="dark"] .admin-card {
+    border: 2px solid hsl(253 45% 20%);
+    background: hsl(250 14% 17%);
+    box-shadow: 0 4px 14px rgba(91, 60, 196, 0.06);
+}
+:root[data-theme="dark"] .admin-card h3 {
+    color: hsl(250 49% 87%);
+}
+:root[data-theme="dark"] .admin-card h3 i {
+    color: var(--fun-grape);
+}
+:root[data-theme="dark"] .admin-card-note {
+    color: hsl(250 12% 67%);
+}
+:root[data-theme="dark"] .section-name {
+    color: hsl(250 12% 85%);
+}
+:root[data-theme="dark"] .section-name small {
+    color: #999;
+}
+:root[data-theme="dark"] .admin-progress {
+    background: hsl(254 45% 20%);
+}
+:root[data-theme="dark"] .admin-progress span {
+    background: linear-gradient(90deg, var(--fun-mint), var(--fun-sky));
+}
+:root[data-theme="dark"] .section-bar b,
+:root[data-theme="dark"] .admin-progress-cell b {
+    color: hsl(250 12% 85%);
+}
+:root[data-theme="dark"] .admin-list-item {
+    border: none;
+    background: none;
+    color: inherit;
+}
+:root[data-theme="dark"] .admin-list-item:hover {
+    background: hsl(251 45% 18%);
+}
+:root[data-theme="dark"] .admin-list-item.is-static:hover {
+    background: none;
+}
+:root[data-theme="dark"] .admin-list-text strong {
+    color: hsl(250 49% 87%);
+}
+:root[data-theme="dark"] .admin-list-text small {
+    color: hsl(250 12% 67%);
+}
+:root[data-theme="dark"] .admin-avatar {
+    background: linear-gradient(135deg, var(--fun-grape), var(--fun-pink));
+    color: #fff;
+}
+:root[data-theme="dark"] .admin-tag {
+    background: hsl(255 45% 20%);
+    color: #6a4cf0;
+}
+:root[data-theme="dark"] .admin-tag.is-case {
+    background: hsl(21 45% 21%);
+    color: hsl(10 64% 70%);
+}
+:root[data-theme="dark"] .admin-tag.is-card {
+    background: hsl(48 45% 24%);
+    color: hsl(46 75% 81%);
+}
+:root[data-theme="dark"] .admin-tag.is-video {
+    background: hsl(208 45% 20%);
+    color: hsl(213 66% 72%);
+}
+:root[data-theme="dark"] .admin-pill {
+    background: hsl(154 45% 21%);
+    color: hsl(155 57% 78%);
+}
+:root[data-theme="dark"] .admin-pill.is-warn {
+    background: hsl(21 45% 21%);
+    color: hsl(10 64% 70%);
+}
+:root[data-theme="dark"] .admin-streak {
+    color: hsl(21 74% 67%);
+}
+:root[data-theme="dark"] .admin-toolbar .admin-search input {
+    border: 2px solid hsl(253 45% 20%);
+    background: hsl(250 14% 17%);
+}
+:root[data-theme="dark"] .admin-toolbar select {
+    border: 2px solid hsl(253 45% 20%);
+    background: hsl(250 14% 17%);
+    color: hsl(250 12% 81%);
+}
+:root[data-theme="dark"] .admin-count {
+    color: hsl(250 12% 67%);
+}
+:root[data-theme="dark"] .admin-table-wrap {
+    border: 2px solid hsl(253 45% 20%);
+    background: hsl(250 14% 17%);
+}
+:root[data-theme="dark"] .admin-table th {
+    background: hsl(251 45% 18%);
+    color: hsl(248 16% 69%);
+}
+:root[data-theme="dark"] .admin-table td {
+    border-top: 1px solid hsl(253 36% 20%);
+    color: hsl(250 12% 85%);
+}
+:root[data-theme="dark"] .admin-table tbody tr:hover,
+:root[data-theme="dark"] .admin-table tbody tr:focus-visible {
+    background: hsl(255 45% 18%);
+    outline: none;
+}
+:root[data-theme="dark"] .admin-student strong {
+    color: hsl(250 49% 87%);
+}
+:root[data-theme="dark"] .admin-student small {
+    color: #999;
+}
+:root[data-theme="dark"] .admin-drawer-overlay {
+    background: rgba(20, 16, 45, 0.45);
+}
+:root[data-theme="dark"] .admin-drawer {
+    background: hsl(250 14% 17%);
+    box-shadow: -18px 0 40px rgba(20, 16, 45, 0.25);
+}
+:root[data-theme="dark"] .admin-drawer h4 {
+    color: #9a95b0;
+}
+:root[data-theme="dark"] .student-head h3 {
+    color: hsl(250 49% 87%);
+}
+:root[data-theme="dark"] .student-head p {
+    color: hsl(250 12% 78%);
+}
+:root[data-theme="dark"] .student-head small {
+    color: #999;
+}
+:root[data-theme="dark"] .student-stats div {
+    background: hsl(251 45% 18%);
+}
+:root[data-theme="dark"] .student-stats strong {
+    color: hsl(250 49% 87%);
+}
+:root[data-theme="dark"] .student-stats span {
+    color: hsl(250 12% 70%);
+}
+:root[data-theme="dark"] .student-days {
+    background: hsl(251 45% 18%);
+}
+:root[data-theme="dark"] .student-day-bar {
+    background: linear-gradient(180deg, var(--fun-grape), var(--fun-pink));
+}
+:root[data-theme="dark"] .student-day small {
+    color: #9a95b0;
+}
+:root[data-theme="dark"] .student-modules > div > span:first-child {
+    color: hsl(250 12% 85%);
+}
+:root[data-theme="dark"] .student-modules small {
+    color: hsl(250 12% 67%);
+}
+:root[data-theme="dark"] .student-decks span {
+    background: hsl(253 36% 20%);
+    color: #9a95b0;
+}
+:root[data-theme="dark"] .student-decks span.is-done {
+    background: linear-gradient(135deg, var(--fun-sun), var(--fun-coral));
+    color: #fff;
+}
+@media screen and (max-width: 768px) {
+    :root[data-theme="dark"] .admin-table-wrap {
+        border: none;
+        background: none;
+    }
+    :root[data-theme="dark"] .admin-table tbody tr {
+        border: 2px solid hsl(253 45% 20%);
+        background: hsl(250 14% 17%);
+    }
+    :root[data-theme="dark"] .admin-table td {
+        border-top: none;
+    }
+    :root[data-theme="dark"] .admin-table td::before {
+        color: #9a95b0;
+    }
+}
+:root[data-theme="dark"] .login-page .admin-login-toggle {
+    border: 2px dashed rgba(63, 207, 155, 0.6);
+    background: hsl(250 14% 17% / 0.5);
+    color: hsl(162 63% 78%);
+}
+:root[data-theme="dark"] .login-page .admin-login-toggle:hover {
+    background: hsl(250 14% 17% / 0.85);
+}
+:root[data-theme="dark"] .login-page .admin-mode-badge {
+    background: linear-gradient(135deg, var(--fun-mint), var(--fun-sky));
+    color: #fff;
+}
+:root[data-theme="dark"] .login-page .glass-panel.is-admin-mode::before {
+    background: linear-gradient(90deg, var(--fun-mint), var(--fun-sky), var(--fun-mint));
+    background-size: 200% 100%;
+}
+:root[data-theme="dark"] .login-page .glass-panel.is-admin-mode .login-btn,
+:root[data-theme="dark"] .login-page .glass-panel.is-admin-mode .login-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--fun-mint), var(--fun-sky));
+    box-shadow: 0 8px 18px rgba(63, 207, 155, 0.35);
+}
+:root[data-theme="dark"] .lesson-loading {
+    color: hsl(250 12% 70%);
+}
+:root[data-theme="dark"] .rt-note {
+    color: hsl(250 12% 78%);
+}
+:root[data-theme="dark"] .ce-dot {
+    background: var(--fun-coral);
+    color: #fff;
+}
+:root[data-theme="dark"] .ce-bar {
+    border: 2px solid hsl(151 45% 25%);
+    background: hsl(152 45% 19%);
+    color: hsl(155 57% 78%);
+}
+:root[data-theme="dark"] .ce-bar.has-changes {
+    border-color: hsl(19 45% 25%);
+    background: hsl(21 45% 19%);
+    color: hsl(13 73% 77%);
+}
+:root[data-theme="dark"] .tool-btn.ce-publish {
+    background: linear-gradient(135deg, var(--fun-mint), var(--fun-sky));
+    border-color: transparent;
+    color: #fff;
+}
+:root[data-theme="dark"] .tool-btn.is-danger:hover {
+    border-color: #e74c3c;
+    color: hsl(6 63% 71%);
+}
+:root[data-theme="dark"] .ce-tab {
+    border: 2px solid hsl(253 45% 20%);
+    background: hsl(250 14% 17%);
+    color: hsl(250 12% 78%);
+}
+:root[data-theme="dark"] .ce-tab.active {
+    border-color: var(--fun-grape);
+    color: hsl(247 54% 69%);
+    background: hsl(255 45% 19%);
+}
+:root[data-theme="dark"] .ce-row {
+    border: 2px solid hsl(253 45% 20%);
+    background: hsl(250 14% 17%);
+}
+:root[data-theme="dark"] .ce-row.is-new {
+    border-color: hsl(153 45% 28%);
+}
+:root[data-theme="dark"] .ce-row.is-changed {
+    border-color: #ffd98a;
+}
+:root[data-theme="dark"] .ce-num {
+    color: #9a95b0;
+}
+:root[data-theme="dark"] .ce-main strong {
+    color: hsl(250 49% 87%);
+}
+:root[data-theme="dark"] .ce-main small {
+    color: hsl(250 12% 67%);
+}
+:root[data-theme="dark"] .ce-chip.is-new {
+    background: hsl(154 45% 21%);
+    color: hsl(155 57% 78%);
+}
+:root[data-theme="dark"] .ce-chip.is-changed {
+    background: hsl(48 45% 24%);
+    color: hsl(46 75% 81%);
+}
+:root[data-theme="dark"] .ce-chip.is-deleted {
+    background: hsl(21 45% 21%);
+    color: hsl(10 64% 70%);
+}
+:root[data-theme="dark"] .ce-btn,
+:root[data-theme="dark"] .ce-icon-btn,
+:root[data-theme="dark"] .ce-toggle {
+    border: none;
+    background: hsl(252 45% 19%);
+    color: hsl(247 54% 69%);
+}
+:root[data-theme="dark"] .ce-icon-btn.is-danger {
+    color: hsl(6 63% 71%);
+    background: hsl(13 45% 19%);
+}
+:root[data-theme="dark"] .ce-group-icon {
+    background: hsl(255 45% 20%);
+    color: #6a4cf0;
+}
+:root[data-theme="dark"] .ce-children {
+    border-left: 3px solid hsl(253 45% 20%);
+}
+:root[data-theme="dark"] .ce-overlay {
+    background: rgba(20, 16, 45, 0.5);
+}
+:root[data-theme="dark"] .ce-modal {
+    background: hsl(250 14% 17%);
+    box-shadow: 0 24px 60px rgba(20, 16, 45, 0.35);
+}
+:root[data-theme="dark"] .ce-modal-head h3 {
+    color: hsl(250 49% 87%);
+}
+:root[data-theme="dark"] .ce-modal-head small {
+    color: hsl(250 12% 67%);
+}
+:root[data-theme="dark"] .ce-field {
+    color: hsl(250 12% 81%);
+}
+:root[data-theme="dark"] .ce-field small {
+    color: #999;
+}
+:root[data-theme="dark"] .ce-field input,
+:root[data-theme="dark"] .ce-field textarea,
+:root[data-theme="dark"] .ce-field select,
+:root[data-theme="dark"] .ce-choice input[type="text"] {
+    border: 2px solid hsl(253 45% 20%);
+    background: hsl(250 14% 17%);
+    color: hsl(250 12% 89%);
+    outline: none;
+}
+:root[data-theme="dark"] .ce-field input:focus,
+:root[data-theme="dark"] .ce-field textarea:focus,
+:root[data-theme="dark"] .ce-field select:focus,
+:root[data-theme="dark"] .ce-choice input[type="text"]:focus {
+    border-color: var(--fun-grape);
+    box-shadow: 0 0 0 4px rgba(123, 92, 255, 0.12);
+}
+:root[data-theme="dark"] .ce-icon-input > i {
+    background: hsl(255 45% 20%);
+    color: #6a4cf0;
+}
+:root[data-theme="dark"] .ce-choices {
+    border: none;
+}
+:root[data-theme="dark"] .ce-choices legend {
+    color: hsl(250 12% 81%);
+}
+:root[data-theme="dark"] .ce-choice b {
+    color: #6a4cf0;
+}
+:root[data-theme="dark"] .ce-section {
+    border: 2px solid hsl(253 45% 20%);
+    background: hsl(252 45% 18%);
+}
+:root[data-theme="dark"] .ce-section-head {
+    color: hsl(248 16% 69%);
+}
+:root[data-theme="dark"] .ce-preview {
+    border: 2px dashed hsl(254 45% 21%);
+    background: hsl(250 14% 17%);
+}
+:root[data-theme="dark"] .ce-preview > b {
+    color: #9a95b0;
+}
+:root[data-theme="dark"] .ce-error {
+    background: hsl(6 45% 20%);
+    color: hsl(5 68% 75%);
+}
+:root[data-theme="dark"] .ce-modal-foot small {
+    color: hsl(250 12% 67%);
+}
+:root[data-theme="dark"] .announce-body {
+    color: hsl(250 12% 78%) !important;
+}
+:root[data-theme="dark"] .announce-card {
+    border: 2px solid #ffe08a;
+    background: linear-gradient(120deg, hsl(48 45% 21%), hsl(250 14% 17%));
+}
+:root[data-theme="dark"] .announce-icon {
+    background: linear-gradient(135deg, var(--fun-sun), var(--fun-coral));
+    color: #fff;
+}
+:root[data-theme="dark"] .announce-text strong {
+    color: hsl(46 70% 84%);
+}
+:root[data-theme="dark"] .announce-text p {
+    color: hsl(46 70% 84%);
+}
+:root[data-theme="dark"] .announce-text small {
+    color: hsl(45 30% 73%);
+}
+:root[data-theme="dark"] .announce-close {
+    border: none;
+    background: none;
+    color: hsl(45 37% 71%);
+}
+:root[data-theme="dark"] .admin-pill.is-off {
+    background: hsl(240 15% 21%);
+    color: hsl(248 16% 69%);
+}
+:root[data-theme="dark"] .ce-version {
+    border: 2px solid hsl(253 45% 20%);
+    background: hsl(250 14% 17%);
+}
+:root[data-theme="dark"] .ce-version.is-current {
+    border-color: hsl(153 45% 28%);
+    background: hsl(153 45% 19%);
+}
+:root[data-theme="dark"] .ce-version-num {
+    color: #9a95b0;
+}
+:root[data-theme="dark"] .ce-check {
+    color: hsl(250 12% 81%);
+}
+:root[data-theme="dark"] .ce-check small {
+    color: #999;
+}
+:root[data-theme="dark"] fieldset.ce-field {
+    border: none;
+}
+:root[data-theme="dark"] fieldset.ce-field legend {
+    color: hsl(250 12% 81%);
+}
+:root[data-theme="dark"] .admin-notice {
+    border: 2px solid #ffe08a;
+    background: hsl(48 45% 21%);
+    color: hsl(46 70% 84%);
+}
+:root[data-theme="dark"] .instructor-list .admin-list-text strong small {
+    color: #9a95b0;
+}
+:root[data-theme="dark"] .notif-count {
+    border: 2px solid #3d2a8a;
+    background: #ff4d6d;
+    color: #fff;
+}
+:root[data-theme="dark"] .notif-panel {
+    background: hsl(250 14% 17%);
+    box-shadow: 0 24px 60px rgba(20, 16, 45, 0.3);
+}
+:root[data-theme="dark"] .notif-head {
+    border-bottom: 2px solid hsl(253 36% 20%);
+    color: hsl(250 49% 87%);
+}
+:root[data-theme="dark"] .notif-head b i {
+    color: var(--fun-coral);
+}
+:root[data-theme="dark"] .notif-item.is-unread {
+    background: hsl(48 45% 21%);
+}
+:root[data-theme="dark"] .notif-icon {
+    background: linear-gradient(135deg, var(--fun-sun), var(--fun-coral));
+    color: #fff;
+}
+:root[data-theme="dark"] .notif-text strong {
+    color: hsl(250 49% 87%);
+}
+:root[data-theme="dark"] .notif-text p {
+    color: hsl(250 12% 78%);
+}
+:root[data-theme="dark"] .notif-text small {
+    color: #999;
+}
+:root[data-theme="dark"] .notif-new {
+    background: #ff4d6d;
+    color: #fff;
+}
+:root[data-theme="dark"] .notif-empty {
+    color: hsl(250 12% 67%);
+}
+:root[data-theme="dark"] .notif-pop {
+    border: 2px solid #ffe08a;
+    background: hsl(250 14% 17%);
+    box-shadow: 0 18px 40px rgba(29, 22, 64, 0.25);
+}
+:root[data-theme="dark"] .notif-pop .notif-text small {
+    color: hsl(27 63% 65%);
+}
+:root[data-theme="dark"] .notif-pop-close {
+    border: none;
+    background: none;
+    color: #999;
+}
 
 /* ---------- from update-password.html ---------- */
 :root[data-theme="dark"] body.update-password-page {

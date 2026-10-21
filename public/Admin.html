@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin · HCILearn</title>
+    <meta name="description" content="HCILearn admin dashboard: student progress and class insights.">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="theme-color" content="#0d3b75">
+    <link rel="stylesheet" href="style.css?v=48">
+    <link rel="stylesheet" href="dark.css?v=11">
+    <script src="js/theme.js?v=1"></script>
+    <!-- FontAwesome para sa icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="admin-page">
+    <noscript>
+        <div class="noscript-note">HCILearn needs JavaScript to work. Please turn it on in your browser settings.</div>
+    </noscript>
+
+    <div class="dashboard-container">
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="favicon.svg" alt="" class="sidebar-logo">
+                <div class="sidebar-brand">
+                    <span class="logo-text">HCILearn</span>
+                    <small class="logo-tag">Instructor Admin</small>
+                </div>
+            </div>
+
+            <span class="sidebar-label">Admin</span>
+
+            <nav class="sidebar-nav">
+                <a href="Admin.html" class="nav-item active">
+                    <i class="fa-solid fa-user-shield"></i> <span class="nav-text">Dashboard</span>
+                </a>
+            </nav>
+
+            <!-- Instructor card + log out (filled by init()) -->
+            <div class="sidebar-user">
+                <span class="sidebar-user-link">
+                    <span class="sidebar-avatar" id="sidebarAvatar"><i class="fa-solid fa-chalkboard-user"></i></span>
+                    <span class="sidebar-user-text">
+                        <strong id="sidebarName">Instructor</strong>
+                        <small id="sidebarMeta">Instructor</small>
+                    </span>
+                </span>
+                <button type="button" class="sidebar-logout" id="changePasswordBtn" aria-label="Change password" title="Change password">
+                    <i class="fa-solid fa-key"></i>
+                </button>
+                <button type="button" class="sidebar-logout" id="instructorLogout" aria-label="Log out" title="Log out">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+
+            <div class="admin-wrapper">
+
+                <!-- Header -->
+                <div class="admin-header">
+                    <div class="admin-header-icon"><i class="fa-solid fa-user-shield"></i></div>
+                    <div class="admin-header-text">
+                        <h2>Admin Dashboard</h2>
+                        <p id="adminSubtitle">Track how every student is doing across HCILearn.</p>
+                    </div>
+                    <a href="/api/admin/export.csv" class="tool-btn admin-export" id="exportBtn" hidden>
+                        <i class="fa-solid fa-file-csv"></i> Export CSV
+                    </a>
+                </div>
+
+                <p class="admin-loading" id="adminLoading"><span class="btn-spinner"></span> Loading student data...</p>
+
+                <div id="adminApp" hidden>
+
+                    <!-- Tabs -->
+                    <div class="admin-tabs" role="tablist" aria-label="Admin sections">
+                        <button type="button" class="admin-tab active" role="tab" aria-selected="true" aria-controls="tab-overview" data-tab="overview"><i class="fa-solid fa-chart-pie"></i> Overview</button>
+                        <button type="button" class="admin-tab" role="tab" aria-selected="false" aria-controls="tab-students" data-tab="students"><i class="fa-solid fa-users"></i> Students</button>
+                        <button type="button" class="admin-tab" role="tab" aria-selected="false" aria-controls="tab-content" data-tab="content" id="tabBtnContent" hidden><i class="fa-solid fa-pen-to-square"></i> Content <span class="ce-dot" id="contentPending" hidden></span></button>
+                        <button type="button" class="admin-tab" role="tab" aria-selected="false" aria-controls="tab-announcements" data-tab="announcements"><i class="fa-solid fa-bullhorn"></i> Announcements</button>
+                        <button type="button" class="admin-tab" role="tab" aria-selected="false" aria-controls="tab-instructors" data-tab="instructors" id="tabBtnInstructors" hidden><i class="fa-solid fa-chalkboard-user"></i> Instructors</button>
+                        <button type="button" class="admin-tab" role="tab" aria-selected="false" aria-controls="tab-audit" data-tab="audit"><i class="fa-solid fa-clipboard-list"></i> Activity log</button>
+                    </div>
+
+                    <p class="admin-notice" id="noSectionsNote" hidden>
+                        <i class="fa-solid fa-circle-info"></i>
+                        You don't have any sections yet, so no students are shown. Ask the main admin to assign your sections.
+                    </p>
+
+                    <!-- OVERVIEW -->
+                    <section class="admin-panel" id="tab-overview" role="tabpanel">
+                        <div class="admin-stats">
+                            <div class="admin-stat"><i class="fa-solid fa-users"></i><strong id="statStudents">0</strong><span>Students</span></div>
+                            <div class="admin-stat"><i class="fa-solid fa-bolt"></i><strong id="statToday">0</strong><span>Active today</span></div>
+                            <div class="admin-stat"><i class="fa-solid fa-calendar-week"></i><strong id="statWeek">0</strong><span>Active this week</span></div>
+                            <div class="admin-stat is-warn"><i class="fa-solid fa-moon"></i><strong id="statInactive">0</strong><span>Inactive 7+ days</span></div>
+                            <div class="admin-stat"><i class="fa-solid fa-chart-line"></i><strong id="statAvg">0%</strong><span>Average progress</span></div>
+                        </div>
+
+                        <div class="admin-grid">
+                            <div class="admin-card">
+                                <h3><i class="fa-solid fa-layer-group"></i> Progress by section</h3>
+                                <div class="section-bars" id="sectionBars"></div>
+                            </div>
+                            <div class="admin-card">
+                                <h3><i class="fa-solid fa-triangle-exclamation"></i> Needs attention</h3>
+                                <p class="admin-card-note">No activity in the last 7 days.</p>
+                                <div class="admin-list" id="inactiveList"></div>
+                            </div>
+                            <div class="admin-card">
+                                <h3><i class="fa-solid fa-circle-xmark"></i> Most-missed questions</h3>
+                                <p class="admin-card-note">Questions students got wrong and haven't cleared yet.</p>
+                                <div class="admin-list" id="missedList"></div>
+                            </div>
+                            <div class="admin-card">
+                                <h3><i class="fa-solid fa-video-slash"></i> Least-watched videos</h3>
+                                <div class="admin-list" id="videoList"></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- STUDENTS -->
+                    <section class="admin-panel" id="tab-students" role="tabpanel" hidden>
+                        <div class="admin-toolbar">
+                            <div class="search-container admin-search">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="studentSearch" placeholder="Search name or student ID..." aria-label="Search students">
+                            </div>
+                            <select id="filterProgram" aria-label="Program"><option value="">All programs</option></select>
+                            <select id="filterSection" aria-label="Year and section"><option value="">All sections</option></select>
+                            <select id="filterStatus" aria-label="Status">
+                                <option value="">Everyone</option>
+                                <option value="active">Active this week</option>
+                                <option value="inactive">Inactive 7+ days</option>
+                            </select>
+                            <select id="sortBy" aria-label="Sort by">
+                                <option value="name">Sort: Name</option>
+                                <option value="progress">Sort: Progress (high → low)</option>
+                                <option value="progressAsc">Sort: Progress (low → high)</option>
+                                <option value="active">Sort: Last active</option>
+                                <option value="streak">Sort: Streak</option>
+                            </select>
+                        </div>
+                        <p class="admin-count" id="studentCount"></p>
+
+                        <div class="admin-table-wrap">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Student</th>
+                                        <th scope="col">Section</th>
+                                        <th scope="col">Progress</th>
+                                        <th scope="col">Case studies</th>
+                                        <th scope="col">Decks</th>
+                                        <th scope="col">Videos</th>
+                                        <th scope="col">Streak</th>
+                                        <th scope="col">Badges</th>
+                                        <th scope="col">Last active</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="studentRows"></tbody>
+                            </table>
+                        </div>
+                        <p class="admin-empty" id="studentEmpty" hidden>No students match these filters.</p>
+                    </section>
+
+                    <!-- CONTENT (js/admin-content.js) -->
+                    <section class="admin-panel" id="tab-content" role="tabpanel" hidden>
+                        <div id="contentEditor"></div>
+                    </section>
+
+                    <!-- ANNOUNCEMENTS -->
+                    <section class="admin-panel" id="tab-announcements" role="tabpanel" hidden>
+                        <div class="admin-grid">
+                            <form class="admin-card announce-form" id="announceForm" novalidate>
+                                <h3><i class="fa-solid fa-bullhorn"></i> New announcement</h3>
+                                <p class="admin-card-note">Shown at the top of the students' Dashboard right away.</p>
+                                <label class="ce-field"><span>Title</span><input type="text" name="title" maxlength="120" placeholder="Quiz on Friday!"></label>
+                                <label class="ce-field"><span>Message <small>(optional)</small></span><textarea name="body" rows="4" maxlength="1000" placeholder="It covers Lessons 1 to 3. Review your study cards!"></textarea></label>
+                                <label class="ce-field"><span>Show until <small>(optional)</small></span><input type="date" name="endsOn"></label>
+                                <fieldset class="ce-field announce-audience" id="announceAudience"></fieldset>
+                                <p class="ce-error" id="announceError" role="alert" hidden></p>
+                                <button type="submit" class="tool-btn ce-publish"><i class="fa-solid fa-paper-plane"></i> Post announcement</button>
+                            </form>
+                            <div class="admin-card">
+                                <h3><i class="fa-solid fa-list"></i> Posted</h3>
+                                <div class="admin-list" id="announceList"></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- INSTRUCTORS (main admin only) -->
+                    <section class="admin-panel" id="tab-instructors" role="tabpanel" hidden>
+                        <div class="admin-card">
+                            <h3><i class="fa-solid fa-chalkboard-user"></i> Instructors</h3>
+                            <p class="admin-card-note">Main admins see every student and manage content. Instructors only see the sections you assign to them.</p>
+                            <button type="button" class="tool-btn ce-publish" id="addInstructorBtn"><i class="fa-solid fa-user-plus"></i> Add instructor</button>
+                            <div class="admin-list instructor-list" id="instructorList"></div>
+                        </div>
+                    </section>
+
+                    <!-- ACTIVITY LOG -->
+                    <section class="admin-panel" id="tab-audit" role="tabpanel" hidden>
+                        <div class="admin-card">
+                            <h3><i class="fa-solid fa-clipboard-list"></i> Admin activity log</h3>
+                            <p class="admin-card-note">Every time an admin views a student's details or exports data, it is recorded here.</p>
+                            <div class="admin-list" id="auditList"></div>
+                        </div>
+                    </section>
+
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="site-footer">
+                <span><strong>HCILearn</strong></span>
+                <span class="site-footer-dot" aria-hidden="true">·</span>
+                <span>HCI 2 Study Hub for UEP IT Students</span>
+            </footer>
+        </main>
+    </div>
+
+    <!-- Student details -->
+    <div class="admin-drawer-overlay" id="drawerOverlay" hidden>
+        <aside class="admin-drawer" role="dialog" aria-modal="true" aria-labelledby="drawerName">
+            <button type="button" class="qs-close admin-drawer-close" id="drawerClose" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+            <div id="drawerBody"></div>
+        </aside>
+    </div>
+
+    <script src="js/api.js?v=10"></script>
+    <script src="js/richtext.js?v=1"></script>
+    <script src="js/admin-content.js?v=2"></script>
+    <script>
+        const ACTIVITY_LABELS = { case_study: 'Case Study', study_card: 'Study Card', video: 'Video', lesson: 'Lesson' };
+        const AUDIT_ICONS = {
+            export_csv: 'fa-file-csv', publish_content: 'fa-upload', discard_content: 'fa-rotate-left',
+            post_announcement: 'fa-bullhorn', delete_announcement: 'fa-bullhorn', reset_progress: 'fa-eraser',
+            signout_student: 'fa-arrow-right-from-bracket', deactivate_student: 'fa-user-slash', reactivate_student: 'fa-user-check',
+            rollback_content: 'fa-clock-rotate-left', add_instructor: 'fa-user-plus', update_instructor: 'fa-user-pen',
+            reset_instructor_password: 'fa-key', remove_instructor: 'fa-user-minus',
+        };
+        const AUDIT_LABELS = {
+            view_student: (e) => `Viewed ${e.targetName || 'a deleted student'}'s progress`,
+            export_csv: (e) => `Exported progress CSV${e.details ? ` (${e.details})` : ''}`,
+            publish_content: (e) => `Published content changes${e.details ? ` (${e.details})` : ''}`,
+            discard_content: () => 'Discarded unpublished content changes',
+            post_announcement: (e) => `Posted announcement "${e.details}"`,
+            delete_announcement: (e) => `Deleted announcement "${e.details}"`,
+            reset_progress: (e) => `Reset ${e.targetName || 'a student'}'s progress`,
+            signout_student: (e) => `Signed ${e.targetName || 'a student'} out everywhere`,
+            deactivate_student: (e) => `Deactivated ${e.targetName || 'a student'}'s account`,
+            reactivate_student: (e) => `Reactivated ${e.targetName || 'a student'}'s account`,
+            rollback_content: (e) => `Rolled content back to ${e.details}`,
+            add_instructor: (e) => `Added instructor ${e.details}`,
+            update_instructor: (e) => `Updated instructor ${e.details}`,
+            reset_instructor_password: (e) => `Reset the password of ${e.details}`,
+            remove_instructor: (e) => `Removed instructor ${e.details}`,
+        };
+
+        let students = [];
+        let today = '';
+        let questionText = new Map();   // "case_study:12" / "study_card:3-7" -> question
+
+        const $ = (id) => document.getElementById(id);
+        const escapeHtml = (text) => String(text).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const initials = (name) => name.split(' ').filter(Boolean).slice(0, 2).map(n => n[0].toUpperCase()).join('');
+
+        function daysBetween(a, b) {
+            return Math.round((Date.parse(b) - Date.parse(a)) / 86400000);
+        }
+
+        function lastActiveText(day) {
+            if (!day) return 'Never';
+            const diff = daysBetween(day, today);
+            if (diff <= 0) return 'Today';
+            if (diff === 1) return 'Yesterday';
+            if (diff < 30) return `${diff} days ago`;
+            return new Date(day + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        function formatDateTime(iso) {
+            return new Date(iso).toLocaleString(undefined, { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+        }
+
+        function sectionOf(s) {
+            return [s.program, s.yearSection].filter(Boolean).join(' ') || 'No section';
+        }
+
+        function progressBar(percent) {
+            return `<span class="admin-progress"><span style="width:${percent}%"></span></span><b>${percent}%</b>`;
+        }
+
+        // ---------------- Overview ----------------
+        function renderOverview(insights) {
+            const activeWeek = students.filter(s => !s.inactive);
+            $('statStudents').textContent = students.length;
+            $('statToday').textContent = students.filter(s => s.lastActive === today).length;
+            $('statWeek').textContent = activeWeek.length;
+            $('statInactive').textContent = students.length - activeWeek.length;
+            $('statAvg').textContent = students.length
+                ? `${Math.round(students.reduce((sum, s) => sum + s.overallPercent, 0) / students.length)}%`
+                : '0%';
+
+            // Progress by section (average overall %)
+            const groups = new Map();
+            students.forEach(s => {
+                const key = sectionOf(s);
+                if (!groups.has(key)) groups.set(key, []);
+                groups.get(key).push(s);
+            });
+            const rows = [...groups.entries()]
+                .map(([name, list]) => ({ name, count: list.length, avg: Math.round(list.reduce((sum, s) => sum + s.overallPercent, 0) / list.length) }))
+                .sort((a, b) => a.name.localeCompare(b.name));
+            $('sectionBars').innerHTML = rows.length ? rows.map(r => `
+                <div class="section-bar">
+                    <span class="section-name">${escapeHtml(r.name)} <small>${r.count} student${r.count === 1 ? '' : 's'}</small></span>
+                    ${progressBar(r.avg)}
+                </div>`).join('') : '<p class="admin-empty">No students yet.</p>';
+
+            // Needs attention
+            const inactive = students.filter(s => s.inactive)
+                .sort((a, b) => (a.lastActive || '').localeCompare(b.lastActive || ''));
+            $('inactiveList').innerHTML = inactive.length ? inactive.slice(0, 8).map(s => `
+                <button type="button" class="admin-list-item" data-student="${s.id}">
+                    <span class="admin-avatar">${escapeHtml(initials(s.fullName))}</span>
+                    <span class="admin-list-text"><strong>${escapeHtml(s.fullName)}</strong><small>${escapeHtml(sectionOf(s))} · ${s.overallPercent}% done</small></span>
+                    <span class="admin-pill is-warn">${lastActiveText(s.lastActive)}</span>
+                </button>`).join('') + (inactive.length > 8 ? `<p class="admin-card-note">+ ${inactive.length - 8} more in the Students tab.</p>` : '')
+                : '<p class="admin-empty"><i class="fa-solid fa-circle-check"></i> Everyone studied this week!</p>';
+
+            // Most-missed questions
+            $('missedList').innerHTML = insights.mostMissed.length ? insights.mostMissed.map(m => `
+                <div class="admin-list-item is-static">
+                    <span class="admin-tag ${m.source === 'case_study' ? 'is-case' : 'is-card'}">${m.source === 'case_study' ? `Case ${escapeHtml(m.itemKey)}` : `Card ${escapeHtml(m.itemKey)}`}</span>
+                    <span class="admin-list-text"><strong>${escapeHtml(questionText.get(`${m.source}:${m.itemKey}`) || 'Question')}</strong>
+                    <small>${m.students} student${m.students === 1 ? '' : 's'} · missed ${m.wrong} time${m.wrong === 1 ? '' : 's'}</small></span>
+                </div>`).join('') : '<p class="admin-empty">No missed questions right now.</p>';
+
+            // Least-watched videos
+            $('videoList').innerHTML = insights.leastWatched.map(v => `
+                <div class="admin-list-item is-static">
+                    <span class="admin-tag is-video"><i class="fa-solid fa-play"></i></span>
+                    <span class="admin-list-text"><strong>${escapeHtml(v.title)}</strong></span>
+                    <span class="admin-pill">${v.watchedBy} of ${insights.studentCount}</span>
+                </div>`).join('');
+        }
+
+        // ---------------- Students table ----------------
+        function fillFilters() {
+            const programs = [...new Set(students.map(s => s.program).filter(Boolean))].sort();
+            const sections = [...new Set(students.map(s => s.yearSection).filter(Boolean))].sort();
+            $('filterProgram').insertAdjacentHTML('beforeend', programs.map(p => `<option>${escapeHtml(p)}</option>`).join(''));
+            $('filterSection').insertAdjacentHTML('beforeend', sections.map(s => `<option>${escapeHtml(s)}</option>`).join(''));
+        }
+
+        function renderStudents() {
+            const q = $('studentSearch').value.trim().toLowerCase();
+            const program = $('filterProgram').value;
+            const section = $('filterSection').value;
+            const status = $('filterStatus').value;
+            const sort = $('sortBy').value;
+
+            const list = students.filter(s =>
+                (!q || s.fullName.toLowerCase().includes(q) || s.studentId.toLowerCase().includes(q)) &&
+                (!program || s.program === program) &&
+                (!section || s.yearSection === section) &&
+                (!status || (status === 'inactive' ? s.inactive : !s.inactive)));
+
+            const sorters = {
+                name: (a, b) => a.fullName.localeCompare(b.fullName),
+                progress: (a, b) => b.overallPercent - a.overallPercent,
+                progressAsc: (a, b) => a.overallPercent - b.overallPercent,
+                active: (a, b) => (b.lastActive || '').localeCompare(a.lastActive || ''),
+                streak: (a, b) => b.currentStreak - a.currentStreak,
+            };
+            list.sort(sorters[sort]);
+
+            $('studentCount').textContent = `Showing ${list.length} of ${students.length} students`;
+            $('studentEmpty').hidden = list.length > 0;
+            $('studentRows').innerHTML = list.map(s => `
+                <tr data-student="${s.id}" tabindex="0">
+                    <td data-label="Student">
+                        <span class="admin-student">
+                            <span class="admin-avatar">${escapeHtml(initials(s.fullName))}</span>
+                            <span><strong>${escapeHtml(s.fullName)}</strong><small>${escapeHtml(s.studentId || '—')}</small></span>
+                        </span>
+                    </td>
+                    <td data-label="Section">${escapeHtml(sectionOf(s))}</td>
+                    <td data-label="Progress" class="admin-progress-cell">${progressBar(s.overallPercent)}</td>
+                    <td data-label="Case studies">${s.caseSolved}</td>
+                    <td data-label="Decks">${s.decksMastered}</td>
+                    <td data-label="Videos">${s.videosWatched}</td>
+                    <td data-label="Streak">${s.currentStreak ? `<span class="admin-streak"><i class="fa-solid fa-fire"></i> ${s.currentStreak}</span>` : '—'}</td>
+                    <td data-label="Badges">${s.badges}</td>
+                    <td data-label="Last active">${s.deactivated ? '<span class="admin-pill is-off">Deactivated</span>' : `<span class="admin-pill${s.inactive ? ' is-warn' : ''}">${lastActiveText(s.lastActive)}</span>`}</td>
+                </tr>`).join('');
+        }
+
+        // ---------------- Student details ----------------
+        async function openStudent(id) {
+            $('drawerOverlay').hidden = false;
+            requestAnimationFrame(() => $('drawerOverlay').classList.add('is-open'));
+            $('drawerBody').innerHTML = '<p class="admin-loading"><span class="btn-spinner"></span> Loading...</p>';
+            $('drawerClose').focus();
+
+            try {
+                const d = await api.get(`/admin/students/${id}`);
+                const s = d.student;
+                const accuracy = s.answers ? Math.round((s.correct / s.answers) * 100) : 0;
+                const maxAnswers = Math.max(1, ...d.last14.map(x => x.answers));
+
+                $('drawerBody').innerHTML = `
+                    <div class="student-head">
+                        <span class="admin-avatar is-big">${escapeHtml(initials(s.fullName))}</span>
+                        <div>
+                            <h3 id="drawerName">${escapeHtml(s.fullName)}</h3>
+                            <p>${escapeHtml(s.studentId || 'No student ID')} · ${escapeHtml(sectionOf(s))}</p>
+                            <small>Joined ${new Date(s.joinedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} · Last active ${lastActiveText(s.lastActive).toLowerCase()}</small>
+                            ${s.deactivated ? '<span class="admin-pill is-off">Deactivated: cannot log in</span>' : ''}
+                        </div>
+                    </div>
+
+                    <div class="student-stats">
+                        <div><strong>${s.overallPercent}%</strong><span>Overall</span></div>
+                        <div><strong>${s.currentStreak}</strong><span>Streak (best ${s.longestStreak})</span></div>
+                        <div><strong>${s.answers}</strong><span>Answered · ${accuracy}% right</span></div>
+                        <div><strong>${s.badges}</strong><span>Badges</span></div>
+                    </div>
+
+                    <h4>Last 14 days</h4>
+                    <div class="student-days" aria-label="Questions answered per day">
+                        ${d.last14.map(x => `
+                            <span class="student-day" title="${x.day}: ${x.answers} answered, ${x.videos} videos, ${x.topicsRead} topics">
+                                <span class="student-day-bar" style="height:${Math.max(4, (x.answers / maxAnswers) * 100)}%"></span>
+                                <small>${x.day.slice(8)}</small>
+                            </span>`).join('')}
+                    </div>
+
+                    <h4>Modules</h4>
+                    <div class="student-modules">
+                        <div><span>Case studies</span>${progressBar(Math.round((d.caseStudies.solvedIds.length / d.caseStudies.total) * 100))}<small>${d.caseStudies.solvedIds.length} of ${d.caseStudies.total} solved</small></div>
+                        <div><span>Study card decks</span>
+                            <span class="student-decks">${d.studyCards.decks.map(dk => `<span class="${d.studyCards.completedIds.includes(dk.key) ? 'is-done' : ''}" title="Lesson ${dk.number}">${dk.number}</span>`).join('')}</span>
+                            <small>${d.studyCards.completedIds.length} of ${d.studyCards.decks.length} mastered</small></div>
+                        <div><span>Videos watched (${d.videos.length})</span>
+                            <small>${d.videos.length ? d.videos.map(v => escapeHtml(v.title)).join(' · ') : 'None yet'}</small></div>
+                    </div>
+
+                    <h4>Questions to review (${d.mistakes.length})</h4>
+                    <div class="admin-list">
+                        ${d.mistakes.length ? d.mistakes.slice(0, 10).map(m => `
+                            <div class="admin-list-item is-static">
+                                <span class="admin-tag ${m.source === 'case_study' ? 'is-case' : 'is-card'}">${m.source === 'case_study' ? `Case ${escapeHtml(m.itemKey)}` : `Card ${escapeHtml(m.itemKey)}`}</span>
+                                <span class="admin-list-text"><strong>${escapeHtml(questionText.get(`${m.source}:${m.itemKey}`) || 'Question')}</strong><small>Missed ${m.wrongCount} time${m.wrongCount === 1 ? '' : 's'}</small></span>
+                            </div>`).join('') : '<p class="admin-empty">No unresolved mistakes.</p>'}
+                    </div>
+
+                    <h4>Badges</h4>
+                    <div class="student-badges">
+                        ${d.badges.map(b => `<span class="badge-mini badge-${b.color}${b.earnedAt ? ' is-earned' : ''}" title="${escapeHtml(b.name)}${b.earnedAt ? '' : ' (locked)'}"><i class="fa-solid ${b.earnedAt ? b.icon : 'fa-lock'}"></i></span>`).join('')}
+                    </div>
+
+                    <h4>Recent activity</h4>
+                    <div class="admin-list">
+                        ${d.recentActivity.length ? d.recentActivity.map(a => `
+                            <div class="admin-list-item is-static">
+                                <span class="admin-tag">${escapeHtml(ACTIVITY_LABELS[a.type] || 'Activity')}</span>
+                                <span class="admin-list-text"><strong>${escapeHtml(a.description)}</strong><small>${formatDateTime(a.created_at)}</small></span>
+                            </div>`).join('') : '<p class="admin-empty">No activity yet.</p>'}
+                    </div>
+
+                    <h4>Manage account</h4>
+                    <div class="student-manage">
+                        <button type="button" class="tool-btn" data-manage="signout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sign out everywhere</button>
+                        <button type="button" class="tool-btn" data-manage="reset"><i class="fa-solid fa-eraser"></i> Reset progress</button>
+                        ${s.deactivated
+                            ? '<button type="button" class="tool-btn" data-manage="reactivate"><i class="fa-solid fa-user-check"></i> Reactivate account</button>'
+                            : '<button type="button" class="tool-btn is-danger" data-manage="deactivate"><i class="fa-solid fa-user-slash"></i> Deactivate account</button>'}
+                    </div>`;
+                $('drawerBody').querySelectorAll('[data-manage]').forEach(b => b.addEventListener('click', () => manageStudent(s, b.dataset.manage)));
+                loadAudit(); // the view was just recorded
+            } catch (err) {
+                $('drawerBody').innerHTML = `<p class="admin-empty"><i class="fa-solid fa-circle-exclamation"></i> ${escapeHtml(err.message)}</p>`;
+            }
+        }
+
+        function closeStudent() {
+            $('drawerOverlay').classList.remove('is-open');
+            setTimeout(() => { $('drawerOverlay').hidden = true; }, 250);
+        }
+
+        // ---------------- Student management ----------------
+        const MANAGE = {
+            signout: { title: 'Sign out everywhere?', message: (n) => `${n} will be logged out on every device and will need to log in again.`, confirm: 'Sign out', icon: 'fa-arrow-right-from-bracket', done: 'Signed out everywhere' },
+            reset: { title: 'Reset all progress?', message: (n) => `This clears ${n}'s case studies, study cards, videos, mistakes, streak and badges. Their account and saved items stay. This cannot be undone.`, confirm: 'Reset progress', icon: 'fa-eraser', danger: true, done: 'Progress reset' },
+            deactivate: { title: 'Deactivate this account?', message: (n) => `${n} will be logged out and won't be able to log in until you reactivate the account. Their progress is kept.`, confirm: 'Deactivate', icon: 'fa-user-slash', danger: true, done: 'Account deactivated' },
+            reactivate: { title: 'Reactivate this account?', message: (n) => `${n} will be able to log in again.`, confirm: 'Reactivate', icon: 'fa-user-check', done: 'Account reactivated' },
+        };
+
+        function manageStudent(student, action) {
+            const m = MANAGE[action];
+            confirmDialog({
+                title: m.title, message: m.message(student.fullName), confirmText: m.confirm, icon: m.icon, danger: !!m.danger,
+                onConfirm: async () => {
+                    try {
+                        await api.post(`/admin/students/${student.id}/${action}`);
+                        adminToast(m.done);
+                        const list = await api.get('/admin/students');
+                        students = list.students;
+                        renderStudents();
+                        openStudent(student.id);
+                    } catch (err) {
+                        adminToast(err.message, true);
+                    }
+                },
+            });
+        }
+
+        function adminToast(message, isError) {
+            const el = document.createElement('div');
+            el.className = 'hci-toast';
+            el.setAttribute('role', 'status');
+            el.innerHTML = `<i class="fa-solid ${isError ? 'fa-circle-exclamation' : 'fa-circle-check'}"></i> <span></span>`;
+            el.querySelector('span').textContent = message;
+            document.body.appendChild(el);
+            requestAnimationFrame(() => el.classList.add('is-open'));
+            setTimeout(() => { el.classList.remove('is-open'); setTimeout(() => el.remove(), 300); }, 2600);
+        }
+
+        // ---------------- Announcements ----------------
+        const sectionLabel = (sec) => `${sec.program} ${sec.yearSection}`;
+
+        async function loadAnnouncements() {
+            try {
+                const { announcements, today: day, canPostToEveryone, sections } = await api.get('/admin/announcements');
+
+                // Audience picker (keeps choices made before a reload)
+                const box = $('announceAudience');
+                if (!box.dataset.ready) {
+                    box.dataset.ready = '1';
+                    box.innerHTML = `<legend>Who sees it</legend>${canPostToEveryone
+                        ? '<label class="ce-check"><input type="radio" name="audienceMode" value="all" checked> Everyone</label><label class="ce-check"><input type="radio" name="audienceMode" value="sections"> Only these sections:</label>'
+                        : '<small>Your sections (untick to leave one out):</small>'}
+                        <div class="ce-checks">${(canPostToEveryone ? knownSections : sections).map(sec => `
+                            <label class="ce-check"><input type="checkbox" name="audienceSection" value="${escapeHtml(JSON.stringify(sec))}" ${canPostToEveryone ? '' : 'checked'}> ${escapeHtml(sectionLabel(sec))}</label>`).join('') || '<small>No sections yet.</small>'}</div>`;
+                }
+
+                $('announceList').innerHTML = announcements.length ? announcements.map(a => {
+                    const expired = a.endsOn && a.endsOn < day;
+                    return `<div class="admin-list-item is-static">
+                        <span class="admin-tag ${expired ? '' : 'is-video'}"><i class="fa-solid fa-bullhorn"></i></span>
+                        <span class="admin-list-text"><strong>${escapeHtml(a.title)}</strong>
+                            ${a.body ? `<small class="announce-body">${escapeHtml(a.body)}</small>` : ''}
+                            <small>${escapeHtml(a.by)} · ${formatDateTime(a.createdAt)} · ${expired ? 'ended' : a.endsOn ? `until ${a.endsOn}` : 'no end date'} · ${a.audience ? escapeHtml(a.audience.map(sectionLabel).join(', ')) : 'everyone'}</small></span>
+                        <button type="button" class="ce-icon-btn is-danger" data-announce-delete="${a.id}" aria-label="Delete announcement"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>`;
+                }).join('') : '<p class="admin-empty">No announcements yet.</p>';
+            } catch (err) {
+                $('announceList').innerHTML = '<p class="admin-empty">Could not load announcements.</p>';
+            }
+        }
+
+        $('announceForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const btn = form.querySelector('[type="submit"]');
+            $('announceError').hidden = true;
+            btn.disabled = true;
+            try {
+                const mode = form.querySelector('input[name="audienceMode"]:checked');
+                const picked = [...form.querySelectorAll('input[name="audienceSection"]:checked')].map(c => JSON.parse(c.value));
+                const toEveryone = mode && mode.value === 'all';
+                if (!toEveryone && !picked.length) throw new Error('Pick at least one section.');
+                await api.post('/admin/announcements', {
+                    title: form.elements.title.value, body: form.elements.body.value, endsOn: form.elements.endsOn.value || null,
+                    sections: toEveryone ? null : picked,
+                });
+                form.reset();
+                form.querySelectorAll('input[name="audienceSection"]').forEach(c => { c.checked = !mode; });
+                adminToast('Announcement posted');
+                loadAnnouncements();
+                loadAudit();
+            } catch (err) {
+                $('announceError').textContent = err.message;
+                $('announceError').hidden = false;
+            }
+            btn.disabled = false;
+        });
+
+        $('announceList').addEventListener('click', (e) => {
+            const b = e.target.closest('[data-announce-delete]');
+            if (!b) return;
+            confirmDialog({
+                title: 'Delete this announcement?', message: 'Students will stop seeing it right away.',
+                confirmText: 'Delete', icon: 'fa-trash-can', danger: true,
+                onConfirm: async () => {
+                    try { await api.del(`/admin/announcements/${b.dataset.announceDelete}`); } catch (err) { adminToast(err.message, true); }
+                    loadAnnouncements();
+                    loadAudit();
+                },
+            });
+        });
+
+        // ---------------- Small form dialog (same look as the content editor) ----------------
+        function formModal({ title, subtitle = '', body, submitLabel, onSubmit }) {
+            const overlay = document.createElement('div');
+            overlay.className = 'ce-overlay';
+            overlay.innerHTML = `
+                <form class="ce-modal" role="dialog" aria-modal="true" aria-labelledby="fmTitle" novalidate>
+                    <div class="ce-modal-head">
+                        <div><h3 id="fmTitle"></h3><small class="fm-sub"></small></div>
+                        <button type="button" class="qs-close" data-close aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div class="ce-modal-body">${body}</div>
+                    <p class="ce-error" role="alert" hidden></p>
+                    <div class="ce-modal-foot"><span></span><span>
+                        <button type="button" class="tool-btn" data-close>Cancel</button>
+                        <button type="submit" class="tool-btn ce-publish"></button></span></div>
+                </form>`;
+            overlay.querySelector('#fmTitle').textContent = title;
+            overlay.querySelector('.fm-sub').textContent = subtitle;
+            overlay.querySelector('[type="submit"]').textContent = submitLabel;
+            document.body.appendChild(overlay);
+            requestAnimationFrame(() => overlay.classList.add('is-open'));
+            const form = overlay.querySelector('form');
+            const close = () => {
+                overlay.classList.remove('is-open');
+                document.removeEventListener('keydown', onKey);
+                setTimeout(() => overlay.remove(), 200);
+            };
+            const onKey = (e) => { if (e.key === 'Escape') close(); };
+            document.addEventListener('keydown', onKey);
+            overlay.addEventListener('click', (e) => { if (e.target === overlay || e.target.closest('[data-close]')) close(); });
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const err = form.querySelector('.ce-error');
+                const btn = form.querySelector('[type="submit"]');
+                err.hidden = true;
+                btn.disabled = true;
+                try {
+                    await onSubmit(form);
+                    close();
+                } catch (ex) {
+                    err.textContent = ex.message;
+                    err.hidden = false;
+                    btn.disabled = false;
+                }
+            });
+            const first = form.querySelector('input:not([disabled]), select, textarea');
+            if (first) first.focus();
+        }
+
+        // ---------------- Change my password ----------------
+        $('changePasswordBtn').addEventListener('click', () => formModal({
+            title: 'Change your password', submitLabel: 'Change password',
+            body: `<label class="ce-field"><span>Current password</span><input type="password" name="current" autocomplete="current-password"></label>
+                   <label class="ce-field"><span>New password</span><input type="password" name="next" autocomplete="new-password"><small>8+ characters, not all letters or all numbers.</small></label>
+                   <label class="ce-field"><span>Type the new password again</span><input type="password" name="again" autocomplete="new-password"></label>`,
+            onSubmit: async (form) => {
+                if (form.elements.next.value !== form.elements.again.value) throw new Error('The new passwords do not match.');
+                await api.post('/instructor/password', { currentPassword: form.elements.current.value, newPassword: form.elements.next.value });
+                adminToast('Password changed. Other devices were logged out.');
+            },
+        }));
+
+        // ---------------- Instructors (main admin only) ----------------
+        let instructorData = { instructors: [], availableSections: [], me: null };
+        let knownSections = [];   // every section students are in (for pickers)
+
+        function sectionPicker(selected) {
+            const all = [...instructorData.availableSections];
+            selected.forEach(sec => {
+                if (!all.some(a => a.program === sec.program && a.yearSection === sec.yearSection)) all.push({ ...sec, students: 0 });
+            });
+            if (!all.length) return '<small>No students have signed up yet, so there are no sections to pick.</small>';
+            return `<div class="ce-checks">${all.map(sec => {
+                const on = selected.some(x => x.program === sec.program && x.yearSection === sec.yearSection);
+                return `<label class="ce-check"><input type="checkbox" name="section" value="${escapeHtml(JSON.stringify({ program: sec.program, yearSection: sec.yearSection }))}" ${on ? 'checked' : ''}>
+                    ${escapeHtml(sectionLabel(sec))} <small>(${sec.students} student${sec.students === 1 ? '' : 's'})</small></label>`;
+            }).join('')}</div>`;
+        }
+        const pickedSections = (form) => [...form.querySelectorAll('input[name="section"]:checked')].map(c => JSON.parse(c.value));
+
+        async function loadInstructors() {
+            try {
+                instructorData = await api.get('/admin/instructors');
+                knownSections = instructorData.availableSections.map(a => ({ program: a.program, yearSection: a.yearSection }));
+                $('instructorList').innerHTML = instructorData.instructors.map(i => `
+                    <div class="admin-list-item is-static">
+                        <span class="admin-avatar">${escapeHtml(initials(i.fullName))}</span>
+                        <span class="admin-list-text"><strong>${escapeHtml(i.fullName)} ${i.id === instructorData.me ? '<small>(you)</small>' : ''}</strong>
+                            <small>ID ${escapeHtml(i.instructorId)} · last login ${i.lastLoginAt ? formatDateTime(i.lastLoginAt) : 'never'}</small>
+                            <small>${i.role === 'admin' ? 'Sees every section' : i.sections.length ? escapeHtml(i.sections.map(sectionLabel).join(', ')) : 'No sections yet'}</small></span>
+                        <span class="admin-pill ${i.role === 'admin' ? '' : 'is-off'}">${i.role === 'admin' ? 'Main admin' : 'Instructor'}</span>
+                        <span class="ce-actions">
+                            <button type="button" class="ce-btn" data-instr="edit" data-id="${i.id}"><i class="fa-solid fa-pen"></i> Edit</button>
+                            <button type="button" class="ce-icon-btn" data-instr="password" data-id="${i.id}" aria-label="Reset password" title="Reset password"><i class="fa-solid fa-key"></i></button>
+                            ${i.id === instructorData.me ? '' : `<button type="button" class="ce-icon-btn is-danger" data-instr="remove" data-id="${i.id}" aria-label="Remove" title="Remove"><i class="fa-solid fa-trash-can"></i></button>`}
+                        </span>
+                    </div>`).join('');
+            } catch (err) {
+                $('instructorList').innerHTML = `<p class="admin-empty">${escapeHtml(err.message)}</p>`;
+            }
+        }
+
+        const roleSelect = (role) => `<select name="role">
+            <option value="instructor" ${role === 'instructor' ? 'selected' : ''}>Instructor (only their sections)</option>
+            <option value="admin" ${role === 'admin' ? 'selected' : ''}>Main admin (everything)</option></select>`;
+
+        $('addInstructorBtn').addEventListener('click', () => formModal({
+            title: 'Add instructor', submitLabel: 'Add instructor',
+            subtitle: 'Share the ID and password with them; they can change the password after logging in.',
+            body: `<div class="ce-row2">
+                    <label class="ce-field"><span>Instructor ID</span><input type="text" name="instructorId" placeholder="e.g. 200001"></label>
+                    <label class="ce-field"><span>Full name</span><input type="text" name="fullName"></label></div>
+                   <div class="ce-row2">
+                    <label class="ce-field"><span>Temporary password</span><input type="text" name="password" autocomplete="off"></label>
+                    <label class="ce-field"><span>Role</span>${roleSelect('instructor')}</label></div>
+                   <fieldset class="ce-field"><legend>Sections</legend>${sectionPicker([])}</fieldset>`,
+            onSubmit: async (form) => {
+                await api.post('/admin/instructors', {
+                    instructorId: form.elements.instructorId.value, fullName: form.elements.fullName.value,
+                    password: form.elements.password.value, role: form.elements.role.value, sections: pickedSections(form),
+                });
+                adminToast('Instructor added');
+                loadInstructors();
+                loadAudit();
+            },
+        }));
+
+        $('instructorList').addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-instr]');
+            if (!btn) return;
+            const i = instructorData.instructors.find(x => x.id === Number(btn.dataset.id));
+            if (btn.dataset.instr === 'edit') {
+                formModal({
+                    title: `Edit ${i.fullName}`, subtitle: `Instructor ID ${i.instructorId}`, submitLabel: 'Save',
+                    body: `<div class="ce-row2">
+                            <label class="ce-field"><span>Full name</span><input type="text" name="fullName" value="${escapeHtml(i.fullName)}"></label>
+                            <label class="ce-field"><span>Role</span>${roleSelect(i.role)}</label></div>
+                           <fieldset class="ce-field"><legend>Sections <small>(used when the role is Instructor)</small></legend>${sectionPicker(i.sections)}</fieldset>`,
+                    onSubmit: async (form) => {
+                        await api.put(`/admin/instructors/${i.id}`, { fullName: form.elements.fullName.value, role: form.elements.role.value, sections: pickedSections(form) });
+                        adminToast('Instructor updated');
+                        loadInstructors();
+                        loadAudit();
+                    },
+                });
+            }
+            if (btn.dataset.instr === 'password') {
+                formModal({
+                    title: `Reset ${i.fullName}'s password`, subtitle: 'They will be logged out everywhere.', submitLabel: 'Set password',
+                    body: '<label class="ce-field"><span>New temporary password</span><input type="text" name="password" autocomplete="off"><small>8+ characters, not all letters or all numbers.</small></label>',
+                    onSubmit: async (form) => {
+                        await api.post(`/admin/instructors/${i.id}/password`, { password: form.elements.password.value });
+                        adminToast('Password reset');
+                        loadAudit();
+                    },
+                });
+            }
+            if (btn.dataset.instr === 'remove') {
+                confirmDialog({
+                    title: `Remove ${i.fullName}?`, message: 'They will no longer be able to log in. Their entries in the activity log are kept.',
+                    confirmText: 'Remove', icon: 'fa-user-minus', danger: true,
+                    onConfirm: async () => {
+                        try { await api.del(`/admin/instructors/${i.id}`); adminToast('Instructor removed'); }
+                        catch (err) { adminToast(err.message, true); }
+                        loadInstructors();
+                        loadAudit();
+                    },
+                });
+            }
+        });
+
+        // ---------------- Activity log ----------------
+        async function loadAudit() {
+            try {
+                const { entries } = await api.get('/admin/audit');
+                $('auditList').innerHTML = entries.length ? entries.map(e => `
+                    <div class="admin-list-item is-static">
+                        <span class="admin-tag"><i class="fa-solid ${AUDIT_ICONS[e.action] || 'fa-eye'}"></i></span>
+                        <span class="admin-list-text"><strong>${escapeHtml((AUDIT_LABELS[e.action] || (() => e.action))(e))}</strong>
+                        <small>${escapeHtml(e.adminName)} · ${formatDateTime(e.createdAt)}</small></span>
+                    </div>`).join('') : '<p class="admin-empty">Nothing recorded yet.</p>';
+            } catch (err) {
+                $('auditList').innerHTML = '<p class="admin-empty">Could not load the activity log.</p>';
+            }
+        }
+
+        // ---------------- Wiring ----------------
+        function showTab(name) {
+            document.querySelectorAll('.admin-tab').forEach(t => {
+                const on = t.dataset.tab === name;
+                t.classList.toggle('active', on);
+                t.setAttribute('aria-selected', on ? 'true' : 'false');
+            });
+            document.querySelectorAll('.admin-panel').forEach(p => { p.hidden = p.id !== `tab-${name}`; });
+        }
+
+        document.querySelectorAll('.admin-tab').forEach(t => t.addEventListener('click', () => showTab(t.dataset.tab)));
+        ['studentSearch', 'filterProgram', 'filterSection', 'filterStatus', 'sortBy'].forEach(id =>
+            $(id).addEventListener(id === 'studentSearch' ? 'input' : 'change', renderStudents));
+
+        // Open a student from the table or the "Needs attention" list
+        document.addEventListener('click', (e) => {
+            const row = e.target.closest('[data-student]');
+            if (row) openStudent(Number(row.dataset.student));
+        });
+        $('studentRows').addEventListener('keydown', (e) => {
+            const row = e.target.closest('[data-student]');
+            if (row && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault();
+                openStudent(Number(row.dataset.student));
+            }
+        });
+        $('drawerClose').addEventListener('click', closeStudent);
+        $('drawerOverlay').addEventListener('click', (e) => { if (e.target === $('drawerOverlay')) closeStudent(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('drawerOverlay').hidden) closeStudent(); });
+        // Export is a plain download; refresh the log afterwards
+        $('exportBtn').addEventListener('click', () => setTimeout(loadAudit, 1500));
+
+        // Instructor log out (separate from the student log out)
+        $('instructorLogout').addEventListener('click', () => {
+            confirmDialog({
+                title: 'Log out?',
+                message: 'You will need your Instructor ID and password to come back.',
+                confirmText: 'Log out',
+                cancelText: 'Stay',
+                icon: 'fa-arrow-right-from-bracket',
+                danger: true,
+                onConfirm: async () => {
+                    try { await api.post('/instructor/logout'); } catch (e) { /* ignore */ }
+                    window.location.href = 'login.html#admin';
+                },
+            });
+        });
+
+        (async function init() {
+            // Instructor session only; students and logged-out visitors go to the admin login
+            let instructor;
+            try {
+                ({ instructor } = await api.get('/instructor/me'));
+            } catch (err) {
+                window.location.href = 'login.html#admin';
+                return;
+            }
+            $('sidebarName').textContent = instructor.fullName;
+            $('sidebarMeta').textContent = `ID ${instructor.instructorId}`;
+            $('sidebarMeta').title = instructor.isAdmin ? 'Main admin' : 'Instructor';
+            $('tabBtnContent').hidden = !instructor.isAdmin;
+            $('tabBtnInstructors').hidden = !instructor.isAdmin;
+            $('noSectionsNote').hidden = instructor.isAdmin || instructor.sections.length > 0;
+            if (!instructor.isAdmin) {
+                $('adminSubtitle').textContent = instructor.sections.length
+                    ? `Your sections: ${instructor.sections.map(sec => `${sec.program} ${sec.yearSection}`).join(', ')}`
+                    : 'Track how the students in your sections are doing.';
+            }
+            $('sidebarAvatar').textContent = initials(instructor.fullName) || 'IN';
+
+            try {
+                // Question text for the "missed questions" lists comes from the search index
+                const [list, insights, index] = await Promise.all([
+                    api.get('/admin/students'),
+                    api.get('/admin/insights'),
+                    fetch('/api/content/search-index').then(r => r.json()).catch(() => ({ items: [] })),
+                ]);
+                index.items.forEach(item => {
+                    if (item.type === 'case') questionText.set(`case_study:${item.key}`, item.title);
+                    if (item.type === 'card') questionText.set(`study_card:${item.key}`, item.title);
+                });
+
+                students = list.students;
+                today = list.today;
+                renderOverview(insights);
+                fillFilters();
+                renderStudents();
+                loadAudit();
+                if (instructor.isAdmin) await loadInstructors(); // also fills the section lists
+                loadAnnouncements();
+                if (instructor.isAdmin) HCIContentEditor.mount($('contentEditor'), {
+                    onPending: (n) => {
+                        $('contentPending').hidden = !n;
+                        $('contentPending').textContent = n;
+                        loadAudit();
+                    },
+                });
+
+                $('adminLoading').hidden = true;
+                $('adminApp').hidden = false;
+                $('exportBtn').hidden = false;
+            } catch (err) {
+                $('adminLoading').innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${escapeHtml(err.message)}`;
+            }
+        })();
+    </script>
+</body>
+</html>

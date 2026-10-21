@@ -3,7 +3,7 @@
 const express = require('express');
 const { pool } = require('../db');
 const { requireAuth } = require('../middleware/authGuard');
-const { VIDEOS, TOTAL_LESSON_TOPICS } = require('../content');
+const { getContent } = require('../contentStore');
 
 const router = express.Router();
 router.use(requireAuth);
@@ -24,20 +24,15 @@ function toClient(row) {
   };
 }
 
-// Checks the item and returns the title to store (video titles come from
-// the server, lesson topic titles from the page), or null if invalid.
-function resolveTitle(kind, itemKey, title) {
+// Checks the item is published and returns its title (always taken from the
+// server's content, never from the browser), or null if invalid.
+async function resolveTitle(kind, itemKey) {
   if (typeof itemKey !== 'string') return null;
-
-  if (kind === 'video') {
-    return VIDEOS.get(itemKey) || null;
-  }
+  const content = await getContent();
+  if (kind === 'video') return content.videoTitles.get(itemKey) || null;
   if (kind === 'lesson') {
-    if (!/^\d{1,3}$/.test(itemKey)) return null;
-    const topic = Number(itemKey);
-    if (topic < 1 || topic > TOTAL_LESSON_TOPICS) return null;
-    const clean = typeof title === 'string' ? title.trim().slice(0, MAX_TITLE_LENGTH) : '';
-    return clean || `Topic ${topic}`;
+    const topic = content.topicByKey.get(itemKey);
+    return topic ? topic.title.slice(0, MAX_TITLE_LENGTH) : null;
   }
   return null;
 }
@@ -59,8 +54,8 @@ router.get('/', async (req, res, next) => {
 // Saves the item (or updates it). The note is only changed when sent.
 router.put('/', async (req, res, next) => {
   try {
-    const { kind, itemKey, title, note } = req.body || {};
-    const finalTitle = resolveTitle(kind, itemKey, title);
+    const { kind, itemKey, note } = req.body || {};
+    const finalTitle = await resolveTitle(kind, itemKey);
     if (!finalTitle) {
       return res.status(400).json({ error: 'Invalid item.' });
     }

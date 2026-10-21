@@ -406,6 +406,211 @@ async function init() {
         );
 
 
+        /* Instructor accounts for the Admin Dashboard. Separate from
+           student accounts; created with "npm run instructor -- add". */
+        CREATE TABLE IF NOT EXISTS instructors (
+
+            id
+                SERIAL
+                PRIMARY KEY,
+
+            instructor_id
+                TEXT
+                NOT NULL
+                UNIQUE,
+
+            full_name
+                TEXT
+                NOT NULL,
+
+            password_hash
+                TEXT
+                NOT NULL,
+
+            session_version
+                INTEGER
+                NOT NULL
+                DEFAULT 0,
+
+            created_at
+                TIMESTAMPTZ
+                NOT NULL
+                DEFAULT NOW(),
+
+            last_login_at
+                TIMESTAMPTZ
+        );
+
+
+        /* What instructors did on the Admin Dashboard (viewed a student,
+           exported data...), for accountability. */
+        CREATE TABLE IF NOT EXISTS instructor_audit_log (
+
+            id
+                SERIAL
+                PRIMARY KEY,
+
+            instructor_id
+                INTEGER
+                REFERENCES instructors(id)
+                ON DELETE SET NULL,
+
+            action
+                TEXT
+                NOT NULL,
+
+            target_user_id
+                INTEGER
+                REFERENCES users(id)
+                ON DELETE SET NULL,
+
+            details
+                TEXT
+                NOT NULL
+                DEFAULT '',
+
+            created_at
+                TIMESTAMPTZ
+                NOT NULL
+                DEFAULT NOW()
+        );
+
+
+        /* Course content edited from the Admin Dashboard.
+           "draft" is what instructors edit, "published" is what students
+           see; Publish copies draft -> published. NULL draft = deleted in
+           the draft, NULL published = not live. Rows are never removed once
+           published, so a key is never reused by different content.
+           kind: video | module | topic | case | deck | card
+           key:  permanent id used by progress, mistakes and bookmarks
+                 (e.g. case "12", card "3-7", topic "46", video = YouTube id) */
+        CREATE TABLE IF NOT EXISTS content_items (
+
+            id
+                SERIAL
+                PRIMARY KEY,
+
+            kind
+                TEXT
+                NOT NULL,
+
+            key
+                TEXT
+                NOT NULL,
+
+            parent_key
+                TEXT,
+
+            draft
+                JSONB,
+
+            published
+                JSONB,
+
+            updated_at
+                TIMESTAMPTZ
+                NOT NULL
+                DEFAULT NOW(),
+
+            UNIQUE (
+                kind,
+                key
+            )
+        );
+
+
+        /* A snapshot of the published content after every publish or
+           rollback, so instructors can go back to an earlier version.
+           snapshot = [{ kind, key, parentKey, data }, ...] */
+        CREATE TABLE IF NOT EXISTS content_versions (
+
+            id
+                SERIAL
+                PRIMARY KEY,
+
+            instructor_id
+                INTEGER
+                REFERENCES instructors(id)
+                ON DELETE SET NULL,
+
+            summary
+                TEXT
+                NOT NULL
+                DEFAULT '',
+
+            snapshot
+                JSONB
+                NOT NULL,
+
+            item_count
+                INTEGER
+                NOT NULL
+                DEFAULT 0,
+
+            created_at
+                TIMESTAMPTZ
+                NOT NULL
+                DEFAULT NOW()
+        );
+
+
+        /* Which student sections each (non-admin) instructor can see.
+           A section = program + year_section, exactly as students entered it. */
+        CREATE TABLE IF NOT EXISTS instructor_sections (
+
+            instructor_id
+                INTEGER
+                NOT NULL
+                REFERENCES instructors(id)
+                ON DELETE CASCADE,
+
+            program
+                TEXT
+                NOT NULL,
+
+            year_section
+                TEXT
+                NOT NULL,
+
+            PRIMARY KEY (
+                instructor_id,
+                program,
+                year_section
+            )
+        );
+
+
+        /* Messages from instructors shown on every student's Dashboard. */
+        CREATE TABLE IF NOT EXISTS announcements (
+
+            id
+                SERIAL
+                PRIMARY KEY,
+
+            instructor_id
+                INTEGER
+                REFERENCES instructors(id)
+                ON DELETE SET NULL,
+
+            title
+                TEXT
+                NOT NULL,
+
+            body
+                TEXT
+                NOT NULL
+                DEFAULT '',
+
+            ends_on
+                DATE,
+
+            created_at
+                TIMESTAMPTZ
+                NOT NULL
+                DEFAULT NOW()
+        );
+
+
         /* Badges a user has earned. */
         CREATE TABLE IF NOT EXISTS user_badges (
 
@@ -474,6 +679,36 @@ async function init() {
         /* Daily goal: how many questions the user wants to answer per day. */
         await client.query(
             'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS daily_goal INTEGER NOT NULL DEFAULT 10'
+        );
+
+        /* Set by an instructor to block an account from logging in. */
+        await client.query(
+            'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS disabled_at TIMESTAMPTZ'
+        );
+
+        /* When the student last opened their notifications (announcements
+           posted after this are "unread"). */
+        await client.query(
+            'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS announcements_seen_at TIMESTAMPTZ'
+        );
+
+        /* Instructor role: 'admin' (sees and manages everything) or
+           'instructor' (sees only their assigned sections). */
+        await client.query(
+            "ALTER TABLE public.instructors ADD COLUMN IF NOT EXISTS role TEXT NOT NULL DEFAULT 'instructor'"
+        );
+
+        /* There must always be an admin: the first instructor becomes one. */
+        await client.query(`
+            UPDATE public.instructors SET role = 'admin'
+            WHERE id = (SELECT MIN(id) FROM public.instructors)
+              AND NOT EXISTS (SELECT 1 FROM public.instructors WHERE role = 'admin')
+        `);
+
+        /* Announcement audience: NULL = everyone, otherwise a list of
+           { program, yearSection } sections. */
+        await client.query(
+            'ALTER TABLE public.announcements ADD COLUMN IF NOT EXISTS target_sections JSONB'
         );
 
 
@@ -687,6 +922,8 @@ async function init() {
 
         await client.query('COMMIT');
 
+        await seedContent();
+
     } catch (err) {
 
         await client.query('ROLLBACK');
@@ -695,6 +932,56 @@ async function init() {
 
     } finally {
 
+        client.release();
+    }
+}
+
+
+/*
+    First start only: load the original course content (src/seed/content.json)
+    into content_items, published. After that, content is edited from the
+    Admin Dashboard and this does nothing.
+*/
+async function seedContent() {
+
+    const { rows } = await pool.query('SELECT COUNT(*)::int AS n FROM content_items');
+
+    if (rows[0].n > 0) return;
+
+    const seed = require('./seed/content.json');
+    const groups = [
+        ['module', seed.modules],
+        ['topic', seed.topics],
+        ['video', seed.videos],
+        ['case', seed.cases],
+        ['deck', seed.decks],
+        ['card', seed.cards],
+    ];
+
+    const client = await pool.connect();
+
+    try {
+        await client.query('BEGIN');
+
+        for (const [kind, items] of groups) {
+            for (const item of items) {
+                const data = JSON.stringify(item.data);
+                await client.query(
+                    `INSERT INTO content_items (kind, key, parent_key, draft, published)
+                     VALUES ($1, $2, $3, $4::jsonb, $4::jsonb)
+                     ON CONFLICT (kind, key) DO NOTHING`,
+                    [kind, item.key, item.parentKey || null, data]
+                );
+            }
+        }
+
+        await client.query('COMMIT');
+        console.log('Loaded the original course content into content_items.');
+
+    } catch (err) {
+        await client.query('ROLLBACK');
+        throw err;
+    } finally {
         client.release();
     }
 }

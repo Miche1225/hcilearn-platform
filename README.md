@@ -9,13 +9,27 @@ flashcards, and their progress is saved to their account.
 | Page | What it does |
 |---|---|
 | **Login / Sign up** | Accounts with hashed passwords, "remember me", and forgot-password by email |
-| **Dashboard** | Overall progress ring, per-module stats, "up next" suggestion, recent activity, study streak, daily goal and badges |
+| **Dashboard** | Instructor announcements, overall progress ring, per-module stats, "up next" suggestion, recent activity, study streak, daily goal and badges |
 | **Watch Video** | YouTube lessons with search and filters; a video is marked watched automatically when it ends, and resumes where you left off |
 | **Read Lesson** | Learning objectives, outline and expandable lessons with search and "jump to lesson"; any topic can be saved with a note |
-| **Case Studies** | 50 scenarios that unlock one at a time as you answer correctly, plus "Review mistakes" |
-| **Study Cards** | 11 flashcard decks; wrong answers come back until the deck is mastered, plus a "Review my mistakes" deck |
+| **Case Studies** | Scenarios that unlock one at a time as you answer correctly, plus "Review mistakes" |
+| **Study Cards** | Flashcard decks; wrong answers come back until the deck is mastered, plus a "Review my mistakes" deck |
 | **Saved** | Bookmarked topics and videos with personal notes; search, filter, edit and remove |
+| **Admin** | For instructors (Instructor ID + password via "Log in as admin"): class overview, student list with filters, per-student details and account actions, **content editor** with draft/publish and **publish history / roll back**, **announcements** (to everyone or chosen sections), **instructors** with their own sections, CSV export and an audit log |
 | **Account** | Badge collection with progress, edit profile, upload a photo, change password, delete account |
+
+**Course content lives in the database.** Videos, lessons, case studies and
+study cards are edited by instructors in the Admin Dashboard. Edits are
+drafts until an instructor presses **Publish**; then every student sees the
+new content at once. Every publish is saved in a **publish history**, and
+the main admin can **roll back** to any earlier version (the rollback is
+saved too, so it can be undone). Each item keeps a permanent key, so students' progress,
+mistakes and bookmarks survive edits, reordering and additions.
+
+**Notifications:** when an instructor posts an announcement, students get a
+pop-up on whatever page they are on (checked every minute) and a red count
+on the **bell** in the sidebar. The bell lists the announcements meant for
+their section; opening it marks them read (saved per account).
 
 Every logged-in page has **Quick Search** (menu item, Ctrl+K or "/") over
 lesson topics, videos, case studies, study cards and an HCI glossary.
@@ -48,32 +62,43 @@ hcilearn-platform/
 ├── src/
 │   ├── db.js                 # Postgres pool + table setup/migrations
 │   ├── middleware/
-│   │   ├── authGuard.js      # session cookie check
+│   │   ├── authGuard.js      # student session cookie check
+│   │   ├── instructorGuard.js # instructor session cookie check
 │   │   └── rateLimit.js      # in-memory rate limiter
 │   ├── routes/
 │   │   ├── auth.js           # signup, login, logout, forgot/reset password, /me
 │   │   ├── account.js        # profile, photo upload, delete account
 │   │   ├── progress.js       # dashboard summary, per-module progress, video positions, mistakes
 │   │   ├── bookmarks.js      # saved topics/videos + notes
-│   │   └── gamify.js         # study streak, daily goal, badges
-│   ├── content.js            # course content the server validates against (videos, totals)
-│   └── utils/                # mailer, password rules, email hashing
+│   │   ├── gamify.js         # study streak, daily goal, badges
+│   │   ├── admin.js          # admin dashboard (progress, insights, CSV, audit log, student actions, announcements)
+│   │   ├── adminContent.js   # content editor API (drafts, publish, discard, history, rollback)
+│   │   ├── adminInstructors.js # instructors + their sections (main admin only)
+│   │   ├── content.js        # published content for the student pages + Quick Search index
+│   │   ├── announcements.js  # active announcements for students
+│   │   └── instructor.js     # instructor login / logout
+│   ├── contentStore.js       # cached published content (refreshed on publish)
+│   ├── contentVersions.js    # publish history snapshots
+│   ├── seed/content.json     # original course content, loaded into an empty database once
+│   ├── glossary.json         # HCI glossary terms for Quick Search
+│   └── utils/                # mailer, password rules, email hashing, dates/streaks
 ├── scripts/
 │   ├── build-dark-css.js     # generates public/dark.css from style.css
 │   ├── dark-manual.css       # hand-written dark mode fixes
-│   ├── build-search-index.js # generates public/search-index.json from the pages
-│   ├── glossary.json         # HCI glossary terms for Quick Search
+│   ├── instructor.js         # npm run instructor (manage instructor accounts)
 │   └── check.js              # npm test
 └── public/                   # front-end pages
     ├── style.css             # shared stylesheet for every page
     ├── dark.css              # dark mode (generated, don't edit by hand)
-    ├── search-index.json     # Quick Search data (generated, don't edit by hand)
     └── js/
         ├── api.js            # fetch helper, auth check, sidebar
         ├── theme.js          # light/dark mode switch
         ├── bookmarks.js      # bookmarks + note dialog
         ├── gamify.js         # reports activity, badge / goal pop-ups
         ├── search.js         # Quick Search window
+        ├── notifications.js  # student notification bell + pop-ups
+        ├── richtext.js       # lesson text format (shared by Read Lesson and the editor)
+        ├── admin-content.js  # Admin Dashboard content editor
         └── sfx.js            # quiz sounds + confetti
 ```
 
@@ -104,15 +129,51 @@ npm run build:dark
 For anything the generator gets wrong, add a rule to `scripts/dark-manual.css`
 (it is appended to the end of `dark.css`) and run the command again.
 
-### Search index
+### Instructor accounts (Admin Dashboard)
 
-`public/search-index.json` is generated from the lesson topics, videos, case
-studies and study cards written in the pages, plus `scripts/glossary.json`.
-**After changing any of that content, run:**
+There are two roles:
+
+- **Main admin**: sees every student, edits and publishes content, manages
+  instructors (Instructors tab). The first instructor account is always a
+  main admin, and there must always be at least one.
+- **Instructor**: sees only the sections assigned to them (a section is the
+  program + year/section students chose at sign-up, e.g. "BSIT 3rd Year -
+  Section A"). Student list, insights, CSV, student actions, announcements
+  and the activity log are all limited to those sections.
+
+The main admin adds instructors and sets their sections in the Admin
+Dashboard. Instructors can change their own password (key button in the
+sidebar).
+
+Instructors are separate from students and log in with an **Instructor ID and
+password** ("Log in as admin" on the login page, or `login.html#admin`).
+Accounts are managed from the terminal (uses `DATABASE_URL` in `.env`):
 
 ```bash
-npm run build:search
+npm run instructor -- add --id 122524 --name "Full Name"   # asks for the password (add --role admin for a main admin)
+npm run instructor -- set-role --id 122524 --role admin     # or --role instructor
+npm run instructor -- reset-password --id 122524           # also logs them out everywhere
+npm run instructor -- rename --id 122524 --name "New Name"
+npm run instructor -- remove --id 122524
+npm run instructor -- list
 ```
+
+The password is typed when asked and stored only as a bcrypt hash, never in
+code or `.env`.
+
+### Course content and the topic text format
+
+On the first start with an empty database, the original course content in
+`src/seed/content.json` is loaded and published. After that, use the
+**Content** tab of the Admin Dashboard. Lesson topics are made of sections
+(icon, optional heading, text). The text supports:
+
+- a blank line for a new paragraph
+- `- ` at the start of a line for a bullet point
+- `> ` at the start of a line for a grey "example" note
+- `**bold**` and `*italic*`
+
+Everything else is shown as plain text (no HTML), so it is safe to paste.
 
 ### Checks
 
@@ -121,7 +182,7 @@ npm test
 ```
 
 Checks that every JavaScript file and inline page script parses, and that
-`dark.css` and `search-index.json` are up to date. Run it before pushing.
+`dark.css` is up to date. Run it before pushing.
 
 ## Environment variables
 
@@ -182,6 +243,30 @@ the password-reset routes requires the login cookie.
 | POST | `/gamify/activity` | Record an answer / finished video / opened topic / cleared mistake |
 | POST | `/gamify/check` | Award any badges earned from other progress |
 | PUT | `/gamify/goal` | Change the daily goal (5, 10, 20 or 30) |
+| POST | `/instructor/login` | Instructor login (Instructor ID + password) |
+| POST | `/instructor/logout` | Instructor log out |
+| GET | `/instructor/me` | Current instructor |
+| GET | `/content/videos` · `/content/lessons` · `/content/case-studies` · `/content/study-cards` | Published course content (no login needed) |
+| GET | `/content/search-index` | Quick Search data (published content + glossary) |
+| GET | `/announcements` | Announcements for this student (with unread flags) |
+| POST | `/announcements/seen` | Mark notifications as read |
+| GET | `/admin/students` | *Admin:* every student with progress numbers |
+| GET | `/admin/insights` | *Admin:* most-missed questions, least-watched videos |
+| GET | `/admin/students/:id` | *Admin:* one student's details (recorded in the audit log) |
+| GET | `/admin/export.csv` | *Admin:* progress CSV (recorded in the audit log) |
+| POST | `/admin/students/:id/signout` · `/reset` · `/deactivate` · `/reactivate` | *Admin:* account actions (audited) |
+| GET · POST · DELETE | `/admin/announcements` | *Admin:* list, post, delete announcements |
+| GET · POST | `/admin/content` | *Admin:* all items (draft + published) / add an item |
+| PUT · DELETE | `/admin/content/:id` | *Admin:* edit / remove (draft) |
+| POST | `/admin/content/:id/restore` · `/reorder` | *Admin:* undo changes / new order |
+| POST | `/admin/content/publish` · `/discard` | *Admin:* make drafts live / throw them away (audited) |
+| GET | `/admin/content/versions` · `/versions/:id/preview` | *Main admin:* publish history / what a rollback would change |
+| POST | `/admin/content/versions/:id/rollback` | *Main admin:* make an earlier version live again (audited) |
+| GET · POST | `/admin/instructors` | *Main admin:* list / add instructors |
+| PUT · DELETE | `/admin/instructors/:id` | *Main admin:* edit name, role, sections / remove |
+| POST | `/admin/instructors/:id/password` | *Main admin:* reset an instructor's password |
+| POST | `/instructor/password` | Change your own instructor password |
+| GET | `/admin/audit` | *Admin:* latest admin actions |
 
 ## Database
 
@@ -196,6 +281,14 @@ the password-reset routes requires the login cookie.
 - `bookmarks`: saved topics/videos with notes
 - `daily_activity`: what each user did per day, for the streak, daily goal and badges
 - `user_badges`: badges each user has earned (the goal itself is `users.daily_goal`)
+- `instructors`: instructor accounts (Instructor ID, name, password hash)
+- `instructor_audit_log`: what instructors did on the Admin Dashboard (viewing, exporting, publishing, account actions)
+- `content_items`: course content; each row has a permanent `key`, a `draft` and a `published` version
+- `content_versions`: snapshot of the published content after every publish / rollback (last 60 kept)
+- `instructor_sections`: which sections each instructor sees (`instructors.role` = `admin` or `instructor`)
+- `announcements`: messages for the student Dashboard (optional end date, optional target sections)
+- `users.disabled_at`: set when an instructor deactivates an account
+- `users.announcements_seen_at`: when the student last opened their notifications
 
 ## Security
 
@@ -204,6 +297,10 @@ the password-reset routes requires the login cookie.
 - Changing or resetting a password signs out every other session
 - httpOnly, `SameSite` cookies (`Secure` in production)
 - Photo uploads checked for type and size before going to Cloudinary
+- Instructors have separate accounts and their own 8-hour session cookie; a
+  student login can never open the admin API. Instructor logins are rate
+  limited, and instructor views and exports are written to an audit log.
+  Exported CSV cells are escaped so they can't run as spreadsheet formulas
 
 ## Deployment
 
