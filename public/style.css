@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap");
+
 /* --- Global Reset & Typography --- */
 * {
     margin: 0;
@@ -7316,5 +7318,884 @@ body {
            .acct-save-btn, .cs-continue-btn, .sc-hero-btn, .filter-btn,
            .quick-item, .nav-item):not(:disabled):not(.clear-search):active {
         transform: scale(0.97);
+    }
+}
+
+/* ========================================= */
+/* --- FUN THEME (all pages) ---             */
+/* Playful font, candy colours, bouncy       */
+/* motion. Loaded last so it wins.           */
+/* ========================================= */
+
+:root {
+    --fun-navy: #0d3b75;
+    --fun-grape: #7b5cff;
+    --fun-pink: #ff6fa5;
+    --fun-coral: #ff8a5c;
+    --fun-sun: #ffc93c;
+    --fun-mint: #3fcf9b;
+    --fun-sky: #4fb3ff;
+    --fun-bg: #f6f4ff;
+    --fun-rainbow: linear-gradient(90deg, #ff6fa5, #ff8a5c, #ffc93c, #3fcf9b, #4fb3ff, #7b5cff, #ff6fa5);
+    --fun-hero: linear-gradient(125deg, #0d3b75 0%, #4b3bc4 45%, #8a4fd8 75%, #e2609f 100%);
+    --fun-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Rounded, friendly font everywhere (icons keep their own font) */
+* {
+    font-family: 'Nunito', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* --- Background: soft lilac with polka dots + colour blobs --- */
+.dashboard-container,
+.dashboard-page .main-content,
+:is(.video-page, .lesson-page, .case-page, .study-page, .account-page) .main-content {
+    background-color: var(--fun-bg);
+    background-image:
+        radial-gradient(circle at 8% 12%, rgba(255, 111, 165, 0.10), transparent 28%),
+        radial-gradient(circle at 92% 30%, rgba(79, 179, 255, 0.12), transparent 30%),
+        radial-gradient(circle at 70% 95%, rgba(255, 201, 60, 0.12), transparent 30%),
+        radial-gradient(rgba(123, 92, 255, 0.10) 1.2px, transparent 1.2px);
+    background-size: auto, auto, auto, 22px 22px;
+    background-attachment: fixed;
+}
+
+/* --- Sidebar: deeper, with a rainbow edge --- */
+.sidebar {
+    background:
+        radial-gradient(circle at 15% 92%, rgba(226, 96, 159, 0.40), transparent 45%),
+        radial-gradient(circle at 90% 8%, rgba(79, 179, 255, 0.30), transparent 40%),
+        linear-gradient(180deg, #0d3b75 0%, #2a2f8f 60%, #3d2a8a 100%);
+}
+
+.sidebar-header {
+    position: relative;
+}
+
+.sidebar-header::after {
+    content: "";
+    position: absolute;
+    left: 6px;
+    right: 6px;
+    bottom: -16px;
+    height: 4px;
+    border-radius: 4px;
+    background: var(--fun-rainbow);
+    background-size: 200% 100%;
+    animation: funSlide 6s linear infinite;
+    pointer-events: none;
+}
+
+.sidebar-logo {
+    transition: transform 0.4s var(--fun-bounce);
+}
+
+.sidebar-header:hover .sidebar-logo {
+    transform: rotate(-12deg) scale(1.1);
+}
+
+/* Each nav icon gets its page colour (variables come from the sidebar section) */
+.nav-item i {
+    background: var(--nav-tint, rgba(255, 255, 255, 0.08));
+    color: var(--nav-c, #fff);
+    transition: background-color 0.2s, color 0.2s, transform 0.35s var(--fun-bounce);
+}
+
+.nav-item:hover i {
+    transform: rotate(-10deg) scale(1.15);
+}
+
+.nav-item.active {
+    border-radius: 14px;
+}
+
+.nav-item.active i {
+    background: var(--nav-strong, #0d3b75);
+    color: #fff;
+}
+
+/* --- Big hero banners (Dashboard, Study Cards, Account) --- */
+.dashboard-page .welcome-card,
+.study-page .sc-hero,
+.account-page .acct-profile {
+    background: var(--fun-hero);
+    background-size: 160% 160%;
+    animation: fadeUp 0.5s ease both, funHero 12s ease-in-out infinite alternate;
+    box-shadow: 0 14px 34px rgba(91, 60, 196, 0.28);
+    border-radius: 24px;
+}
+
+/* Floating confetti dots on the banners */
+.dashboard-page .welcome-card::before,
+.study-page .sc-hero::before,
+.account-page .acct-profile::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(circle, var(--fun-sun) 0 5px, transparent 6px) 62% 22% / 14px 14px no-repeat,
+        radial-gradient(circle, var(--fun-mint) 0 4px, transparent 5px) 78% 78% / 12px 12px no-repeat,
+        radial-gradient(circle, var(--fun-pink) 0 6px, transparent 7px) 88% 30% / 16px 16px no-repeat,
+        radial-gradient(circle, var(--fun-sky) 0 3px, transparent 4px) 52% 82% / 10px 10px no-repeat,
+        radial-gradient(circle, #fff 0 2px, transparent 3px) 70% 50% / 8px 8px no-repeat;
+    opacity: 0.9;
+    animation: funFloat 5s ease-in-out infinite;
+}
+
+.dashboard-page .welcome-card > *,
+.study-page .sc-hero > *,
+.account-page .acct-profile > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Waving hand after the dashboard greeting */
+.dashboard-page .welcome-text h1::after {
+    content: " \1F44B";
+    display: inline-block;
+    transform-origin: 70% 70%;
+    animation: funWave 2.4s ease-in-out 0.6s infinite;
+}
+
+.dashboard-page .profile-img,
+.dashboard-page .profile-initials {
+    border-color: var(--fun-sun);
+    box-shadow: 0 0 0 4px rgba(255, 201, 60, 0.35), 0 6px 16px rgba(0, 0, 0, 0.2);
+    transition: transform 0.4s var(--fun-bounce);
+}
+
+.dashboard-page .avatar-wrap:hover .profile-img,
+.dashboard-page .avatar-wrap:hover .profile-initials {
+    transform: rotate(-6deg) scale(1.06);
+}
+
+/* --- Page headers (Videos, Lessons, Case Studies) become colourful cards --- */
+:is(.video-page, .lesson-page) .video-header,
+.case-page .cs-header-section {
+    position: relative;
+    overflow: hidden;
+    padding: 24px 26px 22px;
+    border-radius: 24px;
+    border: 2px solid #ece8fb;
+    box-shadow: 0 10px 26px rgba(91, 60, 196, 0.10);
+    animation: fadeUp 0.5s ease both;
+}
+
+:is(.video-page, .lesson-page) .video-header::before,
+.case-page .cs-header-section::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 6px;
+    background: var(--fun-rainbow);
+    background-size: 200% 100%;
+    animation: funSlide 6s linear infinite;
+}
+
+.video-page .video-header     { background: linear-gradient(120deg, #e3f2ff, #fff 65%); }
+.lesson-page .video-header    { background: linear-gradient(120deg, #defaee, #fff 65%); }
+.case-page .cs-header-section { background: linear-gradient(120deg, #ffeadf, #fff 65%); }
+
+.video-page .video-header h2 i  { color: var(--fun-sky); }
+.lesson-page .video-header h2 i { color: var(--fun-mint); }
+
+:is(.video-page, .lesson-page) .video-header h2 i {
+    display: inline-block;
+    animation: funBob 3s ease-in-out infinite;
+}
+
+.case-page .cs-icon-box {
+    background: linear-gradient(135deg, var(--fun-coral), var(--fun-pink));
+    color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 18px rgba(255, 111, 165, 0.35);
+    animation: funBob 3s ease-in-out infinite;
+}
+
+/* --- Cards: rounder, colourful top stripe, springy lift --- */
+.dashboard-page .card,
+.lesson-page .info-card,
+.account-page .acct-card,
+.case-page .scenario-card,
+.video-page .video-card {
+    position: relative;
+    border-radius: 20px;
+    border: 2px solid #ece8fb;
+    transition: transform 0.35s var(--fun-bounce), box-shadow 0.25s, border-color 0.25s;
+}
+
+.dashboard-page .card::before,
+.lesson-page .info-card::before,
+.account-page .acct-card::before {
+    content: "";
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    top: -2px;
+    height: 5px;
+    border-radius: 0 0 6px 6px;
+    background: var(--fun-stripe, var(--fun-grape));
+}
+
+.dashboard-page .progress-card       { --fun-stripe: linear-gradient(90deg, var(--fun-grape), var(--fun-pink)); }
+.dashboard-page .activities-card     { --fun-stripe: linear-gradient(90deg, var(--fun-sky), var(--fun-mint)); }
+.dashboard-page .recent-card         { --fun-stripe: linear-gradient(90deg, var(--fun-sun), var(--fun-coral)); }
+.dashboard-page .quick-actions-card  { --fun-stripe: linear-gradient(90deg, var(--fun-mint), var(--fun-sky)); }
+.lesson-page .info-card:nth-child(1) { --fun-stripe: linear-gradient(90deg, var(--fun-mint), var(--fun-sky)); }
+.lesson-page .info-card:nth-child(2) { --fun-stripe: linear-gradient(90deg, var(--fun-sun), var(--fun-coral)); }
+.account-page .acct-card:nth-of-type(odd)  { --fun-stripe: linear-gradient(90deg, var(--fun-grape), var(--fun-pink)); }
+.account-page .acct-card:nth-of-type(even) { --fun-stripe: linear-gradient(90deg, var(--fun-sky), var(--fun-mint)); }
+
+.dashboard-page .card:hover,
+.lesson-page .info-card:hover,
+.video-page .video-card:hover {
+    transform: translateY(-5px);
+    border-color: #d9d0ff;
+    box-shadow: 0 16px 32px rgba(91, 60, 196, 0.16);
+}
+
+.case-page .scenario-card.unlocked:hover {
+    transform: translateY(-4px) rotate(-0.6deg);
+    border-color: #ffc2a6;
+    box-shadow: 0 14px 28px rgba(255, 138, 92, 0.18);
+}
+
+.case-page .sc-num {
+    background: linear-gradient(135deg, #fff1e8, #ffe2ef);
+    color: #c2452b;
+    font-weight: 800;
+}
+
+/* Card title icons: candy colour matching each card's stripe */
+.dashboard-page .icon-title,
+.lesson-page .card-header .icon-purple {
+    color: #fff;
+    border-radius: 11px;
+    background: var(--fun-stripe, var(--fun-grape));
+    box-shadow: 0 4px 10px rgba(91, 60, 196, 0.2);
+}
+
+/* Stat tiles + activity rows wiggle a little */
+.dashboard-page .stat-item {
+    border-radius: 18px;
+    border: 2px solid #ece8fb;
+    transition: transform 0.35s var(--fun-bounce), box-shadow 0.2s, background 0.2s;
+}
+
+.dashboard-page .stat-item:hover {
+    transform: translateY(-6px) rotate(-1.5deg);
+}
+
+.dashboard-page .stat-item:hover .stat-icon,
+.dashboard-page .act-item:hover .act-icon {
+    animation: funJiggle 0.5s ease;
+}
+
+.dashboard-page .act-item:hover {
+    background: #f3efff;
+}
+
+/* --- Progress: candy-striped, gently moving bars --- */
+.dashboard-page .mini-fill,
+:is(.video-page, .lesson-page) .video-progress-bar div {
+    background-image: linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.28) 25%, transparent 25%,
+        transparent 50%, rgba(255, 255, 255, 0.28) 50%,
+        rgba(255, 255, 255, 0.28) 75%, transparent 75%, transparent
+    );
+    background-size: 14px 14px;
+    animation: funStripes 1.2s linear infinite;
+}
+
+:is(.video-page, .lesson-page) .video-progress-bar {
+    height: 10px;
+    border-radius: 10px;
+    background: #ebe6fb;
+}
+
+:is(.video-page, .lesson-page) .video-progress-bar div {
+    background-color: var(--fun-mint);
+    border-radius: 10px;
+}
+
+.dashboard-page .circular-progress {
+    box-shadow: 0 0 0 6px #fff, 0 10px 24px rgba(91, 60, 196, 0.18);
+}
+
+.dashboard-page .inner-circle span {
+    background: linear-gradient(135deg, var(--fun-grape), var(--fun-pink));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 900;
+}
+
+/* --- Buttons: pill shaped, gradient, springy --- */
+.cs-continue-btn,
+.fc-btn-primary,
+.btn-submit,
+.acct-save-btn,
+.modal-btn-primary,
+.login-page .login-btn,
+.signup-page .signup-container .signup-btn,
+body.update-password-page .update-container .update-btn {
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--fun-grape), var(--fun-pink));
+    color: #fff;
+    border: none;
+    font-weight: 800;
+    box-shadow: 0 8px 18px rgba(123, 92, 255, 0.30);
+    transition: transform 0.3s var(--fun-bounce), box-shadow 0.2s, filter 0.2s;
+}
+
+.cs-continue-btn:hover,
+.fc-btn-primary:hover:not(:disabled),
+.btn-submit:hover:not(:disabled),
+.acct-save-btn:hover:not(:disabled),
+.modal-btn-primary:hover,
+.login-page .login-btn:hover:not(:disabled),
+.signup-page .signup-container .signup-btn:hover:not(:disabled),
+body.update-password-page .update-container .update-btn:hover:not(:disabled) {
+    transform: translateY(-2px) scale(1.04);
+    background: linear-gradient(135deg, var(--fun-grape), var(--fun-pink));
+    filter: saturate(1.15) brightness(1.05);
+    box-shadow: 0 12px 24px rgba(255, 111, 165, 0.35);
+}
+
+.cs-continue-btn:active,
+.study-page .sc-hero-btn:active,
+.fc-btn-primary:active,
+.btn-submit:active,
+.acct-save-btn:active,
+.login-page .login-btn:active,
+.signup-page .signup-container .signup-btn:active,
+body.update-password-page .update-container .update-btn:active {
+    transform: scale(0.96);
+}
+
+.cs-continue-btn:disabled,
+.fc-btn-primary:disabled,
+.btn-submit:disabled,
+.acct-save-btn:disabled,
+.login-page .login-btn:disabled,
+.signup-page .signup-container .signup-btn:disabled,
+body.update-password-page .update-container .update-btn:disabled {
+    filter: grayscale(0.5);
+    opacity: 0.6;
+    box-shadow: none;
+    transform: none;
+}
+
+/* The Study Cards hero button sits on a purple banner: make it sunny */
+.study-page .sc-hero-btn {
+    border-radius: 999px;
+    background: var(--fun-sun);
+    color: #3b2a00;
+    font-weight: 800;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+    transition: transform 0.3s var(--fun-bounce), background-color 0.2s;
+}
+
+.study-page .sc-hero-btn:hover {
+    background: #ffd666;
+    transform: translateY(-2px) scale(1.04);
+}
+
+.video-page .filter-btn {
+    border-radius: 999px;
+    transition: transform 0.3s var(--fun-bounce), background-color 0.2s, color 0.2s;
+}
+
+.video-page .filter-btn:hover {
+    transform: translateY(-2px);
+}
+
+.video-page .filter-btn.active {
+    background: linear-gradient(135deg, var(--fun-sky), var(--fun-grape));
+    border-color: transparent;
+    color: #fff;
+}
+
+/* Search boxes: rounder with a coloured focus glow */
+:is(.video-page, .lesson-page) .search-container input {
+    border-radius: 999px;
+    border: 2px solid #ece8fb;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+:is(.video-page, .lesson-page) .search-container input:focus {
+    border-color: var(--fun-grape);
+    box-shadow: 0 0 0 4px rgba(123, 92, 255, 0.15);
+}
+
+/* --- Study decks: tilt when hovered --- */
+.study-page .deck {
+    transition: transform 0.35s var(--fun-bounce);
+}
+
+.study-page .deck:hover {
+    transform: translateY(-6px) rotate(-1.5deg);
+}
+
+.study-page .deck:nth-child(even):hover {
+    transform: translateY(-6px) rotate(1.5deg);
+}
+
+.study-page .deck:hover::before {
+    transform: translate(16px, 14px) rotate(5deg);
+    background: #ffe2ef;
+}
+
+.study-page .deck:hover::after {
+    transform: translate(8px, 7px) rotate(2.5deg);
+    background: #ede7ff;
+}
+
+.study-page .fc-card {
+    border-radius: 24px;
+}
+
+.study-page .fc-done-icon {
+    animation: funPop 0.6s var(--fun-bounce) both;
+}
+
+/* --- Login / Sign up / Update password --- */
+.login-page .glass-panel::before,
+.signup-page .signup-container .glass-card::before {
+    height: 6px;
+    background: var(--fun-rainbow);
+    background-size: 200% 100%;
+    animation: funSlide 6s linear infinite;
+}
+
+.login-page .glass-panel,
+.signup-page .signup-container .glass-card {
+    border-radius: 26px;
+}
+
+.login-page .brand-row .logo,
+.signup-page .signup-logo,
+body.update-password-page .update-container .update-logo {
+    animation: funBob 3.5s ease-in-out infinite;
+}
+
+body.update-password-page {
+    background-color: var(--fun-bg);
+    background-image:
+        radial-gradient(circle at 15% 20%, rgba(255, 111, 165, 0.16), transparent 30%),
+        radial-gradient(circle at 85% 80%, rgba(79, 179, 255, 0.18), transparent 30%),
+        radial-gradient(rgba(123, 92, 255, 0.10) 1.2px, transparent 1.2px);
+    background-size: auto, auto, 22px 22px;
+}
+
+body.update-password-page .update-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 26px;
+    box-shadow: 0 16px 40px rgba(91, 60, 196, 0.16);
+    animation: fadeUp 0.5s ease both;
+}
+
+body.update-password-page .update-container::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 6px;
+    background: var(--fun-rainbow);
+    background-size: 200% 100%;
+    animation: funSlide 6s linear infinite;
+}
+
+/* --- Little extras --- */
+::selection {
+    background: rgba(255, 111, 165, 0.28);
+}
+
+.site-footer-dot {
+    color: var(--fun-pink);
+}
+
+.to-top-btn {
+    background: linear-gradient(135deg, var(--fun-grape), var(--fun-pink));
+    transition: transform 0.3s var(--fun-bounce);
+}
+
+.to-top-btn:hover {
+    transform: translateY(-3px) scale(1.08);
+}
+
+/* --- Keyframes --- */
+@keyframes funSlide {
+    from { background-position: 0% 0; }
+    to   { background-position: 200% 0; }
+}
+
+@keyframes funHero {
+    from { background-position: 0% 50%; }
+    to   { background-position: 100% 50%; }
+}
+
+@keyframes funFloat {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-8px); }
+}
+
+@keyframes funBob {
+    0%, 100% { transform: translateY(0) rotate(0); }
+    50%      { transform: translateY(-4px) rotate(-4deg); }
+}
+
+@keyframes funWave {
+    0%, 60%, 100% { transform: rotate(0); }
+    10%, 30%      { transform: rotate(16deg); }
+    20%, 40%      { transform: rotate(-8deg); }
+}
+
+@keyframes funJiggle {
+    0%, 100% { transform: rotate(0) scale(1); }
+    25%      { transform: rotate(-12deg) scale(1.1); }
+    50%      { transform: rotate(10deg) scale(1.1); }
+    75%      { transform: rotate(-5deg) scale(1.05); }
+}
+
+@keyframes funStripes {
+    from { background-position: 0 0; }
+    to   { background-position: 14px 0; }
+}
+
+@keyframes funPop {
+    from { transform: scale(0); }
+    to   { transform: scale(1); }
+}
+
+/* Phones: lighter decorations */
+@media screen and (max-width: 768px) {
+    :is(.video-page, .lesson-page) .video-header,
+    .case-page .cs-header-section {
+        padding: 20px 18px 18px;
+        border-radius: 20px;
+    }
+
+    /* The sidebar is a slim top bar on phones: no rainbow line under the logo */
+    .sidebar-header::after {
+        display: none;
+    }
+
+    .dashboard-container,
+    .dashboard-page .main-content,
+    :is(.video-page, .lesson-page, .case-page, .study-page, .account-page) .main-content {
+        background-attachment: scroll;
+    }
+}
+
+/* Respect "reduce motion": keep the colours, drop the movement */
+@media (prefers-reduced-motion: reduce) {
+    .sidebar-header::after,
+    .dashboard-page .welcome-card,
+    .study-page .sc-hero,
+    .account-page .acct-profile,
+    .dashboard-page .welcome-card::before,
+    .study-page .sc-hero::before,
+    .account-page .acct-profile::before,
+    .dashboard-page .welcome-text h1::after,
+    :is(.video-page, .lesson-page) .video-header,
+    :is(.video-page, .lesson-page) .video-header::before,
+    :is(.video-page, .lesson-page) .video-header h2 i,
+    .case-page .cs-header-section,
+    .case-page .cs-header-section::before,
+    .case-page .cs-icon-box,
+    .dashboard-page .mini-fill,
+    :is(.video-page, .lesson-page) .video-progress-bar div,
+    .dashboard-page .stat-item:hover .stat-icon,
+    .dashboard-page .act-item:hover .act-icon,
+    .study-page .fc-done-icon,
+    .login-page .glass-panel::before,
+    .signup-page .signup-container .glass-card::before,
+    .login-page .brand-row .logo,
+    .signup-page .signup-logo,
+    body.update-password-page .update-container .update-logo,
+    body.update-password-page .update-container::before {
+        animation: none !important;
+    }
+}
+
+/* ========================================= */
+/* --- EXTRA FUN (stickers + reactions) ---  */
+/* ========================================= */
+
+/* Big emoji "stickers" peeking out of each header */
+:is(.video-page, .lesson-page) .video-header > *,
+.case-page .cs-header-section > * {
+    position: relative;
+    z-index: 1;
+}
+
+:is(.video-page, .lesson-page) .video-header::after,
+.case-page .cs-header-section::after,
+.dashboard-page .welcome-card::after,
+.study-page .sc-hero::after,
+.account-page .acct-profile::after {
+    position: absolute;
+    right: 24%;
+    bottom: -26px;
+    width: auto;
+    height: auto;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    font-size: 96px;
+    line-height: 1;
+    opacity: 0.22;
+    transform: rotate(-14deg);
+    pointer-events: none;
+    animation: funSticker 6s ease-in-out infinite;
+}
+
+.video-page .video-header::after      { content: "\1F3AC"; }   /* clapper board */
+.lesson-page .video-header::after     { content: "\1F4DA"; }   /* books */
+.case-page .cs-header-section::after  { content: "\1F575\FE0F"; } /* detective */
+.dashboard-page .welcome-card::after  { content: "\1F680"; right: 34%; opacity: 0.3; }  /* rocket */
+.study-page .sc-hero::after           { content: "\1F0CF"; right: 30%; opacity: 0.3; }  /* joker card */
+.account-page .acct-profile::after    { content: "\2728"; right: 8%; opacity: 0.35; }   /* sparkles */
+
+/* Sparkle next to the current page in the menu */
+.nav-item.active::after {
+    content: "\2728";
+    margin-left: auto;
+    font-size: 13px;
+    animation: funTwinkle 1.8s ease-in-out infinite;
+}
+
+.sidebar-collapsed .nav-item.active::after {
+    display: none;
+}
+
+/* Shine sweeps across main buttons on hover */
+.cs-continue-btn,
+.fc-btn-primary,
+.btn-submit,
+.acct-save-btn,
+.study-page .sc-hero-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.cs-continue-btn::after,
+.fc-btn-primary::after,
+.btn-submit::after,
+.acct-save-btn::after,
+.study-page .sc-hero-btn::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -60%;
+    width: 40%;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+    transform: skewX(-20deg);
+    pointer-events: none;
+}
+
+.cs-continue-btn:hover::after,
+.fc-btn-primary:hover:not(:disabled)::after,
+.btn-submit:hover:not(:disabled)::after,
+.acct-save-btn:hover:not(:disabled)::after,
+.study-page .sc-hero-btn:hover::after {
+    animation: funShine 0.7s ease;
+}
+
+/* Answers: right ones pop, wrong ones shake */
+.case-page .option-label.correct-answer,
+.study-page .fc-radio + .fc-tile.correct-answer {
+    animation: funPop 0.45s var(--fun-bounce);
+}
+
+.case-page .option-label.wrong-answer,
+.study-page .fc-radio + .fc-tile.wrong-answer {
+    animation: funShake 0.45s ease;
+}
+
+.case-page .quiz-feedback.is-correct,
+.study-page .fc-feedback.is-correct,
+.case-page .quiz-feedback.is-wrong,
+.study-page .fc-feedback.is-wrong {
+    animation: funPop 0.4s var(--fun-bounce);
+    border-radius: 16px;
+    font-weight: 700;
+}
+
+.case-page .quiz-feedback.is-correct::after,
+.study-page .fc-feedback.is-correct::after {
+    content: " \1F389";   /* party popper */
+}
+
+.case-page .quiz-feedback.is-wrong::after,
+.study-page .fc-feedback.is-wrong::after {
+    content: " \1F4AA";   /* "you got this" flex */
+}
+
+/* Answer choices bounce a bit when hovered */
+.case-page .option-label,
+.study-page .fc-tile {
+    transition: transform 0.3s var(--fun-bounce), border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+}
+
+.case-page .option-label:hover,
+.study-page .fc-tile:hover {
+    transform: translateY(-2px) scale(1.01);
+}
+
+/* Locked items wobble their lock instead of just sitting there */
+.case-page .scenario-card.locked:hover .fa-lock,
+.study-page .deck.is-locked:hover .fa-lock {
+    display: inline-block;
+    animation: funShake 0.5s ease;
+}
+
+/* Finished decks get a gold star sticker */
+.study-page .deck.is-done .deck-face::after {
+    content: "\2B50";
+    position: absolute;
+    top: -12px;
+    right: -8px;
+    font-size: 28px;
+    transform: rotate(14deg);
+    filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.15));
+    animation: funTwinkle 2.4s ease-in-out infinite;
+}
+
+/* Locked decks stay put */
+.study-page .deck.is-locked:hover {
+    transform: none;
+}
+
+/* Next deck to study gently "breathes" */
+.study-page .deck.is-next .deck-face {
+    animation: funGlow 2.2s ease-in-out infinite;
+}
+
+/* Video play buttons pulse on hover */
+.video-page .video-card:hover .play-overlay {
+    animation: funPulse 1s ease-in-out infinite;
+}
+
+/* The sound button matches the theme */
+#sfxToggle {
+    background: linear-gradient(135deg, var(--fun-grape), var(--fun-pink)) !important;
+    color: #fff !important;
+    border: none !important;
+    box-shadow: 0 6px 16px rgba(123, 92, 255, 0.35) !important;
+    transition: transform 0.3s var(--fun-bounce);
+}
+
+#sfxToggle:hover {
+    transform: scale(1.1) rotate(-8deg);
+}
+
+/* Dashboard: rainbow ring around the progress circle */
+.dashboard-page .circular-progress {
+    position: relative;
+}
+
+.dashboard-page .circular-progress::before {
+    content: "";
+    position: absolute;
+    inset: -12px;
+    border-radius: 50%;
+    background: conic-gradient(#ff6fa5, #ff8a5c, #ffc93c, #3fcf9b, #4fb3ff, #7b5cff, #ff6fa5);
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
+    opacity: 0.7;
+    animation: funSpin 10s linear infinite;
+    pointer-events: none;
+}
+
+/* Recent activity rows slide in one by one */
+.dashboard-page .recent-list > * {
+    animation: fadeUp 0.45s ease both;
+}
+
+.dashboard-page .recent-list > *:nth-child(2) { animation-delay: 0.06s; }
+.dashboard-page .recent-list > *:nth-child(3) { animation-delay: 0.12s; }
+.dashboard-page .recent-list > *:nth-child(4) { animation-delay: 0.18s; }
+.dashboard-page .recent-list > *:nth-child(5) { animation-delay: 0.24s; }
+
+/* --- More keyframes --- */
+@keyframes funSticker {
+    0%, 100% { transform: rotate(-14deg) translateY(0); }
+    50%      { transform: rotate(-6deg) translateY(-10px); }
+}
+
+@keyframes funTwinkle {
+    0%, 100% { opacity: 1; transform: scale(1) rotate(0); }
+    50%      { opacity: 0.55; transform: scale(0.8) rotate(20deg); }
+}
+
+@keyframes funShine {
+    from { left: -60%; }
+    to   { left: 130%; }
+}
+
+@keyframes funShake {
+    0%, 100% { transform: translateX(0); }
+    20%      { transform: translateX(-7px) rotate(-1deg); }
+    40%      { transform: translateX(6px) rotate(1deg); }
+    60%      { transform: translateX(-4px); }
+    80%      { transform: translateX(3px); }
+}
+
+@keyframes funGlow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(123, 92, 255, 0.35); }
+    50%      { box-shadow: 0 0 0 8px rgba(123, 92, 255, 0); }
+}
+
+@keyframes funPulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50%      { transform: translate(-50%, -50%) scale(1.15); }
+}
+
+@keyframes funSpin {
+    to { transform: rotate(360deg); }
+}
+
+@media screen and (max-width: 768px) {
+    :is(.video-page, .lesson-page) .video-header::after,
+    .case-page .cs-header-section::after,
+    .dashboard-page .welcome-card::after,
+    .study-page .sc-hero::after,
+    .account-page .acct-profile::after {
+        right: 6px;
+        font-size: 64px;
+        bottom: -14px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :is(.video-page, .lesson-page) .video-header::after,
+    .case-page .cs-header-section::after,
+    .dashboard-page .welcome-card::after,
+    .study-page .sc-hero::after,
+    .account-page .acct-profile::after,
+    .nav-item.active::after,
+    .case-page .option-label.correct-answer,
+    .study-page .fc-radio + .fc-tile.correct-answer,
+    .case-page .option-label.wrong-answer,
+    .study-page .fc-radio + .fc-tile.wrong-answer,
+    .case-page .quiz-feedback,
+    .study-page .fc-feedback,
+    .case-page .scenario-card.locked:hover .fa-lock,
+    .study-page .deck.is-locked:hover .fa-lock,
+    .study-page .deck.is-done .deck-face::after,
+    .study-page .deck.is-next .deck-face,
+    .video-page .video-card:hover .play-overlay,
+    .dashboard-page .circular-progress::before,
+    .dashboard-page .recent-list > * {
+        animation: none !important;
     }
 }
