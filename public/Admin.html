@@ -286,6 +286,7 @@
         let students = [];
         let today = '';
         let questionText = new Map();   // "case_study:12" / "study_card:3-7" -> question
+        let questionWhere = new Map();  // same keys -> "Scenario 4" / "Study Cards · Lesson 2: ..."
 
         const $ = (id) => document.getElementById(id);
         const escapeHtml = (text) => String(text).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -354,21 +355,44 @@
                 </button>`).join('') + (inactive.length > 8 ? `<p class="admin-card-note">+ ${inactive.length - 8} more in the Students tab.</p>` : '')
                 : '<p class="admin-empty"><i class="fa-solid fa-circle-check"></i> Everyone studied this week!</p>';
 
+            // One-line row that opens to show the full title and details (all args already escaped)
+            const dropRow = (tag, title, pill, details) => `
+                <details class="admin-drop">
+                    <summary class="admin-list-item">
+                        ${tag}
+                        <span class="admin-list-text"><strong>${title}</strong></span>
+                        ${pill}
+                        <i class="fa-solid fa-chevron-down admin-drop-arrow"></i>
+                    </summary>
+                    <div class="admin-drop-body"><p>${title}</p><small>${details}</small></div>
+                </details>`;
+
             // Most-missed questions
-            $('missedList').innerHTML = insights.mostMissed.length ? insights.mostMissed.map(m => `
+            const missedRows = insights.mostMissed.map(m => {
+                const isCase = m.source === 'case_study';
+                const key = `${m.source}:${m.itemKey}`;
+                return `
                 <div class="admin-list-item is-static">
-                    <span class="admin-tag ${m.source === 'case_study' ? 'is-case' : 'is-card'}">${m.source === 'case_study' ? `Case ${escapeHtml(m.itemKey)}` : `Card ${escapeHtml(m.itemKey)}`}</span>
-                    <span class="admin-list-text"><strong>${escapeHtml(questionText.get(`${m.source}:${m.itemKey}`) || 'Question')}</strong>
-                    <small>${m.students} student${m.students === 1 ? '' : 's'} · missed ${m.wrong} time${m.wrong === 1 ? '' : 's'}</small></span>
-                </div>`).join('') : '<p class="admin-empty">No missed questions right now.</p>';
+                    <span class="admin-tag is-icon ${isCase ? 'is-case' : 'is-card'}" title="${isCase ? 'Case study' : 'Study card'}"><i class="fa-solid ${isCase ? 'fa-briefcase' : 'fa-clone'}"></i></span>
+                    <span class="admin-list-text"><strong class="is-clamped">${escapeHtml(questionText.get(key) || 'Question')}</strong>
+                    <small>${escapeHtml(questionWhere.get(key) || (isCase ? 'Case study' : 'Study card'))} · missed ${m.wrong} time${m.wrong === 1 ? '' : 's'}</small></span>
+                    <span class="admin-pill is-warn">${m.students} student${m.students === 1 ? '' : 's'}</span>
+                </div>`;
+            });
+            // Top 3 always visible, the rest behind "Show N more"
+            $('missedList').innerHTML = missedRows.length ? missedRows.slice(0, 3).join('') + (missedRows.length > 3 ? `
+                <details class="admin-more">
+                    <summary><span class="admin-more-label" data-more="Show ${missedRows.length - 3} more"></span> <i class="fa-solid fa-chevron-down"></i></summary>
+                    <div class="admin-list">${missedRows.slice(3).join('')}</div>
+                </details>` : '') : '<p class="admin-empty">No missed questions right now.</p>';
 
             // Least-watched videos
-            $('videoList').innerHTML = insights.leastWatched.map(v => `
-                <div class="admin-list-item is-static">
-                    <span class="admin-tag is-video"><i class="fa-solid fa-play"></i></span>
-                    <span class="admin-list-text"><strong>${escapeHtml(v.title)}</strong></span>
-                    <span class="admin-pill">${v.watchedBy} of ${insights.studentCount}</span>
-                </div>`).join('');
+            $('videoList').innerHTML = insights.leastWatched.length ? insights.leastWatched.map(v => dropRow(
+                '<span class="admin-tag is-icon is-video"><i class="fa-solid fa-play"></i></span>',
+                escapeHtml(v.title),
+                `<span class="admin-pill${v.watchedBy ? '' : ' is-warn'}">${insights.studentCount ? Math.round(v.watchedBy / insights.studentCount * 100) : 0}%</span>`,
+                `Watched by ${v.watchedBy} of ${insights.studentCount} student${insights.studentCount === 1 ? '' : 's'}`
+            )).join('') : '<p class="admin-empty">No videos yet.</p>';
         }
 
         // ---------------- Students table ----------------
@@ -946,8 +970,10 @@
                     fetch('/api/content/search-index').then(r => r.json()).catch(() => ({ items: [] })),
                 ]);
                 index.items.forEach(item => {
-                    if (item.type === 'case') questionText.set(`case_study:${item.key}`, item.title);
-                    if (item.type === 'card') questionText.set(`study_card:${item.key}`, item.title);
+                    const source = { case: 'case_study', card: 'study_card' }[item.type];
+                    if (!source) return;
+                    questionText.set(`${source}:${item.key}`, item.title);
+                    questionWhere.set(`${source}:${item.key}`, item.meta);
                 });
 
                 students = list.students;
