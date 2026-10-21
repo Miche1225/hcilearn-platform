@@ -13,8 +13,6 @@ const {
     IS_PRODUCTION
 } = require('../middleware/authGuard');
 
-const { isAdminEmailHash } = require('../middleware/adminGuard');
-
 const { rateLimit } = require('../middleware/rateLimit');
 
 const {
@@ -608,8 +606,7 @@ router.post(
 
             const {
                 email,
-                password,
-                asAdmin
+                password
             } = req.body || {};
 
 
@@ -682,26 +679,6 @@ router.post(
 
 
             /*
-                "Log in as admin": only for accounts in ADMIN_EMAILS.
-                Checked after the password, so it doesn't reveal who is an
-                admin, and before the session, so nobody is logged in.
-            */
-
-            const isAdmin =
-                isAdminEmailHash(user.email_hash);
-
-            if (asAdmin === true && !isAdmin) {
-
-                return res.status(403).json({
-
-                    error:
-                        "This account doesn't have admin access. Use the student login instead."
-
-                });
-            }
-
-
-            /*
                 Login session.
             */
             issueSession(
@@ -725,10 +702,8 @@ router.post(
 
             res.json({
 
-                user: {
-                    ...publicUser(user),
-                    isAdmin
-                }
+                user:
+                    publicUser(user)
 
             });
 
@@ -1172,13 +1147,8 @@ router.get(
 
             res.json({
 
-                user: {
-                    ...publicUser(rows[0]),
-
-                    // Shows the Admin menu item (the admin API checks again)
-                    isAdmin:
-                        isAdminEmailHash(rows[0].email_hash)
-                }
+                user:
+                    publicUser(rows[0])
 
             });
 

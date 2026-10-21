@@ -406,17 +406,53 @@ async function init() {
         );
 
 
-        /* What admins did (viewed a student, exported data...),
-           for accountability. Kept if either user is deleted. */
-        CREATE TABLE IF NOT EXISTS admin_audit_log (
+        /* Instructor accounts for the Admin Dashboard. Separate from
+           student accounts; created with "npm run instructor -- add". */
+        CREATE TABLE IF NOT EXISTS instructors (
 
             id
                 SERIAL
                 PRIMARY KEY,
 
-            admin_id
+            instructor_id
+                TEXT
+                NOT NULL
+                UNIQUE,
+
+            full_name
+                TEXT
+                NOT NULL,
+
+            password_hash
+                TEXT
+                NOT NULL,
+
+            session_version
                 INTEGER
-                REFERENCES users(id)
+                NOT NULL
+                DEFAULT 0,
+
+            created_at
+                TIMESTAMPTZ
+                NOT NULL
+                DEFAULT NOW(),
+
+            last_login_at
+                TIMESTAMPTZ
+        );
+
+
+        /* What instructors did on the Admin Dashboard (viewed a student,
+           exported data...), for accountability. */
+        CREATE TABLE IF NOT EXISTS instructor_audit_log (
+
+            id
+                SERIAL
+                PRIMARY KEY,
+
+            instructor_id
+                INTEGER
+                REFERENCES instructors(id)
                 ON DELETE SET NULL,
 
             action

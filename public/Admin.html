@@ -9,8 +9,8 @@
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
-    <link rel="stylesheet" href="style.css?v=42">
-    <link rel="stylesheet" href="dark.css?v=5">
+    <link rel="stylesheet" href="style.css?v=43">
+    <link rel="stylesheet" href="dark.css?v=6">
     <script src="js/theme.js?v=1"></script>
     <!-- FontAwesome para sa icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -28,51 +28,28 @@
                 <img src="favicon.svg" alt="" class="sidebar-logo">
                 <div class="sidebar-brand">
                     <span class="logo-text">HCILearn</span>
-                    <small class="logo-tag">HCI 2 Study Hub</small>
+                    <small class="logo-tag">Instructor Admin</small>
                 </div>
             </div>
 
-            <span class="sidebar-label">Overview</span>
+            <span class="sidebar-label">Admin</span>
 
             <nav class="sidebar-nav">
-                <a href="Dashboard.html" class="nav-item">
-                    <i class="fa-solid fa-border-all"></i> <span class="nav-text">Dashboard</span>
-                </a>
-                <span class="sidebar-label sidebar-label-group">Learn</span>
-                <a href="WatchVideo.html" class="nav-item">
-                    <i class="fa-solid fa-play"></i> <span class="nav-text">Watch Video</span>
-                </a>
-                <a href="ReadLesson.html" class="nav-item">
-                    <i class="fa-solid fa-book"></i> <span class="nav-text">Read Lesson</span>
-                </a>
-                <a href="CaseStudies.html" class="nav-item">
-                    <i class="fa-solid fa-folder"></i> <span class="nav-text">Case Studies</span>
-                </a>
-                <a href="StudyCards.html" class="nav-item">
-                    <i class="fa-solid fa-rotate"></i> <span class="nav-text">Study Cards</span>
-                </a>
-                <span class="sidebar-label sidebar-label-group">You</span>
-                <a href="Saved.html" class="nav-item">
-                    <i class="fa-solid fa-bookmark"></i> <span class="nav-text">Saved</span>
-                </a>
-                <a href="Account.html" class="nav-item">
-                    <i class="fa-solid fa-circle-user"></i> <span class="nav-text">Account</span>
-                </a>
-                <span class="sidebar-label sidebar-label-group">Admin</span>
                 <a href="Admin.html" class="nav-item active">
-                    <i class="fa-solid fa-user-shield"></i> <span class="nav-text">Admin</span>
+                    <i class="fa-solid fa-user-shield"></i> <span class="nav-text">Dashboard</span>
                 </a>
             </nav>
-            <!-- Profile card + log out (pinupuno ng renderSidebarUser() sa js/api.js) -->
+
+            <!-- Instructor card + log out (filled by init()) -->
             <div class="sidebar-user">
-                <a href="Account.html" class="sidebar-user-link" title="View your account">
-                    <span class="sidebar-avatar" id="sidebarAvatar"><i class="fa-regular fa-user"></i></span>
+                <span class="sidebar-user-link">
+                    <span class="sidebar-avatar" id="sidebarAvatar"><i class="fa-solid fa-chalkboard-user"></i></span>
                     <span class="sidebar-user-text">
-                        <strong id="sidebarName">My Account</strong>
-                        <small id="sidebarMeta">View profile</small>
+                        <strong id="sidebarName">Instructor</strong>
+                        <small id="sidebarMeta">Instructor</small>
                     </span>
-                </a>
-                <button type="button" class="sidebar-logout" data-logout aria-label="Log out" title="Log out">
+                </span>
+                <button type="button" class="sidebar-logout" id="instructorLogout" aria-label="Log out" title="Log out">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 </button>
             </div>
@@ -93,17 +70,6 @@
                     <a href="/api/admin/export.csv" class="tool-btn admin-export" id="exportBtn" hidden>
                         <i class="fa-solid fa-file-csv"></i> Export CSV
                     </a>
-                </div>
-
-                <!-- Not an admin -->
-                <div class="admin-denied" id="adminDenied" hidden>
-                    <div class="admin-denied-icon"><i class="fa-solid fa-lock"></i></div>
-                    <h3>Admins only</h3>
-                    <p>This page is for instructors. If you think you should have access, ask the site owner to add your email to the admin list.</p>
-                    <div class="admin-denied-actions">
-                        <a href="Dashboard.html" class="tool-btn"><i class="fa-solid fa-border-all"></i> Back to Dashboard</a>
-                        <button type="button" class="tool-btn" data-logout="login.html#admin"><i class="fa-solid fa-user-shield"></i> Log in with an admin account</button>
-                    </div>
                 </div>
 
                 <p class="admin-loading" id="adminLoading"><span class="btn-spinner"></span> Loading student data...</p>
@@ -224,7 +190,6 @@
     </div>
 
     <script src="js/api.js?v=10"></script>
-    <script src="js/search.js?v=3"></script>
     <script>
         const ACTIVITY_LABELS = { case_study: 'Case Study', study_card: 'Study Card', video: 'Video', lesson: 'Lesson' };
         const AUDIT_LABELS = {
@@ -500,14 +465,34 @@
         // Export is a plain download; refresh the log afterwards
         $('exportBtn').addEventListener('click', () => setTimeout(loadAudit, 1500));
 
+        // Instructor log out (separate from the student log out)
+        $('instructorLogout').addEventListener('click', () => {
+            confirmDialog({
+                title: 'Log out?',
+                message: 'You will need your Instructor ID and password to come back.',
+                confirmText: 'Log out',
+                cancelText: 'Stay',
+                icon: 'fa-arrow-right-from-bracket',
+                danger: true,
+                onConfirm: async () => {
+                    try { await api.post('/instructor/logout'); } catch (e) { /* ignore */ }
+                    window.location.href = 'login.html#admin';
+                },
+            });
+        });
+
         (async function init() {
-            const user = await requireAuth('login.html#admin');
-            if (!user) return;
-            if (!user.isAdmin) {
-                $('adminLoading').hidden = true;
-                $('adminDenied').hidden = false;
+            // Instructor session only; students and logged-out visitors go to the admin login
+            let instructor;
+            try {
+                ({ instructor } = await api.get('/instructor/me'));
+            } catch (err) {
+                window.location.href = 'login.html#admin';
                 return;
             }
+            $('sidebarName').textContent = instructor.fullName;
+            $('sidebarMeta').textContent = `ID ${instructor.instructorId}`;
+            $('sidebarAvatar').textContent = initials(instructor.fullName) || 'IN';
 
             try {
                 // Question text for the "missed questions" lists comes from the search index

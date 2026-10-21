@@ -1,24 +1,24 @@
 // src/routes/admin.js
 // Admin dashboard (read-only): student progress, class insights, CSV export
-// and the audit log. Every route needs an admin (see middleware/adminGuard.js).
+// and the audit log. Every route needs an instructor login
+// (see middleware/instructorGuard.js and routes/instructor.js).
 const express = require('express');
 const { pool } = require('../db');
-const { requireAuth } = require('../middleware/authGuard');
-const { requireAdmin, isAdminEmailHash } = require('../middleware/adminGuard');
+const { requireInstructor } = require('../middleware/instructorGuard');
 const { TOTAL_CASE_STUDIES, TOTAL_STUDY_CARD_LESSONS, VIDEOS, TOTAL_VIDEOS } = require('../content');
 const { todayLocal, addDays, toYmd, computeStreaks } = require('../utils/dates');
 const { BADGES } = require('./gamify');
 
 const router = express.Router();
-router.use(requireAuth, requireAdmin);
+router.use(requireInstructor);
 
 const TOTAL_ACTIVITIES = TOTAL_CASE_STUDIES + TOTAL_STUDY_CARD_LESSONS + TOTAL_VIDEOS;
 const INACTIVE_AFTER_DAYS = 7;
 
-async function audit(adminId, action, targetUserId = null, details = '') {
+async function audit(instructorRowId, action, targetUserId = null, details = '') {
   await pool.query(
-    'INSERT INTO admin_audit_log (admin_id, action, target_user_id, details) VALUES ($1, $2, $3, $4)',
-    [adminId, action, targetUserId, details]
+    'INSERT INTO instructor_audit_log (instructor_id, action, target_user_id, details) VALUES ($1, $2, $3, $4)',
+    [instructorRowId, action, targetUserId, details]
   );
 }
 
@@ -27,19 +27,19 @@ function tsToYmd(ts) {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Manila' }).format(new Date(ts));
 }
 
-// All non-admin users with their progress numbers
+// Every student account with its progress numbers
 async function loadStudents() {
   const videoIds = [...VIDEOS.keys()];
   const { rows } = await pool.query(
     `SELECT u.id, u.full_name, u.program, u.year_section, u.student_id, u.profile_photo,
-            u.created_at, u.email_hash,
+            u.created_at,
             cs.solved_ids, sc.completed_ids
      FROM users u
      LEFT JOIN case_study_progress cs ON cs.user_id = u.id
      LEFT JOIN study_card_progress sc ON sc.user_id = u.id
      ORDER BY u.full_name`
   );
-  const students = rows.filter(r => !isAdminEmailHash(r.email_hash));
+  const students = rows;
   const ids = students.map(s => s.id);
   if (!ids.length) return [];
 
@@ -109,7 +109,7 @@ async function loadStudents() {
 
 // ---------- Routes ----------
 
-// GET /api/admin/students — everyone (except admins) with progress numbers
+// GET /api/admin/students — every student with progress numbers
 router.get('/students', async (req, res, next) => {
   try {
     res.json({
@@ -196,7 +196,7 @@ router.get('/students/:id', async (req, res, next) => {
     }
 
     const earnedAt = new Map(earned.map(b => [b.badge_id, b.earned_at]));
-    await audit(req.userId, 'view_student', id);
+    await audit(req.instructor.id, 'view_student', id);
 
     res.json({
       student,
@@ -236,7 +236,7 @@ router.get('/export.csv', async (req, res, next) => {
       ].map(cell).join(','));
     }
 
-    await audit(req.userId, 'export_csv', null, `${students.length} students`);
+    await audit(req.instructor.id, 'export_csv', null, `${students.length} students`);
 
     res.set('Content-Type', 'text/csv; charset=utf-8');
     res.set('Content-Disposition', `attachment; filename="hcilearn-progress-${todayLocal()}.csv"`);
@@ -252,9 +252,10 @@ router.get('/audit', async (req, res, next) => {
   try {
     const { rows } = await pool.query(
       `SELECT l.id, l.action, l.details, l.created_at,
-              a.full_name AS admin_name, t.full_name AS target_name
-       FROM admin_audit_log l
-       LEFT JOIN users a ON a.id = l.admin_id
+              i.full_name AS instructor_name, i.instructor_id AS instructor_code,
+              t.full_name AS target_name
+       FROM instructor_audit_log l
+       LEFT JOIN instructors i ON i.id = l.instructor_id
        LEFT JOIN users t ON t.id = l.target_user_id
        ORDER BY l.created_at DESC, l.id DESC
        LIMIT 200`
@@ -262,7 +263,8 @@ router.get('/audit', async (req, res, next) => {
     res.json({
       entries: rows.map(r => ({
         id: r.id, action: r.action, details: r.details, createdAt: r.created_at,
-        adminName: r.admin_name || '(deleted user)', targetName: r.target_name,
+        adminName: r.instructor_name ? `${r.instructor_name} (ID ${r.instructor_code})` : '(removed instructor)',
+        targetName: r.target_name,
       })),
     });
   } catch (err) {

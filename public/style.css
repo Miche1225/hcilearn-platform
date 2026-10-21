@@ -10679,3 +10679,9 @@ div.qs-result {
 .admin-denied-actions button.tool-btn {
     font-family: inherit;
 }
+
+.login-page #emailGroup[hidden],
+.login-page #instructorGroup[hidden],
+.login-page #formOptions[hidden] {
+    display: none;
+}

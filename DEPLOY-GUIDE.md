@@ -44,17 +44,27 @@ sa Supabase at Cloudinary — hindi na sa disk ng server mismo.
      doon ang Gmail SMTP. Kumuha ng libreng key sa https://brevo.com
      (SMTP & API > API Keys), at gumamit ng sender email na na-verify mo sa Brevo.
 
-   - `ADMIN_EMAILS` = email ng mga instructor na puwedeng magbukas ng Admin
-     Dashboard, hiwalay ng kuwit (hal. `teacher1@uep.edu.ph,teacher2@uep.edu.ph`).
-     Kailangan munang mag-sign up ng account gamit ang email na iyon.
-
    Para gumawa ng random string para sa mga secret:
    `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`
 5. I-deploy. Sa unang pag-start, awtomatikong gagawin ni `src/db.js` ang lahat ng
    tables sa Supabase (`CREATE TABLE IF NOT EXISTS...`) — hindi mo na kailangan
    manual mag-run ng SQL.
 
-## 4. I-test
+## 4. Gumawa ng instructor account (para sa Admin Dashboard)
+
+Hiwalay ang instructor accounts sa student accounts (Instructor ID + password).
+Sa sarili mong computer, habang naka-set sa `.env` ang `DATABASE_URL` ng
+Supabase project mo:
+
+```bash
+npm run instructor -- add --id 122524 --name "Pangalan ng Instructor"
+```
+
+Itatanong nito ang password (hindi ito makikita habang tina-type). Pagkatapos,
+mag-login sa `/login.html#admin` gamit ang Instructor ID at password.
+Iba pang commands: `reset-password`, `rename`, `remove`, `list` (tingnan ang README).
+
+## 5. I-test
 
 - Buksan ang Render URL mo, mag-sign up ng test account, mag-unlock ng case study o
   video, i-upload ang isang profile photo.

@@ -15,7 +15,7 @@ flashcards, and their progress is saved to their account.
 | **Case Studies** | 50 scenarios that unlock one at a time as you answer correctly, plus "Review mistakes" |
 | **Study Cards** | 11 flashcard decks; wrong answers come back until the deck is mastered, plus a "Review my mistakes" deck |
 | **Saved** | Bookmarked topics and videos with personal notes; search, filter, edit and remove |
-| **Admin** | For instructors ("Log in as admin" on the login page): class overview, student list with filters, per-student details, CSV export and an audit log |
+| **Admin** | For instructors (Instructor ID + password via "Log in as admin"): class overview, student list with filters, per-student details, CSV export and an audit log |
 | **Account** | Badge collection with progress, edit profile, upload a photo, change password, delete account |
 
 Every logged-in page has **Quick Search** (menu item, Ctrl+K or "/") over
@@ -49,7 +49,8 @@ hcilearn-platform/
 ├── src/
 │   ├── db.js                 # Postgres pool + table setup/migrations
 │   ├── middleware/
-│   │   ├── authGuard.js      # session cookie check
+│   │   ├── authGuard.js      # student session cookie check
+│   │   ├── instructorGuard.js # instructor session cookie check
 │   │   └── rateLimit.js      # in-memory rate limiter
 │   ├── routes/
 │   │   ├── auth.js           # signup, login, logout, forgot/reset password, /me
@@ -57,7 +58,8 @@ hcilearn-platform/
 │   │   ├── progress.js       # dashboard summary, per-module progress, video positions, mistakes
 │   │   ├── bookmarks.js      # saved topics/videos + notes
 │   │   ├── gamify.js         # study streak, daily goal, badges
-│   │   └── admin.js          # admin dashboard (progress, insights, CSV, audit log)
+│   │   ├── admin.js          # admin dashboard (progress, insights, CSV, audit log)
+│   │   └── instructor.js     # instructor login / logout
 │   ├── content.js            # course content the server validates against (videos, totals)
 │   └── utils/                # mailer, password rules, email hashing, dates/streaks
 ├── scripts/
@@ -65,6 +67,7 @@ hcilearn-platform/
 │   ├── dark-manual.css       # hand-written dark mode fixes
 │   ├── build-search-index.js # generates public/search-index.json from the pages
 │   ├── glossary.json         # HCI glossary terms for Quick Search
+│   ├── instructor.js         # npm run instructor (manage instructor accounts)
 │   └── check.js              # npm test
 └── public/                   # front-end pages
     ├── style.css             # shared stylesheet for every page
@@ -106,6 +109,23 @@ npm run build:dark
 For anything the generator gets wrong, add a rule to `scripts/dark-manual.css`
 (it is appended to the end of `dark.css`) and run the command again.
 
+### Instructor accounts (Admin Dashboard)
+
+Instructors are separate from students and log in with an **Instructor ID and
+password** ("Log in as admin" on the login page, or `login.html#admin`).
+Accounts are managed from the terminal (uses `DATABASE_URL` in `.env`):
+
+```bash
+npm run instructor -- add --id 122524 --name "Full Name"   # asks for the password
+npm run instructor -- reset-password --id 122524           # also logs them out everywhere
+npm run instructor -- rename --id 122524 --name "New Name"
+npm run instructor -- remove --id 122524
+npm run instructor -- list
+```
+
+The password is typed when asked and stored only as a bcrypt hash, never in
+code or `.env`.
+
 ### Search index
 
 `public/search-index.json` is generated from the lesson topics, videos, case
@@ -138,7 +158,6 @@ See [`.env.example`](.env.example) for the full list with comments.
 | `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | For photos | Profile photo uploads |
 | `EMAIL_USER`, `EMAIL_PASS` | For email (option A) | Gmail address + App Password |
 | `BREVO_API_KEY`, `EMAIL_FROM` | For email (option B) | Needed on Render's free plan, which blocks SMTP |
-| `ADMIN_EMAILS` | For admins | Comma-separated emails that can open the Admin Dashboard |
 | `NODE_ENV` | No | `production` enables secure cookies |
 | `PORT` | No | Defaults to 3000 |
 
@@ -185,6 +204,9 @@ the password-reset routes requires the login cookie.
 | POST | `/gamify/activity` | Record an answer / finished video / opened topic / cleared mistake |
 | POST | `/gamify/check` | Award any badges earned from other progress |
 | PUT | `/gamify/goal` | Change the daily goal (5, 10, 20 or 30) |
+| POST | `/instructor/login` | Instructor login (Instructor ID + password) |
+| POST | `/instructor/logout` | Instructor log out |
+| GET | `/instructor/me` | Current instructor |
 | GET | `/admin/students` | *Admin:* every student with progress numbers |
 | GET | `/admin/insights` | *Admin:* most-missed questions, least-watched videos |
 | GET | `/admin/students/:id` | *Admin:* one student's details (recorded in the audit log) |
@@ -204,7 +226,8 @@ the password-reset routes requires the login cookie.
 - `bookmarks`: saved topics/videos with notes
 - `daily_activity`: what each user did per day, for the streak, daily goal and badges
 - `user_badges`: badges each user has earned (the goal itself is `users.daily_goal`)
-- `admin_audit_log`: admin actions (viewing a student, exporting data)
+- `instructors`: instructor accounts (Instructor ID, name, password hash)
+- `instructor_audit_log`: what instructors did on the Admin Dashboard (viewing a student, exporting data)
 
 ## Security
 
@@ -213,8 +236,9 @@ the password-reset routes requires the login cookie.
 - Changing or resetting a password signs out every other session
 - httpOnly, `SameSite` cookies (`Secure` in production)
 - Photo uploads checked for type and size before going to Cloudinary
-- Admin access comes only from `ADMIN_EMAILS` on the server and is checked on
-  every admin request; admin views and exports are written to an audit log.
+- Instructors have separate accounts and their own 8-hour session cookie; a
+  student login can never open the admin API. Instructor logins are rate
+  limited, and instructor views and exports are written to an audit log.
   Exported CSV cells are escaped so they can't run as spreadsheet formulas
 
 ## Deployment
