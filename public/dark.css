@@ -3208,6 +3208,24 @@
 :root[data-theme="dark"] .admin-list-text small {
     color: hsl(250 12% 67%);
 }
+:root[data-theme="dark"] .admin-more summary {
+    color: var(--fun-grape);
+}
+:root[data-theme="dark"] .admin-more summary:hover {
+    background: hsl(251 45% 18%);
+}
+:root[data-theme="dark"] .admin-drop-arrow {
+    color: #aaa;
+}
+:root[data-theme="dark"] .admin-drop[open] summary {
+    background: hsl(251 45% 18%);
+}
+:root[data-theme="dark"] .admin-drop-body p {
+    color: hsl(250 49% 87%);
+}
+:root[data-theme="dark"] .admin-drop-body small {
+    color: hsl(250 12% 67%);
+}
 :root[data-theme="dark"] .admin-avatar {
     background: linear-gradient(135deg, var(--fun-grape), var(--fun-pink));
     color: #fff;
