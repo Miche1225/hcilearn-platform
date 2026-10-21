@@ -292,7 +292,7 @@ the password-reset routes requires the login cookie.
 
 ## Security
 
-- Passwords hashed with bcrypt; emails stored with an HMAC hash for lookup
+- Passwords hashed with bcrypt; emails stored with an HMAC hash for lookup, plus an AES-256-GCM encrypted copy so instructors can email inactive students a reminder
 - Rate limits on signup, login, forgot/reset password and password changes
 - Changing or resetting a password signs out every other session
 - httpOnly, `SameSite` cookies (`Secure` in production)

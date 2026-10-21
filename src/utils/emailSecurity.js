@@ -71,7 +71,62 @@ function hashEmail(email) {
 }
 
 
+/*
+    Reversible copy of the email, so instructors can send
+    reminders to inactive students. AES-256-GCM with a key
+    derived from the same secret (so it must not change either).
+
+    Stored as iv.tag.ciphertext (base64).
+*/
+function emailKey() {
+
+    return crypto
+        .createHash('sha256')
+        .update('email-encrypt:' + getEmailHashSecret())
+        .digest();
+}
+
+
+function encryptEmail(email) {
+
+    const iv =
+        crypto.randomBytes(12);
+
+    const cipher =
+        crypto.createCipheriv('aes-256-gcm', emailKey(), iv);
+
+    const data =
+        Buffer.concat([
+            cipher.update(normalizeEmail(email), 'utf8'),
+            cipher.final()
+        ]);
+
+    return [iv, cipher.getAuthTag(), data]
+        .map(b => b.toString('base64'))
+        .join('.');
+}
+
+
+function decryptEmail(stored) {
+
+    const [iv, tag, data] =
+        String(stored).split('.').map(p => Buffer.from(p, 'base64'));
+
+    const decipher =
+        crypto.createDecipheriv('aes-256-gcm', emailKey(), iv);
+
+    decipher.setAuthTag(tag);
+
+    return Buffer.concat([
+        decipher.update(data),
+        decipher.final()
+    ]).toString('utf8');
+}
+
+
 module.exports = {
     normalizeEmail,
-    hashEmail
+    hashEmail,
+    encryptEmail,
+    decryptEmail
 };
