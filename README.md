@@ -9,7 +9,7 @@ flashcards, and their progress is saved to their account.
 | Page | What it does |
 |---|---|
 | **Login / Sign up** | Accounts with hashed passwords, "remember me", and forgot-password by email |
-| **Dashboard** | Instructor announcements, overall progress ring, per-module stats, "up next" suggestion, recent activity, study streak, daily goal and badges |
+| **Dashboard** | Overall progress ring, per-module stats, "up next" suggestion, recent activity, study streak, daily goal and badges |
 | **Watch Video** | YouTube lessons with search and filters; a video is marked watched automatically when it ends, and resumes where you left off |
 | **Read Lesson** | Learning objectives, outline and expandable lessons with search and "jump to lesson"; any topic can be saved with a note |
 | **Case Studies** | Scenarios that unlock one at a time as you answer correctly, plus "Review mistakes" |
