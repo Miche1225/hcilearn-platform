@@ -4,7 +4,8 @@
 // Walang audio files na kailangan: lahat ng tunog ay ginagawa ng browser gamit
 // ang Web Audio API, kaya gumagana kahit offline at walang copyright issue.
 //
-// Usage:   HCISfx.play('correct' | 'wrong' | 'levelUp' | 'mastered')
+// Usage:   HCISfx.play('correct' | 'wrong' | 'levelUp' | 'mastered')            (Case Studies)
+//          HCISfx.play('cardCorrect' | 'cardWrong' | 'cardMastered')             (Study Cards)
 // May maliit na mute button (kanang-itaas) na naaalala ng browser.
 
 (function () {
@@ -64,7 +65,8 @@
   // Note frequencies (Hz)
   var N = {
     G4: 392.00, C5: 523.25, E5: 659.25, G5: 783.99,
-    C6: 1046.50, E6: 1318.51, G6: 1567.98
+    A5: 880.00, B5: 987.77, C6: 1046.50, D6: 1174.66,
+    E6: 1318.51, G6: 1567.98
   };
 
   var SOUNDS = {
@@ -106,10 +108,82 @@
       tone({ freq: N.E5, start: 0.50, dur: 0.85, type: 'triangle', vol: 0.20 });
       tone({ freq: N.G5, start: 0.50, dur: 0.85, type: 'triangle', vol: 0.20 });
       tone({ freq: N.C6, start: 0.50, dur: 0.85, type: 'triangle', vol: 0.18 });
+    },
+
+    // ---- Study Cards: sariling set ng tunog (softer, "card flip" + bell) ----
+
+    // Tamang sagot: quick card "flip" swoosh tapos dalawang bell chime
+    cardCorrect: function () {
+      tone({ freq: 300, slideTo: 1200, start: 0.00, dur: 0.10, type: 'sine', vol: 0.18 });
+      tone({ freq: N.A5, start: 0.10, dur: 0.30, type: 'sine', vol: 0.26 });
+      tone({ freq: N.E6, start: 0.20, dur: 0.45, type: 'sine', vol: 0.22 });
+    },
+
+    // Maling sagot: soft "bloop" pababa (sine, hindi buzzy)
+    cardWrong: function () {
+      tone({ freq: 440, slideTo: 260, start: 0.00, dur: 0.22, type: 'sine', vol: 0.24 });
+      tone({ freq: 330, slideTo: 196, start: 0.20, dur: 0.30, type: 'sine', vol: 0.20 });
+    },
+
+    // Na-master ang deck: shuffle swooshes + music-box melody
+    cardMastered: function () {
+      tone({ freq: 300, slideTo: 1200, start: 0.00, dur: 0.08, type: 'sine', vol: 0.14 });
+      tone({ freq: 300, slideTo: 1200, start: 0.09, dur: 0.08, type: 'sine', vol: 0.14 });
+      tone({ freq: N.G5, start: 0.22, dur: 0.22, type: 'sine', vol: 0.24 });
+      tone({ freq: N.B5, start: 0.34, dur: 0.22, type: 'sine', vol: 0.24 });
+      tone({ freq: N.D6, start: 0.46, dur: 0.22, type: 'sine', vol: 0.24 });
+      tone({ freq: N.G6, start: 0.58, dur: 0.70, type: 'sine', vol: 0.22 });
+      tone({ freq: N.D6, start: 0.58, dur: 0.70, type: 'triangle', vol: 0.12 });
+      tone({ freq: N.B5, start: 0.58, dur: 0.70, type: 'triangle', vol: 0.12 });
     }
   };
 
+  // ---------- Confetti (visual reward, shown even when muted) ----------
+  var CONFETTI_COLORS = ['#ff6fa5', '#ff8a5c', '#ffc93c', '#3fcf9b', '#4fb3ff', '#7b5cff'];
+  var CONFETTI_AMOUNT = { correct: 40, levelUp: 80, mastered: 140, cardCorrect: 40, cardMastered: 140 };
+
+  function confetti(amount) {
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || !document.body || !Element.prototype.animate) return;
+
+    var originX = window.innerWidth / 2;
+    var originY = window.innerHeight * 0.45;
+
+    for (var i = 0; i < amount; i++) {
+      var piece = document.createElement('span');
+      var size = 6 + Math.random() * 7;
+      piece.setAttribute('aria-hidden', 'true');
+      piece.style.cssText = [
+        'position:fixed', 'left:' + originX + 'px', 'top:' + originY + 'px',
+        'width:' + size + 'px', 'height:' + (size * (Math.random() < 0.5 ? 1 : 0.45)) + 'px',
+        'background:' + CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+        'border-radius:' + (Math.random() < 0.35 ? '50%' : '2px'),
+        'pointer-events:none', 'z-index:10000'
+      ].join(';');
+      document.body.appendChild(piece);
+
+      // Shoot outward and up, then fall with gravity
+      var angle = Math.random() * Math.PI * 2;
+      var power = 120 + Math.random() * 260;
+      var dx = Math.cos(angle) * power;
+      var dy = Math.sin(angle) * power - 160;
+      var spin = (Math.random() - 0.5) * 1080;
+      var duration = 1100 + Math.random() * 900;
+
+      var anim = piece.animate([
+        { transform: 'translate(-50%, -50%) rotate(0deg)', opacity: 1 },
+        { transform: 'translate(calc(-50% + ' + dx + 'px), calc(-50% + ' + dy + 'px)) rotate(' + spin / 2 + 'deg)', opacity: 1, offset: 0.45 },
+        { transform: 'translate(calc(-50% + ' + dx * 1.3 + 'px), calc(-50% + ' + (dy + 420) + 'px)) rotate(' + spin + 'deg)', opacity: 0 }
+      ], { duration: duration, easing: 'cubic-bezier(0.2, 0.6, 0.4, 1)', fill: 'forwards' });
+
+      anim.onfinish = (function (el) { return function () { el.remove(); }; })(piece);
+    }
+  }
+
   function play(name) {
+    if (CONFETTI_AMOUNT[name]) {
+      try { confetti(CONFETTI_AMOUNT[name]); } catch (e) { /* visuals must never break the quiz */ }
+    }
     if (muted) return;
     var fn = SOUNDS[name];
     if (!fn) return;
@@ -151,7 +225,12 @@
     btn.addEventListener('click', function () {
       setMuted(!muted);
       renderButtonState(btn);
-      if (!muted) play('correct'); // short preview so the user knows it's on
+      // Short preview so the user knows it's on (sound only, no confetti).
+      // Study Cards previews its own "correct" sound.
+      if (!muted) {
+        var preview = document.body.classList.contains('study-page') ? SOUNDS.cardCorrect : SOUNDS.correct;
+        try { preview(); } catch (e) { /* ignore */ }
+      }
     });
 
     document.body.appendChild(btn);
@@ -163,5 +242,5 @@
     mountButton();
   }
 
-  window.HCISfx = { play: play, isMuted: function () { return muted; } };
+  window.HCISfx = { play: play, confetti: confetti, isMuted: function () { return muted; } };
 })();
