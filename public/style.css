@@ -8626,6 +8626,85 @@ body.update-password-page .update-container::before {
     border-color: #ffc2a6;
 }
 
+/* Study Cards: "Practice exam" (same shape as the review deck, purple) */
+.study-page .review-deck.is-exam {
+    border-color: #c3b5fb;
+    background: linear-gradient(120deg, #f1edff, #e8f1ff);
+    color: #2e2466;
+}
+
+.study-page .review-deck.is-exam:hover {
+    box-shadow: 0 12px 26px rgba(106, 76, 240, 0.2);
+}
+
+.study-page .review-deck.is-exam .review-deck-icon {
+    background: linear-gradient(135deg, #6a4cf0, #4a8bf5);
+}
+
+.study-page .review-deck.is-exam .review-deck-text strong,
+.study-page .review-deck.is-exam .review-deck-go {
+    color: #4b33c4;
+}
+
+.study-page .review-deck.is-exam .review-deck-text span {
+    color: #5a5480;
+}
+
+.study-page .fc-stage.is-exam .fc-card {
+    border-color: #c3b5fb;
+}
+
+/* Practice exam results: score per lesson, weakest first */
+.study-page .exam-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 520px;
+    margin: 4px auto 18px;
+    text-align: left;
+}
+
+.study-page .exam-row {
+    display: grid;
+    grid-template-columns: 1fr 120px auto;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: #444;
+}
+
+.study-page .exam-row-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.study-page .exam-row-bar {
+    height: 8px;
+    border-radius: 999px;
+    background: #ece8fb;
+    overflow: hidden;
+}
+
+.study-page .exam-row-bar span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #6a4cf0, #4a8bf5);
+}
+
+.study-page .exam-row.is-weak .exam-row-bar span {
+    background: linear-gradient(90deg, var(--fun-coral), var(--fun-sun));
+}
+
+@media (max-width: 480px) {
+    .study-page .exam-row {
+        grid-template-columns: 1fr 70px auto;
+    }
+}
+
 /* --- Note dialog (uses the confirm dialog look) --- */
 .confirm-card.note-card {
     max-width: 480px;

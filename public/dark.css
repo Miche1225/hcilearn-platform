@@ -2641,6 +2641,39 @@
 :root[data-theme="dark"] .study-page .fc-stage.is-review .fc-card {
     border-color: #ffc2a6;
 }
+:root[data-theme="dark"] .study-page .review-deck.is-exam {
+    border-color: #c3b5fb;
+    background: linear-gradient(120deg, hsl(253 45% 19%), hsl(217 45% 20%));
+    color: hsl(249 48% 81%);
+}
+:root[data-theme="dark"] .study-page .review-deck.is-exam:hover {
+    box-shadow: 0 12px 26px rgba(106, 76, 240, 0.2);
+}
+:root[data-theme="dark"] .study-page .review-deck.is-exam .review-deck-icon {
+    background: linear-gradient(135deg, #6a4cf0, #4a8bf5);
+}
+:root[data-theme="dark"] .study-page .review-deck.is-exam .review-deck-text strong,
+:root[data-theme="dark"] .study-page .review-deck.is-exam .review-deck-go {
+    color: hsl(250 59% 69%);
+}
+:root[data-theme="dark"] .study-page .review-deck.is-exam .review-deck-text span {
+    color: hsl(248 21% 73%);
+}
+:root[data-theme="dark"] .study-page .fc-stage.is-exam .fc-card {
+    border-color: #c3b5fb;
+}
+:root[data-theme="dark"] .study-page .exam-row {
+    color: hsl(250 12% 81%);
+}
+:root[data-theme="dark"] .study-page .exam-row-bar {
+    background: hsl(253 45% 20%);
+}
+:root[data-theme="dark"] .study-page .exam-row-bar span {
+    background: linear-gradient(90deg, #6a4cf0, #4a8bf5);
+}
+:root[data-theme="dark"] .study-page .exam-row.is-weak .exam-row-bar span {
+    background: linear-gradient(90deg, var(--fun-coral), var(--fun-sun));
+}
 :root[data-theme="dark"] .note-card .confirm-icon {
     background: hsl(48 45% 24%);
     color: hsl(44 75% 76%);
