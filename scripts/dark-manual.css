@@ -57,3 +57,18 @@
 :root[data-theme="dark"] .qs-result mark {
     color: #1d1640;
 }
+
+/* Dark mode switch: keep the knob white on the coloured track */
+:root[data-theme="dark"] .theme-switch {
+    box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.35);
+}
+:root[data-theme="dark"] .theme-switch-knob {
+    background: #ffffff;
+}
+:root[data-theme="dark"] .is-on .theme-switch {
+    box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.4);
+}
+:root[data-theme="dark"] .theme-toggle:focus-visible .theme-switch,
+:root[data-theme="dark"] .theme-fab:focus-visible .theme-switch {
+    outline-color: #ffffff;
+}
