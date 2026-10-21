@@ -3679,6 +3679,10 @@
 :root[data-theme="dark"] .admin-quick-btn small {
     color: hsl(250 12% 67%);
 }
+:root[data-theme="dark"] .ce-sortable > .ce-row[data-drag-id]:hover,
+:root[data-theme="dark"] .ce-sortable > .ce-group[data-drag-id] > .ce-row:hover {
+    border-color: hsl(251 45% 23%);
+}
 
 /* ---------- from update-password.html ---------- */
 :root[data-theme="dark"] body.update-password-page {

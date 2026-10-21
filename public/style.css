@@ -11654,3 +11654,20 @@ fieldset.ce-field legend {
     .admin-page .admin-export { display: none; }
     .admin-page .admin-quick-btn small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }
+
+/* Content editor: the whole row can be grabbed */
+.ce-sortable > .ce-row[data-drag-id],
+.ce-sortable > .ce-group[data-drag-id] > .ce-row {
+    cursor: grab;
+    user-select: none;
+}
+
+.ce-sortable > .ce-row[data-drag-id]:hover,
+.ce-sortable > .ce-group[data-drag-id] > .ce-row:hover {
+    border-color: #d9d0ff;
+}
+
+.ce-row button,
+.ce-row a {
+    cursor: pointer;
+}

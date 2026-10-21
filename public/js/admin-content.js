@@ -473,18 +473,34 @@ const HCIContentEditor = (function () {
   }
 
   // ---------- Drag & drop (mouse and touch, via pointer events) ----------
-  // Grab the ⠿ handle and move the row; the order is saved when you let go.
+  // Press anywhere on a row (or its ⠿ handle) and move it up or down; the
+  // order is saved when you let go. The drag only starts after the pointer
+  // moves a few pixels, so normal clicks keep working. Buttons don't drag.
+  const DRAG_START_PX = 6;
+  let pending = null; // pressed, not moved enough yet
   let drag = null;
 
-  function startDrag(e) {
-    const handle = e.target.closest('[data-drag-handle]');
-    if (!handle || e.button > 0) return;
-    const rowEl = handle.closest('.ce-row');
-    const item = rowEl.closest('[data-drag-id]') && (rowEl.matches('[data-drag-id]') ? rowEl : rowEl.closest('.ce-group'));
-    if (!item) return;
-    const list = item.parentElement; // the .ce-sortable it belongs to
-    e.preventDefault();
+  function draggableItem(target) {
+    if (target.closest('button:not([data-drag-handle]), a, input, select, textarea, label')) return null;
+    const rowEl = target.closest('.ce-row');
+    if (!rowEl) return null;
+    if (rowEl.matches('[data-drag-id]')) return rowEl;
+    const group = rowEl.closest('.ce-group[data-drag-id]');
+    return group && group.querySelector(':scope > .ce-row') === rowEl ? group : null;
+  }
 
+  function pressDown(e) {
+    if (e.button > 0 || drag) return;
+    const item = draggableItem(e.target);
+    if (!item) return;
+    // On touch screens only the handle starts a drag, so the page can still scroll
+    if (e.pointerType === 'touch' && !e.target.closest('[data-drag-handle]')) return;
+    pending = { item, x: e.clientX, y: e.clientY, pointerId: e.pointerId };
+    if (e.target.closest('[data-drag-handle]')) e.preventDefault();
+  }
+
+  function beginDrag(item, clientY) {
+    const list = item.parentElement; // the .ce-sortable it belongs to
     const rect = item.getBoundingClientRect();
     const placeholder = document.createElement('div');
     placeholder.className = 'ce-placeholder';
@@ -497,12 +513,18 @@ const HCIContentEditor = (function () {
     item.style.top = `${rect.top}px`;
     document.body.appendChild(item); // float above everything while dragging
 
-    drag = { item, list, placeholder, offsetY: e.clientY - rect.top, before: [...list.querySelectorAll(':scope > [data-drag-id]')].map(el => el.dataset.dragId).join() };
-    handle.setPointerCapture && handle.setPointerCapture(e.pointerId);
+    drag = { item, list, placeholder, offsetY: clientY - rect.top, before: [...list.querySelectorAll(':scope > [data-drag-id]')].map(el => el.dataset.dragId).join() };
     document.documentElement.classList.add('ce-is-dragging');
+    window.getSelection && window.getSelection().removeAllRanges();
   }
 
   function moveDrag(e) {
+    if (pending && !drag) {
+      if (Math.abs(e.clientY - pending.y) < DRAG_START_PX && Math.abs(e.clientX - pending.x) < DRAG_START_PX) return;
+      const { item } = pending;
+      pending = null;
+      beginDrag(item, e.clientY);
+    }
     if (!drag) return;
     e.preventDefault();
     drag.item.style.top = `${e.clientY - drag.offsetY}px`;
@@ -522,8 +544,17 @@ const HCIContentEditor = (function () {
     else if (e.clientY > window.innerHeight - edge) window.scrollBy(0, 12);
   }
 
+  // A drag that just ended must not also count as a click on the row
+  function swallowClick(e) {
+    e.stopPropagation();
+    e.preventDefault();
+  }
+
   function endDrag() {
+    pending = null;
     if (!drag) return;
+    window.addEventListener('click', swallowClick, { capture: true, once: true });
+    setTimeout(() => window.removeEventListener('click', swallowClick, { capture: true }), 0);
     const { item, list, placeholder, before } = drag;
     drag = null;
     document.documentElement.classList.remove('ce-is-dragging');
@@ -540,7 +571,7 @@ const HCIContentEditor = (function () {
     root = element;
     if (onPending) onPendingChange = onPending;
     root.addEventListener('click', handleClick);
-    root.addEventListener('pointerdown', startDrag);
+    root.addEventListener('pointerdown', pressDown);
     document.addEventListener('pointermove', moveDrag, { passive: false });
     document.addEventListener('pointerup', endDrag);
     document.addEventListener('pointercancel', endDrag);
