@@ -1,6 +1,6 @@
 // scripts/check.js
 //
-// Quick checks run by "npm test" (and GitHub Actions CI). No database or
+// Quick checks run by "npm test". No database or
 // extra packages needed:
 //   1. every .js file in the project parses
 //   2. every inline <script> in public/*.html parses

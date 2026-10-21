@@ -96,8 +96,7 @@ npm test
 ```
 
 Checks that every JavaScript file and inline page script parses, and that
-`dark.css` is up to date. GitHub Actions runs it on every push and pull
-request to `main`.
+`dark.css` is up to date. Run it before pushing.
 
 ## Environment variables
 
