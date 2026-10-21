@@ -170,3 +170,9 @@ the password-reset routes requires the login cookie.
 The app is set up for **Render** (web service) + **Supabase** (database) +
 **Cloudinary** (photos), all on free plans. Step-by-step instructions are in
 [DEPLOY-GUIDE.md](DEPLOY-GUIDE.md).
+
+## Copyright
+
+Copyright © 2026 Micheree Kian M. Grefiel.
+
+All rights reserved. Unauthorized copying, modification, or distribution of this project's code without permission is prohibited.
