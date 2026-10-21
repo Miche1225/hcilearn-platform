@@ -4,7 +4,7 @@
 // (see middleware/instructorGuard.js and routes/instructor.js).
 const express = require('express');
 const { pool } = require('../db');
-const { requireInstructor } = require('../middleware/instructorGuard');
+const { requireInstructor, requireAdminRole } = require('../middleware/instructorGuard');
 const { getContent } = require('../contentStore');
 const { todayLocal, addDays, toYmd, computeStreaks } = require('../utils/dates');
 const { getBadges } = require('./gamify');
@@ -298,6 +298,26 @@ router.post('/students/:id/deactivate', studentAction('deactivate_student', (s) 
 router.post('/students/:id/reactivate', studentAction('reactivate_student', (s) =>
   pool.query('UPDATE users SET disabled_at = NULL WHERE id = $1', [s.id])));
 
+// Remove the account for good (progress, saved items, everything). Same as a
+// student deleting their own account. The name is kept in the audit log.
+router.post('/students/:id/remove', async (req, res, next) => {
+  try {
+    const student = await studentFor(req);
+    if (!student) return res.status(404).json({ error: 'Student not found.' });
+    await audit(req.instructor.id, 'remove_student', null, student.full_name);
+    await pool.query('DELETE FROM users WHERE id = $1', [student.id]);
+    // Best effort: also remove the profile photo from Cloudinary
+    try {
+      require('cloudinary').v2.uploader
+        .destroy(`hcilearn/profile_photos/user${student.id}`, { resource_type: 'image' })
+        .catch(err => console.error('Could not delete profile photo:', err.message));
+    } catch (err) { /* Cloudinary not set up */ }
+    res.json({ ok: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // Start over: clears learning progress (keeps the account, profile and saved items)
 const PROGRESS_TABLES = ['case_study_progress', 'study_card_progress', 'lesson_progress', 'video_progress',
   'video_positions', 'mistakes', 'daily_activity', 'user_badges', 'activity_log'];
@@ -425,6 +445,19 @@ router.get('/audit', async (req, res, next) => {
         targetName: r.target_name,
       })),
     });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// DELETE /api/admin/audit/:id — remove an entry (main admin only, so the
+// log stays trustworthy; regular instructors can't erase what they did)
+router.delete('/audit/:id', requireAdminRole, async (req, res, next) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id < 1) return res.status(400).json({ error: 'Invalid entry.' });
+    await pool.query('DELETE FROM instructor_audit_log WHERE id = $1', [id]);
+    res.json({ ok: true });
   } catch (err) {
     next(err);
   }

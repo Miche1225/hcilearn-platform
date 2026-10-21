@@ -9,8 +9,8 @@
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
-    <link rel="stylesheet" href="style.css?v=54">
-    <link rel="stylesheet" href="dark.css?v=17">
+    <link rel="stylesheet" href="style.css?v=57">
+    <link rel="stylesheet" href="dark.css?v=20">
     <script src="js/theme.js?v=1"></script>
     <!-- FontAwesome para sa icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -260,7 +260,7 @@
         const AUDIT_ICONS = {
             export_csv: 'fa-file-csv', publish_content: 'fa-upload', discard_content: 'fa-rotate-left',
             post_announcement: 'fa-bullhorn', delete_announcement: 'fa-bullhorn', reset_progress: 'fa-eraser',
-            signout_student: 'fa-arrow-right-from-bracket', deactivate_student: 'fa-user-slash', reactivate_student: 'fa-user-check',
+            signout_student: 'fa-arrow-right-from-bracket', deactivate_student: 'fa-user-slash', reactivate_student: 'fa-user-check', remove_student: 'fa-user-xmark',
             rollback_content: 'fa-clock-rotate-left', add_instructor: 'fa-user-plus', update_instructor: 'fa-user-pen',
             reset_instructor_password: 'fa-key', remove_instructor: 'fa-user-minus',
         };
@@ -275,6 +275,7 @@
             signout_student: (e) => `Signed ${e.targetName || 'a student'} out everywhere`,
             deactivate_student: (e) => `Deactivated ${e.targetName || 'a student'}'s account`,
             reactivate_student: (e) => `Reactivated ${e.targetName || 'a student'}'s account`,
+            remove_student: (e) => `Removed ${e.details || 'a student'}'s account`,
             rollback_content: (e) => `Rolled content back to ${e.details}`,
             add_instructor: (e) => `Added instructor ${e.details}`,
             update_instructor: (e) => `Updated instructor ${e.details}`,
@@ -498,9 +499,8 @@
                     <div class="student-manage">
                         <button type="button" class="tool-btn" data-manage="signout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sign out everywhere</button>
                         <button type="button" class="tool-btn" data-manage="reset"><i class="fa-solid fa-eraser"></i> Reset progress</button>
-                        ${s.deactivated
-                            ? '<button type="button" class="tool-btn" data-manage="reactivate"><i class="fa-solid fa-user-check"></i> Reactivate account</button>'
-                            : '<button type="button" class="tool-btn is-danger" data-manage="deactivate"><i class="fa-solid fa-user-slash"></i> Deactivate account</button>'}
+                        ${s.deactivated ? '<button type="button" class="tool-btn" data-manage="reactivate"><i class="fa-solid fa-user-check"></i> Reactivate account</button>' : ''}
+                        <button type="button" class="tool-btn is-danger" data-manage="remove"><i class="fa-solid fa-user-xmark"></i> Remove account</button>
                     </div>`;
                 $('drawerBody').querySelectorAll('[data-manage]').forEach(b => b.addEventListener('click', () => manageStudent(s, b.dataset.manage)));
                 loadAudit(); // the view was just recorded
@@ -519,6 +519,7 @@
             signout: { title: 'Sign out everywhere?', message: (n) => `${n} will be logged out on every device and will need to log in again.`, confirm: 'Sign out', icon: 'fa-arrow-right-from-bracket', done: 'Signed out everywhere' },
             reset: { title: 'Reset all progress?', message: (n) => `This clears ${n}'s case studies, study cards, videos, mistakes, streak and badges. Their account and saved items stay. This cannot be undone.`, confirm: 'Reset progress', icon: 'fa-eraser', danger: true, done: 'Progress reset' },
             deactivate: { title: 'Deactivate this account?', message: (n) => `${n} will be logged out and won't be able to log in until you reactivate the account. Their progress is kept.`, confirm: 'Deactivate', icon: 'fa-user-slash', danger: true, done: 'Account deactivated' },
+            remove: { title: 'Remove this account?', message: (n) => `${n}'s account will be deleted for good, with all their progress, badges and saved items. They can sign up again later as a new student. This cannot be undone.`, confirm: 'Remove account', icon: 'fa-user-xmark', danger: true, done: 'Account removed', removed: true },
             reactivate: { title: 'Reactivate this account?', message: (n) => `${n} will be able to log in again.`, confirm: 'Reactivate', icon: 'fa-user-check', done: 'Account reactivated' },
         };
 
@@ -533,7 +534,8 @@
                         const list = await api.get('/admin/students');
                         students = list.students;
                         renderStudents();
-                        openStudent(student.id);
+                        if (m.removed) closeStudent(); else openStudent(student.id);
+                        loadAudit();
                     } catch (err) {
                         adminToast(err.message, true);
                     }
@@ -806,11 +808,31 @@
                         <span class="admin-tag"><i class="fa-solid ${AUDIT_ICONS[e.action] || 'fa-eye'}"></i></span>
                         <span class="admin-list-text"><strong>${escapeHtml((AUDIT_LABELS[e.action] || (() => e.action))(e))}</strong>
                         <small>${escapeHtml(e.adminName)} · ${formatDateTime(e.createdAt)}</small></span>
+                        ${me && me.isAdmin ? `<button type="button" class="ce-icon-btn audit-remove" data-audit-delete="${e.id}" aria-label="Remove this entry" title="Remove this entry"><i class="fa-solid fa-xmark"></i></button>` : ''}
                     </div>`).join('') : '<p class="admin-empty">Nothing recorded yet.</p>';
             } catch (err) {
                 $('auditList').innerHTML = '<p class="admin-empty">Could not load the activity log.</p>';
             }
         }
+
+        // Remove a log entry (main admin only; the server checks too)
+        $('auditList').addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-audit-delete]');
+            if (!btn) return;
+            confirmDialog({
+                title: 'Remove this log entry?', message: 'It will be deleted from the activity log for good.',
+                confirmText: 'Remove', icon: 'fa-xmark', danger: true,
+                onConfirm: async () => {
+                    try {
+                        await api.del(`/admin/audit/${btn.dataset.auditDelete}`);
+                        btn.closest('.admin-list-item').remove();
+                        if (!$('auditList').children.length) $('auditList').innerHTML = '<p class="admin-empty">Nothing recorded yet.</p>';
+                    } catch (err) {
+                        adminToast(err.message, true);
+                    }
+                },
+            });
+        });
 
         // ---------------- Wiring ----------------
         // ---------------- Sections (sidebar links, Admin.html#students etc.) ----------------

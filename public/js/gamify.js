@@ -2,6 +2,7 @@
 // Study streak, daily goal and badges (needs js/api.js; js/sfx.js for confetti).
 //
 //   HCIGamify.record('answer', true);   // answered a question (right/wrong)
+//   HCIGamify.record('perfect');        // finished a deck without a mistake
 //   HCIGamify.record('video');          // finished a video
 //   HCIGamify.record('read');           // opened a lesson topic
 //   HCIGamify.record('cleared');        // cleared a mistake in review
@@ -22,7 +23,7 @@ const HCIGamify = (function () {
       queue.push({
         icon: 'fa-bullseye', color: 'mint',
         title: 'Daily goal reached!',
-        name: `${result.today.answers} questions today`,
+        name: `${result.today.correct} correct answers today`,
         description: 'Come back tomorrow to keep your streak going.',
         confetti: 90,
       });
@@ -40,9 +41,22 @@ const HCIGamify = (function () {
   }
 
   // Never let streak/badge saving break a quiz
+  // Correct answers in a row (any quiz page, this browser tab)
+  const COMBO_KEY = 'hcilearn_combo';
+  function nextCombo(correct) {
+    let n = 0;
+    try { n = Number(sessionStorage.getItem(COMBO_KEY)) || 0; } catch (e) { /* storage blocked */ }
+    n = correct ? n + 1 : 0;
+    try { sessionStorage.setItem(COMBO_KEY, String(n)); } catch (e) { /* storage blocked */ }
+    return n;
+  }
+
   function record(type, correct) {
     const body = { type };
-    if (type === 'answer') body.correct = !!correct;
+    if (type === 'answer') {
+      body.correct = !!correct;
+      body.combo = nextCombo(!!correct);
+    }
     return api.post('/gamify/activity', body).then(handle).catch(() => null);
   }
 

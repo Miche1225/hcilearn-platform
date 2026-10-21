@@ -9,8 +9,8 @@
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
-    <link rel="stylesheet" href="style.css?v=54">
-    <link rel="stylesheet" href="dark.css?v=17">
+    <link rel="stylesheet" href="style.css?v=57">
+    <link rel="stylesheet" href="dark.css?v=20">
     <script src="js/theme.js?v=1"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
@@ -21,9 +21,9 @@
 
     <script src="js/api.js?v=10"></script>
     <script src="js/notifications.js?v=2"></script>
-    <script src="js/gamify.js?v=1"></script>
+    <script src="js/gamify.js?v=2"></script>
     <script src="js/search.js?v=3"></script>
-    <script src="js/sfx.js?v=5"></script>
+    <script src="js/sfx.js?v=6"></script>
     <script>
         requireAuth();
         document.addEventListener('DOMContentLoaded', function() {
@@ -121,12 +121,27 @@
                         <button type="button" class="fc-back" onclick="exitQuiz()">
                             <i class="fa-solid fa-arrow-left"></i> All decks
                         </button>
-                        <span class="fc-counter" id="masteredText"></span>
+                        <span class="fc-topbar-right">
+                            <label class="fc-timer-pick" title="Time per card">
+                                <i class="fa-solid fa-stopwatch"></i>
+                                <select id="timerSelect" aria-label="Time per card">
+                                    <option value="0">No timer</option>
+                                    <option value="10">10 sec</option>
+                                    <option value="20">20 sec</option>
+                                    <option value="30">30 sec</option>
+                                </select>
+                            </label>
+                            <span class="fc-counter" id="masteredText"></span>
+                        </span>
                     </div>
 
                     <!-- Quiz body (tanong at sagot) -->
                     <div id="quizBody">
                         <div class="fc-card">
+                            <div class="fc-timer" id="cardTimer" hidden>
+                                <div class="fc-timer-bar"><div id="timerFill"></div></div>
+                                <span class="fc-timer-num" id="timerNum" aria-live="off"></span>
+                            </div>
                             <span class="fc-card-label" id="quizLessonTitle"></span>
                             <h3 id="flashcardQuestion">Loading Question...</h3>
                             <i class="fa-solid fa-circle-question fc-card-mark"></i>
@@ -433,7 +448,82 @@
             showQuizView();
         }
 
+        // ========================================================
+        // TIMER bawat card (puwedeng patayin; naaalala ng browser)
+        // ========================================================
+        const TIMER_KEY = 'hcilearn_card_timer';
+        let timerSeconds = 20;
+        try {
+            const saved = localStorage.getItem(TIMER_KEY);
+            if (saved !== null && ['0', '10', '20', '30'].includes(saved)) timerSeconds = Number(saved);
+        } catch (e) { /* storage blocked */ }
+        document.getElementById('timerSelect').value = String(timerSeconds);
+
+        let timerId = null;
+        let timerEndsAt = 0;
+        let lastTick = null;
+        let nextCardTimer = null;   // ang 1.5s na hinto bago ang susunod na card
+
+        function stopTimer() {
+            clearInterval(timerId);
+            timerId = null;
+        }
+
+        function startTimer() {
+            stopTimer();
+            const box = document.getElementById('cardTimer');
+            box.hidden = !timerSeconds;
+            if (!timerSeconds) return;
+            timerEndsAt = Date.now() + timerSeconds * 1000;
+            lastTick = null;
+            box.classList.remove('is-low');
+            updateTimer();
+            timerId = setInterval(updateTimer, 100);
+        }
+
+        function updateTimer() {
+            const left = Math.max(0, timerEndsAt - Date.now());
+            const secs = Math.ceil(left / 1000);
+            document.getElementById('timerFill').style.width = `${(left / (timerSeconds * 1000)) * 100}%`;
+            document.getElementById('timerNum').textContent = `${secs}s`;
+            document.getElementById('cardTimer').classList.toggle('is-low', secs <= 5);
+            // Mahinang tick sa huling 5 segundo
+            if (secs <= 5 && secs > 0 && secs !== lastTick) {
+                lastTick = secs;
+                HCISfx.play('tick');
+            }
+            if (left <= 0) {
+                stopTimer();
+                timeUp();
+            }
+        }
+
+        // Naubos ang oras: parang maling sagot (babalik ang card sa deck)
+        function timeUp() {
+            const card = questionQueue[0];
+            document.getElementById('submitBtn').disabled = true;
+            document.querySelectorAll('input[name="quizChoice"]').forEach(r => { r.disabled = true; r.checked = false; });
+            HCISfx.play('timeUp');
+            HCIGamify.record('answer', false);
+            if (!missedThisRound.has(cardKey(card))) {
+                missedThisRound.add(cardKey(card));
+                recordMistake(card);
+            }
+            showFeedback('wrong', "<i class=\"fa-solid fa-hourglass-end\"></i> Time's up! This card goes back into the deck.");
+            questionQueue.push(questionQueue.shift());
+            updateMastered();
+            nextCardTimer = setTimeout(loadQuestion, 1800);
+        }
+
+        document.getElementById('timerSelect').addEventListener('change', (e) => {
+            timerSeconds = Number(e.target.value);
+            try { localStorage.setItem(TIMER_KEY, String(timerSeconds)); } catch (err) { /* storage blocked */ }
+            // Ilapat agad sa kasalukuyang card kung hindi pa nasasagot
+            if (!document.getElementById('submitBtn').disabled) startTimer();
+        });
+
         function loadQuestion() {
+            clearTimeout(nextCardTimer);
             const card = questionQueue[0];
             const { card: data, deck } = cardByKey.get(card.key);
             currentQuestionObj = data;
@@ -460,6 +550,7 @@
 
             document.getElementById('quizFeedback').hidden = true;
             document.getElementById('submitBtn').disabled = false;
+            startTimer();
         }
 
         // Tanggalin ang lumang feedback kapag pumili ulit
@@ -474,6 +565,7 @@
                 return;
             }
 
+            stopTimer();
             document.getElementById('submitBtn').disabled = true;
             document.querySelectorAll('input[name="quizChoice"]').forEach(r => r.disabled = true);
 
@@ -520,7 +612,7 @@
 
             updateMastered();
 
-            setTimeout(() => {
+            nextCardTimer = setTimeout(() => {
                 if (questionQueue.length === 0) {
                     finishLesson();
                 } else {
@@ -541,7 +633,10 @@
         }
 
         function finishLesson() {
+            stopTimer();
             if (reviewMode) return finishReview();
+            // "Flawless" badge: whole deck without a single mistake (or time-out)
+            if (missedThisRound.size === 0) HCIGamify.record('perfect');
             document.getElementById('doneTitle').textContent = 'Deck mastered!';
             const lessonId = currentLessonId;
             const nextId = nextDeckAfter(lessonId);
@@ -575,6 +670,8 @@
         }
 
         function exitQuiz() {
+            stopTimer();
+            clearTimeout(nextCardTimer);
             document.getElementById('quizView').style.display = 'none';
             document.getElementById('scHeaderSide').style.display = '';
             document.getElementById('lessonListView').style.display = '';

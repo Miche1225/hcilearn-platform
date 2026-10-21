@@ -17,16 +17,27 @@ const MAX_ANSWERS_PER_DAY = 5000; // stops a runaway script from inflating stats
 // ---------- Badges ----------
 // stat = key in the object built by getStats(); earned when stat >= target.
 // "All ..." badges use the number of items currently published.
+// Answer badges only count CORRECT answers; a study day only counts if you
+// got something right, watched a video or read a topic.
 const BADGE_DEFS = [
-  { id: 'first_steps',      name: 'First Steps',      description: 'Answer your first question.',          icon: 'fa-shoe-prints',      color: 'mint',  stat: 'answers',        target: 1 },
+  { id: 'first_steps',      name: 'First Steps',      description: 'Get your first answer right.',         icon: 'fa-shoe-prints',      color: 'mint',  stat: 'correct',        target: 1 },
   { id: 'on_fire',          name: 'On Fire',          description: 'Study 3 days in a row.',               icon: 'fa-fire',             color: 'coral', stat: 'longestStreak',  target: 3 },
   { id: 'week_warrior',     name: 'Week Warrior',     description: 'Study 7 days in a row.',               icon: 'fa-calendar-check',   color: 'sun',   stat: 'longestStreak',  target: 7 },
+  { id: 'month_master',     name: 'Month Master',     description: 'Study 30 days in a row.',              icon: 'fa-calendar-days',    color: 'pink',  stat: 'longestStreak',  target: 30 },
   { id: 'goal_getter',      name: 'Goal Getter',      description: 'Reach your daily goal.',               icon: 'fa-flag-checkered',   color: 'mint',  stat: 'goalDays',       target: 1 },
+  { id: 'goal_crusher',     name: 'Goal Crusher',     description: 'Reach your daily goal on 7 days.',     icon: 'fa-mountain',         color: 'sky',   stat: 'goalDays',       target: 7 },
   { id: 'sharpshooter',     name: 'Sharpshooter',     description: 'Get 50 answers right.',                icon: 'fa-bullseye',         color: 'coral', stat: 'correct',        target: 50 },
-  { id: 'quiz_whiz',        name: 'Quiz Whiz',        description: 'Answer 250 questions.',                icon: 'fa-brain',            color: 'grape', stat: 'answers',        target: 250 },
+  { id: 'century',          name: 'Century',          description: 'Get 100 answers right.',               icon: 'fa-medal',            color: 'sun',   stat: 'correct',        target: 100 },
+  { id: 'quiz_whiz',        name: 'Quiz Whiz',        description: 'Get 250 answers right.',               icon: 'fa-brain',            color: 'grape', stat: 'correct',        target: 250 },
+  { id: 'legend',           name: 'Legend',           description: 'Get 500 answers right.',               icon: 'fa-trophy',           color: 'pink',  stat: 'correct',        target: 500 },
+  { id: 'hot_streak',       name: 'Hot Streak',       description: 'Get 10 answers right in a row.',       icon: 'fa-bolt',             color: 'coral', stat: 'bestCombo',      target: 10 },
+  { id: 'unstoppable',      name: 'Unstoppable',      description: 'Get 25 answers right in a row.',       icon: 'fa-meteor',           color: 'grape', stat: 'bestCombo',      target: 25 },
+  { id: 'busy_bee',         name: 'Busy Bee',         description: 'Get 30 answers right in one day.',     icon: 'fa-sun',              color: 'sun',   stat: 'bestDay',        target: 30 },
   { id: 'case_cracker',     name: 'Case Cracker',     description: 'Solve 10 case studies.',               icon: 'fa-magnifying-glass', color: 'sky',   stat: 'caseSolved',     target: 10 },
+  { id: 'halfway_hero',     name: 'Halfway Hero',     description: 'Solve 25 case studies.',               icon: 'fa-flag',             color: 'mint',  stat: 'caseSolved',     target: 25 },
   { id: 'master_detective', name: 'Master Detective', description: (t) => `Solve all ${t.caseStudies} case studies.`, icon: 'fa-user-secret', color: 'grape', stat: 'caseSolved', target: (t) => t.caseStudies },
   { id: 'deck_master',      name: 'Deck Master',      description: 'Master your first study card deck.',   icon: 'fa-clone',            color: 'sun',   stat: 'decks',          target: 1 },
+  { id: 'flawless',         name: 'Flawless',         description: 'Master a deck without a single mistake.', icon: 'fa-gem',           color: 'sky',   stat: 'perfectDecks',   target: 1 },
   { id: 'card_champion',    name: 'Card Champion',    description: (t) => `Master all ${t.decks} decks.`, icon: 'fa-crown', color: 'sun', stat: 'decks', target: (t) => t.decks },
   { id: 'binge_watcher',    name: 'Binge Watcher',    description: 'Watch 5 videos.',                      icon: 'fa-film',             color: 'sky',   stat: 'videos',         target: 5 },
   { id: 'film_buff',        name: 'Film Buff',        description: (t) => `Watch all ${t.videos} videos.`, icon: 'fa-clapperboard', color: 'pink', stat: 'videos', target: (t) => t.videos },
@@ -52,7 +63,7 @@ async function getGoal(userId) {
 async function getActiveDays(userId) {
   const { rows } = await pool.query(
     `SELECT day FROM daily_activity
-     WHERE user_id = $1 AND (answers > 0 OR videos > 0 OR topics_read > 0)
+     WHERE user_id = $1 AND (correct > 0 OR videos > 0 OR topics_read > 0)
      ORDER BY day DESC
      LIMIT 400`,
     [userId]
@@ -65,8 +76,9 @@ async function getToday(userId, today, goal) {
     'SELECT answers, correct, goal_met FROM daily_activity WHERE user_id = $1 AND day = $2',
     [userId, today]
   );
-  const answers = rows[0] ? rows[0].answers : 0;
-  return { answers, correct: rows[0] ? rows[0].correct : 0, goal, goalMet: answers >= goal };
+  // The daily goal counts correct answers
+  const correct = rows[0] ? rows[0].correct : 0;
+  return { answers: rows[0] ? rows[0].answers : 0, correct, goal, goalMet: correct >= goal };
 }
 
 async function getStats(userId, today, content) {
@@ -74,7 +86,10 @@ async function getStats(userId, today, content) {
     `SELECT COALESCE(SUM(answers), 0)::int AS answers,
             COALESCE(SUM(correct), 0)::int AS correct,
             COALESCE(SUM(mistakes_cleared), 0)::int AS cleared,
-            COALESCE(SUM(CASE WHEN goal_met THEN 1 ELSE 0 END), 0)::int AS goal_days
+            COALESCE(SUM(CASE WHEN goal_met THEN 1 ELSE 0 END), 0)::int AS goal_days,
+            COALESCE(MAX(best_combo), 0)::int AS best_combo,
+            COALESCE(SUM(perfect_decks), 0)::int AS perfect_decks,
+            COALESCE(MAX(correct), 0)::int AS best_day
      FROM daily_activity WHERE user_id = $1`,
     [userId]
   )).rows[0];
@@ -97,6 +112,9 @@ async function getStats(userId, today, content) {
     correct: totals.correct,
     cleared: totals.cleared,
     goalDays: totals.goal_days,
+    bestCombo: totals.best_combo,
+    perfectDecks: totals.perfect_decks,
+    bestDay: totals.best_day,
     longestStreak: streak.longest,
     caseSolved: cs ? JSON.parse(cs.solved_ids).filter(id => content.caseByKey.has(Number(id))).length : 0,
     decks: sc ? JSON.parse(sc.completed_ids).filter(id => content.deckByKey.has(Number(id))).length : 0,
@@ -147,10 +165,10 @@ router.get('/summary', async (req, res, next) => {
     const streak = computeStreaks(activeDays, today);
 
     const { rows: weekRows } = await pool.query(
-      'SELECT day, answers FROM daily_activity WHERE user_id = $1 AND day >= $2',
+      'SELECT day, correct FROM daily_activity WHERE user_id = $1 AND day >= $2',
       [userId, addDays(today, -6)]
     );
-    const byDay = new Map(weekRows.map(r => [toYmd(r.day), r.answers]));
+    const byDay = new Map(weekRows.map(r => [toYmd(r.day), r.correct]));
     const active = new Set(activeDays);
     const week = [];
     for (let i = 6; i >= 0; i--) {
@@ -167,7 +185,7 @@ router.get('/summary', async (req, res, next) => {
       ...publicBadge(b),
       earned: earned.has(b.id),
       earnedAt: earned.get(b.id) || null,
-      progress: Math.min(stats[b.stat], b.target),
+      progress: earned.has(b.id) ? b.target : Math.min(stats[b.stat], b.target),
       target: b.target,
     }));
 
@@ -184,11 +202,13 @@ router.get('/summary', async (req, res, next) => {
   }
 });
 
-// POST /api/gamify/activity  { type: 'answer'|'video'|'read'|'cleared', correct? }
+// POST /api/gamify/activity
+//   { type: 'answer', correct, combo? }   combo = correct answers in a row so far
+//   { type: 'video' | 'read' | 'cleared' | 'perfect' }   perfect = deck with no mistakes
 router.post('/activity', async (req, res, next) => {
   try {
     const { type, correct } = req.body || {};
-    const columns = { answer: 'answers', video: 'videos', read: 'topics_read', cleared: 'mistakes_cleared' };
+    const columns = { answer: 'answers', video: 'videos', read: 'topics_read', cleared: 'mistakes_cleared', perfect: 'perfect_decks' };
     if (!columns[type]) {
       return res.status(400).json({ error: 'Invalid activity.' });
     }
@@ -197,27 +217,41 @@ router.post('/activity', async (req, res, next) => {
     const today = todayLocal();
     const goal = await getGoal(userId);
 
-    const inc = { answers: 0, correct: 0, videos: 0, topics_read: 0, mistakes_cleared: 0 };
+    const inc = { answers: 0, correct: 0, videos: 0, topics_read: 0, mistakes_cleared: 0, perfect_decks: 0 };
     inc[columns[type]] = 1;
     if (type === 'answer' && correct === true) inc.correct = 1;
+    // A run of correct answers can't be longer than today's correct answers
+    const combo = type === 'answer' && correct === true
+      ? Math.max(0, Math.min(1000, Math.floor(Number(req.body.combo) || 1)))
+      : 0;
 
     await pool.query(
-      `INSERT INTO daily_activity (user_id, day, answers, correct, videos, topics_read, mistakes_cleared)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `INSERT INTO daily_activity (user_id, day, answers, correct, videos, topics_read, mistakes_cleared, perfect_decks)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
        ON CONFLICT (user_id, day) DO UPDATE SET
          answers = daily_activity.answers + EXCLUDED.answers,
          correct = daily_activity.correct + EXCLUDED.correct,
          videos = daily_activity.videos + EXCLUDED.videos,
          topics_read = daily_activity.topics_read + EXCLUDED.topics_read,
-         mistakes_cleared = daily_activity.mistakes_cleared + EXCLUDED.mistakes_cleared
+         mistakes_cleared = daily_activity.mistakes_cleared + EXCLUDED.mistakes_cleared,
+         perfect_decks = daily_activity.perfect_decks + EXCLUDED.perfect_decks
        WHERE daily_activity.answers < ${MAX_ANSWERS_PER_DAY}`,
-      [userId, today, inc.answers, inc.correct, inc.videos, inc.topics_read, inc.mistakes_cleared]
+      [userId, today, inc.answers, inc.correct, inc.videos, inc.topics_read, inc.mistakes_cleared, inc.perfect_decks]
     );
 
-    // First time today's answers reach the goal -> celebrate once
+    // A combo can never be longer than today's real correct answers
+    if (combo > 0) {
+      await pool.query(
+        `UPDATE daily_activity SET best_combo = GREATEST(best_combo, LEAST($3::int, correct))
+         WHERE user_id = $1 AND day = $2`,
+        [userId, today, combo]
+      );
+    }
+
+    // First time today's correct answers reach the goal -> celebrate once
     const goalResult = await pool.query(
       `UPDATE daily_activity SET goal_met = TRUE
-       WHERE user_id = $1 AND day = $2 AND answers >= $3 AND goal_met = FALSE`,
+       WHERE user_id = $1 AND day = $2 AND correct >= $3 AND goal_met = FALSE`,
       [userId, today, goal]
     );
 
@@ -257,7 +291,7 @@ router.put('/goal', async (req, res, next) => {
     const today = todayLocal();
     const goalResult = await pool.query(
       `UPDATE daily_activity SET goal_met = TRUE
-       WHERE user_id = $1 AND day = $2 AND answers >= $3 AND goal_met = FALSE`,
+       WHERE user_id = $1 AND day = $2 AND correct >= $3 AND goal_met = FALSE`,
       [req.userId, today, goal]
     );
 

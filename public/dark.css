@@ -3683,6 +3683,46 @@
 :root[data-theme="dark"] .ce-sortable > .ce-group[data-drag-id] > .ce-row:hover {
     border-color: hsl(251 45% 23%);
 }
+:root[data-theme="dark"] .audit-remove {
+    color: #9a95b0;
+}
+:root[data-theme="dark"] .audit-remove:hover {
+    background: hsl(13 45% 19%);
+    color: hsl(6 63% 71%);
+}
+:root[data-theme="dark"] .fc-timer-pick {
+    border: 2px solid hsl(253 45% 20%);
+    background: hsl(250 14% 17%);
+    color: #6a4cf0;
+}
+:root[data-theme="dark"] .fc-timer-pick select {
+    border: none;
+    background: transparent;
+    color: hsl(250 12% 81%);
+    outline: none;
+}
+:root[data-theme="dark"] .fc-timer-bar {
+    background: hsl(254 45% 20%);
+}
+:root[data-theme="dark"] .fc-timer-bar div {
+    background: linear-gradient(90deg, var(--fun-mint), var(--fun-sky));
+}
+:root[data-theme="dark"] .fc-timer-num {
+    color: hsl(247 54% 69%);
+}
+:root[data-theme="dark"] .fc-timer.is-low .fc-timer-bar div {
+    background: linear-gradient(90deg, #ff4d6d, var(--fun-coral));
+}
+:root[data-theme="dark"] .fc-timer.is-low .fc-timer-num {
+    color: hsl(351 73% 66%);
+}
+:root[data-theme="dark"] .student-manage .tool-btn.is-danger {
+    border-color: #f5c2bb;
+    color: hsl(6 63% 71%);
+}
+:root[data-theme="dark"] .student-manage .tool-btn.is-danger:hover {
+    background: hsl(13 45% 19%);
+}
 
 /* ---------- from update-password.html ---------- */
 :root[data-theme="dark"] body.update-password-page {

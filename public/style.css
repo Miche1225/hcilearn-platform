@@ -11671,3 +11671,98 @@ fieldset.ce-field legend {
 .ce-row a {
     cursor: pointer;
 }
+
+/* Activity log: remove (x) */
+.audit-remove { flex-shrink: 0; color: #9a95b0; }
+.audit-remove:hover { background: #fff0ec; color: #c0392b; }
+
+/* --- Study Cards: timer --- */
+.fc-topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.fc-timer-pick {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px 4px 12px;
+    border: 2px solid #ece8fb;
+    border-radius: 999px;
+    background: #fff;
+    color: #6a4cf0;
+    font-size: 13px;
+}
+
+.fc-timer-pick select {
+    border: none;
+    background: transparent;
+    color: #444;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    outline: none;
+}
+
+.fc-timer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    align-self: stretch;
+    margin-bottom: 12px;
+}
+
+.fc-timer[hidden] { display: none; }
+
+.fc-timer-bar {
+    flex: 1;
+    height: 8px;
+    border-radius: 8px;
+    background: #ebe6fb;
+    overflow: hidden;
+}
+
+.fc-timer-bar div {
+    height: 100%;
+    border-radius: 8px;
+    background: linear-gradient(90deg, var(--fun-mint), var(--fun-sky));
+    transition: width 0.1s linear;
+}
+
+.fc-timer-num {
+    min-width: 34px;
+    font-size: 14px;
+    font-weight: 800;
+    color: #4b3bc4;
+    text-align: right;
+}
+
+.fc-timer.is-low .fc-timer-bar div { background: linear-gradient(90deg, #ff4d6d, var(--fun-coral)); }
+.fc-timer.is-low .fc-timer-num { color: #e0364f; animation: timerPulse 1s ease-in-out infinite; }
+
+@keyframes timerPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.18); }
+}
+
+@media screen and (max-width: 768px) {
+    .fc-topbar-right { flex-wrap: wrap; justify-content: flex-end; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fc-timer.is-low .fc-timer-num { animation: none; }
+    .fc-timer-bar div { transition: none; }
+}
+
+/* Student panel: "Remove account" is always shown in red */
+.student-manage .tool-btn.is-danger {
+    border-color: #f5c2bb;
+    color: #c0392b;
+}
+
+.student-manage .tool-btn.is-danger:hover {
+    background: #fff0ec;
+}

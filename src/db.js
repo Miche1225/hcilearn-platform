@@ -686,6 +686,15 @@ async function init() {
             'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS disabled_at TIMESTAMPTZ'
         );
 
+        /* Badges: longest run of correct answers in a row (per day) and
+           decks finished without a single mistake. */
+        await client.query(
+            'ALTER TABLE public.daily_activity ADD COLUMN IF NOT EXISTS best_combo INTEGER NOT NULL DEFAULT 0'
+        );
+        await client.query(
+            'ALTER TABLE public.daily_activity ADD COLUMN IF NOT EXISTS perfect_decks INTEGER NOT NULL DEFAULT 0'
+        );
+
         /* When the student last opened their notifications (announcements
            posted after this are "unread"). */
         await client.query(
