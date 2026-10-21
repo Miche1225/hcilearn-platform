@@ -9,8 +9,8 @@
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
-    <link rel="stylesheet" href="style.css?v=43">
-    <link rel="stylesheet" href="dark.css?v=6">
+    <link rel="stylesheet" href="style.css?v=44">
+    <link rel="stylesheet" href="dark.css?v=7">
     <script src="js/theme.js?v=1"></script>
     <!-- FontAwesome para sa icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -377,10 +377,10 @@
 
                     <h4>Modules</h4>
                     <div class="student-modules">
-                        <div><span>Case studies</span>${progressBar(Math.round((d.caseStudies.solvedIds.length / d.caseStudies.total) * 100))}<small>${d.caseStudies.solvedIds.length} of ${d.caseStudies.total} solved · unlocked up to ${d.caseStudies.unlockedLevel}</small></div>
+                        <div><span>Case studies</span>${progressBar(Math.round((d.caseStudies.solvedIds.length / d.caseStudies.total) * 100))}<small>${d.caseStudies.solvedIds.length} of ${d.caseStudies.total} solved</small></div>
                         <div><span>Study card decks</span>
-                            <span class="student-decks">${Array.from({ length: d.studyCards.total }, (_, i) => `<span class="${d.studyCards.completedIds.includes(i + 1) ? 'is-done' : ''}" title="Lesson ${i + 1}">${i + 1}</span>`).join('')}</span>
-                            <small>${d.studyCards.completedIds.length} of ${d.studyCards.total} mastered</small></div>
+                            <span class="student-decks">${d.studyCards.decks.map(dk => `<span class="${d.studyCards.completedIds.includes(dk.key) ? 'is-done' : ''}" title="Lesson ${dk.number}">${dk.number}</span>`).join('')}</span>
+                            <small>${d.studyCards.completedIds.length} of ${d.studyCards.decks.length} mastered</small></div>
                         <div><span>Videos watched (${d.videos.length})</span>
                             <small>${d.videos.length ? d.videos.map(v => escapeHtml(v.title)).join(' · ') : 'None yet'}</small></div>
                     </div>
@@ -499,7 +499,7 @@
                 const [list, insights, index] = await Promise.all([
                     api.get('/admin/students'),
                     api.get('/admin/insights'),
-                    fetch('search-index.json?v=2').then(r => r.json()).catch(() => ({ items: [] })),
+                    fetch('/api/content/search-index').then(r => r.json()).catch(() => ({ items: [] })),
                 ]);
                 index.items.forEach(item => {
                     if (item.type === 'case') questionText.set(`case_study:${item.key}`, item.title);

@@ -3,7 +3,7 @@ const express = require('express');
 const { pool } = require('../db');
 const { requireAuth } = require('../middleware/authGuard');
 
-const { TOTAL_CASE_STUDIES, TOTAL_STUDY_CARD_LESSONS, VIDEOS, TOTAL_VIDEOS } = require('../content');
+const { getContent, unlockedKeys } = require('../contentStore');
 
 const router = express.Router();
 router.use(requireAuth);
@@ -48,23 +48,25 @@ router.get('/summary', async (req, res, next) => {
   try {
     const userId = req.userId;
 
+    const content = await getContent();
     const cs = await getCaseStudyRow(userId);
     const sc = await getStudyCardRow(userId);
     const lesson = await getLessonRow(userId);
-    // Only count the real videos (ignores any old/unknown IDs)
+    // Only count content that is currently published
     const videosWatchedResult = await pool.query(
       'SELECT COUNT(DISTINCT video_id)::int AS n FROM video_progress WHERE user_id = $1 AND video_id = ANY($2)',
-      [userId, [...VIDEOS.keys()]]
+      [userId, [...content.videoTitles.keys()]]
     );
     const videosWatched = videosWatchedResult.rows[0].n;
 
-    const solvedCount = JSON.parse(cs.solved_ids).length;
-    const completedLessonsCount = JSON.parse(sc.completed_ids).length;
+    const solvedCount = JSON.parse(cs.solved_ids).filter(id => content.caseByKey.has(Number(id))).length;
+    const completedLessonsCount = JSON.parse(sc.completed_ids).filter(id => content.deckByKey.has(Number(id))).length;
 
-    const totalActivities = TOTAL_CASE_STUDIES + TOTAL_STUDY_CARD_LESSONS + TOTAL_VIDEOS;
+    const { caseStudies, decks, videos } = content.totals;
+    const totalActivities = caseStudies + decks + videos;
     const completedActivities = solvedCount + completedLessonsCount + videosWatched;
 
-    const overallPercent = Math.round((completedActivities / totalActivities) * 100);
+    const overallPercent = totalActivities ? Math.round((completedActivities / totalActivities) * 100) : 0;
 
     const { rows: recentActivities } = await pool.query(
       "SELECT type, description, created_at FROM activity_log WHERE user_id = $1 AND type != 'lesson' ORDER BY created_at DESC LIMIT 5",
@@ -74,11 +76,11 @@ router.get('/summary', async (req, res, next) => {
     res.json({
       overallPercent,
       caseStudiesSolved: solvedCount,
-      caseStudiesTotal: TOTAL_CASE_STUDIES,
+      caseStudiesTotal: caseStudies,
       videosWatched,
-      videosTotal: TOTAL_VIDEOS,
+      videosTotal: videos,
       studyCardsCompleted: completedLessonsCount,
-      studyCardsTotal: TOTAL_STUDY_CARD_LESSONS,
+      studyCardsTotal: decks,
       lessonCompleted: !!lesson.completed,
       recentActivities,
     });
@@ -88,11 +90,18 @@ router.get('/summary', async (req, res, next) => {
 });
 
 // ---------- Case Studies ----------
+// The case-study keys a student has solved and can open, in course order.
+function caseProgress(content, solvedIds) {
+  const solved = solvedIds.map(Number).filter(id => content.caseByKey.has(id));
+  return { solvedIds: solved, unlockedIds: unlockedKeys(content.caseOrder, solved) };
+}
+
 // GET /api/progress/case-studies
 router.get('/case-studies', async (req, res, next) => {
   try {
+    const content = await getContent();
     const row = await getCaseStudyRow(req.userId);
-    res.json({ unlockedLevel: row.unlocked_level, solvedIds: JSON.parse(row.solved_ids) });
+    res.json(caseProgress(content, JSON.parse(row.solved_ids)));
   } catch (err) {
     next(err);
   }
@@ -103,40 +112,46 @@ router.post('/case-studies/submit', async (req, res, next) => {
   try {
     const { scenarioId, correct } = req.body || {};
     const id = Number(scenarioId);
-    if (!id || id < 1 || id > TOTAL_CASE_STUDIES) {
+    const content = await getContent();
+    const scenario = content.caseByKey.get(id);
+    if (!scenario) {
       return res.status(400).json({ error: 'Invalid scenario id.' });
     }
 
     const row = await getCaseStudyRow(req.userId);
-    let unlockedLevel = row.unlocked_level;
-    const solvedIds = JSON.parse(row.solved_ids);
+    const solvedIds = JSON.parse(row.solved_ids).map(Number);
+    if (!caseProgress(content, solvedIds).unlockedIds.includes(id)) {
+      return res.status(403).json({ error: 'This scenario is still locked.' });
+    }
 
-    if (correct) {
-      if (!solvedIds.includes(id)) {
-        solvedIds.push(id);
-        await logActivity(req.userId, 'case_study', `Solved Case Study Scenario ${id}`);
-      }
-      if (id === unlockedLevel && unlockedLevel < TOTAL_CASE_STUDIES) {
-        unlockedLevel += 1;
-      }
+    if (correct && !solvedIds.includes(id)) {
+      solvedIds.push(id);
+      await logActivity(req.userId, 'case_study', `Solved Case Study Scenario ${scenario.number}`);
       await pool.query(
-        'UPDATE case_study_progress SET unlocked_level = $1, solved_ids = $2 WHERE user_id = $3',
-        [unlockedLevel, JSON.stringify(solvedIds), req.userId]
+        'UPDATE case_study_progress SET solved_ids = $1 WHERE user_id = $2',
+        [JSON.stringify(solvedIds), req.userId]
       );
     }
 
-    res.json({ unlockedLevel, solvedIds });
+    res.json(caseProgress(content, solvedIds));
   } catch (err) {
     next(err);
   }
 });
 
 // ---------- Study Cards ----------
+// The deck keys a student has mastered and can open, in course order.
+function deckProgress(content, completedIds) {
+  const completed = completedIds.map(Number).filter(id => content.deckByKey.has(id));
+  return { completedIds: completed, unlockedIds: unlockedKeys(content.deckOrder, completed) };
+}
+
 // GET /api/progress/study-cards
 router.get('/study-cards', async (req, res, next) => {
   try {
+    const content = await getContent();
     const row = await getStudyCardRow(req.userId);
-    res.json({ unlockedLesson: row.unlocked_lesson, completedIds: JSON.parse(row.completed_ids) });
+    res.json(deckProgress(content, JSON.parse(row.completed_ids)));
   } catch (err) {
     next(err);
   }
@@ -147,28 +162,28 @@ router.post('/study-cards/complete', async (req, res, next) => {
   try {
     const { lessonId } = req.body || {};
     const id = Number(lessonId);
-    if (!id || id < 1 || id > TOTAL_STUDY_CARD_LESSONS) {
+    const content = await getContent();
+    const deck = content.deckByKey.get(id);
+    if (!deck) {
       return res.status(400).json({ error: 'Invalid lesson id.' });
     }
 
     const row = await getStudyCardRow(req.userId);
-    let unlockedLesson = row.unlocked_lesson;
-    const completedIds = JSON.parse(row.completed_ids);
+    const completedIds = JSON.parse(row.completed_ids).map(Number);
+    if (!deckProgress(content, completedIds).unlockedIds.includes(id)) {
+      return res.status(403).json({ error: 'This deck is still locked.' });
+    }
 
     if (!completedIds.includes(id)) {
       completedIds.push(id);
-      await logActivity(req.userId, 'study_card', `Mastered Study Card Lesson ${id}`);
-    }
-    if (id === unlockedLesson && unlockedLesson < TOTAL_STUDY_CARD_LESSONS) {
-      unlockedLesson += 1;
+      await logActivity(req.userId, 'study_card', `Mastered Study Card Lesson ${deck.number}`);
+      await pool.query(
+        'UPDATE study_card_progress SET completed_ids = $1 WHERE user_id = $2',
+        [JSON.stringify(completedIds), req.userId]
+      );
     }
 
-    await pool.query(
-      'UPDATE study_card_progress SET unlocked_lesson = $1, completed_ids = $2 WHERE user_id = $3',
-      [unlockedLesson, JSON.stringify(completedIds), req.userId]
-    );
-
-    res.json({ unlockedLesson, completedIds });
+    res.json(deckProgress(content, completedIds));
   } catch (err) {
     next(err);
   }
@@ -197,7 +212,7 @@ router.get('/videos', async (req, res, next) => {
 router.put('/videos/position', async (req, res, next) => {
   try {
     const { videoId, position, duration } = req.body || {};
-    if (typeof videoId !== 'string' || !VIDEOS.has(videoId)) {
+    if (typeof videoId !== 'string' || !(await getContent()).videoTitles.has(videoId)) {
       return res.status(400).json({ error: 'Unknown video.' });
     }
     const pos = Math.floor(Number(position));
@@ -225,10 +240,11 @@ router.put('/videos/position', async (req, res, next) => {
 router.post('/videos/watch', async (req, res, next) => {
   try {
     const { videoId } = req.body || {};
-    if (typeof videoId !== 'string' || !VIDEOS.has(videoId)) {
+    const videoTitles = (await getContent()).videoTitles;
+    if (typeof videoId !== 'string' || !videoTitles.has(videoId)) {
       return res.status(400).json({ error: 'Unknown video.' });
     }
-    const title = VIDEOS.get(videoId); // trusted title, not the one from the browser
+    const title = videoTitles.get(videoId); // trusted title, not the one from the browser
 
     const already = await pool.query(
       'SELECT 1 FROM video_progress WHERE user_id = $1 AND video_id = $2',
@@ -278,21 +294,12 @@ router.post('/lesson/complete', async (req, res, next) => {
 });
 
 // ---------- Review my mistakes ----------
-// Case Studies use the scenario number ("12"); Study Cards use
-// "<lesson>-<question index>" ("3-7"), matching the front-end data.
-function isValidMistakeKey(source, itemKey) {
+// Case Studies use the scenario key ("12"); Study Cards use the card key
+// ("3-7"). Only questions that are currently published are accepted.
+function isValidMistakeKey(content, source, itemKey) {
   if (typeof itemKey !== 'string') return false;
-  if (source === 'case_study') {
-    if (!/^\d{1,2}$/.test(itemKey)) return false;
-    const id = Number(itemKey);
-    return id >= 1 && id <= TOTAL_CASE_STUDIES;
-  }
-  if (source === 'study_card') {
-    const match = /^(\d{1,2})-(\d{1,3})$/.exec(itemKey);
-    if (!match) return false;
-    const lesson = Number(match[1]);
-    return lesson >= 1 && lesson <= TOTAL_STUDY_CARD_LESSONS;
-  }
+  if (source === 'case_study') return /^\d{1,6}$/.test(itemKey) && content.caseByKey.has(Number(itemKey));
+  if (source === 'study_card') return content.cardKeys.has(itemKey);
   return false;
 }
 
@@ -309,8 +316,12 @@ router.get('/mistakes', async (req, res, next) => {
        ORDER BY last_wrong_at ASC`,
       [req.userId, source]
     );
+    // Skip questions an instructor has since removed
+    const content = await getContent();
     res.json({
-      mistakes: rows.map(r => ({ itemKey: r.item_key, wrongCount: r.wrong_count, lastWrongAt: r.last_wrong_at })),
+      mistakes: rows
+        .filter(r => isValidMistakeKey(content, source, r.item_key))
+        .map(r => ({ itemKey: r.item_key, wrongCount: r.wrong_count, lastWrongAt: r.last_wrong_at })),
     });
   } catch (err) {
     next(err);
@@ -321,7 +332,7 @@ router.get('/mistakes', async (req, res, next) => {
 router.post('/mistakes', async (req, res, next) => {
   try {
     const { source, itemKey } = req.body || {};
-    if (!isValidMistakeKey(source, itemKey)) {
+    if (!isValidMistakeKey(await getContent(), source, itemKey)) {
       return res.status(400).json({ error: 'Invalid question.' });
     }
     await pool.query(
@@ -340,7 +351,8 @@ router.post('/mistakes', async (req, res, next) => {
 router.post('/mistakes/resolve', async (req, res, next) => {
   try {
     const { source, itemKey } = req.body || {};
-    if (!isValidMistakeKey(source, itemKey)) {
+    // Removed questions can still be cleared, so only check the shape
+    if (!['case_study', 'study_card'].includes(source) || typeof itemKey !== 'string' || itemKey.length > 40) {
       return res.status(400).json({ error: 'Invalid question.' });
     }
     await pool.query(

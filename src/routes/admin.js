@@ -5,14 +5,13 @@
 const express = require('express');
 const { pool } = require('../db');
 const { requireInstructor } = require('../middleware/instructorGuard');
-const { TOTAL_CASE_STUDIES, TOTAL_STUDY_CARD_LESSONS, VIDEOS, TOTAL_VIDEOS } = require('../content');
+const { getContent } = require('../contentStore');
 const { todayLocal, addDays, toYmd, computeStreaks } = require('../utils/dates');
-const { BADGES } = require('./gamify');
+const { getBadges } = require('./gamify');
 
 const router = express.Router();
 router.use(requireInstructor);
 
-const TOTAL_ACTIVITIES = TOTAL_CASE_STUDIES + TOTAL_STUDY_CARD_LESSONS + TOTAL_VIDEOS;
 const INACTIVE_AFTER_DAYS = 7;
 
 async function audit(instructorRowId, action, targetUserId = null, details = '') {
@@ -29,7 +28,10 @@ function tsToYmd(ts) {
 
 // Every student account with its progress numbers
 async function loadStudents() {
-  const videoIds = [...VIDEOS.keys()];
+  const content = await getContent();
+  const { caseStudies, decks: deckTotal, videos: videoTotal } = content.totals;
+  const totalActivities = caseStudies + deckTotal + videoTotal;
+  const videoIds = [...content.videoTitles.keys()];
   const { rows } = await pool.query(
     `SELECT u.id, u.full_name, u.program, u.year_section, u.student_id, u.profile_photo,
             u.created_at,
@@ -72,8 +74,9 @@ async function loadStudents() {
   }
 
   return students.map(s => {
-    const solved = s.solved_ids ? JSON.parse(s.solved_ids).length : 0;
-    const decks = s.completed_ids ? JSON.parse(s.completed_ids).length : 0;
+    // Only published items count
+    const solved = s.solved_ids ? JSON.parse(s.solved_ids).filter(id => content.caseByKey.has(Number(id))).length : 0;
+    const decks = s.completed_ids ? JSON.parse(s.completed_ids).filter(id => content.deckByKey.has(Number(id))).length : 0;
     const watched = videos.get(s.id) ? videos.get(s.id).n : 0;
     const days = (daysByUser.get(s.id) || []).sort().reverse();
     const streak = computeStreaks(days, today);
@@ -95,7 +98,7 @@ async function loadStudents() {
       caseSolved: solved,
       decksMastered: decks,
       videosWatched: watched,
-      overallPercent: Math.round(((solved + decks + watched) / TOTAL_ACTIVITIES) * 100),
+      overallPercent: totalActivities ? Math.round(((solved + decks + watched) / totalActivities) * 100) : 0,
       answers: a ? a.answers : 0,
       correct: a ? a.correct : 0,
       currentStreak: streak.current,
@@ -115,7 +118,7 @@ router.get('/students', async (req, res, next) => {
     res.json({
       today: todayLocal(),
       inactiveAfterDays: INACTIVE_AFTER_DAYS,
-      totals: { caseStudies: TOTAL_CASE_STUDIES, decks: TOTAL_STUDY_CARD_LESSONS, videos: TOTAL_VIDEOS, badges: BADGES.length },
+      totals: { ...(await getContent()).totals, badges: getBadges((await getContent()).totals).length },
       students: await loadStudents(),
     });
   } catch (err) {
@@ -144,7 +147,7 @@ router.get('/insights', async (req, res, next) => {
       [ids]
     );
     const watchCount = new Map(watchRows.map(r => [r.video_id, r.n]));
-    const videos = [...VIDEOS.entries()]
+    const videos = [...(await getContent()).videoTitles.entries()]
       .map(([id, title]) => ({ id, title, watchedBy: watchCount.get(id) || 0 }))
       .sort((a, b) => a.watchedBy - b.watchedBy);
 
@@ -167,11 +170,12 @@ router.get('/students/:id', async (req, res, next) => {
     const student = (await loadStudents()).find(s => s.id === id);
     if (!student) return res.status(404).json({ error: 'Student not found.' });
 
+    const content = await getContent();
     const cs = (await pool.query('SELECT unlocked_level, solved_ids FROM case_study_progress WHERE user_id = $1', [id])).rows[0];
     const sc = (await pool.query('SELECT unlocked_lesson, completed_ids FROM study_card_progress WHERE user_id = $1', [id])).rows[0];
     const { rows: watched } = await pool.query(
       'SELECT video_id, watched_at FROM video_progress WHERE user_id = $1 AND video_id = ANY($2) ORDER BY watched_at DESC',
-      [id, [...VIDEOS.keys()]]
+      [id, [...content.videoTitles.keys()]]
     );
     const { rows: mistakes } = await pool.query(
       'SELECT source, item_key, wrong_count, last_wrong_at FROM mistakes WHERE user_id = $1 ORDER BY wrong_count DESC, last_wrong_at DESC',
@@ -200,11 +204,17 @@ router.get('/students/:id', async (req, res, next) => {
 
     res.json({
       student,
-      caseStudies: { unlockedLevel: cs ? cs.unlocked_level : 1, solvedIds: cs ? JSON.parse(cs.solved_ids) : [], total: TOTAL_CASE_STUDIES },
-      studyCards: { unlockedLesson: sc ? sc.unlocked_lesson : 1, completedIds: sc ? JSON.parse(sc.completed_ids) : [], total: TOTAL_STUDY_CARD_LESSONS },
-      videos: watched.map(v => ({ id: v.video_id, title: VIDEOS.get(v.video_id), watchedAt: v.watched_at })),
+      caseStudies: {
+        solvedIds: (cs ? JSON.parse(cs.solved_ids) : []).map(Number).filter(k => content.caseByKey.has(k)),
+        total: content.totals.caseStudies,
+      },
+      studyCards: {
+        completedIds: (sc ? JSON.parse(sc.completed_ids) : []).map(Number).filter(k => content.deckByKey.has(k)),
+        decks: content.decks.map(d => ({ key: Number(d.key), number: d.number, title: d.title })),
+      },
+      videos: watched.map(v => ({ id: v.video_id, title: content.videoTitles.get(v.video_id), watchedAt: v.watched_at })),
       mistakes: mistakes.map(m => ({ source: m.source, itemKey: m.item_key, wrongCount: m.wrong_count, lastWrongAt: m.last_wrong_at })),
-      badges: BADGES.map(b => ({ id: b.id, name: b.name, icon: b.icon, color: b.color, earnedAt: earnedAt.get(b.id) || null })),
+      badges: getBadges(content.totals).map(b => ({ id: b.id, name: b.name, icon: b.icon, color: b.color, earnedAt: earnedAt.get(b.id) || null })),
       recentActivity: activity,
       last14,
     });
@@ -217,6 +227,7 @@ router.get('/students/:id', async (req, res, next) => {
 router.get('/export.csv', async (req, res, next) => {
   try {
     const students = await loadStudents();
+    const { totals } = await getContent();
     // Cells starting with = + - @ could run as formulas in Excel
     const cell = (value) => {
       let text = value === null || value === undefined ? '' : String(value);
@@ -224,9 +235,9 @@ router.get('/export.csv', async (req, res, next) => {
       return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
     };
     const header = ['Name', 'Student ID', 'Program', 'Year & Section', 'Overall %',
-      `Case studies solved (of ${TOTAL_CASE_STUDIES})`, `Decks mastered (of ${TOTAL_STUDY_CARD_LESSONS})`,
-      `Videos watched (of ${TOTAL_VIDEOS})`, 'Questions answered', 'Correct answers',
-      'Current streak (days)', 'Longest streak (days)', `Badges (of ${BADGES.length})`, 'Last active', 'Joined'];
+      `Case studies solved (of ${totals.caseStudies})`, `Decks mastered (of ${totals.decks})`,
+      `Videos watched (of ${totals.videos})`, 'Questions answered', 'Correct answers',
+      'Current streak (days)', 'Longest streak (days)', `Badges (of ${getBadges(totals).length})`, 'Last active', 'Joined'];
     const lines = [header.map(cell).join(',')];
     for (const s of students) {
       lines.push([

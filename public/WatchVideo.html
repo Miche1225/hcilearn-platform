@@ -9,8 +9,8 @@
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
-    <link rel="stylesheet" href="style.css?v=43">
-    <link rel="stylesheet" href="dark.css?v=6">
+    <link rel="stylesheet" href="style.css?v=44">
+    <link rel="stylesheet" href="dark.css?v=7">
     <script src="js/theme.js?v=1"></script>
     <!-- Updated FontAwesome link para lumabas ang mga icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -143,39 +143,23 @@
     <!-- JAVASCRIPT PARA SA VIDEO LIST, SEARCH BAR, FILTERS AT PAG-TRACK NG ACTIVITY -->
     <script>
         // ========================================================
-        // VIDEO LIST
-        // Para magdagdag ng video: magdagdag lang ng isang linya dito.
-        // (Tandaan: i-update din ang TOTAL_VIDEOS sa src/routes/progress.js)
+        // VIDEO LIST: galing sa server (inaayos ng instructor sa Admin Dashboard)
         // ========================================================
-        const TOPICS = {
-            intro:      { label: 'Introduction',       cls: 'video-icon' },
-            principles: { label: 'Principles & Rules', cls: 'book-icon' },
-            process:    { label: 'Design Process',     cls: 'read-icon' },
-            perception: { label: 'Perception & Laws',  cls: 'check-icon' },
-            evaluation: { label: 'Evaluation',         cls: 'case-icon' },
-        };
+        let TOPICS = {};
+        let VIDEOS = [];
 
-        const VIDEOS = [
-            { id: 'uB9LaBIAcRs', topic: 'intro',      duration: '13:35', title: 'Introduction to Human Computer Interaction (HCI)' },
-            { id: 'iGmIvuPjv6s', topic: 'intro',      duration: '7:08',  title: 'HCI: The What and the Importance' },
-            { id: 'v__Yhk1U94k', topic: 'principles', duration: '15:53', title: 'Principles of Human Computer Interaction with Examples' },
-            { id: 'ESRI4ovEOSo', topic: 'process',    duration: '30:45', title: 'Task-Centered Design | Introduction to HCI' },
-            { id: '4OVptMIxsT4', topic: 'process',    duration: '7:56',  title: 'What is the User-Centered Design Process?' },
-            { id: 'dRIavYjuXek', topic: 'process',    duration: '13:09', title: 'User-Centered Design (UCD) Process with Examples' },
-            { id: '_r0VX-aU_T8', topic: 'process',    duration: '3:56',  title: 'The Design Thinking Process' },
-            { id: 'meWKtrZNsRU', topic: 'process',    duration: '1:43',  title: 'Principles of Design Thinking' },
-            { id: '_RnuN-e1wsk', topic: 'principles', duration: '13:14', title: "Donald Norman's Model: Execution & Evaluation Loop" },
-            { id: 'BZbNNhBPIY8', topic: 'principles', duration: '13:43', title: "Design Rules: Nielsen's 10 Heuristics" },
-            { id: 'ETGtsleVOpE', topic: 'principles', duration: '1:01',  title: "Jakob Nielsen's 10 Usability Heuristics" },
-            { id: 'Dh_6gZSF87Y', topic: 'perception', duration: '32:38', title: 'Gestalt Principles of Design' },
-            { id: '0OPmsy7SXoM', topic: 'perception', duration: '4:39',  title: "User Experience Design: Fitts' Law" },
-            { id: 'IVUeVUajtZI', topic: 'perception', duration: '3:15',  title: "What is Fitts' Law and How to Use It?" },
-            { id: 'YtBb-iVjwzw', topic: 'evaluation', duration: '49:56', title: 'Usability Evaluation in HCI' },
-            { id: 'Md-huYID-Mg', topic: 'evaluation', duration: '51:49', title: 'Prototyping and Usability Testing' },
-        ];
+        document.addEventListener('DOMContentLoaded', async function() {
 
+            try {
+                const data = await api.get('/content/videos');
+                TOPICS = Object.fromEntries(data.topics.map(t => [t.key, { label: t.label, cls: t.cls }]));
+                VIDEOS = data.videos.map(v => ({ id: v.key, topic: v.topic, duration: v.duration, title: v.title }));
+            } catch (err) {
+                document.getElementById('videoEmpty').hidden = false;
+                document.querySelector('#videoEmpty p').textContent = 'Could not load the videos. Please refresh the page.';
+                return;
+            }
 
-        document.addEventListener('DOMContentLoaded', function() {
 
             // ========================================================
             // 1. PAG-TRACK NG LAST VISITED LESSON PARA SA DASHBOARD
@@ -197,7 +181,7 @@
             const grid = document.getElementById('videoGrid');
 
             VIDEOS.forEach((video, index) => {
-                const topic = TOPICS[video.topic];
+                const topic = TOPICS[video.topic] || { label: 'Video', cls: 'video-icon' };
                 const href = `WatchVideo-Player.html?video=${encodeURIComponent(video.id)}&title=${encodeURIComponent(video.title)}`;
 
                 const link = document.createElement('a');
@@ -212,7 +196,7 @@
                             <div class="play-overlay">
                                 <i class="fa-solid fa-play"></i>
                             </div>
-                            <span class="duration-badge">${video.duration}</span>
+                            ${video.duration ? `<span class="duration-badge">${video.duration}</span>` : ''}
                         </div>
                         <div class="video-info">
                             <div class="video-meta">

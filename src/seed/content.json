@@ -1,0 +1,5358 @@
+{
+ "note": "Initial course content. Loaded into the content_items table the first time the server starts with an empty table. After that, edit content from the Admin Dashboard.",
+ "videoTopics": [
+  {
+   "key": "intro",
+   "label": "Introduction",
+   "cls": "video-icon"
+  },
+  {
+   "key": "principles",
+   "label": "Principles & Rules",
+   "cls": "book-icon"
+  },
+  {
+   "key": "process",
+   "label": "Design Process",
+   "cls": "read-icon"
+  },
+  {
+   "key": "perception",
+   "label": "Perception & Laws",
+   "cls": "check-icon"
+  },
+  {
+   "key": "evaluation",
+   "label": "Evaluation",
+   "cls": "case-icon"
+  }
+ ],
+ "modules": [
+  {
+   "key": "1",
+   "data": {
+    "position": 1,
+    "title": "Introduction to HCI",
+    "icon": "fa-desktop"
+   }
+  },
+  {
+   "key": "2",
+   "data": {
+    "position": 2,
+    "title": "Design Thinking & User-Centered Design",
+    "icon": "fa-lightbulb"
+   }
+  },
+  {
+   "key": "3",
+   "data": {
+    "position": 3,
+    "title": "Mental & Cognitive Models",
+    "icon": "fa-brain"
+   }
+  },
+  {
+   "key": "4",
+   "data": {
+    "position": 4,
+    "title": "Prototyping",
+    "icon": "fa-pen-ruler"
+   }
+  },
+  {
+   "key": "5",
+   "data": {
+    "position": 5,
+    "title": "User Research",
+    "icon": "fa-magnifying-glass"
+   }
+  },
+  {
+   "key": "6",
+   "data": {
+    "position": 6,
+    "title": "Accessibility & Inclusive Design",
+    "icon": "fa-universal-access"
+   }
+  },
+  {
+   "key": "7",
+   "data": {
+    "position": 7,
+    "title": "Ethics & Culture in HCI",
+    "icon": "fa-scale-balanced"
+   }
+  },
+  {
+   "key": "8",
+   "data": {
+    "position": 8,
+    "title": "Emotion & Motivation in UX",
+    "icon": "fa-face-smile"
+   }
+  },
+  {
+   "key": "9",
+   "data": {
+    "position": 9,
+    "title": "AI, Conversational & Voice Interfaces",
+    "icon": "fa-robot"
+   }
+  },
+  {
+   "key": "10",
+   "data": {
+    "position": 10,
+    "title": "Mixed Reality & Tangible Interfaces",
+    "icon": "fa-vr-cardboard"
+   }
+  },
+  {
+   "key": "11",
+   "data": {
+    "position": 11,
+    "title": "Ubiquitous Computing & Smart Environments",
+    "icon": "fa-house-signal"
+   }
+  }
+ ],
+ "topics": [
+  {
+   "key": "1",
+   "parentKey": "1",
+   "data": {
+    "position": 1,
+    "title": "What is Human-Computer Interaction?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "Is the study of how people interact with computers and digital systems. It focuses on designing technology that is easy, efficient, and enjoyable to use."
+     }
+    ]
+   }
+  },
+  {
+   "key": "2",
+   "parentKey": "1",
+   "data": {
+    "position": 2,
+    "title": "The Interdisciplinary Nature of HCI",
+    "sections": [
+     {
+      "icon": "fa-laptop-code",
+      "heading": "Computer Science",
+      "body": "It provides the technical foundation, architecture, algorithms, and programming capabilities required to build systems."
+     },
+     {
+      "icon": "fa-brain",
+      "heading": "Psychology",
+      "body": "It is crucial for understanding cognitive processes, user mental models, motivation, and human behavior."
+     },
+     {
+      "icon": "fa-palette",
+      "heading": "Design",
+      "body": "It focuses on aesthetics, layout, visual hierarchy, and creating intuitive, appealing interfaces."
+     },
+     {
+      "icon": "fa-user-gear",
+      "heading": "Ergonomics",
+      "body": "It ensures physical comfort, safety, and optimal physical interaction between humans and hardware."
+     }
+    ]
+   }
+  },
+  {
+   "key": "3",
+   "parentKey": "1",
+   "data": {
+    "position": 3,
+    "title": "The Core Principles of HCI",
+    "sections": [
+     {
+      "icon": "fa-circle-check",
+      "heading": "Usability",
+      "body": "It evaluates the quality of a user's experience when interacting with a product, tool, or website."
+     },
+     {
+      "icon": "fa-users",
+      "heading": "User-Centered Design (UCD)",
+      "body": "Is a problem-solving framework that focuses heavily on user research, testing, and continuous feedback loops."
+     },
+     {
+      "icon": "fa-hand-pointer",
+      "heading": "Interaction Models",
+      "body": "It provides the operational dialogue and communication layout between the human and the computer."
+     }
+    ]
+   }
+  },
+  {
+   "key": "4",
+   "parentKey": "1",
+   "data": {
+    "position": 4,
+    "title": "The Usability Components",
+    "sections": [
+     {
+      "icon": "fa-graduation-cap",
+      "heading": "Learnability",
+      "body": "Measures how quickly a user can pick up on the interface and complete fundamental tasks when using it for the first time."
+     },
+     {
+      "icon": "fa-stopwatch",
+      "heading": "Efficiency",
+      "body": "Focuses on the speed and ease with which users can achieve their goals after they’ve learned the system."
+     },
+     {
+      "icon": "fa-brain",
+      "heading": "Memorability",
+      "body": "Assesses whether users can return to a system after a hiatus and still navigate it without needing to relearn."
+     },
+     {
+      "icon": "fa-triangle-exclamation",
+      "heading": "Errors",
+      "body": "This component evaluates the frequency and severity of errors users encounter and how easily they can recover."
+     },
+     {
+      "icon": "fa-face-smile",
+      "heading": "Satisfaction",
+      "body": "Measures how enjoyable the system is to use. Positive emotional responses, seamless interactions, and visually appealing designs contribute to user satisfaction, fostering loyalty."
+     }
+    ]
+   }
+  },
+  {
+   "key": "5",
+   "parentKey": "1",
+   "data": {
+    "position": 5,
+    "title": "The Essential Elements of User-Centered Design",
+    "sections": [
+     {
+      "icon": "fa-eye",
+      "heading": "Visibility",
+      "body": "Users should be able to see from the beginning what they can do with the product, what is it about, and how they can use it."
+     },
+     {
+      "icon": "fa-universal-access",
+      "heading": "Accessibility",
+      "body": "Users should be able to find information easily and quickly. They should be offered various ways to find information for example calls action buttons, search options, menu, etc."
+     },
+     {
+      "icon": "fa-font",
+      "heading": "Legibility",
+      "body": "Text should be easy to read. As simple as that."
+     },
+     {
+      "icon": "fa-language",
+      "heading": "Language",
+      "body": "Short sentences are preferred here. The easier the phrase and the words, the better."
+     }
+    ]
+   }
+  },
+  {
+   "key": "6",
+   "parentKey": "1",
+   "data": {
+    "position": 6,
+    "title": "Types of Interaction Model",
+    "sections": [
+     {
+      "icon": "fa-brain",
+      "heading": "Mental Models",
+      "body": "What the user believes about the system at hand. It is constructed from past experiences and influences how they interact with your interface."
+     },
+     {
+      "icon": "fa-gears",
+      "heading": "System Models",
+      "body": "The actual technical implementation. Mismatches between the user's mental model and the actual system model lead to errors and confusion."
+     },
+     {
+      "icon": "fa-arrows-rotate",
+      "heading": "Action Cycles",
+      "body": "Models like Norman's stages of execution and evaluation, illustrating the cognitive steps users take to accomplish goals."
+     }
+    ]
+   }
+  },
+  {
+   "key": "7",
+   "parentKey": "1",
+   "data": {
+    "position": 7,
+    "title": "Importance of HCI in Systems Development",
+    "sections": [
+     {
+      "icon": "fa-puzzle-piece",
+      "heading": "Why HCI is important in systems development?",
+      "body": "**Human-Computer Interaction (HCI)** is vital in systems development because it ensures software and hardware match human cognitive limits, physical needs, and behavioral patterns."
+     }
+    ]
+   }
+  },
+  {
+   "key": "8",
+   "parentKey": "2",
+   "data": {
+    "position": 1,
+    "title": "What is Design Thinking?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "Is a non-linear, human-centered process that teams use to solve complex problems by prioritizing user needs, continuous experimentation, and rapid feedback."
+     }
+    ]
+   }
+  },
+  {
+   "key": "9",
+   "parentKey": "2",
+   "data": {
+    "position": 2,
+    "title": "Key Principles of Design Thinking",
+    "sections": [
+     {
+      "icon": "fa-hand-holding-heart",
+      "heading": "Empathy",
+      "body": "Means putting yourself in the user's shoes to truly understand their feelings and daily struggles."
+     },
+     {
+      "icon": "fa-users",
+      "heading": "Human-Centeredness",
+      "body": "This principle ensures that the interface matches the user's technical literacy and environment, rather than forcing the user to learn complex systems."
+     },
+     {
+      "icon": "fa-arrows-rotate",
+      "heading": "Iteration",
+      "body": "Is the practice of building in small, testable cycles rather than trying to perfect the entire system at once."
+     }
+    ]
+   }
+  },
+  {
+   "key": "10",
+   "parentKey": "2",
+   "data": {
+    "position": 3,
+    "title": "Comparison with Design Thinking and Traditional Problem-Solving",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Design Thinking vs Traditional Problem-Solving",
+      "body": "**Design Thinking** uses empathy, iteration, and human-centeredness to solve problems. Also, **Design Thinking** puts human feelings first. While, **Traditional methods** look at data and system goals. They focus on system efficiency and technical needs."
+     }
+    ]
+   }
+  },
+  {
+   "key": "11",
+   "parentKey": "2",
+   "data": {
+    "position": 4,
+    "title": "What is User-Centered Design (UCD)?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "Is a process that focuses entirely on the person who will use the system. You do these steps over and over until the system is easy for people to use."
+     }
+    ]
+   }
+  },
+  {
+   "key": "12",
+   "parentKey": "2",
+   "data": {
+    "position": 5,
+    "title": "The 4 Stages of the User-Centered Design (UCD) Process",
+    "sections": [
+     {
+      "icon": "fa-magnifying-glass-location",
+      "heading": "Identify Context of Use",
+      "body": "This stage is the critical first step to identify the specific users, their exact goals, and the physical or technical environment where the system will be operated."
+     },
+     {
+      "icon": "fa-clipboard-list",
+      "heading": "Specify User Requirements",
+      "body": "This phase merges business goals and user goals to define the exact functional needs and constraints the system must meet to be considered a success."
+     },
+     {
+      "icon": "fa-pen-ruler",
+      "heading": "Design Solutions",
+      "body": "This is a multi-step phase that starts with rough, low-fidelity wireframes and scales up to complete, high-fidelity interactive prototypes."
+     },
+     {
+      "icon": "fa-clipboard-check",
+      "heading": "Evaluate against requirements",
+      "body": "This final stage is purely for usability testing, where real users interact with the prototypes to see if the design actually meets the established requirements. If it fails, the process loops back to the design stage."
+     }
+    ]
+   }
+  },
+  {
+   "key": "13",
+   "parentKey": "2",
+   "data": {
+    "position": 6,
+    "title": "The Similarities of Design Thinking and User-Centered Design (UCD)",
+    "sections": [
+     {
+      "icon": "fa-users",
+      "heading": "Design Thinking vs. User-Centered Design (UCD)",
+      "body": "Both methodologies are strictly human-centered, meaning they prioritize user needs over technical convenience. Both also reject linear development in favor of an iterative cycle, relying heavily on building prototypes and testing them early."
+     }
+    ]
+   }
+  },
+  {
+   "key": "14",
+   "parentKey": "2",
+   "data": {
+    "position": 7,
+    "title": "The Differences of Design Thinking and User-Centered Design (UCD)",
+    "sections": [
+     {
+      "icon": "fa-users",
+      "heading": "Design Thinking vs. User-Centered Design (UCD)",
+      "body": "**Design Thinking** is a broad, strategic mindset focused on innovation, empathy, and discovering ill-defined problems across any industry. In contrast, **User-Centered Design (UCD)** is a highly structured, tactical framework specifically tailored for human-computer interaction and software engineering to measure and improve digital usability."
+     }
+    ]
+   }
+  },
+  {
+   "key": "15",
+   "parentKey": "2",
+   "data": {
+    "position": 8,
+    "title": "What is Empathy?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "Is the ability to deeply understand and share the feelings, needs, and perspectives of the users. It is the core foundation of understanding the problem you are trying to solve."
+     }
+    ]
+   }
+  },
+  {
+   "key": "16",
+   "parentKey": "2",
+   "data": {
+    "position": 9,
+    "title": "What is Design?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "Is the intentional and strategic process of planning and creating a solution, product, or system that solves those specific problems while balancing user needs and technical constraints."
+     }
+    ]
+   }
+  },
+  {
+   "key": "17",
+   "parentKey": "2",
+   "data": {
+    "position": 10,
+    "title": "Tools for Empathy & Design",
+    "sections": [
+     {
+      "icon": "fa-brain",
+      "heading": "Empathy maps",
+      "body": "A collaborative visualization used to articulate what a user says, thinks, does, and feels. It helps teams build a shared understanding of the user's needs, behaviors, and emotional state during the design process."
+     },
+     {
+      "icon": "fa-user-tag",
+      "heading": "Personas",
+      "body": "Fictional, yet data-driven characters created to represent the different user types that might use a system. They help designers keep the users' specific goals, skills, and limitations in mind to guide decision-making."
+     },
+     {
+      "icon": "fa-timeline",
+      "heading": "Journey maps",
+      "body": "A visual storyline of the process that a person goes through to accomplish a specific goal. It maps out the user's actions, interactions with the system, and emotional highs and lows over time to identify pain points and opportunities for improvement."
+     },
+     {
+      "icon": "fa-object-group",
+      "heading": "Basic sketching & low-fidelity wireframing",
+      "body": "Quick, rough visual representations of an interface, often done on paper or with simple digital blocks. They are used to map out page structure, layout, and core functionality early in the process without getting distracted by visual details like colors or typography."
+     }
+    ]
+   }
+  },
+  {
+   "key": "18",
+   "parentKey": "3",
+   "data": {
+    "position": 1,
+    "title": "What is Mental Models?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "Is what a user believes about how a system should work, built entirely from their past experiences with other systems. It is not an objective fact, but rather an internal expectation in the user's mind."
+     }
+    ]
+   }
+  },
+  {
+   "key": "19",
+   "parentKey": "3",
+   "data": {
+    "position": 2,
+    "title": "User Model vs. System Model Mismatch",
+    "sections": [
+     {
+      "icon": "fa-link-slash",
+      "heading": "Mismatch between user model and system model",
+      "body": "A **mismatch** happens when the designer builds a system (the system model) that behaves differently than what the user expects (the user's mental model)."
+     },
+     {
+      "icon": "fa-arrow-pointer",
+      "heading": "Example",
+      "body": "If a website requires you to double-click a link instead of single-clicking, the mismatch causes user frustration, errors, and task failure."
+     }
+    ]
+   }
+  },
+  {
+   "key": "20",
+   "parentKey": "3",
+   "data": {
+    "position": 3,
+    "title": "Key Principles of Shaping Mental Models",
+    "sections": [
+     {
+      "icon": "fa-hand-pointer",
+      "heading": "Affordance",
+      "body": "The physical or visual clues that tell a user how an object can be interacted with (e.g., a button that looks raised affords clicking; a slider affords dragging)."
+     },
+     {
+      "icon": "fa-eye",
+      "heading": "Visibility",
+      "body": "Ensuring that the most important functions are obvious and easy to find, rather than hidden inside complex menus."
+     },
+     {
+      "icon": "fa-comment-dots",
+      "heading": "Feedback",
+      "body": "The system's immediate response to a user's action (e.g., a button changing color when clicked, or a loading spinner appearing). This confirms to the user that their action was successful and helps them understand how the system operates."
+     }
+    ]
+   }
+  },
+  {
+   "key": "21",
+   "parentKey": "3",
+   "data": {
+    "position": 4,
+    "title": "The Cognitive Models in HCI",
+    "sections": [
+     {
+      "icon": "fa-rotate",
+      "heading": "Norman’s Model of Interaction",
+      "body": "This model breaks down how a person interacts with a computer into two main phases: **Execution** (doing something) and **Evaluation** (checking what happened). It explains the seven steps a user takes, from forming a goal and pressing a button, to looking at the screen and deciding if their action worked. It is widely used to identify where users get stuck in an interface."
+     },
+     {
+      "icon": "fa-bullseye",
+      "heading": "GOMS Model",
+      "body": "A framework used to analyze exactly how a user performs a task. **GOMS** stands for: **Goals**, **Operators**, **Methods**, and **Selection rules**"
+     },
+     {
+      "icon": "fa-keyboard",
+      "heading": "Keystroke-Level Model (KLM)",
+      "body": "This is a simpler, more specific version of the **GOMS** model. It focuses purely on physical actions. Designers use it to estimate exactly how long a task will take by adding up standard time values for specific movements, like hitting a key on the keyboard, pointing with a mouse, or taking a moment to think."
+     }
+    ]
+   }
+  },
+  {
+   "key": "22",
+   "parentKey": "3",
+   "data": {
+    "position": 5,
+    "title": "Components of GOMS Model",
+    "sections": [
+     {
+      "icon": "fa-layer-group",
+      "heading": "The GOMS stands for:",
+      "body": "- **Goals:** What the user wants to achieve (e.g., delete a file).\n- **Operators:** The basic physical or mental actions needed (e.g., move the mouse, click a button).\n- **Methods:** The exact sequence of operators used to accomplish the goal (e.g., right-click the file and select delete).\n- **Selection rules:** How the user decides which method to use if there are multiple options (e.g., deciding whether to use a keyboard shortcut or the mouse)."
+     }
+    ]
+   }
+  },
+  {
+   "key": "23",
+   "parentKey": "3",
+   "data": {
+    "position": 6,
+    "title": "Application of Cognitive Models",
+    "sections": [
+     {
+      "icon": "fa-chart-line",
+      "heading": "Predicting Task Performance and Usability",
+      "body": "Instead of waiting to test a fully built system on real people, designers use these cognitive models on their prototypes. By calculating the steps and time required in models like **GOMS** and **KLM**, designers can mathematically predict how fast and efficient an interface will be. This allows them to compare two different designs and choose the one that requires the least amount of mental and physical effort before writing any code."
+     }
+    ]
+   }
+  },
+  {
+   "key": "24",
+   "parentKey": "3",
+   "data": {
+    "position": 7,
+    "title": "What is Design Implication?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "A **Design Implication** is a direct, actionable rule for building an interface, derived from user research or cognitive models. It translates a theoretical understanding of the user into practical design requirements.\n\nRather than just stating an observation (e.g., *\"Users expect a search function\"*), a **Design Implication** states exactly what must be built (e.g., *\"The interface must include a magnifying glass icon in the top-right corner to align with the user's mental model.\"*)"
+     }
+    ]
+   }
+  },
+  {
+   "key": "25",
+   "parentKey": "3",
+   "data": {
+    "position": 8,
+    "title": "How Designers Shape Users’ Mental Models?",
+    "sections": [
+     {
+      "icon": "fa-pen-ruler",
+      "heading": "Guiding the User's Mind",
+      "body": "**Designers** cannot force a user to understand a system, but they can guide them by using familiar visual clues. By using common icons (like a gear for settings) and keeping the layout consistent, designers help the user quickly build the correct mental model so they can navigate the app without needing a manual."
+     }
+    ]
+   }
+  },
+  {
+   "key": "26",
+   "parentKey": "3",
+   "data": {
+    "position": 9,
+    "title": "Design Implications: Errors and Alignment",
+    "sections": [
+     {
+      "icon": "fa-triangle-exclamation",
+      "heading": "Common Design Errors",
+      "body": "- **Hidden feedback:** This happens when a user clicks a button and the system does not show any response—no loading spinner, no color change, and no success message. The user gets confused and might click the button multiple times, causing errors.\n- **Poor mapping:** This occurs when the layout of the controls does not logically match the things they control. In the real world, this is like having four stove burners in a square, but the four control knobs are in a straight line. In software, poor mapping is putting the \"Next Page\" button on the left side of the screen and the \"Previous Page\" button on the right side."
+     },
+     {
+      "icon": "fa-layer-group",
+      "heading": "Redesigning for Alignment",
+      "body": "This is the process of fixing a system so that its design finally matches what the user naturally expects. If usability testing shows that users keep looking for the \"Log Out\" button at the bottom of the menu, redesigning for alignment means moving that button to the bottom, rather than forcing the users to learn its awkward original placement."
+     }
+    ]
+   }
+  },
+  {
+   "key": "27",
+   "parentKey": "4",
+   "data": {
+    "position": 1,
+    "title": "What is Prototyping?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "Is the process of building quick, testable models of your system before writing the actual code. In an iterative design process, prototypes are essential because they allow the team to test their ideas on real users, find mistakes early, and quickly redesign the interface without wasting time or money on difficult programming."
+     }
+    ]
+   }
+  },
+  {
+   "key": "28",
+   "parentKey": "4",
+   "data": {
+    "position": 2,
+    "title": "Fidelity Levels in Prototyping",
+    "sections": [
+     {
+      "icon": "fa-sliders",
+      "heading": "Low vs. Medium vs. High-Fidelity",
+      "body": "**Fidelity** refers to how detailed and realistic the prototype is.\n\n- **Low-fidelity prototypes:** These are basic, rough sketches often drawn on paper or whiteboards. They focus purely on the structure and layout of the screen. They are very fast and cheap to make, making them perfect for brainstorming early ideas.\n- **Medium-fidelity prototypes:** These are digital wireframes (often black-and-white) that show more detail and basic screen flow. They use placeholders for images and text to test how a user navigates from one page to another without getting distracted by colors.\n- **High-fidelity prototypes:** These are highly realistic, interactive digital models that look and function almost exactly like the final application. Created using tools like Figma or Adobe XD, they include actual colors, typography, images, and clickable buttons to test the final user experience before development begins."
+     }
+    ]
+   }
+  },
+  {
+   "key": "29",
+   "parentKey": "4",
+   "data": {
+    "position": 3,
+    "title": "Tool Overview: Figma & Adobe XD",
+    "sections": [
+     {
+      "icon": "fa-vector-square",
+      "heading": "Introduction to Figma and Adobe XD",
+      "body": "**Figma** and **Adobe XD** are industry-standard software programs used by UI/UX designers to build high-fidelity, interactive prototypes. Instead of writing code, designers use these digital tools to draw exactly what the final app or website will look like and how it will function."
+     }
+    ]
+   }
+  },
+  {
+   "key": "30",
+   "parentKey": "4",
+   "data": {
+    "position": 4,
+    "title": "Tool Overview: Exploring the Interface Tour",
+    "sections": [
+     {
+      "icon": "fa-table-columns",
+      "heading": "Interface Tour: The Main Workspace",
+      "body": "The main workspace in these design tools usually consists of three parts:\n\n- **Middle Canvas:** A large blank area where you actually draw and design your screens.\n- **Left Panel:** Used to organize your layers, assets, and pages.\n- **Right Panel:** Used to adjust properties like colors, text sizes, alignment, and layout settings."
+     }
+    ]
+   }
+  },
+  {
+   "key": "31",
+   "parentKey": "4",
+   "data": {
+    "position": 5,
+    "title": "The Power of Reusable Components",
+    "sections": [
+     {
+      "icon": "fa-puzzle-piece",
+      "heading": "Reusable Design Parts",
+      "body": "**Components** are reusable design parts, such as a specific \"Submit\" button or a navigation bar. By creating a \"master\" component, you can place copies of it across 50 different screens. If you need to change the button's color later, you only update the master component, and all 50 copies will update automatically, saving a massive amount of time."
+     }
+    ]
+   }
+  },
+  {
+   "key": "32",
+   "parentKey": "4",
+   "data": {
+    "position": 6,
+    "title": "Collaboration Features in Design Tools",
+    "sections": [
+     {
+      "icon": "fa-users",
+      "heading": "Real-time Team Collaboration",
+      "body": "Modern tools like Figma allow multiple people to work on the exact same design file at the exact same time, similar to Google Docs. Team members can see each other's mouse cursors on the screen, design together in real-time, and leave text comments directly on specific parts of the prototype for easy feedback."
+     }
+    ]
+   }
+  },
+  {
+   "key": "33",
+   "parentKey": "4",
+   "data": {
+    "position": 7,
+    "title": "Advanced Prototyping: Interactive Components & Transitions",
+    "sections": [
+     {
+      "icon": "fa-hand-pointer",
+      "heading": "Interactive Components and Transitions",
+      "body": "Advanced prototypes go beyond static pictures:\n\n- **Interactive components:** These are elements that react to the user, like a button changing color when you hover over it or a toggle switch sliding on and off.\n- **Transitions:** These are the smooth animations—such as fading, sliding, or pushing—that happen when a user navigates from one screen to the next, making the prototype feel exactly like a real, coded application."
+     }
+    ]
+   }
+  },
+  {
+   "key": "34",
+   "parentKey": "4",
+   "data": {
+    "position": 8,
+    "title": "Advanced Prototyping: Responsive Layout Design",
+    "sections": [
+     {
+      "icon": "fa-maximize",
+      "heading": "Fitting Any Screen Size",
+      "body": "This is the practice of designing an interface so that it automatically stretches, shrinks, or rearranges itself to fit perfectly on any screen size. Whether a user opens the system on a large laptop display or a small mobile phone screen, a responsive design ensures the content remains readable and easy to navigate without forcing the user to zoom in."
+     }
+    ]
+   }
+  },
+  {
+   "key": "35",
+   "parentKey": "4",
+   "data": {
+    "position": 9,
+    "title": "Advanced Prototyping: Design Systems & Components",
+    "sections": [
+     {
+      "icon": "fa-cubes",
+      "heading": "Building a Consistent Library",
+      "body": "A **Design System** is a complete library of reusable digital parts (like standardized buttons, text styles, color palettes, and icons) combined with strict rules on how to use them. By using a design system, a team ensures that every single page of their application looks consistent and unified, even if multiple designers are working on different screens at the same time."
+     }
+    ]
+   }
+  },
+  {
+   "key": "36",
+   "parentKey": "4",
+   "data": {
+    "position": 10,
+    "title": "Advanced Prototyping: Sharing, Commenting & Testing",
+    "sections": [
+     {
+      "icon": "fa-share-nodes",
+      "heading": "Gathering User Feedback",
+      "body": "Modern prototyping tools allow you to generate a simple web link to your interactive design. You can send this link to your teammates or to real users so they can click through the prototype on their own devices. They can leave text comments directly on specific parts of the screen to point out confusing areas, allowing you to test the usability and fix problems before the actual coding begins."
+     }
+    ]
+   }
+  },
+  {
+   "key": "37",
+   "parentKey": "4",
+   "data": {
+    "position": 11,
+    "title": "Best Practices: Designing for Accessibility",
+    "sections": [
+     {
+      "icon": "fa-universal-access",
+      "heading": "Designing for Everyone",
+      "body": "This is the practice of designing interfaces so they can be easily used by everyone, including people with visual, auditory, or motor disabilities. In prototyping, this means checking that your text has high color contrast against the background so it is readable, ensuring buttons are large enough to easily tap, and organizing the layout logically so screen reader software can understand it."
+     }
+    ]
+   }
+  },
+  {
+   "key": "38",
+   "parentKey": "4",
+   "data": {
+    "position": 12,
+    "title": "What is Mobile-First Design?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "This approach starts by designing the system for the smallest screen (a mobile phone) first. Because space is highly limited, the designer is forced to prioritize only the most essential features. Once the mobile version is perfect, the design is scaled up for tablets and desktops, adding more complex layouts."
+     }
+    ]
+   }
+  },
+  {
+   "key": "39",
+   "parentKey": "4",
+   "data": {
+    "position": 13,
+    "title": "What is Desktop-First Design?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "This approach starts by designing the system for the largest screen (a desktop) first. The designer then scales down the design for smaller screens, ensuring that the core functionality is preserved across all devices."
+     }
+    ]
+   }
+  },
+  {
+   "key": "40",
+   "parentKey": "4",
+   "data": {
+    "position": 14,
+    "title": "The Four Pillars of UI Design",
+    "sections": [
+     {
+      "icon": "fa-building-columns",
+      "heading": "The Four Pillars of a Clean Interface",
+      "body": "These are the four pillars of a clean and usable interface:\n\n- **Consistency:** Using the exact same fonts, colors, and button styles across every single page so the system feels familiar and predictable to the user.\n- **Hierarchy:** Using size, color, and spacing to show which elements are most important. For example, making the main title the largest text on the screen automatically guides the user's eye to read it first.\n- **Alignment:** Placing text and images along an invisible structured grid so the interface looks organized, balanced, and professional, rather than messy.\n- **Feedback:** Designing immediate visual responses to user actions, such as a button turning gray after being clicked or a small \"Success\" message appearing, so the user never has to guess if the system registered their action."
+     }
+    ]
+   }
+  },
+  {
+   "key": "41",
+   "parentKey": "5",
+   "data": {
+    "position": 1,
+    "title": "Introduction to User Research",
+    "sections": [
+     {
+      "icon": "fa-magnifying-glass",
+      "heading": "The Foundation of UCD",
+      "body": "**User research** is the foundation of **User-Centered Design** . Its purpose is to gather actual evidence about what users need, how they behave, and what problems they face, rather than relying on the designer's personal assumptions or guesses."
+     }
+    ]
+   }
+  },
+  {
+   "key": "42",
+   "parentKey": "5",
+   "data": {
+    "position": 2,
+    "title": "Difference Between Qualitative and Quantitative Research",
+    "sections": [
+     {
+      "icon": "fa-scale-balanced",
+      "heading": "Understanding Research Methods",
+      "body": "- **Qualitative methods:** (Like interviews or observations) answer \"why\" and \"how\" a user behaves by gathering detailed stories, opinions, and underlying motivations.\n- **Quantitative methods:** (Like surveys or analytics) answer \"how many\" or \"how much\" by gathering numerical data and statistics to prove if a pattern is widespread."
+     }
+    ]
+   }
+  },
+  {
+   "key": "43",
+   "parentKey": "5",
+   "data": {
+    "position": 3,
+    "title": "Designing an Interview Guide",
+    "sections": [
+     {
+      "icon": "fa-clipboard-list",
+      "heading": "Preparing Open-Ended Questions",
+      "body": "An **interview guide** is a prepared outline of open-ended questions designed to keep the conversation focused on the research goals without leading the user to a specific answer."
+     }
+    ]
+   }
+  },
+  {
+   "key": "44",
+   "parentKey": "5",
+   "data": {
+    "position": 4,
+    "title": "Conducting User Interviews",
+    "sections": [
+     {
+      "icon": "fa-ear-listen",
+      "heading": "Active Listening and Probing",
+      "body": "**Conducting interviews** involves asking questions from the guide while actively listening, building rapport, and asking follow-up questions (probing) to dig deeper into the user's thoughts and experiences."
+     }
+    ]
+   }
+  },
+  {
+   "key": "45",
+   "parentKey": "5",
+   "data": {
+    "position": 5,
+    "title": "Transcribing & Coding User Interviews",
+    "sections": [
+     {
+      "icon": "fa-highlighter",
+      "heading": "Organizing the Raw Data",
+      "body": "- **Transcribing:** The process of converting the recorded spoken interview into written text.\n- **Coding:** The process of reading that text and highlighting specific themes, patterns, or recurring problems so the raw data can be organized and analyzed logically."
+     }
+    ]
+   }
+  },
+  {
+   "key": "46",
+   "parentKey": "5",
+   "data": {
+    "position": 6,
+    "title": "What are Personas?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "**Personas** are realistic, fictional characters built directly from real user research data that represent the different types of people who will use the system."
+     }
+    ]
+   }
+  },
+  {
+   "key": "47",
+   "parentKey": "5",
+   "data": {
+    "position": 7,
+    "title": "Personas: Anatomy of a Profile",
+    "sections": [
+     {
+      "icon": "fa-address-card",
+      "heading": "Building a Standard Profile",
+      "body": "A standard persona profile includes:\n\n- **Background:** Demographics and technical skills.\n- **Primary goals:** What they want to achieve.\n- **Frustrations:** What stops them from achieving their goals.\n- **Real quote:** A statement from the interviews that captures their mindset."
+     }
+    ]
+   }
+  },
+  {
+   "key": "48",
+   "parentKey": "5",
+   "data": {
+    "position": 8,
+    "title": "Personas: Synthesizing Interview Data",
+    "sections": [
+     {
+      "icon": "fa-object-group",
+      "heading": "Finding Common Behavioral Patterns",
+      "body": "Instead of guessing, designers group the coded responses from multiple real interviews to find common behavioral patterns. A persona is then created to embody the traits and needs of that specific group of users."
+     }
+    ]
+   }
+  },
+  {
+   "key": "49",
+   "parentKey": "5",
+   "data": {
+    "position": 9,
+    "title": "What is a Journey Map?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "Is a visual storyline of the process that a person goes through to accomplish a specific goal."
+     }
+    ]
+   }
+  },
+  {
+   "key": "50",
+   "parentKey": "5",
+   "data": {
+    "position": 10,
+    "title": "Journey Mapping: Fixing User Frustrations",
+    "sections": [
+     {
+      "icon": "",
+      "heading": "",
+      "body": "By looking at the emotional lows on the journey map, designers can pinpoint two critical things:"
+     },
+     {
+      "icon": "fa-circle-exclamation",
+      "heading": "Pain Points",
+      "body": "Exactly where the user gets frustrated or confused."
+     },
+     {
+      "icon": "fa-wrench",
+      "heading": "Opportunities",
+      "body": "Clear areas where the system can be redesigned to improve the overall experience."
+     }
+    ]
+   }
+  },
+  {
+   "key": "51",
+   "parentKey": "5",
+   "data": {
+    "position": 11,
+    "title": "What is Ethics?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "Refers to the moral principles that govern a person's behavior or the conducting of an activity. In user research and system design, it involves following strict guidelines to ensure that all participants are treated fairly, safely, and with full respect for their human rights."
+     }
+    ]
+   }
+  },
+  {
+   "key": "52",
+   "parentKey": "5",
+   "data": {
+    "position": 12,
+    "title": "Understanding Informed Consent",
+    "sections": [
+     {
+      "icon": "fa-file-signature",
+      "heading": "Securing Voluntary Agreement",
+      "body": "Before any research begins, users must be fully informed about the purpose of the study, what they will be asked to do, and how their data will be used. They must voluntarily agree to participate and have the right to leave the study at any time without penalty."
+     }
+    ]
+   }
+  },
+  {
+   "key": "53",
+   "parentKey": "5",
+   "data": {
+    "position": 13,
+    "title": "The Data Privacy & Respectful Engagement",
+    "sections": [
+     {
+      "icon": "fa-user-shield",
+      "heading": "Data Privacy",
+      "body": "Researchers must protect the user's personal information by keeping it confidential, securely storing data, and anonymizing identities in final reports."
+     },
+     {
+      "icon": "fa-hand-holding-heart",
+      "heading": "Respectful Engagement",
+      "body": "Respectful engagement means treating participants with dignity, avoiding invasive questions, and ensuring they are not exposed to physical or psychological harm."
+     }
+    ]
+   }
+  },
+  {
+   "key": "54",
+   "parentKey": "6",
+   "data": {
+    "position": 1,
+    "title": "What is Accessibility?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "The measurable result of whether a digital product can be effectively used by people with disabilities. It often involves following strict technical standards (like ensuring screen readers can read a webpage)."
+     }
+    ]
+   }
+  },
+  {
+   "key": "55",
+   "parentKey": "6",
+   "data": {
+    "position": 2,
+    "title": "What is Inclusive Design?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "The practice of designing products for the widest possible range of human diversity (including age, language, culture, and temporary disabilities) from the very beginning of the project."
+     }
+    ]
+   }
+  },
+  {
+   "key": "56",
+   "parentKey": "6",
+   "data": {
+    "position": 3,
+    "title": "The Differences of Accessibility and Inclusive Design",
+    "sections": [
+     {
+      "icon": "fa-code-compare",
+      "heading": "Scope and Application",
+      "body": "The main difference is scope and application. **Accessibility** is the end result or technical outcome focused specifically on accommodating users with disabilities. **Inclusive Design** is the broader mindset and process used to get there it looks beyond just disabilities and considers all forms of human mismatch (like a temporary injury or a noisy environment)."
+     }
+    ]
+   }
+  },
+  {
+   "key": "57",
+   "parentKey": "6",
+   "data": {
+    "position": 4,
+    "title": "Inclusive Design: Why It Matters",
+    "sections": [
+     {
+      "icon": "fa-door-open",
+      "heading": "Why inclusive design matters?",
+      "body": "It ensures that technology does not lock people out or create unnecessary barriers for marginalized groups. Furthermore, designing for extreme needs almost always improves the experience for everyone else."
+     },
+     {
+      "icon": "fa-arrow-pointer",
+      "heading": "Example",
+      "body": "Closed captions were designed for deaf users, but they also help users watching videos in noisy public places where they cannot turn on the volume."
+     }
+    ]
+   }
+  },
+  {
+   "key": "58",
+   "parentKey": "6",
+   "data": {
+    "position": 5,
+    "title": "Types of Disabilities & Design Barriers",
+    "sections": [
+     {
+      "icon": "fa-eye-low-vision",
+      "heading": "Visual",
+      "body": "Users with visual impairments (e.g., color blindness, low vision) may rely on screen magnifiers or screen reader software that reads the text aloud.\n\n**Design Barriers:**\n\n- Text with poor color contrast against its background.\n- Using only color to convey important information (like showing an error only by making a box red).\n- Images without descriptive \"alt text\" hidden in the code."
+     },
+     {
+      "icon": "fa-ear-deaf",
+      "heading": "Auditory",
+      "body": "Users with auditory impairments (e.g., deafness, hard of hearing) cannot rely on sound to receive system feedback or consume content.\n\n**Design Barriers:**\n\n- Important system alerts that only use a \"ding\" sound without a visual notification.\n- Video and audio content published without accurate closed captions or written transcripts."
+     },
+     {
+      "icon": "fa-keyboard",
+      "heading": "Motor",
+      "body": "Users with physical or motor disabilities (e.g., limited mobility, tremors) might not be able to use a standard mouse and may rely entirely on keyboard commands, voice controls, or adaptive switches.\n\n**Design Barriers:**\n\n- Tiny clickable buttons placed too close together.\n- Complex gestures (like multi-finger swiping) or interfaces that require high precision.\n- Websites that cannot be navigated using only the \"Tab\" and \"Enter\" keys."
+     },
+     {
+      "icon": "fa-brain",
+      "heading": "Cognitive",
+      "body": "Users with cognitive or learning disabilities (e.g., dyslexia, ADHD) may have difficulties with memory, focus, reading, or processing complex information.\n\n**Design Barriers:**\n\n- Overwhelming walls of text and complex jargon.\n- Confusing navigation menus.\n- Animations or blinking videos that play automatically and cannot be paused."
+     }
+    ]
+   }
+  },
+  {
+   "key": "59",
+   "parentKey": "6",
+   "data": {
+    "position": 6,
+    "title": "What is Web Content Accessibility Guidelines (WCAG)?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "**WCAG** are the international standards for digital accessibility."
+     }
+    ]
+   }
+  },
+  {
+   "key": "60",
+   "parentKey": "6",
+   "data": {
+    "position": 7,
+    "title": "The Web Content Accessibility Guidelines (WCAG) Principles (POUR)",
+    "sections": [
+     {
+      "icon": "fa-list-check",
+      "heading": "The 4 Core Principles",
+      "body": "- **Perceivable:** Information and interface elements must be presented to users in ways they can sense. The content cannot be invisible to all of their senses. **Example:** If a user is blind, they cannot see a picture, so the system must provide hidden \"alt text\" (alternative text) in the code that a screen reader can read aloud, allowing them to hear the description instead.\n- **Operable:** The interface cannot require a physical action that a user cannot perform. Users must be able to successfully use the controls and navigate the system. **Example:** If a user cannot use a mouse due to motor limitations, the website must be fully navigable using only the \"Tab\" and \"Enter\" keys on a keyboard. It also means giving users enough time to read the content without the screen suddenly timing out.\n- **Understandable:** Both the information on the screen and how the interface operates must be easy to comprehend. **Example:** The text should be written clearly, and the navigation menu should remain in the exact same place on every single page so the user can easily predict how to move around the app.\n- **Robust:** The content must be built using clean, standard, and valid code (like proper HTML). This ensures it can be interpreted reliably by a wide variety of browsers, devices, and specialized assistive technologies (like screen readers) both now and in the future."
+     }
+    ]
+   }
+  },
+  {
+   "key": "61",
+   "parentKey": "6",
+   "data": {
+    "position": 8,
+    "title": "WCAG Key Guidelines",
+    "sections": [
+     {
+      "icon": "fa-bullseye",
+      "heading": "Setting the Basic Goals",
+      "body": "Underneath the four broad POUR principles, there are **13 specific guidelines**. These provide the basic goals for designers.\n\n> **For example:** Under the \"Perceivable\" principle, one guideline is simply: *\"Provide text alternatives for any non-text content.\"*"
+     }
+    ]
+   }
+  },
+  {
+   "key": "62",
+   "parentKey": "6",
+   "data": {
+    "position": 9,
+    "title": "Accessibility: Success Criteria Levels",
+    "sections": [
+     {
+      "icon": "fa-clipboard-check",
+      "heading": "Testable Rules & Compliance",
+      "body": "**Success Criteria:** These are the exact, testable rules used to check if a guideline was actually met. They act as a pass/fail checklist for developers. Success criteria are graded on three levels of compliance:\n\n- **Level A:** The absolute minimum accessibility features.\n- **Level AA:** The standard level most websites and apps are legally required to meet.\n- **Level AAA:** The highest and most strict level of accessibility."
+     }
+    ]
+   }
+  },
+  {
+   "key": "63",
+   "parentKey": "6",
+   "data": {
+    "position": 10,
+    "title": "What is Assistive Technologies?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "Are specialized hardware or software tools that help people with disabilities operate computers and digital systems."
+     }
+    ]
+   }
+  },
+  {
+   "key": "64",
+   "parentKey": "6",
+   "data": {
+    "position": 11,
+    "title": "Examples of Assistive Technologies",
+    "sections": [
+     {
+      "icon": "fa-screwdriver-wrench",
+      "heading": "Types of Assistive Tools",
+      "body": "- **Screen readers:** Software programs that read the text and hidden code of a screen out loud using a synthesized voice (or convert it into a digital Braille display). Users who are blind or have severe visual impairments rely on screen readers to navigate websites by listening to the content instead of looking at it.\n- **Voice control:** Speech recognition software that allows users to navigate the system, dictate text, and \"click\" buttons using only spoken commands (e.g., saying \"Click Submit\" instead of using a mouse). This is essential for users with motor disabilities who cannot use their hands.\n- **Alternative input devices:** Physical hardware that replaces the traditional mouse and keyboard for users with limited mobility. Examples include adaptive switches (large buttons hit with a hand or head), eye-tracking cameras that move the cursor based on where the user looks, and trackballs that require less hand movement than a standard mouse."
+     }
+    ]
+   }
+  },
+  {
+   "key": "65",
+   "parentKey": "6",
+   "data": {
+    "position": 12,
+    "title": "Inclusive Design: Core Strategies",
+    "sections": [
+     {
+      "icon": "fa-expand",
+      "heading": "Designing for Edge Cases",
+      "body": "The \"average user\" is a myth. Designing for edge cases means focusing on the extremes—users who face the highest barriers or the most difficult situations. The core strategy is that solving a problem for a severe edge case almost always creates a better, more flexible product for the general public.\n\n> **For example:** Making a button larger for someone with motor tremors also makes it easier to tap for a fully-abled person using their phone with one hand while walking."
+     },
+     {
+      "icon": "fa-people-group",
+      "heading": "User Testing with Diverse Populations",
+      "body": "You cannot confirm if a system is truly inclusive just by following a checklist. Designers must recruit real people with different abilities, ages, cultures, and tech-literacy levels to test their prototypes.\n\nObserving how a diverse group of users actually interacts with the system is the only way to uncover hidden barriers and prevent designers from relying on their own biased assumptions."
+     }
+    ]
+   }
+  },
+  {
+   "key": "66",
+   "parentKey": "6",
+   "data": {
+    "position": 13,
+    "title": "What is Automated Testing?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "This involves using software programs to quickly scan a website's code for obvious accessibility errors, such as missing alt text on images or poor color contrast.\n\nIt is very fast and efficient, but machines can only catch about **25% to 30% of total accessibility issues** because they cannot understand context."
+     }
+    ]
+   }
+  },
+  {
+   "key": "67",
+   "parentKey": "6",
+   "data": {
+    "position": 14,
+    "title": "What is Manual Testing?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "This involves human testers physically navigating the interface. It requires testers to try using the system with only a keyboard (no mouse) or while blindfolded using a screen reader.\n\n**Manual testing** is essential for catching logical errors that automated tools miss—**for example:** a machine can check if an image has alt text, but only a human can tell if that text actually makes sense."
+     }
+    ]
+   }
+  },
+  {
+   "key": "68",
+   "parentKey": "6",
+   "data": {
+    "position": 15,
+    "title": "The Common Testing Tools",
+    "sections": [
+     {
+      "icon": "",
+      "heading": "",
+      "body": "These are the industry-standard software tools used by developers to run automated accessibility checks."
+     },
+     {
+      "icon": "fa-highlighter",
+      "heading": "WAVE (Web Accessibility Evaluation Tool)",
+      "body": "A browser extension that visually injects icons and highlights directly onto a webpage. It is highly favored by beginners and designers because it visually points out exactly where an error is located on the screen."
+     },
+     {
+      "icon": "fa-bug-slash",
+      "heading": "Axe",
+      "body": "A powerful suite of accessibility testing tools built by Deque Systems. It is designed for developers because it can be integrated directly into the coding environment to catch errors while the programmer is actively writing code."
+     },
+     {
+      "icon": "fa-gauge-high",
+      "heading": "Lighthouse",
+      "body": "An open-source, automated tool built directly into the Google Chrome browser (inside Developer Tools). It runs a quick audit of the webpage and gives it a score out of 100 for accessibility, providing a checklist of exactly what code needs to be fixed."
+     }
+    ]
+   }
+  },
+  {
+   "key": "69",
+   "parentKey": "7",
+   "data": {
+    "position": 1,
+    "title": "Why Ethics Matter in Design?",
+    "sections": [
+     {
+      "icon": "fa-shield-heart",
+      "heading": "Protecting the User",
+      "body": "Designers create technology that deeply impacts the daily lives, well-being, and autonomy of millions of people.\n\nUnethical design can **manipulate user behavior**, **invade privacy**, or cause real-world harm, such as data breaches or discrimination.\n\nHCI professionals have a strict responsibility to ensure their technology benefits society, prioritizes user safety, and does not just blindly serve business objectives at the expense of the user."
+     }
+    ]
+   }
+  },
+  {
+   "key": "70",
+   "parentKey": "7",
+   "data": {
+    "position": 2,
+    "title": "The Common Ethical Dilemmas",
+    "sections": [
+     {
+      "icon": "",
+      "heading": "",
+      "body": "Designers frequently face difficult moral choices in their daily work. Common dilemmas include:"
+     },
+     {
+      "icon": "fa-user-secret",
+      "heading": "Persuasive Design and Dark Patterns",
+      "body": "The conflict between respecting a user's free will (autonomy) and pushing business goals, such as tricking users into buying things or making it intentionally difficult to cancel a subscription."
+     },
+     {
+      "icon": "fa-user-lock",
+      "heading": "Privacy and Data Security",
+      "body": "The challenge of collecting enough user data to make a system function effectively without crossing the line into unauthorized tracking, misuse, or exploiting personal information."
+     },
+     {
+      "icon": "fa-scale-unbalanced",
+      "heading": "Algorithmic Bias",
+      "body": "Creating systems (especially those using AI or automation) that accidentally discriminate against certain groups of people because the software was trained on biased data or flawed human assumptions."
+     }
+    ]
+   }
+  },
+  {
+   "key": "71",
+   "parentKey": "7",
+   "data": {
+    "position": 3,
+    "title": "Ethical Frameworks: ACM Code of Ethics",
+    "sections": [
+     {
+      "icon": "fa-compass",
+      "heading": "The IT Professional's Moral Compass",
+      "body": "The **ACM Code of Ethics** is a global set of professional guidelines and principles for anyone working in the IT and computing fields.\n\nIt acts as a moral compass for developers and designers, emphasizing the strict duties to **contribute to society**, **avoid harm**, **be honest**, and **respect user privacy and confidentiality**."
+     }
+    ]
+   }
+  },
+  {
+   "key": "72",
+   "parentKey": "7",
+   "data": {
+    "position": 4,
+    "title": "Three Classic Philosophies",
+    "sections": [
+     {
+      "icon": "",
+      "heading": "",
+      "body": "These are three classic philosophical approaches used to make ethical decisions in technology and design:"
+     },
+     {
+      "icon": "fa-users",
+      "heading": "Utilitarianism",
+      "body": "Designing systems to achieve the greatest amount of good for the greatest number of people. It focuses entirely on the final outcome or consequence of the technology."
+     },
+     {
+      "icon": "fa-scroll",
+      "heading": "Deontology",
+      "body": "Making decisions based on strict moral rules and duties (like \"never deceive a user\" or \"always protect data\"), regardless of what the final outcome might be."
+     },
+     {
+      "icon": "fa-hand-holding-heart",
+      "heading": "Virtue Ethics",
+      "body": "Focusing on the moral character and good intentions of the designer. It assumes that if an IT professional cultivates good traits like honesty, empathy, and integrity, they will naturally create trustworthy systems."
+     }
+    ]
+   }
+  },
+  {
+   "key": "73",
+   "parentKey": "7",
+   "data": {
+    "position": 5,
+    "title": "Three Pillars of User Protection",
+    "sections": [
+     {
+      "icon": "",
+      "heading": "",
+      "body": "These are three practical pillars for protecting users in digital spaces:"
+     },
+     {
+      "icon": "fa-file-circle-check",
+      "heading": "Informed Consent",
+      "body": "The practice of telling users exactly what personal data is being collected and how it will be used, written in clear, simple language. The user must actively and freely agree to it before using the system."
+     },
+     {
+      "icon": "fa-shield-halved",
+      "heading": "Data Privacy",
+      "body": "The strict protection of a user's personal and sensitive information from data leaks, hackers, or unauthorized sharing with third-party companies."
+     },
+     {
+      "icon": "fa-user-gear",
+      "heading": "User Autonomy",
+      "body": "Designing systems that give users the freedom and power to make their own choices. This means allowing users to easily navigate the app, cancel subscriptions, or delete their accounts without facing manipulation, hidden traps, or \"dark patterns.\""
+     }
+    ]
+   }
+  },
+  {
+   "key": "74",
+   "parentKey": "7",
+   "data": {
+    "position": 6,
+    "title": "Cultural Dimensions: Hofstede’s Framework",
+    "sections": [
+     {
+      "icon": "fa-globe",
+      "heading": "Understanding Cultural Influences",
+      "body": "**Hofstede’s cultural dimensions** is a widely used framework created by Geert Hofstede to understand how cultural values influence user behavior. It measures dimensions like **Power Distance** (how a society views authority) and **Individualism vs. Collectivism**.\n\nDesigners use this framework to adapt their interfaces. **For example:**\n\n- An app designed for an **individualistic culture** might emphasize personal customization and individual success.\n- An app for a **collectivist culture** might highlight community features, social sharing, and group harmony."
+     }
+    ]
+   }
+  },
+  {
+   "key": "75",
+   "parentKey": "7",
+   "data": {
+    "position": 7,
+    "title": "The Differences of High-Context vs. Low-Context",
+    "sections": [
+     {
+      "icon": "",
+      "heading": "",
+      "body": "Cultural communication styles deeply affect how interfaces should be designed. Here is the difference between high-context and low-context cultures:"
+     },
+     {
+      "icon": "fa-images",
+      "heading": "High-Context Cultures",
+      "body": "Communication relies heavily on implicit understanding, cultural background, and visual cues rather than just words. Interfaces designed for these cultures often use rich imagery, dense layouts with lots of information at once, and indirect, polite messaging.\n\n> **Examples:** Japan, China, Arab countries"
+     },
+     {
+      "icon": "fa-align-left",
+      "heading": "Low-Context Cultures",
+      "body": "Communication is explicit, direct, and literal. Interfaces designed for these cultures prioritize minimalism, clear text, direct instructions, and simple, step-by-step navigation menus.\n\n> **Examples:** USA, Germany, Scandinavia"
+     }
+    ]
+   }
+  },
+  {
+   "key": "76",
+   "parentKey": "7",
+   "data": {
+    "position": 8,
+    "title": "Elements of Cross-Cultural Design",
+    "sections": [
+     {
+      "icon": "",
+      "heading": "",
+      "body": "Visual elements and behaviors do not translate perfectly across the globe. Designers must adapt these elements to avoid confusion or offense:"
+     },
+     {
+      "icon": "fa-language",
+      "heading": "Language",
+      "body": "This goes beyond simple translation. It includes adjusting the interface layout to accommodate languages that read right-to-left (like Arabic) or ensuring there is enough screen space for languages with longer words (like German)."
+     },
+     {
+      "icon": "fa-icons",
+      "heading": "Symbols",
+      "body": "Icons have different meanings. A \"thumbs up\" icon means \"good job\" in Western interfaces, but it is considered an offensive gesture in parts of the Middle East."
+     },
+     {
+      "icon": "fa-palette",
+      "heading": "Color",
+      "body": "The emotional meaning of color changes by region. The color red typically means \"danger\" or \"error\" in Western software, but it represents \"luck,\" \"wealth,\" and \"success\" in many Asian cultures."
+     },
+     {
+      "icon": "fa-user-shield",
+      "heading": "User Behavior",
+      "body": "Different cultures approach risk and trust differently. Some cultures prefer fast, one-click checkout processes, while others (with high \"uncertainty avoidance\") require highly secure, multi-step verification processes before they feel safe entering their payment details."
+     }
+    ]
+   }
+  },
+  {
+   "key": "77",
+   "parentKey": "7",
+   "data": {
+    "position": 9,
+    "title": "Bias and Discrimination in Interfaces",
+    "sections": [
+     {
+      "icon": "fa-scale-unbalanced",
+      "heading": "Algorithmic Bias",
+      "body": "This happens when a computer system—especially those using artificial intelligence—makes unfair or discriminatory decisions. This usually occurs because the system was trained on flawed data or reflects the unconscious prejudices of the programmers who built it.\n\n> **Example:** A common example is facial recognition software that fails to accurately detect people with darker skin tones because it was mostly trained on photos of lighter-skinned people."
+     },
+     {
+      "icon": "fa-user-tag",
+      "heading": "Stereotyping in Personas",
+      "body": "This is the mistake of creating fictional user profiles (personas) based on lazy, biased assumptions or cultural clichés rather than actual research data.\n\n> **Example:** Assuming that an older persona automatically cannot understand basic technology leads to patronizing designs that do not serve the real needs of older users."
+     }
+    ]
+   }
+  },
+  {
+   "key": "78",
+   "parentKey": "7",
+   "data": {
+    "position": 10,
+    "title": "What is Inclusive Design?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "**Inclusive design** actively seeks to remove barriers, creating interfaces that accommodate the widest possible range of human diversity, identities, and abilities."
+     }
+    ]
+   }
+  },
+  {
+   "key": "79",
+   "parentKey": "7",
+   "data": {
+    "position": 11,
+    "title": "What is Exclusive Design?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "**Exclusive design** occurs when a system intentionally or accidentally creates barriers that shut out marginalized groups, forcing them to adapt to the system rather than the system adapting to them."
+     }
+    ]
+   }
+  },
+  {
+   "key": "80",
+   "parentKey": "7",
+   "data": {
+    "position": 12,
+    "title": "Design for Global Audiences: i18n vs. l10n",
+    "sections": [
+     {
+      "icon": "",
+      "heading": "",
+      "body": "**Localization and internationalization:** These are two distinct steps required to make an app work globally:"
+     },
+     {
+      "icon": "fa-server",
+      "heading": "Internationalization (i18n)",
+      "body": "This is the backend coding step. It means designing the software's architecture so it is flexible enough to handle multiple languages and regions in the future (such as allowing the interface to support text that reads right-to-left, or leaving extra space for longer words)."
+     },
+     {
+      "icon": "fa-language",
+      "heading": "Localization (l10n)",
+      "body": "This is the frontend content step. It is the actual process of adapting the interface for a specific target market by translating text, changing date and currency formats, and swapping images to feel local."
+     }
+    ]
+   }
+  },
+  {
+   "key": "81",
+   "parentKey": "7",
+   "data": {
+    "position": 13,
+    "title": "Respecting Cultural Norms and Taboos",
+    "sections": [
+     {
+      "icon": "fa-earth-asia",
+      "heading": "Cultural Norms & Taboos",
+      "body": "Designers must thoroughly research their target market to ensure that their interface elements do not offend local values. This includes avoiding icons that depict offensive hand gestures, being careful with politically sensitive symbols, and ensuring imagery aligns with local religious and social customs (e.g., modesty standards in photography)."
+     }
+    ]
+   }
+  },
+  {
+   "key": "82",
+   "parentKey": "8",
+   "data": {
+    "position": 1,
+    "title": "Norman’s 3 Levels of Emotional Design",
+    "sections": [
+     {
+      "icon": "",
+      "heading": "",
+      "body": "Don Norman, a pioneer in HCI, explained that human brains process design on three different cognitive levels. A truly successful interface must address all three:"
+     },
+     {
+      "icon": "fa-eye",
+      "heading": "Visceral (The Look)",
+      "body": "This is the immediate, subconscious, and automatic reaction to the physical appearance of the system. It is all about aesthetics and first impressions. A clean, modern, and visually balanced interface triggers a positive visceral reaction before the user even clicks a button."
+     },
+     {
+      "icon": "fa-cogs",
+      "heading": "Behavioral (The Feel)",
+      "body": "This level is entirely about usability, function, and performance. It focuses on the actual physical experience of interacting with the system. Does the app load fast? Do the buttons do what they are supposed to do? Good behavioral design means the user can accomplish their goals smoothly without getting stuck."
+     },
+     {
+      "icon": "fa-brain",
+      "heading": "Reflective (The Meaning)",
+      "body": "This is the conscious, highest level of thought. It is about how the user remembers the experience after it is over, and how the product relates to their self-image. It involves brand loyalty, trust, and personal value (e.g., a user feeling professional because they use a high-end coding environment, or feeling confident enough to recommend the system to others)."
+     }
+    ]
+   }
+  },
+  {
+   "key": "83",
+   "parentKey": "8",
+   "data": {
+    "position": 2,
+    "title": "What is Intrinsic Motivation?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "This occurs when a user interacts with a system because they find the activity itself genuinely enjoyable, interesting, or personally rewarding. The action is its own reward (e.g., using a digital painting app simply because creating art is fun)."
+     }
+    ]
+   }
+  },
+  {
+   "key": "84",
+   "parentKey": "8",
+   "data": {
+    "position": 3,
+    "title": "What is Extrinsic Motivation?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "This occurs when a user interacts with a system to earn a separate reward or avoid a negative outcome. The user is driven by outside factors (e.g., logging into a language learning app purely to keep a daily streak alive or earn a digital badge)."
+     }
+    ]
+   }
+  },
+  {
+   "key": "85",
+   "parentKey": "8",
+   "data": {
+    "position": 4,
+    "title": "What is Self-Determination Theory?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "This is a psychological theory explaining what drives human behavior. In UX design, a system is highly engaging if it satisfies three core psychological needs: autonomy, competence, and relatedness."
+     }
+    ]
+   }
+  },
+  {
+   "key": "86",
+   "parentKey": "8",
+   "data": {
+    "position": 5,
+    "title": "The 3 Core Psychological Needs",
+    "sections": [
+     {
+      "icon": "fa-user-gear",
+      "heading": "Autonomy",
+      "body": "The user needs to feel in control of their own actions. Designers support this by giving users freedom of choice, such as allowing them to customize their dashboard, adjust settings, or skip a tutorial."
+     },
+     {
+      "icon": "fa-trophy",
+      "heading": "Competence",
+      "body": "The user needs to feel capable and successful. Designers support this by making the interface easy to learn, providing clear progress bars, and offering positive feedback so the user feels they are mastering the system."
+     },
+     {
+      "icon": "fa-user-group",
+      "heading": "Relatedness",
+      "body": "The user needs to feel connected to others. Designers support this through social features, such as allowing users to share their progress, collaborate with teammates, or participate in community forums."
+     }
+    ]
+   }
+  },
+  {
+   "key": "87",
+   "parentKey": "8",
+   "data": {
+    "position": 6,
+    "title": "What is Gamification?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "The practice of taking game-design elements (like points, levels, badges, and leaderboards) and applying them to non-game systems (like educational software, fitness trackers, or banking apps). It is a strategy used to boost extrinsic motivation and keep users engaged in tasks they might otherwise find boring."
+     }
+    ]
+   }
+  },
+  {
+   "key": "88",
+   "parentKey": "8",
+   "data": {
+    "position": 7,
+    "title": "What are Motivational UX Strategies?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "Beyond just adding points, true motivational UX involves setting clear goals for the user, showing their visual progress toward those goals, and providing immediate, rewarding feedback whenever they complete a step."
+     }
+    ]
+   }
+  },
+  {
+   "key": "89",
+   "parentKey": "8",
+   "data": {
+    "position": 8,
+    "title": "What are Design Patterns for Emotion?",
+    "sections": [
+     {
+      "icon": "fa-lightbulb",
+      "heading": "Design Patterns (Designing for Emotion)",
+      "body": "Design patterns in this context refer to repeatable solutions used to evoke specific emotional responses from the user, making the system not just functional, but genuinely pleasant to use."
+     }
+    ]
+   }
+  },
+  {
+   "key": "90",
+   "parentKey": "8",
+   "data": {
+    "position": 9,
+    "title": "The 4 Key Emotional Responses",
+    "sections": [
+     {
+      "icon": "fa-star",
+      "heading": "Delight",
+      "body": "This happens when an interface goes beyond basic usability to offer a highly satisfying and enjoyable experience. It is the overall positive feeling a user gets when a system is exceptionally smooth, visually pleasing, or perfectly anticipates their needs, making them happy to use the app."
+     },
+     {
+      "icon": "fa-wand-magic-sparkles",
+      "heading": "Surprise",
+      "body": "This is a specific tactic often used to create delight. It occurs when an interface does something unexpected but positive—like a hidden mini-game, a playful animation when completing a task, or a clever illustration on a loading screen. It breaks the routine and makes the system feel more human and fun."
+     },
+     {
+      "icon": "fa-shield-halved",
+      "heading": "Trust",
+      "body": "Users will not use a system they do not trust, especially for tasks involving personal data or money. Trust is built through a professional layout, secure connection badges, clear privacy policies, and predictable navigation where the system does exactly what it promises without hidden tricks."
+     },
+     {
+      "icon": "fa-hand-holding-heart",
+      "heading": "Empathy",
+      "body": "This means designing the interface to support the user's likely emotional state, especially during stressful moments. For example, if a user's credit card is declined, an empathetic design provides a calm, helpful error message explaining how to fix it, rather than a jarring red screen that says \"FATAL ERROR.\""
+     }
+    ]
+   }
+  },
+  {
+   "key": "91",
+   "parentKey": "8",
+   "data": {
+    "position": 10,
+    "title": "What are the Visual Tools for Emotional Design?",
+    "sections": [
+     {
+      "icon": "fa-pen-ruler",
+      "heading": "Visual Tools",
+      "body": "**Color, typography, microinteractions, and animations** are the visual tools designers use to build emotional patterns. They are essential for shaping the system's mood and making it feel alive and responsive."
+     }
+    ]
+   }
+  },
+  {
+   "key": "92",
+   "parentKey": "8",
+   "data": {
+    "position": 11,
+    "title": "The Four Key Visual Tools",
+    "sections": [
+     {
+      "icon": "fa-palette",
+      "heading": "Color",
+      "body": "Colors set the immediate mood. Blue is often used in banking and IT systems because it psychologically communicates security and trust. Warm colors like orange or yellow are used to communicate energy, playfulness, and delight."
+     },
+     {
+      "icon": "fa-font",
+      "heading": "Typography",
+      "body": "The style of the text affects how the system's \"voice\" is perceived. A clean, sans-serif font feels modern and straightforward, while a comic-style font feels informal and playful."
+     },
+     {
+      "icon": "fa-toggle-on",
+      "heading": "Microinteractions",
+      "body": "These are tiny, single-purpose interactive moments that provide subtle feedback. Examples include the \"heart\" icon bouncing when you like a post, or a toggle switch changing from gray to green. They make the interface feel alive and responsive."
+     },
+     {
+      "icon": "fa-film",
+      "heading": "Animations",
+      "body": "Smooth animations (like a menu sliding open gently instead of just appearing instantly) help users understand changes on the screen. They reduce cognitive load by mimicking how physical objects move in the real world, preventing the interface from feeling clunky or broken."
+     }
+    ]
+   }
+  },
+  {
+   "key": "93",
+   "parentKey": "8",
+   "data": {
+    "position": 12,
+    "title": "What is a Flow State?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "In psychology, **\"flow\"** is the feeling of being completely immersed and deeply focused on a task, often causing a person to lose track of time. In design, creating a \"flow state\" means building an interface that does not interrupt the user's concentration. The system must provide a perfect balance: the tasks should not be too easy (which causes boredom) and not too difficult or confusing (which causes frustration)."
+     }
+    ]
+   }
+  },
+  {
+   "key": "94",
+   "parentKey": "8",
+   "data": {
+    "position": 13,
+    "title": "What are Onboarding Experiences?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "This is the user's crucial first impression of the system. Onboarding is the step-by-step process of guiding a brand-new user through the app's core features right after they sign up. A well-designed onboarding experience acts like a friendly digital tour guide, helping the user learn how the app works quickly and easily so they do not get confused and abandon the system."
+     }
+    ]
+   }
+  },
+  {
+   "key": "95",
+   "parentKey": "8",
+   "data": {
+    "position": 14,
+    "title": "What is Emotional Feedback?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "This is how the system responds to a user's actions to make them feel valued, supported, or accomplished. Examples include a celebratory animation when a user finishes a long task, or an encouraging, helpful message when they encounter an error."
+     }
+    ]
+   }
+  },
+  {
+   "key": "96",
+   "parentKey": "8",
+   "data": {
+    "position": 15,
+    "title": "What is User Retention?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "This is the ultimate goal of engagement. It measures how many users continue to return and use the system over weeks, months, or years. Interfaces that consistently provide positive emotional feedback build a sense of loyalty and habit, which directly leads to higher user retention."
+     }
+    ]
+   }
+  },
+  {
+   "key": "97",
+   "parentKey": "8",
+   "data": {
+    "position": 16,
+    "title": "What is Emotion Evaluation in UX?",
+    "sections": [
+     {
+      "icon": "fa-magnifying-glass-chart",
+      "heading": "Evaluating Emotion in UX",
+      "body": "To design for emotion, researchers need ways to actually measure how users feel while using a system, rather than just guessing. Since emotions are invisible, researchers use specific tools to turn feelings into measurable data."
+     }
+    ]
+   }
+  },
+  {
+   "key": "98",
+   "parentKey": "8",
+   "data": {
+    "position": 17,
+    "title": "The 3 UX Emotion Measurement Methods",
+    "sections": [
+     {
+      "icon": "fa-list-ol",
+      "heading": "AEQ (Affective/Emotion Questionnaires)",
+      "body": "Standardized surveys that ask users to rate their emotional response to a system using a numbered scale (e.g., rating a system from 1-10 on how \"stressful\" or \"calming\" it is)."
+     },
+     {
+      "icon": "fa-face-smile",
+      "heading": "SAM scale (Self-Assessment Manikin)",
+      "body": "A visual survey that uses pictures of a simple character (a manikin) showing different levels of emotion, such as smiling, frowning, or looking surprised. Users simply select the picture that matches how they feel. This is highly effective because it avoids language barriers and is very quick to answer."
+     },
+     {
+      "icon": "fa-clone",
+      "heading": "Emotion cards (Product Reaction Cards)",
+      "body": "The researcher gives the user a deck of cards, each printed with an adjective (like \"Confusing,\" \"Professional,\" \"Delightful,\" or \"Slow\"). After using the app, the user picks the cards that best describe their experience. This helps users put their complex feelings into words."
+     }
+    ]
+   }
+  },
+  {
+   "key": "99",
+   "parentKey": "8",
+   "data": {
+    "position": 18,
+    "title": "What are Qualitative Evaluation Methods?",
+    "sections": [
+     {
+      "icon": "fa-comments",
+      "heading": "Observational Techniques & User Interviews",
+      "body": "These are qualitative methods used to understand the reasons behind the emotions."
+     }
+    ]
+   }
+  },
+  {
+   "key": "100",
+   "parentKey": "8",
+   "data": {
+    "position": 19,
+    "title": "2 Qualitative Evaluation Methods",
+    "sections": [
+     {
+      "icon": "fa-binoculars",
+      "heading": "Observational Techniques",
+      "body": "Researchers quietly watch a user's body language and facial expressions while they interact with the system. A user might verbally say the system is \"fine,\" but if the researcher observes them sighing, frowning, or squinting at the screen, it reveals hidden frustration."
+     },
+     {
+      "icon": "fa-microphone",
+      "heading": "User Interviews",
+      "body": "Talking directly to the user after the test. By asking open-ended questions (e.g., \"I noticed you hesitated on the checkout page; how were you feeling at that moment?\"), researchers can understand exactly why a specific interface element triggered a specific emotion."
+     }
+    ]
+   }
+  },
+  {
+   "key": "101",
+   "parentKey": "9",
+   "data": {
+    "position": 1,
+    "title": "Overview of AI in HCI",
+    "sections": [
+     {
+      "icon": "fa-robot",
+      "heading": "Artificial Intelligence (AI)",
+      "body": "**Artificial Intelligence (AI)** is shifting Human-Computer Interaction from direct manipulation (where the user clicks every button to perform a task) to delegation (where the user tells the AI what they want, and the AI figures out how to do it). AI allows systems to understand natural human language, predict user needs, and learn from past behavior to create a more personalized experience."
+     }
+    ]
+   }
+  },
+  {
+   "key": "102",
+   "parentKey": "9",
+   "data": {
+    "position": 2,
+    "title": "What is a Conversational Interface?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "A Conversational Interface allows a user to interact with a computer system using natural, everyday human language rather than clicking through menus or typing specific computer commands."
+     }
+    ]
+   }
+  },
+  {
+   "key": "103",
+   "parentKey": "9",
+   "data": {
+    "position": 3,
+    "title": "Key Components & Examples",
+    "sections": [
+     {
+      "icon": "fa-language",
+      "heading": "Natural Language Processing (NLP)",
+      "body": "These interfaces are heavily reliant on Natural Language Processing (NLP), which is the AI technology that helps computers understand the context and intent behind a user's words."
+     },
+     {
+      "icon": "fa-robot",
+      "heading": "Text-Based Chatbots",
+      "body": "The most common examples are text-based chatbots (like ChatGPT or automated customer service chat windows). The goal is to make the interaction feel as smooth and logical as texting a real person."
+     }
+    ]
+   }
+  },
+  {
+   "key": "104",
+   "parentKey": "9",
+   "data": {
+    "position": 4,
+    "title": "What is a Voice User Interface (VUI)?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "A **Voice User Interface** is a specific type of conversational interface where the user interacts entirely through spoken audio rather than typing or looking at a screen (e.g., Apple's Siri, Amazon's Alexa, or Google Assistant)."
+     }
+    ]
+   }
+  },
+  {
+   "key": "105",
+   "parentKey": "9",
+   "data": {
+    "position": 5,
+    "title": "VUI Key Design Challenge",
+    "sections": [
+     {
+      "icon": "fa-volume-high",
+      "heading": "Key Design Challenge",
+      "body": "Unlike visual interfaces, VUIs have no visual cues (affordances) to show the user what options are available. The user cannot \"see\" the menu. Therefore, the system must clearly speak out the options and confirm actions using audio feedback (like a small chime sound when it starts listening)."
+     }
+    ]
+   }
+  },
+  {
+   "key": "106",
+   "parentKey": "9",
+   "data": {
+    "position": 6,
+    "title": "How to Prototype Conversational Interfaces?",
+    "sections": [
+     {
+      "icon": "fa-diagram-project",
+      "heading": "Prototyping Conversational Interfaces",
+      "body": "You cannot prototype a conversation using traditional visual screens. Instead, designers use different techniques:"
+     }
+    ]
+   }
+  },
+  {
+   "key": "107",
+   "parentKey": "9",
+   "data": {
+    "position": 7,
+    "title": "The Two Conversational Prototyping Techniques",
+    "sections": [
+     {
+      "icon": "fa-sitemap",
+      "heading": "Dialogue Flows",
+      "body": "Instead of drawing screens, designers write \"scripts\" or flowcharts mapping out the paths a conversation might take, including what the system should say if the user asks an unexpected question."
+     },
+     {
+      "icon": "fa-hat-wizard",
+      "heading": "Wizard of Oz Testing",
+      "body": "A prototyping method where a user believes they are talking to a fully functional AI system, but in reality, a human designer is sitting in another room typing back the responses. This allows developers to test how users will naturally speak to the system before spending months coding the actual AI."
+     }
+    ]
+   }
+  },
+  {
+   "key": "108",
+   "parentKey": "9",
+   "data": {
+    "position": 8,
+    "title": "What is UX Evaluation for Conversational UI?",
+    "sections": [
+     {
+      "icon": "fa-clipboard-check",
+      "heading": "UX Evaluation for Conversational & Voice UI",
+      "body": "Evaluating these interfaces requires checking how well the system handles the unpredictable nature of human conversation."
+     }
+    ]
+   }
+  },
+  {
+   "key": "109",
+   "parentKey": "9",
+   "data": {
+    "position": 9,
+    "title": "Three Key Evaluation Metrics",
+    "sections": [
+     {
+      "icon": "fa-life-ring",
+      "heading": "Testing Error Recovery",
+      "body": "Human speech is messy. People mumble, use slang, or change their minds mid-sentence. Evaluators test how gracefully the system handles confusion. Instead of just failing, a good VUI should gently guide the user back on track (e.g., \"I didn't quite catch that. Did you want to book a flight or check a status?\")."
+     },
+     {
+      "icon": "fa-stopwatch",
+      "heading": "Testing Latency",
+      "body": "This measures the delay between the user finishing a sentence and the AI responding. If the system takes too long to process the speech, the user will assume it is broken and stop using it."
+     },
+     {
+      "icon": "fa-bullseye",
+      "heading": "Intent Recognition Testing",
+      "body": "Measuring how accurately the AI understands the core goal (intent) of the user, even if the user phrases their request in 10 different ways."
+     }
+    ]
+   }
+  },
+  {
+   "key": "110",
+   "parentKey": "10",
+   "data": {
+    "position": 1,
+    "title": "What is the Reality-Virtuality Continuum?",
+    "sections": [
+     {
+      "icon": "fa-book-open",
+      "heading": "Definition",
+      "body": "To understand Mixed Reality, it is helpful to first understand the scale between the real world and the digital world (often called the Reality-Virtuality Continuum):"
+     }
+    ]
+   }
+  },
+  {
+   "key": "111",
+   "parentKey": "10",
+   "data": {
+    "position": 2,
+    "title": "The Differences between VR vs. AR vs. MR",
+    "sections": [
+     {
+      "icon": "fa-vr-cardboard",
+      "heading": "Virtual Reality (VR)",
+      "body": "The user is completely immersed in a 100% computer-generated environment. The physical world is blocked out entirely (usually by wearing a headset)."
+     },
+     {
+      "icon": "fa-mobile-screen",
+      "heading": "Augmented Reality (AR)",
+      "body": "Digital elements (like text, icons, or 3D graphics) are simply overlaid or projected onto the real physical world, usually viewed through a smartphone camera or smart glasses."
+     },
+     {
+      "icon": "fa-cubes",
+      "heading": "Mixed Reality (MR)",
+      "body": "This is a step beyond AR. In Mixed Reality, the physical and digital worlds are merged, and they interact with each other in real-time.\n\n> **Example:** In AR, a digital Pokémon just floats on your screen over the image of your room. In MR, the system understands the actual depth and shape of your room, allowing the digital Pokémon to physically hide behind your real-life couch."
+     }
+    ]
+   }
+  },
+  {
+   "key": "112",
+   "parentKey": "10",
+   "data": {
+    "position": 3,
+    "title": "What is a Tangible User Interface (TUI)?",
+    "sections": [
+     {
+      "icon": "fa-cube",
+      "heading": "Tangible User Interfaces (TUI)",
+      "body": "A type of interface where a user interacts with digital information by manipulating real, physical objects. Instead of using a traditional mouse, keyboard, or touchscreen, the physical environment itself becomes the interface.\n\n> **Example:** A smart table used by architects where moving physical wooden blocks around the table automatically changes the layout of a digital 3D blueprint on a screen. It bridges the gap between the physical touch (tactile feedback) and digital data."
+     }
+    ]
+   }
+  },
+  {
+   "key": "113",
+   "parentKey": "10",
+   "data": {
+    "position": 4,
+    "title": "Real-World Applications: Education",
+    "sections": [
+     {
+      "icon": "",
+      "heading": "",
+      "body": "**Real-World Applications of AR/VR in Education:**"
+     },
+     {
+      "icon": "fa-book-open",
+      "heading": "AR (Augmented Reality)",
+      "body": "Interactive textbooks allow students to scan a printed page using a smartphone to reveal pop-up 3D models, such as the solar system or human anatomy, making abstract concepts easier to understand."
+     },
+     {
+      "icon": "fa-vr-cardboard",
+      "heading": "VR (Virtual Reality)",
+      "body": "Schools use VR headsets to take students on immersive virtual field trips to places that are impossible to visit physically, like the bottom of the ocean, the surface of Mars, or ancient historical events. It is also used for safe chemistry lab simulations where students can mix volatile chemicals without real-world danger."
+     }
+    ]
+   }
+  },
+  {
+   "key": "114",
+   "parentKey": "10",
+   "data": {
+    "position": 5,
+    "title": "Real-World Applications: Business & Retail",
+    "sections": [
+     {
+      "icon": "",
+      "heading": "",
+      "body": "**Real-World Applications of AR/VR in Business and Retail:**"
+     },
+     {
+      "icon": "fa-cart-shopping",
+      "heading": "AR (Augmented Reality)",
+      "body": "\"Try-before-you-buy\" applications are heavily used in e-commerce. Apps like IKEA Place let users virtually place a 3D couch in their living room to see if it fits. Cosmetic brands use AR to let customers virtually try on makeup using their phone's camera."
+     },
+     {
+      "icon": "fa-briefcase",
+      "heading": "VR (Virtual Reality)",
+      "body": "Companies create virtual showrooms and global collaborative workspaces (like Meta Horizon Workrooms) where remote employees can sit in a virtual boardroom, look at 3D prototypes, and collaborate as if they were in the same physical office."
+     }
+    ]
+   }
+  },
+  {
+   "key": "115",
+   "parentKey": "10",
+   "data": {
+    "position": 6,
+    "title": "Real-World Applications: Healthcare",
+    "sections": [
+     {
+      "icon": "",
+      "heading": "",
+      "body": "**Real-World Applications of AR/VR in Healthcare:**"
+     },
+     {
+      "icon": "fa-heart-pulse",
+      "heading": "AR (Augmented Reality)",
+      "body": "Surgeons use AR glasses during operations to overlay real-time data—like a patient’s vital signs, MRI scans, or a map of their blood vessels—directly onto the patient's body, increasing precision without needing to look away at a monitor."
+     },
+     {
+      "icon": "fa-user-doctor",
+      "heading": "VR (Virtual Reality)",
+      "body": "Medical students use VR to practice high-risk surgeries on digital patients before operating on real humans. In psychology, VR is widely used for \"exposure therapy,\" safely placing patients in simulated environments (like a crowded room or a high building) to help them overcome PTSD or severe phobias."
+     }
+    ]
+   }
+  },
+  {
+   "key": "116",
+   "parentKey": "10",
+   "data": {
+    "position": 7,
+    "title": "Real-World Applications: Entertainment",
+    "sections": [
+     {
+      "icon": "",
+      "heading": "",
+      "body": "**Real-World Applications of AR/VR in Entertainment:**"
+     },
+     {
+      "icon": "fa-location-dot",
+      "heading": "AR (Augmented Reality)",
+      "body": "Location-based mobile gaming, famously popularized by Pokémon GO, encourages players to walk around the real world to find and interact with digital characters overlaid on physical streets and parks."
+     },
+     {
+      "icon": "fa-headset",
+      "heading": "VR (Virtual Reality)",
+      "body": "Fully immersive gaming (like Beat Saber or Half-Life: Alyx) places players entirely inside the game world. Beyond gaming, VR is used for attending live virtual concerts and watching 360-degree movies where the viewer feels like they are standing inside the film."
+     }
+    ]
+   }
+  },
+  {
+   "key": "117",
+   "parentKey": "10",
+   "data": {
+    "position": 8,
+    "title": "What is the Difference between AR and VR?",
+    "sections": [
+     {
+      "icon": "fa-code-compare",
+      "heading": "Differentiating AR and VR",
+      "body": "The fundamental difference between **Augmented Reality (AR)** and **Virtual Reality (VR)** is the level of immersion and the user's connection to the physical world."
+     }
+    ]
+   }
+  },
+  {
+   "key": "118",
+   "parentKey": "10",
+   "data": {
+    "position": 9,
+    "title": "The AR vs. VR Comparison",
+    "sections": [
+     {
+      "icon": "fa-vr-cardboard",
+      "heading": "Virtual Reality (VR) replaces reality",
+      "body": "**VR** completely blocks out the physical world. The user wears a closed headset that immerses them in a 100% computer-generated, 360-degree digital environment. The user cannot see the real room they are standing in."
+     },
+     {
+      "icon": "fa-glasses",
+      "heading": "Augmented Reality (AR) adds to reality",
+      "body": "**AR** keeps the user grounded in the real world. It overlays digital elements (like 3D graphics, text, or animations) onto the user's physical surroundings, usually viewed through a smartphone camera, tablet, or transparent smart glasses. The user can see both the real world and the digital objects at the same time."
+     }
+    ]
+   }
+  },
+  {
+   "key": "119",
+   "parentKey": "10",
+   "data": {
+    "position": 10,
+    "title": "The Usability Challenges in AR and VR",
+    "sections": [
+     {
+      "icon": "fa-triangle-exclamation",
+      "heading": "Usability Challenges in Both Technologies",
+      "body": "Because AR and VR require users to physically move their bodies, they introduce entirely new usability challenges that do not exist in traditional desktop or mobile design."
+     }
+    ]
+   }
+  },
+  {
+   "key": "120",
+   "parentKey": "10",
+   "data": {
+    "position": 11,
+    "title": "The Usability Challenges in Virtual Reality (VR)",
+    "sections": [
+     {
+      "icon": "fa-face-dizzy",
+      "heading": "Cybersickness (Motion Sickness)",
+      "body": "This is the biggest barrier to VR. It happens when the user's eyes see movement inside the digital world (like flying or walking), but their inner ear and physical body feel that they are standing completely still. This sensory mismatch causes nausea and dizziness."
+     },
+     {
+      "icon": "fa-eye-slash",
+      "heading": "Physical Safety and Isolation",
+      "body": "Because VR completely blinds the user to the real world, there is a high risk of users tripping over furniture, hitting walls, or injuring themselves while playing. It also completely isolates them from other people in the room."
+     },
+     {
+      "icon": "fa-person-tired",
+      "heading": "Physical Fatigue (Gorilla Arm)",
+      "body": "Holding arms out in mid-air to interact with virtual menus for long periods causes severe muscle fatigue. Heavy headsets can also cause neck strain and eye fatigue."
+     }
+    ]
+   }
+  },
+  {
+   "key": "121",
+   "parentKey": "10",
+   "data": {
+    "position": 12,
+    "title": "The Usability Challenges in Augmented Reality (AR)",
+    "sections": [
+     {
+      "icon": "fa-cloud-sun",
+      "heading": "Environmental Interference",
+      "body": "Unlike VR, AR designers cannot control the user's environment. An AR app might be unusable if the sun is too bright (making the screen hard to read) or if the physical room is too dark for the camera to map the floor accurately."
+     },
+     {
+      "icon": "fa-window-restore",
+      "heading": "Cognitive Overload and Visual Clutter",
+      "body": "If an AR system places too much digital text or too many pop-ups over the physical world, it can distract the user, block their line of sight, and overwhelm their brain with too much information."
+     },
+     {
+      "icon": "fa-battery-quarter",
+      "heading": "Hardware Constraints",
+      "body": "Running AR requires constant use of the device's camera, screen, and processing power. This causes mobile devices to overheat quickly and drains the battery exceptionally fast."
+     }
+    ]
+   }
+  },
+  {
+   "key": "122",
+   "parentKey": "10",
+   "data": {
+    "position": 13,
+    "title": "The Usability Evaluation in Immersive Interfaces",
+    "sections": [
+     {
+      "icon": "fa-user-check",
+      "heading": "Usability Evaluation in Immersive Interfaces",
+      "body": "Evaluating usability in **Augmented Reality (AR) and Virtual Reality (VR)** is much more complex than testing a website or mobile app. Instead of just tracking a mouse click or a screen tap, evaluators must test how the system interacts with the user's entire physical body and their 3D environment."
+     }
+    ]
+   }
+  },
+  {
+   "key": "123",
+   "parentKey": "10",
+   "data": {
+    "position": 14,
+    "title": "4 Key Areas of Evaluation",
+    "sections": [
+     {
+      "icon": "fa-chair",
+      "heading": "Physical Comfort and Ergonomics",
+      "body": "Evaluators must check if the hardware causes physical pain over time. Is the VR headset too heavy? Do the AR glasses get too hot? Does holding the controllers cause hand cramps? If the system is uncomfortable, users will abandon it regardless of how good the software is."
+     },
+     {
+      "icon": "fa-user-shield",
+      "heading": "Cybersickness and Safety",
+      "body": "Researchers must monitor users for signs of nausea, dizziness, or headaches. They also evaluate if the system keeps the user physically safe—for example, testing if a VR game clearly warns the user before they accidentally walk into a real physical wall."
+     },
+     {
+      "icon": "fa-street-view",
+      "heading": "Spatial Navigation and Awareness",
+      "body": "In a 360-degree environment, users can look anywhere. Evaluators test if the system successfully guides the user's attention to the right place. (e.g., \"Did the user notice the menu behind them, or did they get lost looking at the floor?\")"
+     },
+     {
+      "icon": "fa-hand-pointer",
+      "heading": "Interaction and Feedback",
+      "body": "Testing if picking up, throwing, or clicking virtual objects feels natural. Because users cannot physically feel a digital object, evaluators check if the system provides proper alternative feedback, like a controller vibration (haptic feedback) or a sound effect when an object is grabbed."
+     }
+    ]
+   }
+  },
+  {
+   "key": "124",
+   "parentKey": "10",
+   "data": {
+    "position": 15,
+    "title": "Evaluation Methods for AR/VR",
+    "sections": [
+     {
+      "icon": "fa-video",
+      "heading": "Dual-Video Observation",
+      "body": "Researchers record two things at the same time: a video of the user's physical body moving in the real room, and a screen-recording of exactly what the user is seeing inside the headset. Watching these together helps researchers understand why a user got confused."
+     },
+     {
+      "icon": "fa-comment-dots",
+      "heading": "Adapted Think-Aloud Protocol",
+      "body": "Users are asked to speak their thoughts out loud as they use the system. However, in VR, this can be challenging because the user is heavily immersed and isolated, so researchers must carefully prompt them without breaking their sense of presence in the virtual world."
+     }
+    ]
+   }
+  },
+  {
+   "key": "125",
+   "parentKey": "11",
+   "data": {
+    "position": 1,
+    "title": "What is UbiComp (Ubiquitous Computing)?",
+    "sections": [
+     {
+      "icon": "fa-cloud",
+      "heading": "Ubiquitous Computing",
+      "body": "Also known as **pervasive computing**, it is a concept in software engineering and HCI where computing is made to appear anytime and everywhere."
+     },
+     {
+      "icon": "fa-house-laptop",
+      "heading": "Traditional vs. UbiComp",
+      "body": "In traditional computing, a user must actively sit down and focus on a single device (like a laptop or smartphone) to perform a task. In UbiComp, the technology \"disappears\" into the background. Computing power is seamlessly integrated into everyday objects—like clothing, appliances, or walls—so the user interacts with the technology naturally without even realizing it."
+     },
+     {
+      "icon": "fa-lightbulb",
+      "heading": "Visionary: Mark Weiser",
+      "body": "The concept was coined by Mark Weiser in 1988, who stated that the most profound technologies are those that weave themselves into the fabric of everyday life until they are indistinguishable from it."
+     }
+    ]
+   }
+  },
+  {
+   "key": "126",
+   "parentKey": "11",
+   "data": {
+    "position": 2,
+    "title": "What is Smart Environments?",
+    "sections": [
+     {
+      "icon": "fa-house-signal",
+      "heading": "Smart Environments",
+      "body": "A Smart Environment is a physical space (such as a smart home, a modern classroom, or an entire smart city) that is continuously monitoring its surroundings to anticipate and automatically respond to the needs of its occupants."
+     },
+     {
+      "icon": "fa-microchip",
+      "heading": "The Hardware Layer",
+      "body": "This is achieved by embedding a complex hardware layer—consisting of sensors, cameras, and microcontrollers—directly into the physical infrastructure."
+     },
+     {
+      "icon": "fa-bolt",
+      "heading": "Example",
+      "body": "Instead of flipping a light switch, a smart room uses motion sensors to detect when you walk in, reads the ambient light level from the window, and automatically turns on the lights to the perfect brightness."
+     }
+    ]
+   }
+  },
+  {
+   "key": "127",
+   "parentKey": "11",
+   "data": {
+    "position": 3,
+    "title": "The Connection to IoT (Internet of Things)",
+    "sections": [
+     {
+      "icon": "fa-network-wired",
+      "heading": "Internet of Things (IoT)",
+      "body": "While UbiComp is the philosophy of invisible computing, the Internet of Things (IoT) is the actual technology used to build it. IoT involves connecting physical devices (like a smart fridge, a wearable fitness tracker, or a smart thermostat) to the internet, allowing them to collect data, communicate with each other, and create a fully connected smart environment."
+     }
+    ]
+   }
+  },
+  {
+   "key": "128",
+   "parentKey": "11",
+   "data": {
+    "position": 4,
+    "title": "Applications of Smart Environments",
+    "sections": [
+     {
+      "icon": "fa-city",
+      "heading": "Applications of Smart Environments",
+      "body": "Smart environments are used across various sectors to improve efficiency, safety, and convenience by allowing the physical space to react automatically to human presence and behavior."
+     }
+    ]
+   }
+  },
+  {
+   "key": "129",
+   "parentKey": "11",
+   "data": {
+    "position": 5,
+    "title": "Applications: Smart Homes",
+    "sections": [
+     {
+      "icon": "fa-house-user",
+      "heading": "Smart Homes (Home Automation)",
+      "body": "The most common application of smart environments. The house uses connected IoT devices to learn the user's habits and optimize the living space.\n\n> **Example:** A smart thermostat that automatically lowers the temperature when it detects that everyone has left the house, or smart locks that unlock the front door when they detect the homeowner's smartphone approaching the driveway."
+     }
+    ]
+   }
+  },
+  {
+   "key": "130",
+   "parentKey": "11",
+   "data": {
+    "position": 6,
+    "title": "Applications: Smart Healthcare",
+    "sections": [
+     {
+      "icon": "fa-hand-holding-medical",
+      "heading": "Smart Healthcare (Ambient Assisted Living)",
+      "body": "Smart environments are used to help elderly or disabled patients live independently while staying safe.\n\n> **Example:** Sensors built into the floor can detect if an elderly person has fallen and automatically call emergency services. Wearable devices can monitor heart rates and automatically send an alert to a doctor if they detect abnormal patterns, without the patient needing to do anything."
+     }
+    ]
+   }
+  },
+  {
+   "key": "131",
+   "parentKey": "11",
+   "data": {
+    "position": 7,
+    "title": "Applications: Smart Cities & Transportation",
+    "sections": [
+     {
+      "icon": "fa-traffic-light",
+      "heading": "Smart Cities and Transportation",
+      "body": "Scaling the smart environment to an entire city to improve public services, reduce pollution, and manage traffic.\n\n> **Example:** Intelligent traffic lights that use cameras and sensors to monitor real-time traffic flow, staying green longer to clear out traffic jams rather than operating on a fixed timer. Smart waste bins that alert garbage collection trucks only when they are actually full."
+     }
+    ]
+   }
+  },
+  {
+   "key": "132",
+   "parentKey": "11",
+   "data": {
+    "position": 8,
+    "title": "Applications: Smart Workplaces & Education",
+    "sections": [
+     {
+      "icon": "fa-chalkboard-user",
+      "heading": "Smart Workplaces and Education",
+      "body": "Offices and classrooms designed to maximize productivity and reduce energy waste.\n\n> **Example:** A smart conference room that automatically turns on the projector, dims the lights, and lowers the window blinds the moment an employee connects their laptop to the presentation system."
+     }
+    ]
+   }
+  },
+  {
+   "key": "133",
+   "parentKey": "11",
+   "data": {
+    "position": 9,
+    "title": "Characteristics & Challenges of UbiComp",
+    "sections": [
+     {
+      "icon": "fa-sliders",
+      "heading": "Characteristics & Challenges of UbiComp",
+      "body": "To understand how **Ubiquitous Computing (UbiComp)** differs from a standard desktop computer, we must look at its core characteristics and the unique problems it creates for developers."
+     }
+    ]
+   }
+  },
+  {
+   "key": "134",
+   "parentKey": "11",
+   "data": {
+    "position": 10,
+    "title": "Core Characteristics of UbiComp",
+    "sections": [
+     {
+      "icon": "fa-eye-slash",
+      "heading": "Invisibility (Calm Computing)",
+      "body": "The technology fades into the background. Users do not need to actively stare at a screen or type on a keyboard; the environment itself is the interface, operating quietly without demanding constant attention."
+     },
+     {
+      "icon": "fa-brain",
+      "heading": "Context-Awareness",
+      "body": "The system constantly gathers data about its surroundings. It knows the time of day, the temperature, your physical location, and even your current activity, allowing it to anticipate what you need before you ask."
+     },
+     {
+      "icon": "fa-link",
+      "heading": "Interconnectedness",
+      "body": "Devices do not operate alone. Multiple devices (wearables, smart appliances, room sensors) are constantly communicating and sharing data with each other over a network to create a seamless experience."
+     }
+    ]
+   }
+  },
+  {
+   "key": "135",
+   "parentKey": "11",
+   "data": {
+    "position": 11,
+    "title": "The Challenges of UbiComp",
+    "sections": [
+     {
+      "icon": "fa-shield-halved",
+      "heading": "Privacy and Security",
+      "body": "**UbiComp** environments constantly monitor users (using cameras, microphones, and location trackers), creating a massive risk of data breaches, unauthorized surveillance, and the unethical selling of personal habits to third parties."
+     },
+     {
+      "icon": "fa-screwdriver-wrench",
+      "heading": "Maintaining the Hardware Layer",
+      "body": "**UbiComp** systems rely entirely on a robust, physical hardware layer consisting of thousands of embedded sensors, microcontrollers, and wireless transmitters. If this hardware layer loses power, breaks, or disconnects from the internet, the entire \"smart\" environment completely stops working."
+     },
+     {
+      "icon": "fa-puzzle-piece",
+      "heading": "Interoperability",
+      "body": "**UbiComp** interoperability is a major software challenge. A smart home might have a thermostat made by Google, a smart lock made by Apple, and lights made by Philips. Because they use different coding protocols, getting these different brands to communicate seamlessly with each other is extremely difficult for developers."
+     },
+     {
+      "icon": "fa-toggle-off",
+      "heading": "Loss of User Control",
+      "body": "**UbiComp** automation can sometimes lead to a loss of control. Users can feel frustrated if the system makes the wrong choice and provides no obvious way to manually override it (e.g., the smart lights automatically turning off while a user is sitting perfectly still reading a book, because the motion sensor assumed the room was empty)."
+     }
+    ]
+   }
+  },
+  {
+   "key": "136",
+   "parentKey": "11",
+   "data": {
+    "position": 12,
+    "title": "Prototyping Smart Environment Solutions",
+    "sections": [
+     {
+      "icon": "fa-tools",
+      "heading": "Prototyping Smart Environment Solutions",
+      "body": "Prototyping a smart environment is much more complex than designing a standard mobile app. Designers cannot just draw flat screens; they must prototype the physical space, the sensors, and how the system communicates over a network."
+     }
+    ]
+   }
+  },
+  {
+   "key": "137",
+   "parentKey": "11",
+   "data": {
+    "position": 13,
+    "title": "4 Prototyping Methods & Steps",
+    "sections": [
+     {
+      "icon": "fa-map-location-dot",
+      "heading": "Scenario Mapping and Storyboarding",
+      "body": "Before touching any electronics, designers map out the user's physical journey through a space. They sketch a storyboard showing exactly when and where a user triggers a sensor (e.g., walking through a door) and what the environment is supposed to do in response (e.g., turning on the lights)."
+     },
+     {
+      "icon": "fa-hat-wizard",
+      "heading": "Wizard of Oz Prototyping",
+      "body": "Because setting up real sensors takes time, designers often fake the interaction first. A user walks into a room, and a hidden researcher manually triggers the digital responses (like playing a sound or turning on a screen) to see if the user’s experience feels natural before actually building the technology."
+     },
+     {
+      "icon": "fa-microchip",
+      "heading": "Physical Computing (Hardware Layer)",
+      "body": "To build a functional prototype, developers must create a working hardware layer. This is usually done using affordable microcontrollers like **Arduino** or **Raspberry Pi**. Developers wire these boards to physical inputs (like motion detectors, temperature sensors, or RFID scanners) to detect real-world actions."
+     },
+     {
+      "icon": "fa-server",
+      "heading": "Backend Integration and Dashboards",
+      "body": "A smart environment is useless if it cannot process data. The final step of prototyping involves connecting the physical hardware layer to a functional backend system. For example, an IT student might program an Arduino to send temperature readings to a database using **PHP** and **MySQL**, and then build a responsive web dashboard using **HTML, CSS, and JavaScript** so the user can monitor and control the room remotely."
+     }
+    ]
+   }
+  }
+ ],
+ "videos": [
+  {
+   "key": "uB9LaBIAcRs",
+   "data": {
+    "position": 1,
+    "title": "Introduction to Human Computer Interaction (HCI)",
+    "topic": "intro",
+    "duration": "13:35"
+   }
+  },
+  {
+   "key": "iGmIvuPjv6s",
+   "data": {
+    "position": 2,
+    "title": "HCI: The What and the Importance",
+    "topic": "intro",
+    "duration": "7:08"
+   }
+  },
+  {
+   "key": "v__Yhk1U94k",
+   "data": {
+    "position": 3,
+    "title": "Principles of Human Computer Interaction with Examples",
+    "topic": "principles",
+    "duration": "15:53"
+   }
+  },
+  {
+   "key": "ESRI4ovEOSo",
+   "data": {
+    "position": 4,
+    "title": "Task-Centered Design | Introduction to HCI",
+    "topic": "process",
+    "duration": "30:45"
+   }
+  },
+  {
+   "key": "4OVptMIxsT4",
+   "data": {
+    "position": 5,
+    "title": "What is the User-Centered Design Process?",
+    "topic": "process",
+    "duration": "7:56"
+   }
+  },
+  {
+   "key": "dRIavYjuXek",
+   "data": {
+    "position": 6,
+    "title": "User-Centered Design (UCD) Process with Examples",
+    "topic": "process",
+    "duration": "13:09"
+   }
+  },
+  {
+   "key": "_r0VX-aU_T8",
+   "data": {
+    "position": 7,
+    "title": "The Design Thinking Process",
+    "topic": "process",
+    "duration": "3:56"
+   }
+  },
+  {
+   "key": "meWKtrZNsRU",
+   "data": {
+    "position": 8,
+    "title": "Principles of Design Thinking",
+    "topic": "process",
+    "duration": "1:43"
+   }
+  },
+  {
+   "key": "_RnuN-e1wsk",
+   "data": {
+    "position": 9,
+    "title": "Donald Norman's Model: Execution & Evaluation Loop",
+    "topic": "principles",
+    "duration": "13:14"
+   }
+  },
+  {
+   "key": "BZbNNhBPIY8",
+   "data": {
+    "position": 10,
+    "title": "Design Rules: Nielsen's 10 Heuristics",
+    "topic": "principles",
+    "duration": "13:43"
+   }
+  },
+  {
+   "key": "ETGtsleVOpE",
+   "data": {
+    "position": 11,
+    "title": "Jakob Nielsen's 10 Usability Heuristics",
+    "topic": "principles",
+    "duration": "1:01"
+   }
+  },
+  {
+   "key": "Dh_6gZSF87Y",
+   "data": {
+    "position": 12,
+    "title": "Gestalt Principles of Design",
+    "topic": "perception",
+    "duration": "32:38"
+   }
+  },
+  {
+   "key": "0OPmsy7SXoM",
+   "data": {
+    "position": 13,
+    "title": "User Experience Design: Fitts' Law",
+    "topic": "perception",
+    "duration": "4:39"
+   }
+  },
+  {
+   "key": "IVUeVUajtZI",
+   "data": {
+    "position": 14,
+    "title": "What is Fitts' Law and How to Use It?",
+    "topic": "perception",
+    "duration": "3:15"
+   }
+  },
+  {
+   "key": "YtBb-iVjwzw",
+   "data": {
+    "position": 15,
+    "title": "Usability Evaluation in HCI",
+    "topic": "evaluation",
+    "duration": "49:56"
+   }
+  },
+  {
+   "key": "Md-huYID-Mg",
+   "data": {
+    "position": 16,
+    "title": "Prototyping and Usability Testing",
+    "topic": "evaluation",
+    "duration": "51:49"
+   }
+  }
+ ],
+ "cases": [
+  {
+   "key": "1",
+   "data": {
+    "position": 1,
+    "text": "A software team writes perfect, bug-free backend code for a new enrollment system, but the front-end interface is too confusing for students to use, resulting in many errors.",
+    "question": "What HCI goal did the team fail to prioritize?",
+    "options": [
+     "Software architecture",
+     "Usability",
+     "Algorithmic efficiency",
+     "Server processing speed"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "2",
+   "data": {
+    "position": 2,
+    "text": "A designer is creating a dashboard and wants to ensure that the layout, typography, and color theory make the interface clear and visually appealing.",
+    "question": "Which interdisciplinary field of HCI is the designer relying on?",
+    "options": [
+     "Computer Science",
+     "Ergonomics",
+     "Design (Graphic and UI)",
+     "Psychology"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "3",
+   "data": {
+    "position": 3,
+    "text": "A development team decides to build a system where the needs, wants, and limitations of the end-user are the primary focus at every stage, rather than forcing the user to adapt to the system.",
+    "question": "What design philosophy is the team following?",
+    "options": [
+     "Waterfall Development",
+     "User-Centered Design (UCD)",
+     "Backend Integration",
+     "Traditional Problem-Solving"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "4",
+   "data": {
+    "position": 4,
+    "text": "A team is tackling a complex 'wicked problem.' Before building anything, they set aside their own assumptions and spend a week deeply understanding the users' frustrations and environment.",
+    "question": "Which key principle of Design Thinking is the team practicing?",
+    "options": [
+     "Empathy",
+     "Iteration",
+     "Evaluation",
+     "Standardization"
+    ],
+    "answer": 0
+   }
+  },
+  {
+   "key": "5",
+   "data": {
+    "position": 5,
+    "text": "A software company strictly follows a linear path, starting with a predefined business goal of 'build a login system by Friday,' assuming the initial problem statement is 100% correct.",
+    "question": "What approach is this company using?",
+    "options": [
+     "Design Thinking",
+     "Iterative Prototyping",
+     "Traditional Problem-Solving",
+     "User-Centered Design"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "6",
+   "data": {
+    "position": 6,
+    "text": "A design team has just finished identifying the context of use for a new app. Their next step is to merge business goals with user goals to define the exact functional needs the system must meet.",
+    "question": "Which stage of the UCD process are they entering?",
+    "options": [
+     "Design solutions",
+     "Evaluate against requirements",
+     "Specify user requirements",
+     "Identify context of use"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "7",
+   "data": {
+    "position": 7,
+    "text": "A team wants to build a shared understanding of a user's emotional state. They create a collaborative visualization to articulate what the user says, thinks, does, and feels.",
+    "question": "What empathy tool are they using?",
+    "options": [
+     "Persona",
+     "Empathy map",
+     "Journey map",
+     "Low-fidelity wireframe"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "8",
+   "data": {
+    "position": 8,
+    "text": "A UX researcher creates a fictional, yet data-driven character named 'Teacher Tina' to represent the primary user type, including her specific goals and limitations.",
+    "question": "What tool for empathy did the researcher create?",
+    "options": [
+     "Empathy map",
+     "Mental model",
+     "Persona",
+     "Storyboard"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "9",
+   "data": {
+    "position": 9,
+    "text": "A designer wants to visually map out a user's emotional highs and lows over time to identify exactly where the user gets frustrated while trying to accomplish a goal.",
+    "question": "What tool should the designer use?",
+    "options": [
+     "Journey map",
+     "Empathy map",
+     "High-fidelity prototype",
+     "Component library"
+    ],
+    "answer": 0
+   }
+  },
+  {
+   "key": "10",
+   "data": {
+    "position": 10,
+    "text": "A designer creates a rough, structural layout of an interface on paper to test core functionality without getting distracted by visual details like colors or typography.",
+    "question": "What is the designer creating?",
+    "options": [
+     "High-fidelity prototype",
+     "Journey map",
+     "Low-fidelity wireframe",
+     "Design system"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "11",
+   "data": {
+    "position": 11,
+    "text": "A user approaches a door with a flat metal plate and immediately pushes it, but the door actually requires pulling. The designer failed to match the physical interface with the user's expectations.",
+    "question": "What HCI concept does this mismatch violate?",
+    "options": [
+     "The user's mental model",
+     "Emotional design",
+     "Context-awareness",
+     "Interoperability"
+    ],
+    "answer": 0
+   }
+  },
+  {
+   "key": "12",
+   "data": {
+    "position": 12,
+    "text": "A designer makes a digital button look raised with a slight shadow, providing a visual clue that tells the user the object can be clicked.",
+    "question": "What design principle is being applied?",
+    "options": [
+     "Visibility",
+     "Feedback",
+     "Affordance",
+     "Gamification"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "13",
+   "data": {
+    "position": 13,
+    "text": "A user clicks a 'Submit' button, but no loading spinner appears and the button doesn't change color. Confused, the user clicks it five more times.",
+    "question": "What common design error caused this confusion?",
+    "options": [
+     "Poor mapping",
+     "Hidden feedback",
+     "Algorithmic bias",
+     "Exceeding cognitive load"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "14",
+   "data": {
+    "position": 14,
+    "text": "A designer breaks down a user's interaction into two main phases: Execution (pressing a button) and Evaluation (checking if the action worked).",
+    "question": "Which cognitive model is the designer using?",
+    "options": [
+     "GOMS Model",
+     "Keystroke-Level Model (KLM)",
+     "Norman’s Model of Interaction",
+     "Self-Determination Theory"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "15",
+   "data": {
+    "position": 15,
+    "text": "A UX team calculates exactly how long a task will take by adding up standard time values for specific physical movements, like pointing with a mouse and hitting a key.",
+    "question": "Which specific cognitive model are they applying?",
+    "options": [
+     "Keystroke-Level Model (KLM)",
+     "Norman’s 3 Levels of Design",
+     "The Reality-Virtuality Continuum",
+     "Hofstede's Cultural Dimensions"
+    ],
+    "answer": 0
+   }
+  },
+  {
+   "key": "16",
+   "data": {
+    "position": 16,
+    "text": "A team is ready to test the final user experience before coding begins. They build a highly realistic, interactive digital model using Figma that includes actual colors and clickable buttons.",
+    "question": "What type of prototype did they build?",
+    "options": [
+     "Low-fidelity prototype",
+     "Medium-fidelity prototype",
+     "High-fidelity prototype",
+     "Paper prototype"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "17",
+   "data": {
+    "position": 17,
+    "text": "A designer needs to place 50 copies of a specific 'Submit' button across a prototype. They want to ensure that if they change the button's color later, all 50 copies update automatically.",
+    "question": "What feature of digital prototyping tools should they use?",
+    "options": [
+     "Transitions",
+     "Components",
+     "Responsive layouts",
+     "Automated testing"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "18",
+   "data": {
+    "position": 18,
+    "text": "A developer ensures that an interface automatically stretches, shrinks, or rearranges itself to fit perfectly whether the user opens it on a large laptop or a small phone.",
+    "question": "What practice is the developer using?",
+    "options": [
+     "Mobile-first design",
+     "Desktop-first design",
+     "Responsive layout design",
+     "Immersive design"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "19",
+   "data": {
+    "position": 19,
+    "text": "A designer starts by creating the system for the smallest screen possible, prioritizing only the most essential features before scaling it up for a desktop monitor.",
+    "question": "What design approach is this?",
+    "options": [
+     "Desktop-first design",
+     "Mobile-first design",
+     "Tangible design",
+     "High-context design"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "20",
+   "data": {
+    "position": 20,
+    "text": "A UI designer uses the exact same fonts, colors, and button styles across every single page of an application so it feels familiar to the user.",
+    "question": "Which pillar of a clean interface is the designer applying?",
+    "options": [
+     "Hierarchy",
+     "Alignment",
+     "Feedback",
+     "Consistency"
+    ],
+    "answer": 3
+   }
+  },
+  {
+   "key": "21",
+   "data": {
+    "position": 21,
+    "text": "A researcher wants to understand 'why' users behave a certain way by gathering detailed stories and opinions through interviews.",
+    "question": "What type of research method is this?",
+    "options": [
+     "Quantitative method",
+     "Qualitative method",
+     "Automated testing",
+     "Algorithmic evaluation"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "22",
+   "data": {
+    "position": 22,
+    "text": "After recording a user interview, a researcher converts the spoken audio into written text to prepare it for analysis.",
+    "question": "What is this process called?",
+    "options": [
+     "Transcribing",
+     "Coding",
+     "Mapping",
+     "Prototyping"
+    ],
+    "answer": 0
+   }
+  },
+  {
+   "key": "23",
+   "data": {
+    "position": 23,
+    "text": "A design team looks at the emotional lows on a journey map and pinpoints exactly where the user gets frustrated or confused.",
+    "question": "What are these frustrating moments called?",
+    "options": [
+     "Touchpoints",
+     "Pain points",
+     "Interactions",
+     "Opportunities"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "24",
+   "data": {
+    "position": 24,
+    "text": "Before a usability study begins, a researcher clearly explains the purpose of the study and how the data will be used, allowing the user to voluntarily agree to participate.",
+    "question": "What research ethics principle is being followed?",
+    "options": [
+     "Data privacy",
+     "Informed consent",
+     "Algorithmic transparency",
+     "User autonomy"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "25",
+   "data": {
+    "position": 25,
+    "text": "A designer focuses on creating a product for the widest possible range of human diversity, including age and temporary disabilities, from the very beginning of the project.",
+    "question": "What mindset is the designer applying?",
+    "options": [
+     "Accessibility compliance",
+     "Inclusive Design",
+     "Exclusive Design",
+     "Utilitarianism"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "26",
+   "data": {
+    "position": 26,
+    "text": "A website uses extremely light gray text on a white background, making it very difficult for users with low vision to read.",
+    "question": "What type of disability design barrier is this?",
+    "options": [
+     "Auditory barrier",
+     "Cognitive barrier",
+     "Motor barrier",
+     "Visual barrier"
+    ],
+    "answer": 3
+   }
+  },
+  {
+   "key": "27",
+   "data": {
+    "position": 27,
+    "text": "A developer ensures that a user with motor limitations can successfully navigate a website using only the 'Tab' and 'Enter' keys on their keyboard.",
+    "question": "Which WCAG principle (POUR) does this directly address?",
+    "options": [
+     "Perceivable",
+     "Operable",
+     "Understandable",
+     "Robust"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "28",
+   "data": {
+    "position": 28,
+    "text": "Because a blind user cannot see an image, the developer provides hidden 'alt text' in the code so a screen reader can read the description out loud.",
+    "question": "Which WCAG principle (POUR) is being fulfilled?",
+    "options": [
+     "Perceivable",
+     "Operable",
+     "Understandable",
+     "Robust"
+    ],
+    "answer": 0
+   }
+  },
+  {
+   "key": "29",
+   "data": {
+    "position": 29,
+    "text": "A blind user relies on specialized software that reads the text and hidden code of a screen out loud using a synthesized voice.",
+    "question": "What type of assistive technology is this?",
+    "options": [
+     "Alternative input device",
+     "Screen reader",
+     "Adaptive switch",
+     "Voice control"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "30",
+   "data": {
+    "position": 30,
+    "text": "A developer uses the WAVE browser extension to quickly scan a webpage's code, but realizes they still need human testers to check if the alt text actually makes logical sense.",
+    "question": "What is the developer recognizing?",
+    "options": [
+     "Automated testing catches 100% of errors.",
+     "Manual testing is faster than automated testing.",
+     "Automated testing must be combined with manual testing.",
+     "WAVE is a manual testing tool."
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "31",
+   "data": {
+    "position": 31,
+    "text": "A company makes it intentionally difficult for a user to cancel their subscription by hiding the cancel button deep inside confusing menus.",
+    "question": "What ethical dilemma does this represent?",
+    "options": [
+     "Algorithmic bias",
+     "Persuasive design and dark patterns",
+     "Data privacy breach",
+     "Lack of interoperability"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "32",
+   "data": {
+    "position": 32,
+    "text": "An AI facial recognition software fails to accurately detect people with darker skin tones because it was mostly trained on photos of lighter-skinned people.",
+    "question": "What ethical issue does this highlight?",
+    "options": [
+     "Algorithmic bias",
+     "Dark patterns",
+     "Loss of user control",
+     "Poor mapping"
+    ],
+    "answer": 0
+   }
+  },
+  {
+   "key": "33",
+   "data": {
+    "position": 33,
+    "text": "An app designed for Japan uses rich imagery, dense layouts, and indirect messaging, relying heavily on implicit understanding and cultural background.",
+    "question": "What type of culture is this app designed for?",
+    "options": [
+     "Low-context culture",
+     "High-context culture",
+     "Individualistic culture",
+     "Low uncertainty avoidance culture"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "34",
+   "data": {
+    "position": 34,
+    "text": "A Western software uses the color red to mean 'danger', but a localization team changes it for an Asian market where red represents 'luck' and 'success'.",
+    "question": "What aspect of design for global audiences is the team addressing?",
+    "options": [
+     "Internationalization (i18n)",
+     "Algorithmic bias",
+     "Respecting cultural norms and taboos",
+     "Tangible interaction"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "35",
+   "data": {
+    "position": 35,
+    "text": "A user opens an app and has an immediate, subconscious positive reaction simply because the interface is clean and visually balanced.",
+    "question": "Which of Norman's 3 levels of emotional design is triggered?",
+    "options": [
+     "Visceral",
+     "Behavioral",
+     "Reflective",
+     "Extrinsic"
+    ],
+    "answer": 0
+   }
+  },
+  {
+   "key": "36",
+   "data": {
+    "position": 36,
+    "text": "A user logs into a language learning app every day purely to keep their daily streak alive and earn a digital badge, rather than just for the joy of learning.",
+    "question": "What type of motivation is driving this user?",
+    "options": [
+     "Intrinsic motivation",
+     "Extrinsic motivation",
+     "Autonomy",
+     "Visceral motivation"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "37",
+   "data": {
+    "position": 37,
+    "text": "An interface allows a user to fully customize their dashboard and skip the tutorial, making them feel in control of their own actions.",
+    "question": "Which psychological need from the Self-Determination Theory is being supported?",
+    "options": [
+     "Competence",
+     "Relatedness",
+     "Autonomy",
+     "Flow"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "38",
+   "data": {
+    "position": 38,
+    "text": "A user's credit card is declined. Instead of a jarring red 'FATAL ERROR' screen, the system provides a calm, helpful message explaining how to fix the issue.",
+    "question": "Which emotional design pattern is being used?",
+    "options": [
+     "Surprise",
+     "Gamification",
+     "Empathy",
+     "Delight"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "39",
+   "data": {
+    "position": 39,
+    "text": "A designer balances task difficulty so that an app is not too easy (causing boredom) and not too difficult (causing frustration), keeping the user completely immersed.",
+    "question": "What state is the designer trying to create?",
+    "options": [
+     "Reflective state",
+     "Flow state",
+     "Visceral state",
+     "Onboarding state"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "40",
+   "data": {
+    "position": 40,
+    "text": "A researcher asks a user to select a picture of a smiling, frowning, or surprised manikin character to quickly measure their emotional response without language barriers.",
+    "question": "What emotion measurement tool is being used?",
+    "options": [
+     "Product Reaction Cards",
+     "AEQ Questionnaire",
+     "SAM scale",
+     "System Usability Scale"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "41",
+   "data": {
+    "position": 41,
+    "text": "A user verbally says a system is 'fine', but the researcher quietly watches them squinting and sighing in frustration while using it.",
+    "question": "What qualitative evaluation method is the researcher employing?",
+    "options": [
+     "Automated testing",
+     "Observational techniques",
+     "Wizard of Oz testing",
+     "Emotion cards"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "42",
+   "data": {
+    "position": 42,
+    "text": "A user interacts with a customer service chatbot using natural human language. The AI figures out the context and intent behind the user's words.",
+    "question": "What underlying technology is heavily reliant on this process?",
+    "options": [
+     "Natural Language Processing (NLP)",
+     "Mixed Reality (MR)",
+     "Tangible Interfaces",
+     "The Keystroke-Level Model"
+    ],
+    "answer": 0
+   }
+  },
+  {
+   "key": "43",
+   "data": {
+    "position": 43,
+    "text": "A user is interacting with Amazon's Alexa. Because there are no visual screens, the system plays a small chime sound to confirm it has started listening.",
+    "question": "What key design challenge of Voice User Interfaces (VUI) does this solve?",
+    "options": [
+     "Cybersickness",
+     "Lack of visual affordances",
+     "High latency",
+     "Algorithmic bias"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "44",
+   "data": {
+    "position": 44,
+    "text": "A user believes they are talking to a fully functional AI system, but in reality, a human designer is sitting in another room typing back the responses.",
+    "question": "What prototyping method is being used?",
+    "options": [
+     "High-fidelity prototyping",
+     "Bodystorming",
+     "Wizard of Oz Testing",
+     "Keystroke-Level prototyping"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "45",
+   "data": {
+    "position": 45,
+    "text": "A user wears a headset that completely blocks out the physical world and places them inside a 100% computer-generated environment.",
+    "question": "What immersive technology is the user experiencing?",
+    "options": [
+     "Augmented Reality (AR)",
+     "Virtual Reality (VR)",
+     "Mixed Reality (MR)",
+     "Tangible Interfaces"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "46",
+   "data": {
+    "position": 46,
+    "text": "While playing a VR game, a user's eyes see movement, but their physical body feels still. This sensory mismatch causes nausea and dizziness.",
+    "question": "What usability challenge is the user experiencing?",
+    "options": [
+     "Gorilla arm",
+     "Cognitive overload",
+     "Cybersickness",
+     "Environmental interference"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "47",
+   "data": {
+    "position": 47,
+    "text": "Designers use cardboard and string in a real room to physically act out how a user will move their body while using a new AR application.",
+    "question": "What physical prototyping method are they using?",
+    "options": [
+     "Dialogue Flows",
+     "Bodystorming",
+     "Storyboarding",
+     "Wizard of Oz Testing"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "48",
+   "data": {
+    "position": 48,
+    "text": "A concept coined by Mark Weiser where computing power is integrated seamlessly into everyday objects so the user interacts with it without realizing it.",
+    "question": "What is this concept called?",
+    "options": [
+     "Virtual Reality (VR)",
+     "Conversational UI",
+     "Ubiquitous Computing (UbiComp)",
+     "Augmented Reality (AR)"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "49",
+   "data": {
+    "position": 49,
+    "text": "A modern classroom uses embedded sensors to detect when a teacher walks in, automatically turning on the lights and lowering the blinds.",
+    "question": "What is this physical space considered?",
+    "options": [
+     "A Smart Environment",
+     "A Tangible Interface",
+     "A Virtual Reality Showroom",
+     "An Inclusive Design System"
+    ],
+    "answer": 0
+   }
+  },
+  {
+   "key": "50",
+   "data": {
+    "position": 50,
+    "text": "A smart room automatically turns off the lights because a user is sitting perfectly still reading a book. The user gets angry because there is no physical switch to turn them back on.",
+    "question": "What major usability challenge of UbiComp does this represent?",
+    "options": [
+     "Interoperability issues",
+     "Privacy and security risks",
+     "Loss of manual control and override",
+     "High latency"
+    ],
+    "answer": 2
+   }
+  }
+ ],
+ "decks": [
+  {
+   "key": "1",
+   "data": {
+    "position": 1,
+    "title": "Introduction & Review of HCI Fundamentals",
+    "icon": "fa-desktop",
+    "color": "video-icon"
+   }
+  },
+  {
+   "key": "2",
+   "data": {
+    "position": 2,
+    "title": "Design Thinking & UCD Process",
+    "icon": "fa-lightbulb",
+    "color": "check-icon"
+   }
+  },
+  {
+   "key": "3",
+   "data": {
+    "position": 3,
+    "title": "Cognitive Models & Mental Models",
+    "icon": "fa-brain",
+    "color": "book-icon"
+   }
+  },
+  {
+   "key": "4",
+   "data": {
+    "position": 4,
+    "title": "Digital Prototyping & Interface Design",
+    "icon": "fa-pen-ruler",
+    "color": "read-icon"
+   }
+  },
+  {
+   "key": "5",
+   "data": {
+    "position": 5,
+    "title": "User Research, Journey Mapping & Ethics",
+    "icon": "fa-magnifying-glass",
+    "color": "case-icon"
+   }
+  },
+  {
+   "key": "6",
+   "data": {
+    "position": 6,
+    "title": "Accessibility and Inclusive Design",
+    "icon": "fa-universal-access",
+    "color": "video-icon"
+   }
+  },
+  {
+   "key": "7",
+   "data": {
+    "position": 7,
+    "title": "Cultural Dimensions & Bias in Interfaces",
+    "icon": "fa-earth-asia",
+    "color": "check-icon"
+   }
+  },
+  {
+   "key": "8",
+   "data": {
+    "position": 8,
+    "title": "Designing for Emotion & User Engagement",
+    "icon": "fa-face-smile",
+    "color": "book-icon"
+   }
+  },
+  {
+   "key": "9",
+   "data": {
+    "position": 9,
+    "title": "Conversational AI & Voice Interfaces",
+    "icon": "fa-robot",
+    "color": "read-icon"
+   }
+  },
+  {
+   "key": "10",
+   "data": {
+    "position": 10,
+    "title": "Mixed Reality (AR/VR) & Tangible Interfaces",
+    "icon": "fa-vr-cardboard",
+    "color": "case-icon"
+   }
+  },
+  {
+   "key": "11",
+   "data": {
+    "position": 11,
+    "title": "Ubiquitous Computing & Smart Environments",
+    "icon": "fa-house-signal",
+    "color": "video-icon"
+   }
+  }
+ ],
+ "cards": [
+  {
+   "key": "1-0",
+   "parentKey": "1",
+   "data": {
+    "position": 1,
+    "question": "What does Human-Computer Interaction (HCI) primarily focus on?",
+    "options": [
+     "Developing software architecture and applications",
+     "Designing safe, useful, and functional user-computer interfaces",
+     "Studying how people process information and think",
+     "Improving the physical comfort of computer hardware"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "1-1",
+   "parentKey": "1",
+   "data": {
+    "position": 2,
+    "question": "How does Cognitive Science (Psychology) assist designers in HCI?",
+    "options": [
+     "It explains programming languages and software architecture.",
+     "It improves layouts, typography, and visual aesthetics.",
+     "It explains how users process information and avoid overload.",
+     "It studies physical comfort when using computer hardware."
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "1-2",
+   "parentKey": "1",
+   "data": {
+    "position": 3,
+    "question": "Which field focuses on the visual communication of the system, including layout and typography?",
+    "options": [
+     "Computer Science, which develops software applications",
+     "Psychology, which studies how users process information",
+     "Design, which organizes layout, typography, and color",
+     "Ergonomics, which considers physical comfort and strain"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "1-3",
+   "parentKey": "1",
+   "data": {
+    "position": 4,
+    "question": "What does Ergonomics (Human Factors) ensure in technology design?",
+    "options": [
+     "Software architecture supports the application's functions.",
+     "Hardware is comfortable and does not cause physical strain.",
+     "Visual layouts communicate information clearly to users.",
+     "Cognitive demands do not overload the user's attention."
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "1-4",
+   "parentKey": "1",
+   "data": {
+    "position": 5,
+    "question": "What is the core goal of HCI 1?",
+    "options": [
+     "Usability, including ease of learning and user satisfaction",
+     "Immersive technology, including virtual and augmented reality",
+     "Conversational AI, including chatbots and voice interfaces",
+     "Smart environments, including connected physical devices"
+    ],
+    "answer": 0
+   }
+  },
+  {
+   "key": "1-5",
+   "parentKey": "1",
+   "data": {
+    "position": 6,
+    "question": "What is the design philosophy where the needs and limitations of the end-user are the focus at every stage?",
+    "options": [
+     "Traditional problem-solving focused on predefined goals",
+     "System-centered development focused on technical convenience",
+     "User-Centered Design focused on people's needs and limitations",
+     "Backend development focused on software architecture"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "1-6",
+   "parentKey": "1",
+   "data": {
+    "position": 7,
+    "question": "What is Don Norman’s Gulf of Execution?",
+    "options": [
+     "The gap between system feedback and user understanding",
+     "The gap between a user's goal and available system actions",
+     "The difference between low- and high-fidelity prototypes",
+     "The difference between user research and usability testing"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "1-7",
+   "parentKey": "1",
+   "data": {
+    "position": 8,
+    "question": "Why is integrating HCI important in systems development?",
+    "options": [
+     "It prioritizes backend code even when interfaces are confusing.",
+     "It reduces user errors, training time, and support costs.",
+     "It replaces the need to understand users and their problems.",
+     "It requires users to adapt to the system's existing design."
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "1-8",
+   "parentKey": "1",
+   "data": {
+    "position": 9,
+    "question": "What does HCI 2 focus on compared to HCI 1?",
+    "options": [
+     "Basic desktop and mobile buttons, menus, and layouts",
+     "Standard screen navigation and traditional interface controls",
+     "Emotion, immersive technologies, smart environments, and AI",
+     "Programming languages, application code, and software architecture"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "1-9",
+   "parentKey": "1",
+   "data": {
+    "position": 10,
+    "question": "Which technology involves the physical room itself becoming the computer?",
+    "options": [
+     "Virtual Reality, which immerses users in digital environments",
+     "Augmented Reality, which overlays graphics onto the real world",
+     "Ubiquitous Computing, which embeds computing into everyday spaces",
+     "Conversational AI, which supports spoken or written interaction"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "2-0",
+   "parentKey": "2",
+   "data": {
+    "position": 1,
+    "question": "What is Design Thinking?",
+    "options": [
+     "A linear process that follows a predefined technical plan",
+     "An iterative process for understanding users and redefining problems",
+     "A method focused mainly on completing software code",
+     "A strategy that begins with technology and finds buyers"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "2-1",
+   "parentKey": "2",
+   "data": {
+    "position": 2,
+    "question": "What is the foundation principle of Design Thinking?",
+    "options": [
+     "Technical convenience when developing software",
+     "Empathy for users' experiences, feelings, and frustrations",
+     "Fast implementation of a predefined business goal",
+     "Final testing after the product has been completed"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "2-2",
+   "parentKey": "2",
+   "data": {
+    "position": 3,
+    "question": "How does iteration work in Design Thinking?",
+    "options": [
+     "Teams follow one fixed path from planning to release.",
+     "Teams create, test, learn, and refine their solutions.",
+     "Teams avoid failure by skipping early prototypes.",
+     "Teams wait until launch before gathering user feedback."
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "2-3",
+   "parentKey": "2",
+   "data": {
+    "position": 4,
+    "question": "How does traditional problem-solving differ from Design Thinking?",
+    "options": [
+     "Traditional problem-solving always begins with user empathy.",
+     "Traditional problem-solving often assumes the initial problem is correct.",
+     "Traditional problem-solving depends on continuous prototyping.",
+     "Traditional problem-solving regularly redefines the original problem."
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "2-4",
+   "parentKey": "2",
+   "data": {
+    "position": 5,
+    "question": "What is the critical first stage in the Four UCD Process Stages?",
+    "options": [
+     "Evaluating the prototype against user requirements",
+     "Identifying users, goals, devices, and the context of use",
+     "Designing low- and high-fidelity interface prototypes",
+     "Combining business goals with user requirements"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "2-5",
+   "parentKey": "2",
+   "data": {
+    "position": 6,
+    "question": "What does the 'Specify user requirements' stage do?",
+    "options": [
+     "It combines user and business goals into clear requirements.",
+     "It tests whether the final interface satisfies its users.",
+     "It develops wireframes and interactive interface prototypes.",
+     "It identifies the devices and environment used by people."
+    ],
+    "answer": 0
+   }
+  },
+  {
+   "key": "2-6",
+   "parentKey": "2",
+   "data": {
+    "position": 7,
+    "question": "When should Design Thinking primarily be applied?",
+    "options": [
+     "During final usability testing of the interface",
+     "After software development and product release",
+     "During early product strategy and problem discovery",
+     "During backend implementation after requirements are fixed"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "2-7",
+   "parentKey": "2",
+   "data": {
+    "position": 8,
+    "question": "What is an empathy map used for?",
+    "options": [
+     "To organize software architecture and technical components",
+     "To describe what users say, think, do, and feel",
+     "To measure the numerical results of user surveys",
+     "To outline the screen structure of a digital prototype"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "2-8",
+   "parentKey": "2",
+   "data": {
+    "position": 9,
+    "question": "What are personas?",
+    "options": [
+     "Data-driven fictional profiles representing different user types",
+     "Visual diagrams showing users' emotional highs and lows",
+     "Rough sketches showing early interface layouts",
+     "Interview transcripts containing users' spoken responses"
+    ],
+    "answer": 0
+   }
+  },
+  {
+   "key": "2-9",
+   "parentKey": "2",
+   "data": {
+    "position": 10,
+    "question": "What visual storyline identifies user pain points by tracking emotional highs and lows over time?",
+    "options": [
+     "An empathy map describing what users think and feel",
+     "A journey map tracking actions, interactions, and emotions",
+     "A wireframe outlining the structure of an interface",
+     "A persona representing a particular group of users"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "3-0",
+   "parentKey": "3",
+   "data": {
+    "position": 1,
+    "question": "What is a mental model built from?",
+    "options": [
+     "Objective instructions provided in a system manual",
+     "Past experiences and expectations about how systems work",
+     "Technical rules written in the application's source code",
+     "Design decisions made by the system's developer"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "3-1",
+   "parentKey": "3",
+   "data": {
+    "position": 2,
+    "question": "What happens when a system behaves differently than a user's mental model?",
+    "options": [
+     "Users immediately understand the unexpected interaction.",
+     "The mismatch can cause confusion, errors, and task failure.",
+     "The interface automatically becomes easier to operate.",
+     "Users no longer need feedback from the system."
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "3-2",
+   "parentKey": "3",
+   "data": {
+    "position": 3,
+    "question": "What principle refers to physical or visual clues that tell a user how an object can be interacted with?",
+    "options": [
+     "Affordance, which suggests possible ways to interact",
+     "Visibility, which makes important functions easy to find",
+     "Feedback, which shows the result of a user's action",
+     "Iteration, which improves a design through repeated testing"
+    ],
+    "answer": 0
+   }
+  },
+  {
+   "key": "3-3",
+   "parentKey": "3",
+   "data": {
+    "position": 4,
+    "question": "What is the system's immediate response to a user's action called?",
+    "options": [
+     "Visibility, which makes important controls easy to locate",
+     "Feedback, which communicates the result of an action",
+     "Affordance, which suggests how an object can be used",
+     "Mental model, which represents a user's expectations"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "3-4",
+   "parentKey": "3",
+   "data": {
+    "position": 5,
+    "question": "What are the two main phases of Norman’s Model of Interaction?",
+    "options": [
+     "Planning and coding, which prepare and build a system",
+     "Execution and evaluation, which involve acting and checking results",
+     "Empathy and iteration, which guide user-centered design",
+     "Input and output, which describe information entering and leaving"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "3-5",
+   "parentKey": "3",
+   "data": {
+    "position": 6,
+    "question": "In the GOMS model, what do the 'Operators' represent?",
+    "options": [
+     "The goals users want to achieve with the system",
+     "The methods chosen to complete a particular task",
+     "The basic physical or mental actions required for tasks",
+     "The rules used to select among possible task methods"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "3-6",
+   "parentKey": "3",
+   "data": {
+    "position": 7,
+    "question": "What is the Keystroke-Level Model (KLM) used for?",
+    "options": [
+     "Measuring users' emotional reactions to an interface",
+     "Estimating task duration from standard physical and mental actions",
+     "Designing interactive prototypes with realistic visual details",
+     "Organizing interview responses into common research themes"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "3-7",
+   "parentKey": "3",
+   "data": {
+    "position": 8,
+    "question": "What design error occurs when a button is clicked but no loading spinner or success message appears?",
+    "options": [
+     "Poor mapping, where controls do not match their functions",
+     "Hidden feedback, where the system shows no clear response",
+     "Poor visibility, where important functions are difficult to find",
+     "Incorrect affordance, where controls suggest the wrong action"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "3-8",
+   "parentKey": "3",
+   "data": {
+    "position": 9,
+    "question": "What is 'poor mapping' in software design?",
+    "options": [
+     "Missing location data in a digital application",
+     "Controls are arranged in ways that do not match their functions",
+     "Text and images are not aligned along a visual grid",
+     "System responses take longer than users expect"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "3-9",
+   "parentKey": "3",
+   "data": {
+    "position": 10,
+    "question": "What is redesigning for alignment?",
+    "options": [
+     "Changing visual details without considering user behavior",
+     "Keeping unfamiliar control placements despite user confusion",
+     "Adjusting the design to match users' natural expectations",
+     "Replacing usability testing with automated code analysis"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "4-0",
+   "parentKey": "4",
+   "data": {
+    "position": 1,
+    "question": "What is prototyping?",
+    "options": [
+     "Writing the complete production code for the final system",
+     "Building testable models before developing the actual system",
+     "Preparing promotional materials for a finished application",
+     "Collecting interview responses about users' experiences"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "4-1",
+   "parentKey": "4",
+   "data": {
+    "position": 2,
+    "question": "What are low-fidelity prototypes?",
+    "options": [
+     "Rough sketches showing basic screen structure and layout",
+     "Interactive applications that closely resemble the final product",
+     "Detailed digital models with realistic colors and typography",
+     "Working systems containing finished backend functionality"
+    ],
+    "answer": 0
+   }
+  },
+  {
+   "key": "4-2",
+   "parentKey": "4",
+   "data": {
+    "position": 3,
+    "question": "What are tools like Figma and Adobe XD used for?",
+    "options": [
+     "Developing backend code and software architecture",
+     "Creating detailed, interactive interface prototypes",
+     "Transcribing user interviews and coding research data",
+     "Automatically testing every accessibility requirement"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "4-3",
+   "parentKey": "4",
+   "data": {
+    "position": 4,
+    "question": "What is a reusable design part, such as a specific navigation bar, called?",
+    "options": [
+     "A journey map describing the user's process",
+     "A persona representing a group of users",
+     "A component that can be reused across screens",
+     "A wireframe showing a page's basic structure"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "4-4",
+   "parentKey": "4",
+   "data": {
+    "position": 5,
+    "question": "What are the smooth animations that happen when navigating from one screen to the next called?",
+    "options": [
+     "Microinteractions that give subtle responses to user actions",
+     "Transitions that visually connect one screen to another",
+     "Components that can be reused across different pages",
+     "Wireframes that show the structure of an interface"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "4-5",
+   "parentKey": "4",
+   "data": {
+    "position": 6,
+    "question": "What does responsive layout design ensure?",
+    "options": [
+     "The interface adjusts to different screen sizes and layouts",
+     "The system adapts its emotional response to each user",
+     "The application's source code contains no programming errors",
+     "Every button changes color whenever a user clicks it"
+    ],
+    "answer": 0
+   }
+  },
+  {
+   "key": "4-6",
+   "parentKey": "4",
+   "data": {
+    "position": 7,
+    "question": "Which approach forces a designer to prioritize only the most essential features first due to limited space?",
+    "options": [
+     "Desktop-first design, which starts with large-screen layouts",
+     "Mobile-first design, which starts with small-screen priorities",
+     "High-fidelity design, which emphasizes realistic visual details",
+     "Component-based design, which reuses interface elements"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "4-7",
+   "parentKey": "4",
+   "data": {
+    "position": 8,
+    "question": "What is consistency in interface design?",
+    "options": [
+     "Giving each page a completely different set of styles",
+     "Maintaining familiar fonts, colors, and button styles across pages",
+     "Arranging text and images without a structured grid",
+     "Showing immediate visual responses to user actions"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "4-8",
+   "parentKey": "4",
+   "data": {
+    "position": 9,
+    "question": "How does hierarchy guide the user's eye?",
+    "options": [
+     "By hiding important features inside complicated menus",
+     "By presenting every piece of text in the same size",
+     "By using size, color, and spacing to show importance",
+     "By providing spoken alerts for each interface element"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "4-9",
+   "parentKey": "4",
+   "data": {
+    "position": 10,
+    "question": "What does checking for high color contrast in a prototype help improve?",
+    "options": [
+     "The speed of animations between interface screens",
+     "The size of files and their storage requirements",
+     "Accessibility and readability for different users",
+     "Backend processing and database performance"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "5-0",
+   "parentKey": "5",
+   "data": {
+    "position": 1,
+    "question": "What is the purpose of user research in UCD?",
+    "options": [
+     "To rely on assumptions about what users prefer",
+     "To gather evidence about users' needs and behaviors",
+     "To plan the software's internal programming structure",
+     "To create the product's visual identity and branding"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "5-1",
+   "parentKey": "5",
+   "data": {
+    "position": 2,
+    "question": "What type of research methods answer 'why' and 'how' a user behaves using detailed stories?",
+    "options": [
+     "Quantitative methods that collect numerical data and statistics",
+     "Qualitative methods that explore experiences and motivations",
+     "Automated methods that scan systems for technical problems",
+     "Algorithmic methods that calculate results through procedures"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "5-2",
+   "parentKey": "5",
+   "data": {
+    "position": 3,
+    "question": "What is an interview guide?",
+    "options": [
+     "A written transcript containing the complete interview conversation",
+     "A prepared outline of open-ended research questions",
+     "A formal agreement outlining the project's legal conditions",
+     "A numerical survey used to measure user preferences"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "5-3",
+   "parentKey": "5",
+   "data": {
+    "position": 4,
+    "question": "What is transcribing?",
+    "options": [
+     "Highlighting repeated themes in collected research responses",
+     "Creating fictional profiles of possible users",
+     "Converting recorded spoken interviews into written text",
+     "Writing source code to implement an application feature"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "5-4",
+   "parentKey": "5",
+   "data": {
+    "position": 5,
+    "question": "How is a persona created accurately?",
+    "options": [
+     "By guessing user characteristics from cultural stereotypes",
+     "By grouping interview responses into shared behavior patterns",
+     "By copying the design decisions of competing products",
+     "By creating profiles without examining actual user research"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "5-5",
+   "parentKey": "5",
+   "data": {
+    "position": 6,
+    "question": "What is the specific part of a system that a user interacts with on a journey map called?",
+    "options": [
+     "An emotion describing how the user feels at a stage",
+     "A pain point that makes a task difficult to complete",
+     "A touchpoint where the user interacts with a system",
+     "A wireframe outlining an interface's basic layout"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "5-6",
+   "parentKey": "5",
+   "data": {
+    "position": 7,
+    "question": "By looking at emotional lows on a journey map, what can designers pinpoint?",
+    "options": [
+     "Touchpoints where users interact with a system",
+     "Personas representing different groups of users",
+     "Pain points and opportunities for improvement",
+     "Demographics describing users' personal backgrounds"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "5-7",
+   "parentKey": "5",
+   "data": {
+    "position": 8,
+    "question": "What ethical requirement ensures users voluntarily agree to participate after knowing how their data will be used?",
+    "options": [
+     "Respectful engagement that protects participants' dignity",
+     "Data privacy that protects personal and sensitive information",
+     "Informed consent based on clear study information",
+     "User autonomy that supports independent personal choices"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "5-8",
+   "parentKey": "5",
+   "data": {
+    "position": 9,
+    "question": "How must researchers protect user data identities in final reports?",
+    "options": [
+     "By publishing participants' names with their responses",
+     "By anonymizing identities in the final research report",
+     "By sharing personal information with outside organizations",
+     "By leaving identifying details visible in the collected data"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "5-9",
+   "parentKey": "5",
+   "data": {
+    "position": 10,
+    "question": "What does respectful engagement in research involve?",
+    "options": [
+     "Asking invasive questions regardless of participants' comfort",
+     "Treating participants with dignity and avoiding potential harm",
+     "Requiring every participant to finish the entire study",
+     "Collecting only the information that supports a hypothesis"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "6-0",
+   "parentKey": "6",
+   "data": {
+    "position": 1,
+    "question": "What is Accessibility?",
+    "options": [
+     "Designing digital products mainly for the average user",
+     "Ensuring digital products can be used by people with disabilities",
+     "Providing applications for free download to all users",
+     "Translating interface text into multiple languages"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "6-1",
+   "parentKey": "6",
+   "data": {
+    "position": 2,
+    "question": "What is Inclusive Design?",
+    "options": [
+     "Designing for the widest range of human diversity from the start",
+     "Checking technical accessibility standards only after development",
+     "Restricting product features to a limited group of users",
+     "Designing exclusively for people with permanent disabilities"
+    ],
+    "answer": 0
+   }
+  },
+  {
+   "key": "6-2",
+   "parentKey": "6",
+   "data": {
+    "position": 3,
+    "question": "Using only the color red to convey an important error is a design barrier for which group?",
+    "options": [
+     "Users who cannot rely on auditory alerts and sounds",
+     "Users who have difficulty controlling physical movements",
+     "Users with visual impairments, including color blindness",
+     "Users who need support with memory, focus, or reading"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "6-3",
+   "parentKey": "6",
+   "data": {
+    "position": 4,
+    "question": "What is a common design barrier for users with motor disabilities?",
+    "options": [
+     "Missing captions for spoken and recorded video content",
+     "Missing alternative text for images on a webpage",
+     "Tiny clickable buttons placed too close together",
+     "Complex wording that makes instructions hard to understand"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "6-4",
+   "parentKey": "6",
+   "data": {
+    "position": 5,
+    "question": "What are the international standards for digital accessibility called?",
+    "options": [
+     "HCI guidelines for designing human-computer interactions",
+     "UCD stages for developing user-centered interfaces",
+     "WCAG guidelines for accessible web content",
+     "KLM methods for estimating the time needed for tasks"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "6-5",
+   "parentKey": "6",
+   "data": {
+    "position": 6,
+    "question": "What does the 'O' in the POUR acronym stand for?",
+    "options": [
+     "Organized, meaning content follows a consistent structure",
+     "Operable, meaning users can navigate and use controls",
+     "Objective, meaning information avoids personal opinions",
+     "Optimized, meaning software performs tasks efficiently"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "6-6",
+   "parentKey": "6",
+   "data": {
+    "position": 7,
+    "question": "What WCAG principle requires that content must not be invisible to all of a user's senses?",
+    "options": [
+     "Perceivable, meaning users can sense the presented information",
+     "Operable, meaning users can navigate available controls",
+     "Understandable, meaning content and interactions are clear",
+     "Robust, meaning content works with browsers and assistive tools"
+    ],
+    "answer": 0
+   }
+  },
+  {
+   "key": "6-7",
+   "parentKey": "6",
+   "data": {
+    "position": 8,
+    "question": "What level of WCAG compliance is the standard most websites are legally required to meet?",
+    "options": [
+     "Level A, which provides the minimum accessibility features",
+     "Level AA, which is the standard compliance target described",
+     "Level AAA, which provides the highest compliance requirements",
+     "Level B, which represents an additional WCAG compliance level"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "6-8",
+   "parentKey": "6",
+   "data": {
+    "position": 9,
+    "question": "What assistive technology reads screen text out loud using a synthesized voice?",
+    "options": [
+     "Adaptive switches that provide alternative physical controls",
+     "Screen readers that convert on-screen information into speech",
+     "Eye-tracking cameras that follow where a user is looking",
+     "WAVE tools that highlight website accessibility issues"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "6-9",
+   "parentKey": "6",
+   "data": {
+    "position": 10,
+    "question": "Why is manual testing essential alongside automated accessibility testing?",
+    "options": [
+     "Automated tools cannot scan webpages quickly enough.",
+     "Automated tools catch some issues but can miss context.",
+     "Manual testing checks only the visual appearance of a website.",
+     "Automated tools remove code that causes accessibility problems."
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "7-0",
+   "parentKey": "7",
+   "data": {
+    "position": 1,
+    "question": "Why do HCI professionals have a strict ethical responsibility?",
+    "options": [
+     "Technology affects people's daily lives, well-being, and autonomy.",
+     "Hardware costs require designers to reduce development expenses.",
+     "Business objectives must always take priority over user needs.",
+     "Interface appearance is more important than users' safety."
+    ],
+    "answer": 0
+   }
+  },
+  {
+   "key": "7-1",
+   "parentKey": "7",
+   "data": {
+    "position": 2,
+    "question": "What is an example of Persuasive Design and Dark Patterns?",
+    "options": [
+     "Explaining the use of personal data before asking permission",
+     "Making it intentionally difficult to cancel a subscription",
+     "Translating interface content for a different target market",
+     "Making controls larger to accommodate users with motor disabilities"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "7-2",
+   "parentKey": "7",
+   "data": {
+    "position": 3,
+    "question": "What causes algorithmic bias in artificial intelligence systems?",
+    "options": [
+     "Using research data that represents diverse groups of users",
+     "Using flawed training data or reflecting programmers' unconscious bias",
+     "Testing interactive prototypes with a range of participants",
+     "Checking accessibility features with automated evaluation tools"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "7-3",
+   "parentKey": "7",
+   "data": {
+    "position": 4,
+    "question": "Which ethical framework focuses entirely on the final outcome to achieve the greatest amount of good for the greatest number?",
+    "options": [
+     "Deontology, which bases decisions on moral duties and rules",
+     "Virtue Ethics, which emphasizes character and good intentions",
+     "Utilitarianism, which seeks the greatest overall benefit",
+     "User autonomy, which protects freedom of personal choice"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "7-4",
+   "parentKey": "7",
+   "data": {
+    "position": 5,
+    "question": "What type of culture relies heavily on implicit understanding and visual cues rather than direct words?",
+    "options": [
+     "Low-context culture, which favors direct and explicit information",
+     "High-context culture, which relies on shared understanding and cues",
+     "Individualistic culture, which emphasizes personal independence",
+     "Collectivist culture, which emphasizes community and group harmony"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "7-5",
+   "parentKey": "7",
+   "data": {
+    "position": 6,
+    "question": "What does the color red typically represent in many Asian cultures?",
+    "options": [
+     "Danger and error in many common software interfaces",
+     "Sadness and loss in various emotional design situations",
+     "Luck, wealth, and success in many Asian cultural settings",
+     "Confusion and frustration during difficult user interactions"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "7-6",
+   "parentKey": "7",
+   "data": {
+    "position": 7,
+    "question": "What is stereotyping in personas?",
+    "options": [
+     "Grouping real interview responses to identify behavior patterns",
+     "Creating profiles from biased assumptions instead of research",
+     "Testing prototypes with users who have different abilities",
+     "Adapting interface content for specific cultural expectations"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "7-7",
+   "parentKey": "7",
+   "data": {
+    "position": 8,
+    "question": "What type of design intentionally or accidentally creates barriers that shut out marginalized groups?",
+    "options": [
+     "Inclusive design, which removes barriers for diverse users",
+     "Exclusive design, which prevents some groups from accessing systems",
+     "Iterative design, which improves solutions through repeated testing",
+     "Responsive design, which adapts layouts to different screen sizes"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "7-8",
+   "parentKey": "7",
+   "data": {
+    "position": 9,
+    "question": "What is Internationalization (i18n)?",
+    "options": [
+     "Translating visible interface content into another language",
+     "Preparing software architecture to support multiple languages and regions",
+     "Replacing images to reflect a particular culture or market",
+     "Changing currency and date formats for local users"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "7-9",
+   "parentKey": "7",
+   "data": {
+    "position": 10,
+    "question": "What is Localization (l10n)?",
+    "options": [
+     "Preparing software architecture for future language support",
+     "Adapting interface text, formats, and images to a target market",
+     "Establishing professional rules for ethical technology design",
+     "Designing systems that accommodate users with disabilities"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "8-0",
+   "parentKey": "8",
+   "data": {
+    "position": 1,
+    "question": "What negative emotions are triggered if an interface is slow and confusing?",
+    "options": [
+     "Trust, satisfaction, and confidence during system use",
+     "Delight, excitement, and enjoyment during everyday tasks",
+     "Frustration, anxiety, and anger during difficult interactions",
+     "Empathy, connection, and understanding toward other users"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "8-1",
+   "parentKey": "8",
+   "data": {
+    "position": 2,
+    "question": "Which of Norman’s 3 levels of emotional design deals with immediate, subconscious reactions to aesthetics?",
+    "options": [
+     "Visceral, which concerns appearance and first impressions",
+     "Behavioral, which concerns usability, function, and performance",
+     "Reflective, which concerns memory, meaning, and personal value",
+     "Extrinsic, which concerns rewards and external consequences"
+    ],
+    "answer": 0
+   }
+  },
+  {
+   "key": "8-2",
+   "parentKey": "8",
+   "data": {
+    "position": 3,
+    "question": "What does intrinsic motivation mean in UX?",
+    "options": [
+     "Using a system to earn a separate reward or badge",
+     "Using a system because the activity itself is enjoyable",
+     "Using an application mainly to avoid a negative outcome",
+     "Logging in mainly to maintain a daily streak"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "8-3",
+   "parentKey": "8",
+   "data": {
+    "position": 4,
+    "question": "According to Self-Determination Theory, giving users freedom of choice supports which psychological need?",
+    "options": [
+     "Competence, which means feeling capable and successful",
+     "Relatedness, which means feeling connected to other people",
+     "Autonomy, which means controlling one's own actions and choices",
+     "Extrinsic motivation, which means pursuing an outside reward"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "8-4",
+   "parentKey": "8",
+   "data": {
+    "position": 5,
+    "question": "What is the practice of taking game-design elements and applying them to non-game systems called?",
+    "options": [
+     "Prototyping, which tests early models of a digital system",
+     "Gamification, which applies game elements to other activities",
+     "Onboarding, which introduces users to an application's features",
+     "Journey mapping, which tracks user actions and emotions"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "8-5",
+   "parentKey": "8",
+   "data": {
+    "position": 6,
+    "question": "What specific tactic creates delight by doing something unexpected but positive, like a hidden mini-game?",
+    "options": [
+     "Trust, which grows through security and predictable behavior",
+     "Empathy, which responds to users' experiences and emotions",
+     "Surprise, which creates positive reactions through unexpected moments",
+     "Feedback, which confirms the outcome of a user action"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "8-6",
+   "parentKey": "8",
+   "data": {
+    "position": 7,
+    "question": "What are tiny, single-purpose interactive moments that provide subtle feedback called?",
+    "options": [
+     "Transitions, which animate movement between interface screens",
+     "Components, which can be reused throughout an interface",
+     "Microinteractions, which provide small responses to user actions",
+     "Personas, which represent different types of system users"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "8-7",
+   "parentKey": "8",
+   "data": {
+    "position": 8,
+    "question": "What is a 'flow state' in design?",
+    "options": [
+     "A guided tutorial that explains system features one step at a time",
+     "A state of deep focus and immersion without interruptions",
+     "A journey map showing emotions throughout a user experience",
+     "A technical process that transfers data between system parts"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "8-8",
+   "parentKey": "8",
+   "data": {
+    "position": 9,
+    "question": "What is the crucial step-by-step process of guiding a brand-new user through an app's core features called?",
+    "options": [
+     "Onboarding, which introduces users to the application's core features",
+     "Retention, which measures users' continued use over time",
+     "Evaluation, which checks a design against requirements",
+     "Gamification, which adds points, levels, and other game elements"
+    ],
+    "answer": 0
+   }
+  },
+  {
+   "key": "8-9",
+   "parentKey": "8",
+   "data": {
+    "position": 10,
+    "question": "What visual survey uses pictures of a simple character showing different levels of emotion to measure UX?",
+    "options": [
+     "Empathy maps, which organize what users say and feel",
+     "Emotion cards, which help users describe their experiences",
+     "AEQ questionnaires, which ask users to rate emotional responses",
+     "SAM scale, which uses pictures to represent emotional states"
+    ],
+    "answer": 3
+   }
+  },
+  {
+   "key": "9-0",
+   "parentKey": "9",
+   "data": {
+    "position": 1,
+    "question": "How does AI shift HCI away from direct manipulation?",
+    "options": [
+     "By requiring users to click every control manually",
+     "By allowing users to state goals and delegate tasks to AI",
+     "By making users write code for each requested operation",
+     "By removing the need for natural language interaction"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "9-1",
+   "parentKey": "9",
+   "data": {
+    "position": 2,
+    "question": "What allows a user to interact with a system using everyday human language rather than clicking menus?",
+    "options": [
+     "Conversational Interface, which uses natural everyday language",
+     "Tangible Interface, which uses real physical objects",
+     "Graphic User Interface, which uses visual controls and menus",
+     "Mixed Reality, which merges physical and digital environments"
+    ],
+    "answer": 0
+   }
+  },
+  {
+   "key": "9-2",
+   "parentKey": "9",
+   "data": {
+    "position": 3,
+    "question": "What AI technology helps computers understand the context and intent behind a user's words?",
+    "options": [
+     "Object-Oriented Programming, which organizes software code",
+     "Virtual Reality, which creates computer-generated environments",
+     "Natural Language Processing, which analyzes human language",
+     "Keystroke-Level Model, which estimates task completion time"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "9-3",
+   "parentKey": "9",
+   "data": {
+    "position": 4,
+    "question": "What is a key design challenge specific to Voice User Interfaces (VUIs)?",
+    "options": [
+     "They cannot operate with any spoken commands.",
+     "They lack visual cues that reveal the available options.",
+     "They can understand only direct commands written as code.",
+     "They require a mouse to confirm every requested action."
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "9-4",
+   "parentKey": "9",
+   "data": {
+    "position": 5,
+    "question": "How do designers typically prototype a conversation instead of drawing screens?",
+    "options": [
+     "By constructing a physical model of the computer hardware",
+     "By writing dialogue scripts and mapping conversation flowcharts",
+     "By using accessibility scanners to examine interface layouts",
+     "By preparing visual mockups for every possible screen"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "9-5",
+   "parentKey": "9",
+   "data": {
+    "position": 6,
+    "question": "What is Wizard of Oz Testing in conversational interfaces?",
+    "options": [
+     "Testing a fully functional AI that generates all replies itself",
+     "Having a human provide replies that appear to come from AI",
+     "Creating an immersive simulation for virtual reality users",
+     "Using software to scan a webpage for accessibility errors"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "9-6",
+   "parentKey": "9",
+   "data": {
+    "position": 7,
+    "question": "Why do evaluators test Error Recovery in voice interfaces?",
+    "options": [
+     "Users may mumble or use slang, so the system must handle confusion.",
+     "Voice systems must measure battery life during conversations.",
+     "Spoken interfaces require the same visual color-contrast checks.",
+     "Evaluators need to repair physical damage to audio hardware."
+    ],
+    "answer": 0
+   }
+  },
+  {
+   "key": "9-7",
+   "parentKey": "9",
+   "data": {
+    "position": 8,
+    "question": "What does Testing Latency measure?",
+    "options": [
+     "The volume of a user's voice during an interaction",
+     "The accuracy of identifying the user's intended goal",
+     "The delay between the user speaking and AI responding",
+     "The number of words spoken throughout the conversation"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "9-8",
+   "parentKey": "9",
+   "data": {
+    "position": 9,
+    "question": "What does Intent Recognition Testing measure?",
+    "options": [
+     "The delay before the system begins to provide a response",
+     "How accurately AI understands a goal despite different wording",
+     "The user's emotional response to the interface appearance",
+     "The display resolution available on the user's device"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "9-9",
+   "parentKey": "9",
+   "data": {
+    "position": 10,
+    "question": "What must a VUI do to confirm actions since the user cannot 'see' the menu?",
+    "options": [
+     "Print a paper receipt after processing every spoken command",
+     "Change the screen color when the user finishes speaking",
+     "Speak available options and provide clear audio feedback",
+     "Require users to select visible buttons before each response"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "10-0",
+   "parentKey": "10",
+   "data": {
+    "position": 1,
+    "question": "Which technology completely immerses the user in a 100% computer-generated environment, blocking out the physical world?",
+    "options": [
+     "Augmented Reality, which overlays digital elements onto surroundings",
+     "Virtual Reality, which immerses users in a generated environment",
+     "Tangible Interface, which connects digital information to objects",
+     "Ubiquitous Computing, which embeds technology into everyday spaces"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "10-1",
+   "parentKey": "10",
+   "data": {
+    "position": 2,
+    "question": "Which technology overlays digital elements (like 3D graphics) onto the real physical world?",
+    "options": [
+     "Virtual Reality, which blocks out the user's physical surroundings",
+     "Augmented Reality, which adds digital elements to real surroundings",
+     "Desktop UI, which presents controls through windows and menus",
+     "Conversational AI, which responds through text or spoken language"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "10-2",
+   "parentKey": "10",
+   "data": {
+    "position": 3,
+    "question": "What is Mixed Reality (MR)?",
+    "options": [
+     "An interface that presents information only through written text",
+     "A technology where physical and digital worlds interact in real time",
+     "A virtual reality headset operating without an active display",
+     "A mobile application that uses standard buttons and menus"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "10-3",
+   "parentKey": "10",
+   "data": {
+    "position": 4,
+    "question": "What type of interface allows users to interact with digital information by manipulating real, physical objects?",
+    "options": [
+     "Conversational Interface, which relies on natural language",
+     "Graphic User Interface, which relies on visual controls",
+     "Tangible User Interface, which uses physical objects as controls",
+     "Voice User Interface, which relies on spoken interactions"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "10-4",
+   "parentKey": "10",
+   "data": {
+    "position": 5,
+    "question": "How is VR used safely in education?",
+    "options": [
+     "By completing written examinations on a flat display",
+     "By simulating hazardous chemistry experiments without real danger",
+     "By recording attendance through classroom information systems",
+     "By preparing essays with a standard digital keyboard"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "10-5",
+   "parentKey": "10",
+   "data": {
+    "position": 6,
+    "question": "What is Cybersickness (Motion Sickness) in VR?",
+    "options": [
+     "A software virus that damages virtual reality applications",
+     "Nausea caused by a mismatch between visual and body movement",
+     "Eye fatigue resulting from bright colors on a headset display",
+     "Arm discomfort resulting from repeated physical movements"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "10-6",
+   "parentKey": "10",
+   "data": {
+    "position": 7,
+    "question": "What causes the physical fatigue known as 'Gorilla Arm'?",
+    "options": [
+     "Wearing a headset that places weight on the user's head",
+     "Holding raised arms to interact with virtual menus for long periods",
+     "Moving around furniture while immersed in a digital environment",
+     "Typing for long periods using a small physical keyboard"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "10-7",
+   "parentKey": "10",
+   "data": {
+    "position": 8,
+    "question": "Which of the following is an environmental interference challenge for AR?",
+    "options": [
+     "Users may become nauseated by visual movement in a headset.",
+     "Poor lighting can prevent a camera from mapping a room accurately.",
+     "Users may feel disconnected while interacting with digital content.",
+     "Physical objects may not provide obvious interactive controls."
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "10-8",
+   "parentKey": "10",
+   "data": {
+    "position": 9,
+    "question": "Why do evaluators use Dual-Video Observation for AR/VR?",
+    "options": [
+     "To automatically locate programming errors during testing",
+     "To record users' physical movements and their headset view",
+     "To broadcast the testing session to a live online audience",
+     "To calculate the delay between spoken input and audio response"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "10-9",
+   "parentKey": "10",
+   "data": {
+    "position": 10,
+    "question": "What is a major physical safety challenge in VR?",
+    "options": [
+     "A headset battery may become too hot during extended use.",
+     "Users may hit walls or trip over objects they cannot see.",
+     "Bright sunlight may reduce visibility on the display.",
+     "Internet interruptions may prevent online content from loading."
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "11-0",
+   "parentKey": "11",
+   "data": {
+    "position": 1,
+    "question": "What is the concept where computing is made to appear anytime and everywhere, fading into the background?",
+    "options": [
+     "Mixed Reality, which combines physical and digital worlds",
+     "Ubiquitous Computing, which embeds technology in everyday life",
+     "Tangible Interface, which uses objects to manipulate digital content",
+     "Graphic UI, which presents information through visible controls"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "11-1",
+   "parentKey": "11",
+   "data": {
+    "position": 2,
+    "question": "What is a Smart Environment?",
+    "options": [
+     "A space that monitors surroundings and responds to occupants' needs",
+     "A classroom that provides fast internet access for students",
+     "A mobile phone that contains many different applications",
+     "A database server that stores information for other systems"
+    ],
+    "answer": 0
+   }
+  },
+  {
+   "key": "11-2",
+   "parentKey": "11",
+   "data": {
+    "position": 3,
+    "question": "What technology is actually used to build UbiComp by connecting physical devices to the internet?",
+    "options": [
+     "Augmented Reality, which overlays content onto physical surroundings",
+     "Natural Language Processing, which interprets human language",
+     "Internet of Things, which connects physical devices to networks",
+     "Adobe XD, which supports interactive interface prototyping"
+    ],
+    "answer": 2
+   }
+  },
+  {
+   "key": "11-3",
+   "parentKey": "11",
+   "data": {
+    "position": 4,
+    "question": "What is a key characteristic of UbiComp known as 'Invisibility' (Calm Computing)?",
+    "options": [
+     "Devices use transparent materials to blend into their surroundings.",
+     "Technology operates quietly without demanding constant attention.",
+     "Software source code remains hidden from all system users.",
+     "Devices operate without requiring electrical power or charging."
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "11-4",
+   "parentKey": "11",
+   "data": {
+    "position": 5,
+    "question": "What does Context-Awareness allow a UbiComp system to do?",
+    "options": [
+     "Print documents automatically whenever a device is connected",
+     "Use time, location, and activity to anticipate users' needs",
+     "Display information on a connected screen or monitor",
+     "Create graphic layouts according to predefined design rules"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "11-5",
+   "parentKey": "11",
+   "data": {
+    "position": 6,
+    "question": "What is a major privacy challenge in UbiComp?",
+    "options": [
+     "Connected devices may gather too little environmental information.",
+     "Constant monitoring can create risks of breaches and surveillance.",
+     "Users may forget passwords for their connected devices.",
+     "Small screens may make privacy notices harder to read."
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "11-6",
+   "parentKey": "11",
+   "data": {
+    "position": 7,
+    "question": "What happens if the physical Hardware Layer of a smart environment loses power or breaks?",
+    "options": [
+     "The environment automatically switches to solar power.",
+     "Smart functions may stop when essential hardware fails.",
+     "The software automatically repairs the damaged sensors.",
+     "The environment switches its operation to virtual reality."
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "11-7",
+   "parentKey": "11",
+   "data": {
+    "position": 8,
+    "question": "What software challenge makes it difficult for different brands (like Apple, Google, Philips) to communicate seamlessly in a smart home?",
+    "options": [
+     "Algorithmic bias, which can produce unfair automated decisions",
+     "Interoperability, which affects communication between different systems",
+     "Latency, which creates delays in system responses",
+     "Gamification, which adds game elements to everyday activities"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "11-8",
+   "parentKey": "11",
+   "data": {
+    "position": 9,
+    "question": "How do designers map out when and where a user triggers a sensor before touching electronics?",
+    "options": [
+     "By writing backend code that controls the hardware functions",
+     "By using scenario mapping and storyboarding to plan interactions",
+     "By running accessibility audits on the system's interface",
+     "By building detailed interface prototypes in Figma"
+    ],
+    "answer": 1
+   }
+  },
+  {
+   "key": "11-9",
+   "parentKey": "11",
+   "data": {
+    "position": 10,
+    "question": "What affordable microcontrollers are usually used by developers to prototype the physical Hardware Layer?",
+    "options": [
+     "Supercomputers used to perform large-scale calculations",
+     "High-end smartphones used for mobile applications",
+     "Arduino or Raspberry Pi boards used for hardware prototypes",
+     "Virtual reality headsets used for immersive digital experiences"
+    ],
+    "answer": 2
+   }
+  }
+ ]
+}

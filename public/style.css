@@ -10685,3 +10685,11 @@ div.qs-result {
 .login-page #formOptions[hidden] {
     display: none;
 }
+
+/* Lesson text rendered from the server (js/richtext.js) */
+.lesson-loading { display: flex; align-items: center; gap: 10px; padding: 24px 6px; color: #777; }
+.rt-note { margin-left: 15px; font-size: 0.95em; color: #555; }
+.rt-note i { font-size: 0.8em; margin-right: 5px; }
+.rt-loose { margin: 4px 0 12px; }
+.sub-card ul { padding-left: 20px; margin: 8px 0; }
+.sub-card li { margin-bottom: 5px; }

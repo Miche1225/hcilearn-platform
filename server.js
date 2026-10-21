@@ -12,6 +12,7 @@ const accountRoutes = require('./src/routes/account');
 const progressRoutes = require('./src/routes/progress');
 const bookmarkRoutes = require('./src/routes/bookmarks');
 const gamifyRoutes = require('./src/routes/gamify');
+const contentRoutes = require('./src/routes/content');
 const instructorRoutes = require('./src/routes/instructor');
 const adminRoutes = require('./src/routes/admin');
 
@@ -57,6 +58,7 @@ app.use('/api/account', accountRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/bookmarks', bookmarkRoutes);
 app.use('/api/gamify', gamifyRoutes);
+app.use('/api/content', contentRoutes);
 app.use('/api/instructor', instructorRoutes);
 app.use('/api/admin', adminRoutes);
 

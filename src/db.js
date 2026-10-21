@@ -476,6 +476,80 @@ async function init() {
         );
 
 
+        /* Course content edited from the Admin Dashboard.
+           "draft" is what instructors edit, "published" is what students
+           see; Publish copies draft -> published. NULL draft = deleted in
+           the draft, NULL published = not live. Rows are never removed once
+           published, so a key is never reused by different content.
+           kind: video | module | topic | case | deck | card
+           key:  permanent id used by progress, mistakes and bookmarks
+                 (e.g. case "12", card "3-7", topic "46", video = YouTube id) */
+        CREATE TABLE IF NOT EXISTS content_items (
+
+            id
+                SERIAL
+                PRIMARY KEY,
+
+            kind
+                TEXT
+                NOT NULL,
+
+            key
+                TEXT
+                NOT NULL,
+
+            parent_key
+                TEXT,
+
+            draft
+                JSONB,
+
+            published
+                JSONB,
+
+            updated_at
+                TIMESTAMPTZ
+                NOT NULL
+                DEFAULT NOW(),
+
+            UNIQUE (
+                kind,
+                key
+            )
+        );
+
+
+        /* Messages from instructors shown on every student's Dashboard. */
+        CREATE TABLE IF NOT EXISTS announcements (
+
+            id
+                SERIAL
+                PRIMARY KEY,
+
+            instructor_id
+                INTEGER
+                REFERENCES instructors(id)
+                ON DELETE SET NULL,
+
+            title
+                TEXT
+                NOT NULL,
+
+            body
+                TEXT
+                NOT NULL
+                DEFAULT '',
+
+            ends_on
+                DATE,
+
+            created_at
+                TIMESTAMPTZ
+                NOT NULL
+                DEFAULT NOW()
+        );
+
+
         /* Badges a user has earned. */
         CREATE TABLE IF NOT EXISTS user_badges (
 
@@ -544,6 +618,11 @@ async function init() {
         /* Daily goal: how many questions the user wants to answer per day. */
         await client.query(
             'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS daily_goal INTEGER NOT NULL DEFAULT 10'
+        );
+
+        /* Set by an instructor to block an account from logging in. */
+        await client.query(
+            'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS disabled_at TIMESTAMPTZ'
         );
 
 
@@ -757,6 +836,8 @@ async function init() {
 
         await client.query('COMMIT');
 
+        await seedContent();
+
     } catch (err) {
 
         await client.query('ROLLBACK');
@@ -765,6 +846,56 @@ async function init() {
 
     } finally {
 
+        client.release();
+    }
+}
+
+
+/*
+    First start only: load the original course content (src/seed/content.json)
+    into content_items, published. After that, content is edited from the
+    Admin Dashboard and this does nothing.
+*/
+async function seedContent() {
+
+    const { rows } = await pool.query('SELECT COUNT(*)::int AS n FROM content_items');
+
+    if (rows[0].n > 0) return;
+
+    const seed = require('./seed/content.json');
+    const groups = [
+        ['module', seed.modules],
+        ['topic', seed.topics],
+        ['video', seed.videos],
+        ['case', seed.cases],
+        ['deck', seed.decks],
+        ['card', seed.cards],
+    ];
+
+    const client = await pool.connect();
+
+    try {
+        await client.query('BEGIN');
+
+        for (const [kind, items] of groups) {
+            for (const item of items) {
+                const data = JSON.stringify(item.data);
+                await client.query(
+                    `INSERT INTO content_items (kind, key, parent_key, draft, published)
+                     VALUES ($1, $2, $3, $4::jsonb, $4::jsonb)
+                     ON CONFLICT (kind, key) DO NOTHING`,
+                    [kind, item.key, item.parentKey || null, data]
+                );
+            }
+        }
+
+        await client.query('COMMIT');
+        console.log('Loaded the original course content into content_items.');
+
+    } catch (err) {
+        await client.query('ROLLBACK');
+        throw err;
+    } finally {
         client.release();
     }
 }

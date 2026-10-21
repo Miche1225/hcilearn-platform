@@ -3336,6 +3336,12 @@
     background: linear-gradient(135deg, var(--fun-mint), var(--fun-sky));
     box-shadow: 0 8px 18px rgba(63, 207, 155, 0.35);
 }
+:root[data-theme="dark"] .lesson-loading {
+    color: hsl(250 12% 70%);
+}
+:root[data-theme="dark"] .rt-note {
+    color: hsl(250 12% 78%);
+}
 
 /* ---------- from update-password.html ---------- */
 :root[data-theme="dark"] body.update-password-page {
