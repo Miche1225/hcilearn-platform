@@ -2,15 +2,15 @@
 // Light / dark mode. Load this in <head> (before the page is drawn) so the
 // right theme is applied without a white flash.
 //
-// The choice is remembered in this browser. Until the user picks one, the
-// device setting (prefers-color-scheme) is followed.
+// The choice is remembered in this browser. Until the user turns dark mode
+// on, it's always light, so the app looks the same on every device (the
+// device's own dark setting is ignored on purpose).
 
 (function () {
   'use strict';
 
   var KEY = 'hcilearn_theme';
   var root = document.documentElement;
-  var media = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 
   function saved() {
     try { return localStorage.getItem(KEY); } catch (e) { return null; }
@@ -18,8 +18,7 @@
 
   function current() {
     var choice = saved();
-    if (choice === 'dark' || choice === 'light') return choice;
-    return media && media.matches ? 'dark' : 'light';
+    return choice === 'dark' ? 'dark' : 'light';
   }
 
   function apply(theme) {
@@ -56,12 +55,6 @@
 
   apply(current());
 
-  // Follow the device setting while the user hasn't chosen
-  if (media && media.addEventListener) {
-    media.addEventListener('change', function () {
-      if (!saved()) apply(current());
-    });
-  }
 
   // Toggle button: a menu item in the sidebar, or a floating button on
   // pages without one (login, sign up, reset password).

@@ -1101,7 +1101,19 @@ p {
 }
 
 /* --- Responsive Adjustments --- */
-@media (max-width: 1024px) {
+/* Laptops with 125%/150% display scaling land here (a 1280px screen looks
+   1024px wide), so keep 2 columns instead of one long column. */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .progress-card { grid-column: 1 / -1; grid-row: 1; }
+    .activities-card { grid-column: 1; grid-row: 2; }
+    .quick-actions-card { grid-column: 2; grid-row: 2; }
+    .recent-card { grid-column: 1 / -1; grid-row: 3; }
+}
+
+@media (max-width: 768px) {
     .dashboard-grid {
         grid-template-columns: 1fr;
     }
@@ -12074,6 +12086,7 @@ fieldset.ce-field legend {
     color: #1d1640;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
