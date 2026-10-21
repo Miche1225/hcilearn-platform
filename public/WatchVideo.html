@@ -9,8 +9,8 @@
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
-    <link rel="stylesheet" href="style.css?v=58">
-    <link rel="stylesheet" href="dark.css?v=21">
+    <link rel="stylesheet" href="style.css?v=63">
+    <link rel="stylesheet" href="dark.css?v=26">
     <script src="js/theme.js?v=2"></script>
     <!-- Updated FontAwesome link para lumabas ang mga icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -190,6 +190,7 @@
                 link.className = 'video-link';
                 link.dataset.videoId = video.id;
                 link.dataset.topic = video.topic;
+                link.style.setProperty('--i', Math.min(index, 12)); // staggered pop-in
                 link.innerHTML = `
                     <div class="video-card">
                         <div class="thumbnail-container">
@@ -201,7 +202,6 @@
                         </div>
                         <div class="video-info">
                             <div class="video-meta">
-                                <span class="lesson-tag">Lesson ${index + 1}</span>
                                 <span class="topic-chip ${topic.cls}">${topic.label}</span>
                             </div>
                             <h4></h4>
@@ -262,7 +262,7 @@
                 let visibleCount = 0;
 
                 videoCards.forEach(card => {
-                    // Kasama sa search ang title, lesson number at topic
+                    // Kasama sa search ang title at topic
                     const searchable = normalizeText(card.querySelector('.video-info').textContent);
                     const isWatched = card.classList.contains('is-watched');
 
@@ -300,8 +300,12 @@
             function updateWatchedProgress() {
                 const total = videoCards.length;
                 const watchedCount = document.querySelectorAll('.video-link.is-watched').length;
-                document.getElementById('watchedText').textContent = `${watchedCount} of ${total} watched`;
-                document.getElementById('watchedBar').style.width = `${(watchedCount / total) * 100}%`;
+                const allDone = total > 0 && watchedCount === total;
+                document.getElementById('watchedText').textContent = allDone
+                    ? `🏆 All ${total} watched!`
+                    : `🎬 ${watchedCount} of ${total} watched`;
+                document.getElementById('watchedBar').style.width = `${total ? (watchedCount / total) * 100 : 0}%`;
+                document.querySelector('.video-toolbar').classList.toggle('is-complete', allDone);
             }
 
             updateWatchedProgress();

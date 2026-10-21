@@ -141,31 +141,24 @@ function getBaseUrl(req) {
 
 
 /*
-    Allowed year choices.
+    Allowed year choices. Only 1st and 2nd year IT take HCI.
+    (Existing 3rd/4th year accounts keep working.)
 */
 const VALID_YEARS =
     new Set([
         '1st Year',
-        '2nd Year',
-        '3rd Year',
-        '4th Year'
+        '2nd Year'
     ]);
 
 
 /*
-    Allowed section choices.
+    Allowed section choices: A to Z, so a big incoming
+    batch never runs out of sections.
 */
 const VALID_SECTIONS =
-    new Set([
-        'A',
-        'B',
-        'C',
-        'D',
-        'E',
-        'F',
-        'G',
-        'H'
-    ]);
+    new Set(
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
+    );
 
 
 const router =

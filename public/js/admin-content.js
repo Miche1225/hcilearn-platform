@@ -154,6 +154,7 @@ const HCIContentEditor = (function () {
              <span class="ce-group-icon"><i class="fa-solid ${HCIRichText.safeIcon(view(g).icon)}"></i></span>`)}
           ${isOpen ? `<div class="ce-children">
             ${g.draft ? `<button type="button" class="tool-btn ce-add is-small" data-act="add" data-kind="${childKind}" data-parent="${esc(g.key)}"><i class="fa-solid fa-plus"></i> Add ${childLabel}</button>` : ''}
+            ${g.draft && childKind === 'card' ? `<button type="button" class="tool-btn ce-add is-small" data-act="bulk" data-parent="${esc(g.key)}"><i class="fa-solid fa-layer-group"></i> Bulk add cards</button>` : ''}
             <div class="ce-sortable">${children.map(c => row(c, children, nextChild(c),
               childKind === 'topic' ? view(c).title : view(c).question,
               childKind === 'topic' ? `${view(c).sections.length} section${view(c).sections.length === 1 ? '' : 's'}` : esc(`Answer: ${view(c).options[view(c).answer]}`))).join('') || '<p class="admin-empty">Nothing here yet.</p>'}</div>
@@ -179,6 +180,7 @@ const HCIContentEditor = (function () {
       return;
     }
     if (act === 'add') return openEditor({ kind: btn.dataset.kind, parentKey: btn.dataset.parent || null });
+    if (act === 'bulk') return openBulk(btn.dataset.parent);
     if (act === 'edit') return openEditor({ item });
     if (act === 'restore') return run(api.post(`/admin/content/${item.id}/restore`), 'Restored');
     if (act === 'up' || act === 'down') {
@@ -470,6 +472,128 @@ const HCIContentEditor = (function () {
 
     const first = form.querySelector('input:not([disabled]), textarea');
     if (first) first.focus();
+  }
+
+  // ---------- Bulk add cards ----------
+  // Cards are separated by a blank line. Each card: the question (one or more
+  // lines), then "A." to "D." choices, then "Answer: B".
+  const BULK_MAX = 100;
+  const BULK_EXAMPLE = 'What does HCI stand for?\nA. Human-Computer Interaction\nB. High Computer Intelligence\nC. Human Code Interface\nD. Hardware Control Input\nAnswer: A';
+
+  function parseBulkCards(text) {
+    const blocks = text.replace(/\r/g, '').split(/\n\s*\n/).map(b => b.trim()).filter(Boolean);
+    return blocks.map((block, n) => {
+      const where = `Card ${n + 1}`;
+      const question = [];
+      const options = [];
+      let answer = -1;
+      for (const line of block.split('\n').map(l => l.trim()).filter(Boolean)) {
+        const ans = /^answer\s*[:-]\s*([A-D])\s*$/i.exec(line);
+        const opt = /^([A-D])\s*[.)]\s*(.+)$/i.exec(line);
+        if (ans) answer = 'ABCD'.indexOf(ans[1].toUpperCase());
+        else if (opt && 'ABCD'.indexOf(opt[1].toUpperCase()) === options.length) options.push(opt[2].trim());
+        else if (!options.length) question.push(line);
+        else return { error: `${where}: didn't understand "${line.slice(0, 50)}". Choices go in order A, B, C, D.` };
+      }
+      const q = question.join(' ');
+      if (!q) return { error: `${where}: the question is missing.` };
+      if (q.length > 400) return { error: `${where}: the question can be up to 400 characters.` };
+      if (options.length !== 4) return { error: `${where}: needs exactly 4 choices (A. to D.).` };
+      if (options.some(o => o.length > 300)) return { error: `${where}: a choice can be up to 300 characters.` };
+      if (answer < 0) return { error: `${where}: add a line like "Answer: B".` };
+      return { question: q, options, answer };
+    });
+  }
+
+  function openBulk(parentKey) {
+    const deck = data.items.find(i => i.kind === 'deck' && i.key === parentKey);
+    const overlay = document.createElement('div');
+    overlay.className = 'ce-overlay';
+    overlay.innerHTML = `
+      <form class="ce-modal" role="dialog" aria-modal="true" aria-labelledby="ceBulkTitle" novalidate>
+        <div class="ce-modal-head">
+          <div><h3 id="ceBulkTitle">Bulk add cards</h3><small>in ${esc(deck ? view(deck).title : '')}</small></div>
+          <button type="button" class="qs-close" data-close aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="ce-modal-body">
+          <label class="ce-field"><span>Paste your cards</span>
+            <textarea name="cards" rows="14" spellcheck="false" placeholder="${esc(BULK_EXAMPLE)}"></textarea>
+            <small>Put a blank line between cards. Each card: the question, then A. to D. choices, then "Answer: B". Up to ${BULK_MAX} at a time.</small>
+          </label>
+          <p class="ce-bulk-status" aria-live="polite"></p>
+        </div>
+        <p class="ce-error" role="alert" hidden></p>
+        <div class="ce-modal-foot">
+          <small><i class="fa-solid fa-circle-info"></i> Saved as drafts. Students see them after you publish.</small>
+          <span><button type="button" class="tool-btn" data-close>Cancel</button>
+          <button type="submit" class="tool-btn ce-publish" disabled><i class="fa-solid fa-floppy-disk"></i> Add cards</button></span>
+        </div>
+      </form>`;
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => overlay.classList.add('is-open'));
+    const form = overlay.querySelector('form');
+    const status = form.querySelector('.ce-bulk-status');
+    const errorEl = form.querySelector('.ce-error');
+    const saveBtn = form.querySelector('[type="submit"]');
+    let busy = false;
+
+    const close = () => {
+      if (busy) return;
+      overlay.classList.remove('is-open');
+      document.removeEventListener('keydown', onKey);
+      setTimeout(() => overlay.remove(), 200);
+    };
+    const onKey = (e) => { if (e.key === 'Escape') close(); };
+    document.addEventListener('keydown', onKey);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay || e.target.closest('[data-close]')) close(); });
+
+    // Live check while typing
+    const check = () => {
+      const cards = parseBulkCards(form.elements.cards.value);
+      const bad = cards.find(c => c.error);
+      const tooMany = cards.length > BULK_MAX;
+      status.className = `ce-bulk-status${bad || tooMany ? ' is-bad' : cards.length ? ' is-ok' : ''}`;
+      status.textContent = bad ? bad.error
+        : tooMany ? `${cards.length} cards: up to ${BULK_MAX} at a time, please.`
+        : cards.length ? `${cards.length} card${cards.length === 1 ? '' : 's'} ready to add.` : '';
+      saveBtn.disabled = !cards.length || !!bad || tooMany;
+      return cards;
+    };
+    form.addEventListener('input', check);
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const cards = check();
+      if (saveBtn.disabled) return;
+      busy = true;
+      saveBtn.disabled = true;
+      errorEl.hidden = true;
+      let added = 0;
+      try {
+        // One at a time so the cards keep the pasted order
+        for (const card of cards) {
+          status.textContent = `Adding ${added + 1} of ${cards.length}...`;
+          await api.post('/admin/content', { kind: 'card', parentKey, data: card });
+          added++;
+        }
+      } catch (err) {
+        errorEl.textContent = `Card ${added + 1}: ${err.message}${added ? ` (the first ${added} were added)` : ''}`;
+        errorEl.hidden = false;
+      }
+      busy = false;
+      open.add(`deck:${parentKey}`);
+      if (added === cards.length) {
+        close();
+        toast(`${added} card${added === 1 ? '' : 's'} added as drafts`);
+      } else {
+        // Keep only the cards that weren't added, so fixing and retrying is easy
+        form.elements.cards.value = form.elements.cards.value.replace(/\r/g, '').split(/\n\s*\n/).map(b => b.trim()).filter(Boolean).slice(added).join('\n\n');
+        check();
+      }
+      await load();
+    });
+
+    form.elements.cards.focus();
   }
 
   // ---------- Drag & drop (mouse and touch, via pointer events) ----------

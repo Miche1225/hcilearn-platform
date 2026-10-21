@@ -63,8 +63,10 @@ async function loadStudents(instructor) {
   const videos = await perUser(
     `SELECT user_id, COUNT(DISTINCT video_id)::int AS n FROM video_progress
      WHERE user_id = ANY($1::int[]) AND video_id = ANY($2) GROUP BY user_id`, [videoIds]);
+  // Only badges that still exist (the daily-goal ones were removed)
   const badges = await perUser(
-    'SELECT user_id, COUNT(*)::int AS n FROM user_badges WHERE user_id = ANY($1::int[]) GROUP BY user_id');
+    'SELECT user_id, COUNT(*)::int AS n FROM user_badges WHERE user_id = ANY($1::int[]) AND badge_id = ANY($2) GROUP BY user_id',
+    [getBadges(content.totals).map(b => b.id)]);
   const answers = await perUser(
     `SELECT user_id, COALESCE(SUM(answers), 0)::int AS answers, COALESCE(SUM(correct), 0)::int AS correct
      FROM daily_activity WHERE user_id = ANY($1::int[]) GROUP BY user_id`);

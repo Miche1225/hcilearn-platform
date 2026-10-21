@@ -24,8 +24,6 @@ const BADGE_DEFS = [
   { id: 'on_fire',          name: 'On Fire',          description: 'Study 3 days in a row.',               icon: 'fa-fire',             color: 'coral', stat: 'longestStreak',  target: 3 },
   { id: 'week_warrior',     name: 'Week Warrior',     description: 'Study 7 days in a row.',               icon: 'fa-calendar-check',   color: 'sun',   stat: 'longestStreak',  target: 7 },
   { id: 'month_master',     name: 'Month Master',     description: 'Study 30 days in a row.',              icon: 'fa-calendar-days',    color: 'pink',  stat: 'longestStreak',  target: 30 },
-  { id: 'goal_getter',      name: 'Goal Getter',      description: 'Reach your daily goal.',               icon: 'fa-flag-checkered',   color: 'mint',  stat: 'goalDays',       target: 1 },
-  { id: 'goal_crusher',     name: 'Goal Crusher',     description: 'Reach your daily goal on 7 days.',     icon: 'fa-mountain',         color: 'sky',   stat: 'goalDays',       target: 7 },
   { id: 'sharpshooter',     name: 'Sharpshooter',     description: 'Get 50 answers right.',                icon: 'fa-bullseye',         color: 'coral', stat: 'correct',        target: 50 },
   { id: 'century',          name: 'Century',          description: 'Get 100 answers right.',               icon: 'fa-medal',            color: 'sun',   stat: 'correct',        target: 100 },
   { id: 'quiz_whiz',        name: 'Quiz Whiz',        description: 'Get 250 answers right.',               icon: 'fa-brain',            color: 'grape', stat: 'correct',        target: 250 },
@@ -300,6 +298,52 @@ router.put('/goal', async (req, res, next) => {
       justMetGoal: goalResult.rowCount > 0,
       newBadges: await checkBadges(req.userId, today),
     });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ---------- Leaderboards ----------
+// Ranks every student by correct answers in the last 7 days. Students with
+// no points are left off the top list (you always see your own rank).
+// Names are shortened to "Juan D." and no ids are sent.
+const LEADERBOARD_TOP = 10;
+const LEADERBOARD_ALL_MAX = 2000; // shortcut: whole list in one response, add paging if students ever exceed this
+
+function shortName(row) {
+  const parts = row.full_name.split(' ').filter(Boolean);
+  const first = row.first_name || parts[0] || 'Student';
+  const last = row.last_name || (parts.length > 1 ? parts[parts.length - 1] : '');
+  return last ? `${first} ${last[0].toUpperCase()}.` : first;
+}
+
+// GET /api/gamify/leaderboard
+router.get('/leaderboard', async (req, res, next) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT u.id, u.full_name, u.first_name, u.last_name, COALESCE(SUM(d.correct), 0)::int AS points
+       FROM users u
+       LEFT JOIN daily_activity d ON d.user_id = u.id AND d.day >= $1
+       WHERE u.disabled_at IS NULL
+       GROUP BY u.id
+       ORDER BY points DESC, u.full_name`,
+      [addDays(todayLocal(), -6)]
+    );
+    // Same points = same rank
+    let rank = 0;
+    const ranked = rows.map((r, i) => {
+      if (i === 0 || r.points !== rows[i - 1].points) rank = i + 1;
+      return { rank, name: shortName(r), points: r.points, isMe: r.id === req.userId };
+    });
+    // ?all=1 (the "See all" pop-up) lists everyone, 0 points included
+    if (req.query.all === '1') {
+      return res.json({ total: ranked.length, entries: ranked.slice(0, LEADERBOARD_ALL_MAX) });
+    }
+    const entries = ranked.filter(e => e.points > 0).slice(0, LEADERBOARD_TOP);
+    const mine = ranked.find(e => e.isMe);
+    if (mine && !entries.includes(mine)) entries.push(mine);
+
+    res.json({ total: ranked.length, entries });
   } catch (err) {
     next(err);
   }
