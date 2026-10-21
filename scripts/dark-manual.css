@@ -52,3 +52,8 @@
 :root[data-theme="dark"] {
     --ring-track: #2c2840;
 }
+
+/* Quick search: keep highlighted words dark on the yellow highlight */
+:root[data-theme="dark"] .qs-result mark {
+    color: #1d1640;
+}

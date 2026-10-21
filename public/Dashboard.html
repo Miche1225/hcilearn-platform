@@ -9,8 +9,8 @@
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
-    <link rel="stylesheet" href="style.css?v=38">
-    <link rel="stylesheet" href="dark.css?v=1">
+    <link rel="stylesheet" href="style.css?v=40">
+    <link rel="stylesheet" href="dark.css?v=3">
     <script src="js/theme.js?v=1"></script>
     <!-- FontAwesome for the input icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -97,6 +97,46 @@
                         <span id="lastActivityTime">Start your first lesson today</span>
                     </div>
                 </div>
+            </div>
+
+            <!-- Study streak, daily goal and badges (pinupuno ng loadGamify()) -->
+            <div class="streak-row">
+
+                <div class="card streak-card">
+                    <div class="streak-main">
+                        <div class="streak-flame" id="streakFlame"><i class="fa-solid fa-fire"></i></div>
+                        <div class="streak-text">
+                            <strong><span id="streakCount">0</span> day streak</strong>
+                            <small id="streakNote">Answer a question today to start a streak!</small>
+                        </div>
+                    </div>
+                    <div class="streak-week" id="streakWeek" aria-label="Last 7 days"></div>
+                    <small class="streak-best">Best: <b id="streakBest">0</b> days</small>
+                </div>
+
+                <div class="card goal-card">
+                    <div class="goal-ring" id="goalRing">
+                        <div class="goal-ring-inner">
+                            <strong id="goalCount">0</strong>
+                            <small id="goalOf">of 10</small>
+                        </div>
+                    </div>
+                    <div class="goal-text">
+                        <h3>Daily goal</h3>
+                        <p id="goalMsg">Answer 10 questions today.</p>
+                        <label class="goal-select">
+                            <span>Goal</span>
+                            <select id="goalSelect" aria-label="Daily goal"></select>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card badges-card">
+                    <h3 class="card-title"><i class="fa-solid fa-medal icon-title"></i> Badges <span class="badge-count" id="badgeCount">0 / 14</span></h3>
+                    <div class="badge-mini-row" id="badgeMini"></div>
+                    <a href="Account.html#badges" class="badge-link">See all badges <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+
             </div>
 
             <!-- Dashboard Grid Layout -->
@@ -244,6 +284,9 @@
     </div>
 
     <script src="js/api.js?v=7"></script>
+    <script src="js/sfx.js?v=5"></script>
+    <script src="js/gamify.js?v=1"></script>
+    <script src="js/search.js?v=2"></script>
     <script>
         const ACTIVITY_ICONS = {
             video: 'fa-play',
@@ -433,6 +476,79 @@
 
 
         loadDashboard();
+
+
+        // ========================================================
+        // STUDY STREAK, DAILY GOAL AT BADGES
+        // ========================================================
+        function renderGoal(today) {
+            const done = Math.min(today.answers, today.goal);
+            document.getElementById('goalCount').textContent = today.answers;
+            document.getElementById('goalOf').textContent = `of ${today.goal}`;
+            document.getElementById('goalRing').style.setProperty('--goal', `${(done / today.goal) * 360}deg`);
+            document.getElementById('goalRing').classList.toggle('is-done', today.goalMet);
+            const left = today.goal - today.answers;
+            document.getElementById('goalMsg').textContent = today.goalMet
+                ? 'Goal reached! Nice work today. 🎉'
+                : `${left} more question${left === 1 ? '' : 's'} to reach today's goal.`;
+            document.getElementById('goalSelect').value = String(today.goal);
+        }
+
+        function renderGamify(data) {
+            const { streak, week, badges } = data;
+
+            document.getElementById('streakCount').textContent = streak.current;
+            document.getElementById('streakBest').textContent = streak.longest;
+            document.getElementById('streakFlame').classList.toggle('is-lit', streak.current > 0);
+            document.getElementById('streakNote').textContent =
+                streak.current === 0 ? 'Answer a question today to start a streak!'
+                : streak.activeToday ? "You studied today. Keep it going tomorrow!"
+                : "Study today to keep your streak alive!";
+
+            document.getElementById('streakWeek').innerHTML = week.map(d => `
+                <span class="streak-day${d.active ? ' is-active' : ''}${d.isToday ? ' is-today' : ''}" title="${d.day}: ${d.answers} answered">
+                    <span class="streak-dot">${d.active ? '<i class="fa-solid fa-fire"></i>' : ''}</span>
+                    <small>${d.isToday ? 'Today' : d.label}</small>
+                </span>`).join('');
+
+            const select = document.getElementById('goalSelect');
+            if (!select.options.length) {
+                select.innerHTML = data.goalChoices.map(g => `<option value="${g}">${g} questions</option>`).join('');
+            }
+            renderGoal(data.today);
+
+            const earned = badges.filter(b => b.earned);
+            document.getElementById('badgeCount').textContent = `${earned.length} / ${badges.length}`;
+            // Recently earned first, then the closest ones still locked
+            const recent = earned.sort((a, b) => new Date(b.earnedAt) - new Date(a.earnedAt));
+            const next = badges.filter(b => !b.earned).sort((a, b) => b.progress / b.target - a.progress / a.target);
+            document.getElementById('badgeMini').innerHTML = [...recent, ...next].slice(0, 5).map(b => `
+                <span class="badge-mini badge-${b.color}${b.earned ? ' is-earned' : ''}" title="${escapeHtml(b.name)}: ${escapeHtml(b.description)}${b.earned ? '' : ` (${b.progress}/${b.target})`}">
+                    <i class="fa-solid ${b.earned ? b.icon : 'fa-lock'}"></i>
+                </span>`).join('');
+        }
+
+        async function loadGamify() {
+            try {
+                const data = await api.get('/gamify/summary');
+                renderGamify(data);
+                HCIGamify.celebrate(data.newBadges);
+            } catch (err) {
+                console.error('Could not load streak and badges:', err);
+            }
+        }
+
+        document.getElementById('goalSelect').addEventListener('change', async (e) => {
+            try {
+                const result = await api.put('/gamify/goal', { goal: Number(e.target.value) });
+                renderGoal(result.today);
+                HCIGamify.show(result);
+            } catch (err) {
+                console.error('Could not save goal:', err);
+            }
+        });
+
+        loadGamify();
     </script>
 
 </body>

@@ -9,8 +9,8 @@
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
-    <link rel="stylesheet" href="style.css?v=38">
-    <link rel="stylesheet" href="dark.css?v=1">
+    <link rel="stylesheet" href="style.css?v=40">
+    <link rel="stylesheet" href="dark.css?v=3">
     <script src="js/theme.js?v=1"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -20,7 +20,10 @@
     </noscript>
 
     <script src="js/api.js?v=7"></script>
-    <script src="js/bookmarks.js?v=1"></script>
+    <script src="js/bookmarks.js?v=2"></script>
+    <script src="js/sfx.js?v=5"></script>
+    <script src="js/gamify.js?v=1"></script>
+    <script src="js/search.js?v=2"></script>
     <script>
         requireAuth();
         document.addEventListener('DOMContentLoaded', function() {
@@ -4349,12 +4352,23 @@
                 item.querySelector('.accordion-button').setAttribute('aria-expanded', open);
             }
 
+            // Study streak: bilangin ang topic na binuksan mismo ng user
+            // (isang beses lang bawat topic; hindi kasama ang "Expand all")
+            const topicsCounted = new Set();
+            function countRead(item) {
+                if (topicsCounted.has(item.id)) return;
+                topicsCounted.add(item.id);
+                HCIGamify.record('read');
+            }
+
             accordionItems.forEach(item => {
                 const button = item.querySelector('.accordion-button');
                 button.setAttribute('aria-expanded', 'false');
 
                 button.addEventListener('click', function() {
-                    setOpen(item, !item.classList.contains('active'));
+                    const opening = !item.classList.contains('active');
+                    setOpen(item, opening);
+                    if (opening) countRead(item);
                 });
             });
 
@@ -4455,6 +4469,7 @@
                 const item = match && document.getElementById(`topic-${match[1]}`);
                 if (!item) return;
                 setOpen(item, true);
+                countRead(item);
                 item.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 item.classList.add('is-highlighted');
                 setTimeout(() => item.classList.remove('is-highlighted'), 2000);

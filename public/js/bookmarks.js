@@ -72,7 +72,10 @@ const HCIBookmarks = (function () {
     const existing = get(kind, itemKey);
     const note = await noteDialog({ title, note: existing ? existing.note : '' });
     if (note === null) return null;
-    return save(kind, itemKey, title, note);
+    const bookmark = await save(kind, itemKey, title, note);
+    // Notes count toward the "Note Taker" badge
+    if (typeof HCIGamify !== 'undefined' && bookmark.note) HCIGamify.check();
+    return bookmark;
   }
 
   // Note editor (same look as confirmDialog). Resolves with the text or null.

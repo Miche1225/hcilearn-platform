@@ -9,13 +9,21 @@ flashcards, and their progress is saved to their account.
 | Page | What it does |
 |---|---|
 | **Login / Sign up** | Accounts with hashed passwords, "remember me", and forgot-password by email |
-| **Dashboard** | Overall progress ring, per-module stats, "up next" suggestion and recent activity |
+| **Dashboard** | Overall progress ring, per-module stats, "up next" suggestion, recent activity, study streak, daily goal and badges |
 | **Watch Video** | YouTube lessons with search and filters; a video is marked watched automatically when it ends, and resumes where you left off |
 | **Read Lesson** | Learning objectives, outline and expandable lessons with search and "jump to lesson"; any topic can be saved with a note |
 | **Case Studies** | 50 scenarios that unlock one at a time as you answer correctly, plus "Review mistakes" |
 | **Study Cards** | 11 flashcard decks; wrong answers come back until the deck is mastered, plus a "Review my mistakes" deck |
 | **Saved** | Bookmarked topics and videos with personal notes; search, filter, edit and remove |
-| **Account** | Edit profile, upload a photo, change password, delete account |
+| **Account** | Badge collection with progress, edit profile, upload a photo, change password, delete account |
+
+Every logged-in page has **Quick Search** (menu item, Ctrl+K or "/") over
+lesson topics, videos, case studies, study cards and an HCI glossary.
+
+**Study streak & daily goal:** answering questions, finishing videos and
+opening lesson topics count as studying for the day (Philippine time).
+Students pick a daily goal of 5–30 answered questions. **14 badges** unlock
+for milestones, with a pop-up and confetti.
 
 Quizzes have sound effects (with a mute button) and confetti on correct
 answers. Every page has a **dark mode** (menu item, or the round button on
@@ -46,19 +54,26 @@ hcilearn-platform/
 │   │   ├── auth.js           # signup, login, logout, forgot/reset password, /me
 │   │   ├── account.js        # profile, photo upload, delete account
 │   │   ├── progress.js       # dashboard summary, per-module progress, video positions, mistakes
-│   │   └── bookmarks.js      # saved topics/videos + notes
+│   │   ├── bookmarks.js      # saved topics/videos + notes
+│   │   └── gamify.js         # study streak, daily goal, badges
 │   ├── content.js            # course content the server validates against (videos, totals)
 │   └── utils/                # mailer, password rules, email hashing
 ├── scripts/
 │   ├── build-dark-css.js     # generates public/dark.css from style.css
-│   └── dark-manual.css       # hand-written dark mode fixes
+│   ├── dark-manual.css       # hand-written dark mode fixes
+│   ├── build-search-index.js # generates public/search-index.json from the pages
+│   ├── glossary.json         # HCI glossary terms for Quick Search
+│   └── check.js              # npm test
 └── public/                   # front-end pages
     ├── style.css             # shared stylesheet for every page
     ├── dark.css              # dark mode (generated, don't edit by hand)
+    ├── search-index.json     # Quick Search data (generated, don't edit by hand)
     └── js/
         ├── api.js            # fetch helper, auth check, sidebar
         ├── theme.js          # light/dark mode switch
         ├── bookmarks.js      # bookmarks + note dialog
+        ├── gamify.js         # reports activity, badge / goal pop-ups
+        ├── search.js         # Quick Search window
         └── sfx.js            # quiz sounds + confetti
 ```
 
@@ -89,6 +104,16 @@ npm run build:dark
 For anything the generator gets wrong, add a rule to `scripts/dark-manual.css`
 (it is appended to the end of `dark.css`) and run the command again.
 
+### Search index
+
+`public/search-index.json` is generated from the lesson topics, videos, case
+studies and study cards written in the pages, plus `scripts/glossary.json`.
+**After changing any of that content, run:**
+
+```bash
+npm run build:search
+```
+
 ### Checks
 
 ```bash
@@ -96,7 +121,7 @@ npm test
 ```
 
 Checks that every JavaScript file and inline page script parses, and that
-`dark.css` is up to date. Run it before pushing.
+`dark.css` and `search-index.json` are up to date. Run it before pushing.
 
 ## Environment variables
 
@@ -153,6 +178,10 @@ the password-reset routes requires the login cookie.
 | GET | `/bookmarks` | Saved topics and videos |
 | PUT | `/bookmarks` | Save an item or update its note |
 | DELETE | `/bookmarks/:id` | Remove a saved item |
+| GET | `/gamify/summary` | Streak, today's goal progress, last 7 days, badges |
+| POST | `/gamify/activity` | Record an answer / finished video / opened topic / cleared mistake |
+| POST | `/gamify/check` | Award any badges earned from other progress |
+| PUT | `/gamify/goal` | Change the daily goal (5, 10, 20 or 30) |
 
 ## Database
 
@@ -165,6 +194,8 @@ the password-reset routes requires the login cookie.
 - `video_positions`: where each user stopped in each video
 - `mistakes`: questions answered wrong, for "Review my mistakes"
 - `bookmarks`: saved topics/videos with notes
+- `daily_activity`: what each user did per day, for the streak, daily goal and badges
+- `user_badges`: badges each user has earned (the goal itself is `users.daily_goal`)
 
 ## Security
 

@@ -2752,6 +2752,312 @@
 :root[data-theme="dark"] .saved-error {
     color: hsl(250 12% 70%);
 }
+:root[data-theme="dark"] .badge-mint {
+    --b1: #3fcf9b;
+    --b2: #2bb3a3;
+    --bt: hsl(154 45% 21%);
+}
+:root[data-theme="dark"] .badge-coral {
+    --b1: #ff8a5c;
+    --b2: #ff6f7d;
+    --bt: hsl(21 45% 21%);
+}
+:root[data-theme="dark"] .badge-sun {
+    --b1: #ffc93c;
+    --b2: #ff9f2e;
+    --bt: hsl(48 45% 24%);
+}
+:root[data-theme="dark"] .badge-grape {
+    --b1: #9b7bff;
+    --b2: #6a4cf0;
+    --bt: hsl(255 45% 20%);
+}
+:root[data-theme="dark"] .badge-sky {
+    --b1: #4fb3ff;
+    --b2: #3d7cf0;
+    --bt: hsl(208 45% 20%);
+}
+:root[data-theme="dark"] .badge-pink {
+    --b1: #ff8fbd;
+    --b2: #e2609f;
+    --bt: hsl(336 45% 20%);
+}
+:root[data-theme="dark"] .dashboard-page .streak-card {
+    --fun-stripe: linear-gradient(90deg, var(--fun-coral), var(--fun-sun));
+}
+:root[data-theme="dark"] .dashboard-page .goal-card {
+    --fun-stripe: linear-gradient(90deg, var(--fun-mint), var(--fun-sky));
+}
+:root[data-theme="dark"] .dashboard-page .badges-card {
+    --fun-stripe: linear-gradient(90deg, var(--fun-grape), var(--fun-pink));
+}
+:root[data-theme="dark"] .streak-flame {
+    background: hsl(253 36% 20%);
+    color: #b9b4cc;
+}
+:root[data-theme="dark"] .streak-flame.is-lit {
+    background: linear-gradient(135deg, var(--fun-sun), var(--fun-coral));
+    color: #fff;
+    box-shadow: 0 8px 18px rgba(255, 138, 92, 0.35);
+}
+:root[data-theme="dark"] .streak-text strong {
+    color: hsl(250 49% 87%);
+}
+:root[data-theme="dark"] .streak-text strong span {
+    background: linear-gradient(135deg, var(--fun-coral), var(--fun-pink));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+:root[data-theme="dark"] .streak-text small,
+:root[data-theme="dark"] .streak-best {
+    color: hsl(250 12% 70%);
+}
+:root[data-theme="dark"] .streak-dot {
+    background: hsl(253 36% 20%);
+    color: #fff;
+}
+:root[data-theme="dark"] .streak-day.is-active .streak-dot {
+    background: linear-gradient(135deg, var(--fun-sun), var(--fun-coral));
+}
+:root[data-theme="dark"] .streak-day.is-today .streak-dot {
+    box-shadow: 0 0 0 3px hsl(250 14% 17%), 0 0 0 5px var(--fun-coral);
+}
+:root[data-theme="dark"] .streak-day small {
+    color: hsl(250 12% 67%);
+}
+:root[data-theme="dark"] .streak-day.is-today small {
+    color: var(--fun-coral);
+}
+:root[data-theme="dark"] .goal-ring {
+    --goal: 0deg;
+    background: conic-gradient(var(--fun-mint) var(--goal), var(--ring-track, hsl(250 14% 24%)) 0deg);
+}
+:root[data-theme="dark"] .goal-ring.is-done {
+    background: conic-gradient(var(--fun-mint), var(--fun-sky), var(--fun-mint));
+    box-shadow: 0 0 0 4px rgba(63, 207, 155, 0.2);
+}
+:root[data-theme="dark"] .goal-ring-inner {
+    background: hsl(250 14% 17%);
+}
+:root[data-theme="dark"] .goal-ring-inner strong {
+    color: hsl(250 49% 87%);
+}
+:root[data-theme="dark"] .goal-ring-inner small {
+    color: hsl(250 12% 67%);
+}
+:root[data-theme="dark"] .goal-text h3 {
+    color: hsl(250 49% 87%);
+}
+:root[data-theme="dark"] .goal-text p {
+    color: hsl(250 12% 74%);
+}
+:root[data-theme="dark"] .goal-select {
+    color: hsl(250 12% 70%);
+}
+:root[data-theme="dark"] .goal-select select {
+    border: 2px solid hsl(253 45% 20%);
+    background: hsl(250 14% 17%);
+    color: hsl(247 54% 69%);
+}
+:root[data-theme="dark"] .badge-count {
+    background: hsl(255 45% 20%);
+    color: hsl(247 54% 69%);
+}
+:root[data-theme="dark"] .badge-mini {
+    background: hsl(253 36% 20%);
+    color: #b9b4cc;
+}
+:root[data-theme="dark"] .badge-mini.is-earned {
+    background: linear-gradient(135deg, var(--b1), var(--b2));
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+}
+:root[data-theme="dark"] .badge-link {
+    color: var(--fun-grape);
+}
+:root[data-theme="dark"] .acct-streak-chip {
+    background: linear-gradient(135deg, var(--fun-sun), var(--fun-coral));
+    color: #fff;
+}
+:root[data-theme="dark"] .badge-tile {
+    border: 2px dashed hsl(253 41% 22%);
+    background: hsl(252 45% 18%);
+}
+:root[data-theme="dark"] .badge-tile.is-earned {
+    border: 2px solid var(--b1);
+    background: var(--bt);
+}
+:root[data-theme="dark"] .badge-tile-icon {
+    background: hsl(254 39% 21%);
+    color: #b9b4cc;
+}
+:root[data-theme="dark"] .badge-tile.is-earned .badge-tile-icon {
+    background: linear-gradient(135deg, var(--b1), var(--b2));
+    color: #fff;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+:root[data-theme="dark"] .badge-lock {
+    background: hsl(250 14% 17%);
+    color: #9a95b0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+:root[data-theme="dark"] .badge-tile strong {
+    color: hsl(250 49% 87%);
+}
+:root[data-theme="dark"] .badge-desc {
+    color: hsl(250 12% 70%);
+}
+:root[data-theme="dark"] .badge-progress {
+    background: hsl(254 39% 21%);
+}
+:root[data-theme="dark"] .badge-progress div {
+    background: linear-gradient(90deg, var(--b1), var(--b2));
+}
+:root[data-theme="dark"] .badge-state {
+    color: hsl(250 12% 67%);
+}
+:root[data-theme="dark"] .badge-tile.is-earned .badge-state {
+    color: var(--b2);
+}
+:root[data-theme="dark"] .badge-loading {
+    color: hsl(250 12% 70%);
+}
+:root[data-theme="dark"] .badge-pop {
+    background: hsl(250 14% 17%);
+    border: 3px solid var(--b1);
+    box-shadow: 0 18px 40px rgba(29, 22, 64, 0.28);
+}
+:root[data-theme="dark"] .badge-pop-icon {
+    background: linear-gradient(135deg, var(--b1), var(--b2));
+    color: #fff;
+}
+:root[data-theme="dark"] .badge-pop-text small {
+    color: var(--b2);
+}
+:root[data-theme="dark"] .badge-pop-text strong {
+    color: hsl(250 49% 87%);
+}
+:root[data-theme="dark"] .badge-pop-text span {
+    color: hsl(250 12% 74%);
+}
+:root[data-theme="dark"] .badge-pop-close {
+    border: none;
+    background: none;
+    color: #999;
+}
+:root[data-theme="dark"] .case-page .scenario-card.is-highlighted,
+:root[data-theme="dark"] .study-page .deck.is-highlighted .deck-face {
+    border-color: var(--fun-grape);
+}
+:root[data-theme="dark"] .nav-item.search-trigger {
+    border: none;
+    background: rgba(255, 255, 255, 0.08);
+    --nav-c: #9fe0ff;
+    --nav-tint: rgba(159, 224, 255, 0.16);
+}
+:root[data-theme="dark"] .nav-kbd {
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.7);
+}
+:root[data-theme="dark"] .qs-overlay {
+    background: rgba(20, 16, 45, 0.45);
+}
+:root[data-theme="dark"] .qs-panel {
+    background: hsl(250 14% 17%);
+    box-shadow: 0 24px 60px rgba(20, 16, 45, 0.35);
+}
+:root[data-theme="dark"] .qs-input-row {
+    border-bottom: 2px solid hsl(253 36% 20%);
+    color: var(--fun-grape);
+}
+:root[data-theme="dark"] .qs-input {
+    border: none;
+    outline: none;
+    background: transparent;
+    color: hsl(250 49% 87%);
+}
+:root[data-theme="dark"] .qs-close {
+    border: none;
+    background: hsl(252 45% 19%);
+    color: hsl(248 16% 69%);
+}
+:root[data-theme="dark"] .qs-close:hover {
+    background: hsl(336 45% 20%);
+    color: hsl(335 51% 68%);
+}
+:root[data-theme="dark"] .qs-close:focus-visible {
+    outline: 2px solid var(--fun-grape);
+}
+:root[data-theme="dark"] .qs-panel kbd {
+    border: 1px solid hsl(253 41% 22%);
+    background: hsl(251 45% 18%);
+    color: hsl(248 16% 69%);
+}
+:root[data-theme="dark"] .qs-group h4 {
+    color: #9a95b0;
+}
+:root[data-theme="dark"] .qs-result {
+    color: inherit;
+}
+:root[data-theme="dark"] .qs-result.is-active {
+    background: hsl(255 45% 19%);
+}
+:root[data-theme="dark"] .qs-term .qs-icon {
+    background: hsl(48 45% 24%);
+    color: hsl(44 75% 76%);
+}
+:root[data-theme="dark"] .qs-topic .qs-icon {
+    background: hsl(154 45% 21%);
+    color: hsl(155 57% 78%);
+}
+:root[data-theme="dark"] .qs-video .qs-icon {
+    background: hsl(208 45% 20%);
+    color: hsl(213 66% 72%);
+}
+:root[data-theme="dark"] .qs-case .qs-icon {
+    background: hsl(21 45% 21%);
+    color: hsl(10 64% 70%);
+}
+:root[data-theme="dark"] .qs-card .qs-icon {
+    background: hsl(255 45% 20%);
+    color: #6a4cf0;
+}
+:root[data-theme="dark"] .qs-body strong {
+    color: hsl(250 49% 87%);
+}
+:root[data-theme="dark"] .qs-snippet {
+    color: hsl(250 12% 78%);
+}
+:root[data-theme="dark"] .qs-body small {
+    color: #9a95b0;
+}
+:root[data-theme="dark"] .qs-result mark {
+    background: #ffe48a;
+    color: inherit;
+}
+:root[data-theme="dark"] .qs-go {
+    color: #c4bfe0;
+}
+:root[data-theme="dark"] .qs-result.is-active .qs-go {
+    color: var(--fun-grape);
+}
+:root[data-theme="dark"] .qs-empty,
+:root[data-theme="dark"] .qs-status {
+    color: hsl(250 12% 70%);
+}
+:root[data-theme="dark"] .qs-chip {
+    border: 2px solid hsl(253 45% 20%);
+    background: hsl(250 14% 17%);
+    color: hsl(247 54% 69%);
+}
+:root[data-theme="dark"] .qs-chip:hover {
+    border-color: var(--fun-grape);
+}
+:root[data-theme="dark"] .qs-footer {
+    border-top: 2px solid hsl(253 36% 20%);
+    color: #9a95b0;
+}
 
 /* ---------- from update-password.html ---------- */
 :root[data-theme="dark"] body.update-password-page {
@@ -2848,4 +3154,9 @@
 /* Dashboard progress ring: empty part of the track */
 :root[data-theme="dark"] {
     --ring-track: #2c2840;
+}
+
+/* Quick search: keep highlighted words dark on the yellow highlight */
+:root[data-theme="dark"] .qs-result mark {
+    color: #1d1640;
 }

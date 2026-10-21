@@ -354,6 +354,82 @@ async function init() {
             )
         );
 
+
+        /* What each user did per day (Philippine time), for the study
+           streak, the daily goal and some badges. */
+        CREATE TABLE IF NOT EXISTS daily_activity (
+
+            user_id
+                INTEGER
+                NOT NULL
+                REFERENCES users(id)
+                ON DELETE CASCADE,
+
+            day
+                DATE
+                NOT NULL,
+
+            answers
+                INTEGER
+                NOT NULL
+                DEFAULT 0,
+
+            correct
+                INTEGER
+                NOT NULL
+                DEFAULT 0,
+
+            videos
+                INTEGER
+                NOT NULL
+                DEFAULT 0,
+
+            topics_read
+                INTEGER
+                NOT NULL
+                DEFAULT 0,
+
+            mistakes_cleared
+                INTEGER
+                NOT NULL
+                DEFAULT 0,
+
+            goal_met
+                BOOLEAN
+                NOT NULL
+                DEFAULT FALSE,
+
+            PRIMARY KEY (
+                user_id,
+                day
+            )
+        );
+
+
+        /* Badges a user has earned. */
+        CREATE TABLE IF NOT EXISTS user_badges (
+
+            user_id
+                INTEGER
+                NOT NULL
+                REFERENCES users(id)
+                ON DELETE CASCADE,
+
+            badge_id
+                TEXT
+                NOT NULL,
+
+            earned_at
+                TIMESTAMPTZ
+                NOT NULL
+                DEFAULT NOW(),
+
+            PRIMARY KEY (
+                user_id,
+                badge_id
+            )
+        );
+
     `);
 
 
@@ -393,6 +469,11 @@ async function init() {
         */
         await client.query(
             'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS session_version INTEGER NOT NULL DEFAULT 0'
+        );
+
+        /* Daily goal: how many questions the user wants to answer per day. */
+        await client.query(
+            'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS daily_goal INTEGER NOT NULL DEFAULT 10'
         );
 
 
