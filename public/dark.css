@@ -5,10 +5,7 @@
    ========================================================== */
 
 /* ---------- from style.css ---------- */
-:root[data-theme="dark"] 600;700;800;900&display=swap");
-
-
-:root {
+:root[data-theme="dark"] {
     --ui-zoom: 1;
 }
 @media (min-width: 1281px) and (max-width: 1600px) {
