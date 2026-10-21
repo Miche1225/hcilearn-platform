@@ -9,8 +9,8 @@
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
-    <link rel="stylesheet" href="style.css?v=66">
-    <link rel="stylesheet" href="dark.css?v=29">
+    <link rel="stylesheet" href="style.css?v=71">
+    <link rel="stylesheet" href="dark.css?v=34">
     <script src="js/theme.js?v=3"></script>
     <!-- FontAwesome for the input icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -99,7 +99,7 @@
                 </div>
             </div>
 
-            <!-- Study streak, leaderboards and badges (pinupuno ng loadGamify()) -->
+            <!-- Study streak, badges and quick actions (pinupuno ng loadGamify()) -->
             <div class="streak-row">
 
                 <div class="card streak-card">
@@ -114,15 +114,41 @@
                     <small class="streak-best">Best: <b id="streakBest">0</b> days</small>
                 </div>
 
-                <div class="card leaderboard-card">
-                    <h3 class="card-title"><i class="fa-solid fa-ranking-star icon-title"></i> Leaderboards</h3>
-                    <div id="leaderboardBody"><p class="lb-note"><span class="btn-spinner"></span> Loading...</p></div>
-                </div>
-
                 <div class="card badges-card">
                     <h3 class="card-title"><i class="fa-solid fa-medal icon-title"></i> Badges <span class="badge-count" id="badgeCount">0 / 14</span></h3>
                     <div class="badge-mini-row" id="badgeMini"></div>
                     <a href="Account.html#badges" class="badge-link">See all badges <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card quick-row-card">
+                    <h3 class="card-title"><i class="fa-solid fa-bolt icon-title"></i> Quick Actions</h3>
+                    <div class="quick-list">
+                        <a href="Saved.html" class="quick-item">
+                            <div class="quick-icon book-icon"><i class="fa-solid fa-bookmark"></i></div>
+                            <div class="quick-info">
+                                <h4>My saved notes</h4>
+                                <p>Topics and videos you saved</p>
+                            </div>
+                            <i class="fa-solid fa-chevron-right quick-arrow"></i>
+                        </a>
+                        <a href="StudyCards.html" class="quick-item">
+                            <div class="quick-icon check-action-icon"><i class="fa-regular fa-file-lines"></i></div>
+                            <div class="quick-info">
+                                <h4>Take knowledge check</h4>
+                                <p>Test your understanding</p>
+                            </div>
+                            <i class="fa-solid fa-chevron-right quick-arrow"></i>
+                        </a>
+                        <a href="Account.html" class="quick-item">
+                            <div class="quick-icon user-icon"><i class="fa-regular fa-user"></i></div>
+                            <div class="quick-info">
+                                <h4>View Profile</h4>
+                                <p>Manage your account</p>
+                            </div>
+                            <i class="fa-solid fa-chevron-right quick-arrow"></i>
+                        </a>
+                    </div>
                 </div>
 
             </div>
@@ -230,43 +256,10 @@
                     </div>
                 </div>
 
-                <!-- Quick Actions (row 2, right; "Continue Learning" became "My saved notes" since the Continue card does that job) -->
-                <div class="card quick-links-card">
-                    <h3 class="card-title"><i class="fa-solid fa-bolt icon-title"></i> Quick Actions</h3>
-                    <div class="quick-list">
-                        <a href="Saved.html" class="quick-item">
-                            <div class="quick-icon book-icon"><i class="fa-solid fa-bookmark"></i></div>
-                            <div class="quick-info">
-                                <h4>My saved notes</h4>
-                                <p>Topics and videos you saved</p>
-                            </div>
-                            <i class="fa-solid fa-chevron-right quick-arrow"></i>
-                        </a>
-                        <a href="StudyCards.html" class="quick-item">
-                            <div class="quick-icon check-action-icon"><i class="fa-regular fa-file-lines"></i></div>
-                            <div class="quick-info">
-                                <h4>Take knowledge check</h4>
-                                <p>Test your understanding</p>
-                            </div>
-                            <i class="fa-solid fa-chevron-right quick-arrow"></i>
-                        </a>
-                        <a href="Account.html" class="quick-item">
-                            <div class="quick-icon user-icon"><i class="fa-regular fa-user"></i></div>
-                            <div class="quick-info">
-                                <h4>View Profile</h4>
-                                <p>Manage your account</p>
-                            </div>
-                            <i class="fa-solid fa-chevron-right quick-arrow"></i>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Continue where you left off (in the old Quick Actions spot; keeps its layout class) -->
-                <div class="card quick-actions-card continue-card">
-                    <h3 class="card-title"><i class="fa-solid fa-forward icon-title"></i> Continue where you left off</h3>
-                    <div class="continue-list" id="continueList">
-                        <p class="continue-empty"><span class="btn-spinner"></span> Loading...</p>
-                    </div>
+                <!-- Leaderboards (right of Overall Progress; uses that slot's layout class) -->
+                <div class="card quick-actions-card leaderboard-card">
+                    <h3 class="card-title"><i class="fa-solid fa-ranking-star icon-title"></i> Leaderboards <span class="badge-count" title="Correct answers in the last 7 days">This week</span></h3>
+                    <div id="leaderboardBody"><p class="lb-note"><span class="btn-spinner"></span> Loading...</p></div>
                 </div>
 
             </div>
@@ -443,7 +436,6 @@
                 const summary = await api.get('/progress/summary');
                 animateProgress(summary.overallPercent);
                 renderModules(summary);
-                renderContinue(summary.continue);
 
                 const recentList = document.getElementById('recentList');
                 if (summary.recentActivities.length > 0) {
@@ -464,68 +456,14 @@
                 }
             } catch (err) {
                 console.error('Could not load progress summary:', err);
-                document.getElementById('continueList').innerHTML = '<p class="continue-empty">Could not load. Please refresh the page.</p>';
             }
-        }
-
-        // ========================================================
-        // CONTINUE WHERE YOU LEFT OFF
-        // ========================================================
-        function formatTime(totalSeconds) {
-            const s = Math.floor(totalSeconds);
-            const h = Math.floor(s / 3600);
-            const m = Math.floor((s % 3600) / 60);
-            const sec = String(s % 60).padStart(2, '0');
-            return h ? `${h}:${String(m).padStart(2, '0')}:${sec}` : `${m}:${sec}`;
-        }
-
-        function renderContinue(items) {
-            const tiles = [];
-            const { video, deck, caseStudy } = items || {};
-            if (video) {
-                const resuming = video.position > 0;
-                const percent = resuming ? Math.min(100, (video.position / video.duration) * 100) : 0;
-                tiles.push(`
-                    <a class="continue-tile is-video" href="WatchVideo-Player.html?video=${encodeURIComponent(video.key)}&title=${encodeURIComponent(video.title)}">
-                        <span class="continue-thumb">
-                            <img src="https://img.youtube.com/vi/${encodeURIComponent(video.key)}/mqdefault.jpg" alt="" loading="lazy">
-                            <span class="continue-play"><i class="fa-solid fa-play"></i></span>
-                            ${resuming ? `<span class="continue-bar"><span style="width:${percent}%"></span></span>` : ''}
-                        </span>
-                        <span class="continue-text">
-                            <small>${resuming ? `<i class="fa-solid fa-clock-rotate-left"></i> Resume at ${formatTime(video.position)}` : '<i class="fa-solid fa-play"></i> Next video'}</small>
-                            <strong>${escapeHtml(video.title)}</strong>
-                        </span>
-                    </a>`);
-            }
-            if (deck) {
-                tiles.push(`
-                    <a class="continue-tile is-deck" href="StudyCards.html#deck-${deck.key}">
-                        <span class="continue-icon check-icon"><i class="fa-solid fa-rotate"></i></span>
-                        <span class="continue-text">
-                            <small><i class="fa-solid fa-clone"></i> Next deck · ${deck.cards} card${deck.cards === 1 ? '' : 's'}</small>
-                            <strong>Lesson ${deck.number}: ${escapeHtml(deck.title)}</strong>
-                        </span>
-                    </a>`);
-            }
-            if (caseStudy) {
-                tiles.push(`
-                    <a class="continue-tile is-case" href="CaseStudies.html#scenario-${caseStudy.key}">
-                        <span class="continue-icon case-icon"><i class="fa-solid fa-folder"></i></span>
-                        <span class="continue-text">
-                            <small><i class="fa-solid fa-magnifying-glass"></i> Next case study</small>
-                            <strong>Scenario ${caseStudy.number}: ${escapeHtml(caseStudy.question)}</strong>
-                        </span>
-                    </a>`);
-            }
-            document.getElementById('continueList').innerHTML = tiles.join('')
-                || '<p class="continue-empty"><i class="fa-solid fa-trophy"></i> You finished everything. Amazing work!</p>';
         }
 
         // ========================================================
         // LEADERBOARDS (all students, correct answers in the last 7 days)
         // ========================================================
         const MEDALS = ['🥇', '🥈', '🥉'];
+        const LB_CARD_TOP = 4; // about the height of Overall Progress next to it
 
         // Medals only for top 3 with points (a 0-point tie isn't a podium)
         // Same name always gets the same avatar colour
@@ -534,7 +472,7 @@
 
         const lbRow = (e, i = 0) => `
             <li class="lb-row${e.isMe ? ' is-me' : ''}${e.points && e.rank <= 3 ? ` is-top${e.rank}` : ''}" style="--i:${Math.min(i, 15)}">
-                <span class="lb-rank">${e.points && e.rank <= 3 ? MEDALS[e.rank - 1] : `#${e.rank}`}</span>
+                <span class="lb-rank">${e.points && e.rank <= 3 ? MEDALS[e.rank - 1] : typeof e.rank === 'number' ? `#${e.rank}` : e.rank}</span>
                 ${lbAvatar(e)}
                 <span class="lb-name">${escapeHtml(e.name)}${e.isMe ? ' <small>(you)</small>' : ''}</span>
                 <span class="lb-points"><i class="fa-solid fa-star"></i> <b>${e.points}</b></span>
@@ -555,14 +493,28 @@
         function renderLeaderboard(data) {
             const mine = data.entries.find(e => e.isMe);
             const top = data.entries.filter(e => e.points > 0);
-            // You appear at the bottom when you're not in the top list (or have 0 points)
-            const rows = data.entries.map((e, i) =>
-                (e.isMe && i > 0 && (i >= 10 || !e.points) ? '<li class="lb-gap" aria-hidden="true">⋯</li>' : '') + lbRow(e, i)).join('');
+            // The card shows the top 5 (the rest is in "See all"); you're added at the bottom if not in it
+            // Always 5 rows in total: if you're not in the top 5, it's the top 4 plus you
+            const meBelow = mine && !top.slice(0, LB_CARD_TOP).includes(mine);
+            const ranked = top.slice(0, meBelow ? LB_CARD_TOP - 1 : LB_CARD_TOP);
+            // With 0 points you aren't ranked yet: you take the last open spot, shown with "–"
+            const meUnranked = meBelow && !mine.points;
+            // Fewer than 5 with points: fill the card with open spots instead of empty space
+            const openSpots = Array.from({ length: Math.max(0, LB_CARD_TOP - ranked.length - (meBelow ? 1 : 0)) }, (_, k) => {
+                const place = ranked.length + k;
+                return `
+                <li class="lb-row is-open" style="--i:${place}">
+                    <span class="lb-rank">${place < 3 ? MEDALS[place] : `#${place + 1}`}</span>
+                    <span class="lb-avatar is-open" aria-hidden="true">?</span>
+                    <span class="lb-name">Open spot, answer to claim it!</span>
+                </li>`;
+            }).join('');
+            // Ranked rows, then open spots, then you (if you're not in the top 5)
+            const rows = ranked.map(lbRow).join('') + openSpots
+                + (meUnranked ? lbRow({ ...mine, rank: '–' }, LB_CARD_TOP)
+                    : meBelow ? '<li class="lb-gap" aria-hidden="true">⋯</li>' + lbRow(mine, LB_CARD_TOP) : '');
             document.getElementById('leaderboardBody').innerHTML = `
-                <p class="lb-sub">Correct answers · last 7 days</p>
-                ${top.length ? '' : '<p class="lb-note">No correct answers yet this week. Be the first!</p>'}
                 <ol class="lb-list">${rows}</ol>
-                ${mine && !mine.points ? '<p class="lb-note">Answer study cards or case studies to climb the board!</p>' : ''}
                 <button type="button" class="tool-btn lb-see-all" data-lb-all><i class="fa-solid fa-list-ol"></i> See all ${data.total} student${data.total === 1 ? '' : 's'}</button>`;
         }
 

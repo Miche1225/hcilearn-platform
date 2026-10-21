@@ -263,7 +263,7 @@
 :root[data-theme="dark"] .time {
     color: hsl(250 12% 67%);
 }
-:root[data-theme="dark"] .dashboard-page .quick-links-card {
+:root[data-theme="dark"] .dashboard-page .quick-row-card {
     --fun-stripe: linear-gradient(90deg, var(--fun-mint), var(--fun-sky));
 }
 :root[data-theme="dark"] .quick-item {
@@ -2856,6 +2856,18 @@
 :root[data-theme="dark"] .dashboard-page .badges-card {
     --fun-stripe: linear-gradient(90deg, var(--fun-grape), var(--fun-pink));
 }
+:root[data-theme="dark"] .lb-row.is-open {
+    background: transparent;
+    border-color: hsl(254 45% 23%);
+}
+:root[data-theme="dark"] .lb-row.is-open .lb-name {
+    color: #9a93b8;
+}
+:root[data-theme="dark"] .lb-avatar.is-open {
+    background: hsl(255 45% 20%);
+    color: #a99fd4;
+    box-shadow: none;
+}
 :root[data-theme="dark"] .streak-flame {
     background: hsl(253 36% 20%);
     color: #b9b4cc;
@@ -3764,48 +3776,8 @@
 :root[data-theme="dark"] .student-manage .tool-btn.is-danger:hover {
     background: hsl(13 45% 19%);
 }
-:root[data-theme="dark"] .dashboard-page .continue-card {
-    --fun-stripe: linear-gradient(90deg, var(--fun-sky), var(--fun-grape));
-}
 :root[data-theme="dark"] .dashboard-page .leaderboard-card {
     --fun-stripe: linear-gradient(90deg, var(--fun-sun), var(--fun-pink));
-}
-:root[data-theme="dark"] .continue-tile {
-    border: 2px solid hsl(253 45% 20%);
-    background: hsl(250 14% 17%);
-    color: inherit;
-}
-:root[data-theme="dark"] .continue-tile:hover {
-    border-color: hsl(251 45% 23%);
-    box-shadow: 0 12px 24px rgba(91, 60, 196, 0.14);
-}
-:root[data-theme="dark"] .continue-thumb {
-    background: hsl(254 45% 20%);
-}
-:root[data-theme="dark"] .continue-play {
-    background: rgba(0, 0, 0, 0.5);
-    color: #fff;
-}
-:root[data-theme="dark"] .continue-tile:hover .continue-play {
-    background: var(--fun-grape);
-}
-:root[data-theme="dark"] .continue-bar {
-    background: rgba(0, 0, 0, 0.35);
-}
-:root[data-theme="dark"] .continue-bar span {
-    background: var(--fun-coral);
-}
-:root[data-theme="dark"] .continue-text small {
-    color: var(--fun-grape);
-}
-:root[data-theme="dark"] .continue-text strong {
-    color: hsl(250 49% 87%);
-}
-:root[data-theme="dark"] .continue-empty {
-    color: hsl(250 12% 70%);
-}
-:root[data-theme="dark"] .continue-empty i {
-    color: var(--fun-sun);
 }
 :root[data-theme="dark"] .lb-note,
 :root[data-theme="dark"] .lb-sub {
