@@ -5,6 +5,22 @@
    ========================================================== */
 
 /* ---------- from style.css ---------- */
+:root[data-theme="dark"] 600;700;800;900&display=swap");
+
+
+:root {
+    --ui-zoom: 1;
+}
+@media (min-width: 1281px) and (max-width: 1600px) {
+    :root[data-theme="dark"] {
+        --ui-zoom: 0.9;
+    }
+}
+@media (min-width: 769px) and (max-width: 1280px) {
+    :root[data-theme="dark"] {
+        --ui-zoom: 0.85;
+    }
+}
 :root[data-theme="dark"] .login-section::before {
     background: url('campus-bg.jpg') no-repeat center center/cover;
 }
@@ -246,6 +262,9 @@
 }
 :root[data-theme="dark"] .time {
     color: hsl(250 12% 67%);
+}
+:root[data-theme="dark"] .dashboard-page .quick-links-card {
+    --fun-stripe: linear-gradient(90deg, var(--fun-mint), var(--fun-sky));
 }
 :root[data-theme="dark"] .quick-item {
     background-color: hsl(250 14% 17%);
