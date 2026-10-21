@@ -107,7 +107,7 @@
                         <div class="streak-flame" id="streakFlame"><i class="fa-solid fa-fire"></i></div>
                         <div class="streak-text">
                             <strong><span id="streakCount">0</span> day streak</strong>
-                            <small id="streakNote">Answer a question today to start a streak!</small>
+                            <small id="streakNote">Get an answer right today to start a streak!</small>
                         </div>
                     </div>
                     <div class="streak-week" id="streakWeek" aria-label="Last 7 days"></div>
@@ -123,7 +123,7 @@
                     </div>
                     <div class="goal-text">
                         <h3>Daily goal</h3>
-                        <p id="goalMsg">Answer 10 questions today.</p>
+                        <p id="goalMsg">Get 10 answers right today.</p>
                         <label class="goal-select">
                             <span>Goal</span>
                             <select id="goalSelect" aria-label="Daily goal"></select>
@@ -286,7 +286,7 @@
     <script src="js/api.js?v=10"></script>
     <script src="js/notifications.js?v=2"></script>
     <script src="js/sfx.js?v=6"></script>
-    <script src="js/gamify.js?v=1"></script>
+    <script src="js/gamify.js?v=2"></script>
     <script src="js/search.js?v=3"></script>
     <script>
         const ACTIVITY_ICONS = {
@@ -483,15 +483,16 @@
         // STUDY STREAK, DAILY GOAL AT BADGES
         // ========================================================
         function renderGoal(today) {
-            const done = Math.min(today.answers, today.goal);
-            document.getElementById('goalCount').textContent = today.answers;
+            // The goal counts correct answers
+            const done = Math.min(today.correct, today.goal);
+            document.getElementById('goalCount').textContent = today.correct;
             document.getElementById('goalOf').textContent = `of ${today.goal}`;
             document.getElementById('goalRing').style.setProperty('--goal', `${(done / today.goal) * 360}deg`);
             document.getElementById('goalRing').classList.toggle('is-done', today.goalMet);
-            const left = today.goal - today.answers;
+            const left = today.goal - today.correct;
             document.getElementById('goalMsg').textContent = today.goalMet
                 ? 'Goal reached! Nice work today. 🎉'
-                : `${left} more question${left === 1 ? '' : 's'} to reach today's goal.`;
+                : `${left} more correct answer${left === 1 ? '' : 's'} to reach today's goal.`;
             document.getElementById('goalSelect').value = String(today.goal);
         }
 
@@ -502,19 +503,19 @@
             document.getElementById('streakBest').textContent = streak.longest;
             document.getElementById('streakFlame').classList.toggle('is-lit', streak.current > 0);
             document.getElementById('streakNote').textContent =
-                streak.current === 0 ? 'Answer a question today to start a streak!'
+                streak.current === 0 ? 'Get an answer right today to start a streak!'
                 : streak.activeToday ? "You studied today. Keep it going tomorrow!"
                 : "Study today to keep your streak alive!";
 
             document.getElementById('streakWeek').innerHTML = week.map(d => `
-                <span class="streak-day${d.active ? ' is-active' : ''}${d.isToday ? ' is-today' : ''}" title="${d.day}: ${d.answers} answered">
+                <span class="streak-day${d.active ? ' is-active' : ''}${d.isToday ? ' is-today' : ''}" title="${d.day}: ${d.answers} correct">
                     <span class="streak-dot">${d.active ? '<i class="fa-solid fa-fire"></i>' : ''}</span>
                     <small>${d.isToday ? 'Today' : d.label}</small>
                 </span>`).join('');
 
             const select = document.getElementById('goalSelect');
             if (!select.options.length) {
-                select.innerHTML = data.goalChoices.map(g => `<option value="${g}">${g} questions</option>`).join('');
+                select.innerHTML = data.goalChoices.map(g => `<option value="${g}">${g} correct</option>`).join('');
             }
             renderGoal(data.today);
 
