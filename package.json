@@ -8,7 +8,8 @@
     "dev": "node --watch server.js",
     "build:dark": "node scripts/build-dark-css.js",
     "instructor": "node scripts/instructor.js",
-    "test": "node scripts/check.js"
+    "test": "node scripts/check.js",
+    "lint": "eslint ."
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -24,5 +25,10 @@
   },
   "engines": {
     "node": ">=18"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
+    "globals": "^17.13.0"
   }
 }

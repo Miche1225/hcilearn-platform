@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/build-dark-on-style-edit.js\"",
+            "timeout": 60,
+            "statusMessage": "Rebuilding dark.css..."
+          }
+        ]
+      }
+    ]
+  }
+}
