@@ -142,7 +142,7 @@ function renderSidebarUser(user) {
     const drawerHead = document.createElement('div');
     drawerHead.className = 'drawer-head';
     drawerHead.innerHTML = `
-      <span class="drawer-brand"><img src="favicon.svg" alt=""> HCILearn</span>
+      <span class="drawer-brand"><img src="logo.png" alt=""> HCILearn</span>
       <button type="button" class="drawer-close" aria-label="Close menu"><i class="fa-solid fa-xmark"></i></button>`;
     nav.prepend(drawerHead);
 
