@@ -9,8 +9,8 @@
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
-    <link rel="stylesheet" href="style.css?v=49">
-    <link rel="stylesheet" href="dark.css?v=12">
+    <link rel="stylesheet" href="style.css?v=54">
+    <link rel="stylesheet" href="dark.css?v=17">
     <script src="js/theme.js?v=1"></script>
     <!-- FontAwesome for the input icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -284,7 +284,7 @@
     </div>
 
     <script src="js/api.js?v=10"></script>
-    <script src="js/notifications.js?v=1"></script>
+    <script src="js/notifications.js?v=2"></script>
     <script src="js/sfx.js?v=5"></script>
     <script src="js/gamify.js?v=1"></script>
     <script src="js/search.js?v=3"></script>
@@ -523,11 +523,34 @@
             // Recently earned first, then the closest ones still locked
             const recent = earned.sort((a, b) => new Date(b.earnedAt) - new Date(a.earnedAt));
             const next = badges.filter(b => !b.earned).sort((a, b) => b.progress / b.target - a.progress / a.target);
-            document.getElementById('badgeMini').innerHTML = [...recent, ...next].slice(0, 5).map(b => `
+            badgePreview = [...recent, ...next];
+            renderBadgePreview();
+        }
+
+        // Badge preview: exactly two full rows (as many columns as fit), no gaps
+        const BADGE_MIN = 44;   // smallest badge size in px
+        const BADGE_GAP = 10;
+        let badgePreview = [];
+
+        function renderBadgePreview() {
+            const row = document.getElementById('badgeMini');
+            if (!badgePreview.length) return;
+            const fit = Math.max(3, Math.floor((row.clientWidth + BADGE_GAP) / (BADGE_MIN + BADGE_GAP)));
+            // Not enough badges for two full rows of `fit`? Use fewer (bigger) columns
+            const cols = Math.min(fit, Math.max(1, Math.floor(badgePreview.length / 2)));
+            const shown = badgePreview.slice(0, cols * 2);
+            row.style.setProperty('--badge-cols', cols);
+            row.innerHTML = shown.map(b => `
                 <span class="badge-mini badge-${b.color}${b.earned ? ' is-earned' : ''}" title="${escapeHtml(b.name)}: ${escapeHtml(b.description)}${b.earned ? '' : ` (${b.progress}/${b.target})`}">
                     <i class="fa-solid ${b.earned ? b.icon : 'fa-lock'}"></i>
                 </span>`).join('');
         }
+
+        let badgeResizeTimer = null;
+        window.addEventListener('resize', () => {
+            clearTimeout(badgeResizeTimer);
+            badgeResizeTimer = setTimeout(renderBadgePreview, 150);
+        });
 
         async function loadGamify() {
             try {

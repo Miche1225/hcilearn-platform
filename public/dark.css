@@ -3583,6 +3583,106 @@
     background: none;
     color: #999;
 }
+:root[data-theme="dark"] .ce-drag {
+    border: none;
+    background: none;
+    color: #b9b4cc;
+}
+:root[data-theme="dark"] .ce-drag:hover {
+    background: hsl(252 45% 19%);
+    color: #6a4cf0;
+}
+:root[data-theme="dark"] .ce-drag.is-off:hover {
+    background: none;
+}
+:root[data-theme="dark"] .is-dragging {
+    box-shadow: 0 18px 40px rgba(29, 22, 64, 0.25);
+}
+:root[data-theme="dark"] .ce-group.is-dragging {
+    background: hsl(250 14% 17%);
+}
+:root[data-theme="dark"] .ce-placeholder {
+    border: 2px dashed hsl(252 45% 25%);
+    background: hsl(255 45% 18%);
+}
+:root[data-theme="dark"] .nav-item[data-section="overview"] {
+    --nav-c: #ffd36b;
+    --nav-tint: rgba(255, 211, 107, 0.16);
+    --nav-soft: hsl(44 45% 22%);
+    --nav-strong: #b7791f;
+}
+:root[data-theme="dark"] .nav-item[data-section="students"] {
+    --nav-c: #8fb6ff;
+    --nav-tint: rgba(143, 182, 255, 0.16);
+    --nav-soft: hsl(216 45% 23%);
+    --nav-strong: #4b84e6;
+}
+:root[data-theme="dark"] .nav-item[data-section="content"] {
+    --nav-c: hsl(139 45% 35%);
+    --nav-tint: rgba(143, 214, 166, 0.16);
+    --nav-soft: hsl(141 37% 26%);
+    --nav-strong: #3f8f5b;
+}
+:root[data-theme="dark"] .nav-item[data-section="announcements"] {
+    --nav-c: #ffb37a;
+    --nav-tint: rgba(255, 179, 122, 0.16);
+    --nav-soft: hsl(28 45% 24%);
+    --nav-strong: #d68748;
+}
+:root[data-theme="dark"] .nav-item[data-section="instructors"] {
+    --nav-c: #cfadf5;
+    --nav-tint: rgba(207, 173, 245, 0.16);
+    --nav-soft: hsl(269 45% 23%);
+    --nav-strong: #8352b8;
+}
+:root[data-theme="dark"] .nav-item[data-section="audit"] {
+    --nav-c: #7fe0c4;
+    --nav-tint: rgba(127, 224, 196, 0.16);
+    --nav-soft: hsl(161 45% 23%);
+    --nav-strong: #1f8a6a;
+}
+:root[data-theme="dark"] .nav-badge {
+    background: var(--fun-coral);
+    color: #fff;
+}
+:root[data-theme="dark"] .admin-welcome h3 {
+    color: hsl(250 49% 87%);
+}
+:root[data-theme="dark"] .admin-quick-btn {
+    border: 2px solid hsl(253 45% 20%);
+    background: hsl(250 14% 17%);
+    color: inherit;
+}
+:root[data-theme="dark"] .admin-quick-btn:hover {
+    border-color: hsl(251 45% 23%);
+    box-shadow: 0 12px 24px rgba(91, 60, 196, 0.12);
+}
+:root[data-theme="dark"] .admin-quick-btn > i {
+    background: hsl(255 45% 20%);
+    color: #6a4cf0;
+}
+:root[data-theme="dark"] .admin-quick-btn:nth-child(2) > i {
+    background: hsl(21 45% 21%);
+    color: hsl(10 64% 70%);
+}
+:root[data-theme="dark"] .admin-quick-btn:nth-child(3) > i {
+    background: hsl(154 45% 21%);
+    color: hsl(155 57% 78%);
+}
+:root[data-theme="dark"] .admin-quick-btn:nth-child(4) > i {
+    background: hsl(208 45% 20%);
+    color: hsl(213 66% 72%);
+}
+:root[data-theme="dark"] .admin-quick-btn b {
+    color: hsl(250 49% 87%);
+}
+:root[data-theme="dark"] .admin-quick-btn small {
+    color: hsl(250 12% 67%);
+}
+:root[data-theme="dark"] .ce-sortable > .ce-row[data-drag-id]:hover,
+:root[data-theme="dark"] .ce-sortable > .ce-group[data-drag-id] > .ce-row:hover {
+    border-color: hsl(251 45% 23%);
+}
 
 /* ---------- from update-password.html ---------- */
 :root[data-theme="dark"] body.update-password-page {
