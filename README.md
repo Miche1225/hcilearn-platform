@@ -159,3 +159,10 @@ Forgot-password flow: `login.html` → `POST /api/auth/forgot-password` → emai
 `update-password.html?token=...` → `POST /api/auth/reset-password`.
 Set `APP_URL`, and either `EMAIL_USER`/`EMAIL_PASS` (Gmail App Password) or
 `BREVO_API_KEY`/`EMAIL_FROM` — see `.env.example`.
+---
+
+## Copyright
+
+Copyright © 2026 Micheree Kian M. Grefiel.
+
+All rights reserved. Unauthorized copying, modification, or distribution of this project's code without permission is prohibited.
