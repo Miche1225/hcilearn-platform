@@ -5,6 +5,9 @@
 //
 //     npm run build:dark
 //
+// "node scripts/build-dark-css.js --check" only reports whether dark.css is
+// up to date (used by npm test / CI) and doesn't write anything.
+//
 // How it works: every rule that sets a colour is copied under
 // :root[data-theme="dark"] with its colours flipped:
 //   - light backgrounds / borders become dark surfaces (same hue)
@@ -232,12 +235,15 @@ function convert(nodes) {
 }
 
 // ---------- Build ----------
+// Line endings are normalised so Windows and Linux checkouts give the same output
+const read = (file) => fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
+
 const sources = [
-  { name: 'style.css', css: fs.readFileSync(path.join(PUBLIC, 'style.css'), 'utf8') },
+  { name: 'style.css', css: read(path.join(PUBLIC, 'style.css')) },
 ];
 // Page-level <style> blocks (e.g. update-password.html)
 for (const file of fs.readdirSync(PUBLIC).filter(f => f.endsWith('.html'))) {
-  const html = fs.readFileSync(path.join(PUBLIC, file), 'utf8');
+  const html = read(path.join(PUBLIC, file));
   const blocks = [...html.matchAll(/<style>([\s\S]*?)<\/style>/g)].map(m => m[1]);
   if (blocks.length) sources.push({ name: file, css: blocks.join('\n') });
 }
@@ -254,7 +260,16 @@ for (const src of sources) {
 }
 
 output += '/* ---------- hand-written fixes (scripts/dark-manual.css) ---------- */\n';
-output += fs.readFileSync(path.join(__dirname, 'dark-manual.css'), 'utf8');
+output += read(path.join(__dirname, 'dark-manual.css'));
 
-fs.writeFileSync(OUT, output);
-console.log(`Wrote ${path.relative(ROOT, OUT)} (${(output.length / 1024).toFixed(1)} KB)`);
+if (process.argv.includes('--check')) {
+  const current = fs.existsSync(OUT) ? read(OUT) : '';
+  if (current !== output) {
+    console.error('public/dark.css is out of date. Run "npm run build:dark" and commit the result.');
+    process.exit(1);
+  }
+  console.log('public/dark.css is up to date.');
+} else {
+  fs.writeFileSync(OUT, output);
+  console.log(`Wrote ${path.relative(ROOT, OUT)} (${(output.length / 1024).toFixed(1)} KB)`);
+}

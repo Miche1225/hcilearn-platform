@@ -2071,7 +2071,7 @@
         outline: 2px solid hsl(250 14% 17% / 0.7);
     }
     :root[data-theme="dark"] .sidebar .sidebar-nav {
-        background: radial-gradient(circle at 0% 100%, rgba(58, 107, 168, 0.45), transparent 55%),    
+        background: radial-gradient(circle at 0% 100%, rgba(58, 107, 168, 0.45), transparent 55%),
                 linear-gradient(180deg, #0d3b75 0%, #0a2f5f 100%);
         box-shadow: 10px 0 34px rgba(0, 0, 0, 0.3);
     }

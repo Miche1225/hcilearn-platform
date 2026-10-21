@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "build:dark": "node scripts/build-dark-css.js"
+    "build:dark": "node scripts/build-dark-css.js",
+    "test": "node scripts/check.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

@@ -89,6 +89,16 @@ npm run build:dark
 For anything the generator gets wrong, add a rule to `scripts/dark-manual.css`
 (it is appended to the end of `dark.css`) and run the command again.
 
+### Checks
+
+```bash
+npm test
+```
+
+Checks that every JavaScript file and inline page script parses, and that
+`dark.css` is up to date. GitHub Actions runs it on every push and pull
+request to `main`.
+
 ## Environment variables
 
 See [`.env.example`](.env.example) for the full list with comments.
