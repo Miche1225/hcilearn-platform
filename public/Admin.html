@@ -9,8 +9,8 @@
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
-    <link rel="stylesheet" href="style.css?v=51">
-    <link rel="stylesheet" href="dark.css?v=14">
+    <link rel="stylesheet" href="style.css?v=53">
+    <link rel="stylesheet" href="dark.css?v=16">
     <script src="js/theme.js?v=1"></script>
     <!-- FontAwesome para sa icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -32,11 +32,29 @@
                 </div>
             </div>
 
-            <span class="sidebar-label">Admin</span>
+            <span class="sidebar-label">Home</span>
 
-            <nav class="sidebar-nav">
-                <a href="Admin.html" class="nav-item active">
-                    <i class="fa-solid fa-user-shield"></i> <span class="nav-text">Dashboard</span>
+            <nav class="sidebar-nav" aria-label="Admin sections">
+                <a href="#overview" class="nav-item active" data-section="overview">
+                    <i class="fa-solid fa-house"></i> <span class="nav-text">Overview</span>
+                </a>
+                <span class="sidebar-label sidebar-label-group">Manage</span>
+                <a href="#students" class="nav-item" data-section="students">
+                    <i class="fa-solid fa-users"></i> <span class="nav-text">Students</span>
+                </a>
+                <a href="#content" class="nav-item" data-section="content" id="navContent" hidden>
+                    <i class="fa-solid fa-pen-to-square"></i> <span class="nav-text">Content</span>
+                    <span class="nav-badge" id="contentPending" hidden></span>
+                </a>
+                <a href="#announcements" class="nav-item" data-section="announcements">
+                    <i class="fa-solid fa-bullhorn"></i> <span class="nav-text">Announcements</span>
+                </a>
+                <a href="#instructors" class="nav-item" data-section="instructors" id="navInstructors" hidden>
+                    <i class="fa-solid fa-chalkboard-user"></i> <span class="nav-text">Instructors</span>
+                </a>
+                <span class="sidebar-label sidebar-label-group">Records</span>
+                <a href="#audit" class="nav-item" data-section="audit">
+                    <i class="fa-solid fa-clipboard-list"></i> <span class="nav-text">Activity log</span>
                 </a>
             </nav>
 
@@ -65,10 +83,10 @@
 
                 <!-- Header -->
                 <div class="admin-header">
-                    <div class="admin-header-icon"><i class="fa-solid fa-user-shield"></i></div>
+                    <div class="admin-header-icon" id="sectionIcon"><i class="fa-solid fa-house"></i></div>
                     <div class="admin-header-text">
-                        <h2>Admin Dashboard</h2>
-                        <p id="adminSubtitle">Track how every student is doing across HCILearn.</p>
+                        <h2 id="sectionTitle">Overview</h2>
+                        <p id="adminSubtitle">How your students are doing at a glance.</p>
                     </div>
                     <a href="/api/admin/export.csv" class="tool-btn admin-export" id="exportBtn" hidden>
                         <i class="fa-solid fa-file-csv"></i> Export CSV
@@ -79,23 +97,22 @@
 
                 <div id="adminApp" hidden>
 
-                    <!-- Tabs -->
-                    <div class="admin-tabs" role="tablist" aria-label="Admin sections">
-                        <button type="button" class="admin-tab active" role="tab" aria-selected="true" aria-controls="tab-overview" data-tab="overview"><i class="fa-solid fa-chart-pie"></i> Overview</button>
-                        <button type="button" class="admin-tab" role="tab" aria-selected="false" aria-controls="tab-students" data-tab="students"><i class="fa-solid fa-users"></i> Students</button>
-                        <button type="button" class="admin-tab" role="tab" aria-selected="false" aria-controls="tab-content" data-tab="content" id="tabBtnContent" hidden><i class="fa-solid fa-pen-to-square"></i> Content <span class="ce-dot" id="contentPending" hidden></span></button>
-                        <button type="button" class="admin-tab" role="tab" aria-selected="false" aria-controls="tab-announcements" data-tab="announcements"><i class="fa-solid fa-bullhorn"></i> Announcements</button>
-                        <button type="button" class="admin-tab" role="tab" aria-selected="false" aria-controls="tab-instructors" data-tab="instructors" id="tabBtnInstructors" hidden><i class="fa-solid fa-chalkboard-user"></i> Instructors</button>
-                        <button type="button" class="admin-tab" role="tab" aria-selected="false" aria-controls="tab-audit" data-tab="audit"><i class="fa-solid fa-clipboard-list"></i> Activity log</button>
-                    </div>
-
                     <p class="admin-notice" id="noSectionsNote" hidden>
                         <i class="fa-solid fa-circle-info"></i>
                         You don't have any sections yet, so no students are shown. Ask the main admin to assign your sections.
                     </p>
 
                     <!-- OVERVIEW -->
-                    <section class="admin-panel" id="tab-overview" role="tabpanel">
+                    <section class="admin-panel" id="tab-overview">
+                        <div class="admin-welcome">
+                            <h3 id="welcomeLine">Welcome back!</h3>
+                            <div class="admin-quick">
+                                <a href="#announcements" class="admin-quick-btn"><i class="fa-solid fa-bullhorn"></i><span><b>Post an announcement</b><small>Tell your students something</small></span></a>
+                                <a href="#students" class="admin-quick-btn" data-quick="inactive"><i class="fa-solid fa-user-clock"></i><span><b>Who needs attention</b><small id="quickInactive">Students inactive 7+ days</small></span></a>
+                                <a href="#content" class="admin-quick-btn" id="quickContent" hidden><i class="fa-solid fa-pen-to-square"></i><span><b>Edit content</b><small id="quickContentNote">Videos, lessons, questions</small></span></a>
+                                <a href="/api/admin/export.csv" class="admin-quick-btn" id="quickExport"><i class="fa-solid fa-file-csv"></i><span><b>Export progress</b><small>Spreadsheet (CSV) of everyone</small></span></a>
+                            </div>
+                        </div>
                         <div class="admin-stats">
                             <div class="admin-stat"><i class="fa-solid fa-users"></i><strong id="statStudents">0</strong><span>Students</span></div>
                             <div class="admin-stat"><i class="fa-solid fa-bolt"></i><strong id="statToday">0</strong><span>Active today</span></div>
@@ -127,7 +144,7 @@
                     </section>
 
                     <!-- STUDENTS -->
-                    <section class="admin-panel" id="tab-students" role="tabpanel" hidden>
+                    <section class="admin-panel" id="tab-students" hidden>
                         <div class="admin-toolbar">
                             <div class="search-container admin-search">
                                 <i class="fa-solid fa-magnifying-glass"></i>
@@ -172,12 +189,12 @@
                     </section>
 
                     <!-- CONTENT (js/admin-content.js) -->
-                    <section class="admin-panel" id="tab-content" role="tabpanel" hidden>
+                    <section class="admin-panel" id="tab-content" hidden>
                         <div id="contentEditor"></div>
                     </section>
 
                     <!-- ANNOUNCEMENTS -->
-                    <section class="admin-panel" id="tab-announcements" role="tabpanel" hidden>
+                    <section class="admin-panel" id="tab-announcements" hidden>
                         <div class="admin-grid">
                             <form class="admin-card announce-form" id="announceForm" novalidate>
                                 <h3><i class="fa-solid fa-bullhorn"></i> New announcement</h3>
@@ -197,7 +214,7 @@
                     </section>
 
                     <!-- INSTRUCTORS (main admin only) -->
-                    <section class="admin-panel" id="tab-instructors" role="tabpanel" hidden>
+                    <section class="admin-panel" id="tab-instructors" hidden>
                         <div class="admin-card">
                             <h3><i class="fa-solid fa-chalkboard-user"></i> Instructors</h3>
                             <p class="admin-card-note">Main admins see every student and manage content. Instructors only see the sections you assign to them.</p>
@@ -207,7 +224,7 @@
                     </section>
 
                     <!-- ACTIVITY LOG -->
-                    <section class="admin-panel" id="tab-audit" role="tabpanel" hidden>
+                    <section class="admin-panel" id="tab-audit" hidden>
                         <div class="admin-card">
                             <h3><i class="fa-solid fa-clipboard-list"></i> Admin activity log</h3>
                             <p class="admin-card-note">Every time an admin views a student's details or exports data, it is recorded here.</p>
@@ -796,16 +813,43 @@
         }
 
         // ---------------- Wiring ----------------
+        // ---------------- Sections (sidebar links, Admin.html#students etc.) ----------------
+        const SECTIONS = {
+            overview:      { icon: 'fa-house',           title: 'Overview',      desc: 'How your students are doing at a glance.', export: true },
+            students:      { icon: 'fa-users',           title: 'Students',      desc: 'Search, filter and open any student to see their progress.', export: true },
+            content:       { icon: 'fa-pen-to-square',   title: 'Content',       desc: 'Edit videos, lessons and questions. Changes are drafts until you publish.', adminOnly: true },
+            announcements: { icon: 'fa-bullhorn',        title: 'Announcements', desc: 'Post a message; students get a pop-up notification.' },
+            instructors:   { icon: 'fa-chalkboard-user', title: 'Instructors',   desc: 'Add instructors and choose which sections they see.', adminOnly: true },
+            audit:         { icon: 'fa-clipboard-list',  title: 'Activity log',  desc: 'Every view, export and change made in this dashboard.' },
+        };
+        let me = null;
+        let sectionSubtitle = null; // instructors: their sections replace the overview text
+
         function showTab(name) {
-            document.querySelectorAll('.admin-tab').forEach(t => {
-                const on = t.dataset.tab === name;
-                t.classList.toggle('active', on);
-                t.setAttribute('aria-selected', on ? 'true' : 'false');
+            if (!SECTIONS[name] || (SECTIONS[name].adminOnly && !(me && me.isAdmin))) name = 'overview';
+            const sec = SECTIONS[name];
+            document.querySelectorAll('.sidebar-nav [data-section]').forEach(a => {
+                const on = a.dataset.section === name;
+                a.classList.toggle('active', on);
+                if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
             });
             document.querySelectorAll('.admin-panel').forEach(p => { p.hidden = p.id !== `tab-${name}`; });
+            $('sectionIcon').innerHTML = `<i class="fa-solid ${sec.icon}"></i>`;
+            $('sectionTitle').textContent = sec.title;
+            $('adminSubtitle').textContent = name === 'overview' && sectionSubtitle ? sectionSubtitle : sec.desc;
+            $('exportBtn').hidden = !sec.export;
+            document.title = `${sec.title} · Admin · HCILearn`;
+            if (location.hash !== `#${name}`) history.replaceState(null, '', `#${name}`);
+            window.scrollTo({ top: 0 });
         }
 
-        document.querySelectorAll('.admin-tab').forEach(t => t.addEventListener('click', () => showTab(t.dataset.tab)));
+        window.addEventListener('hashchange', () => showTab(location.hash.slice(1)));
+
+        // "Who needs attention" opens Students filtered to inactive
+        document.querySelector('[data-quick="inactive"]').addEventListener('click', () => {
+            $('filterStatus').value = 'inactive';
+            renderStudents();
+        });
         ['studentSearch', 'filterProgram', 'filterSection', 'filterStatus', 'sortBy'].forEach(id =>
             $(id).addEventListener(id === 'studentSearch' ? 'input' : 'change', renderStudents));
 
@@ -825,7 +869,7 @@
         $('drawerOverlay').addEventListener('click', (e) => { if (e.target === $('drawerOverlay')) closeStudent(); });
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('drawerOverlay').hidden) closeStudent(); });
         // Export is a plain download; refresh the log afterwards
-        $('exportBtn').addEventListener('click', () => setTimeout(loadAudit, 1500));
+        ['exportBtn', 'quickExport'].forEach(id => $(id).addEventListener('click', () => setTimeout(loadAudit, 1500)));
 
         // Instructor log out (separate from the student log out)
         $('instructorLogout').addEventListener('click', () => {
@@ -855,13 +899,20 @@
             $('sidebarName').textContent = instructor.fullName;
             $('sidebarMeta').textContent = `ID ${instructor.instructorId}`;
             $('sidebarMeta').title = instructor.isAdmin ? 'Main admin' : 'Instructor';
-            $('tabBtnContent').hidden = !instructor.isAdmin;
-            $('tabBtnInstructors').hidden = !instructor.isAdmin;
+            me = instructor;
+            $('navContent').hidden = !instructor.isAdmin;
+            $('navInstructors').hidden = !instructor.isAdmin;
+            $('quickContent').hidden = !instructor.isAdmin;
+            const hour = Number(new Intl.DateTimeFormat('en-US', { hour: 'numeric', hour12: false, timeZone: 'Asia/Manila' }).format(new Date())) % 24;
+            const greet = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+            const nameParts = instructor.fullName.split(' ').filter(Boolean);
+            const firstName = nameParts.find(p => !/^(mr|ms|mrs|dr|prof|sir|ma'?am).?$/i.test(p)) || nameParts[0] || '';
+            $('welcomeLine').textContent = `${greet}${firstName ? `, ${firstName}` : ''}!`;
             $('noSectionsNote').hidden = instructor.isAdmin || instructor.sections.length > 0;
             if (!instructor.isAdmin) {
-                $('adminSubtitle').textContent = instructor.sections.length
+                sectionSubtitle = instructor.sections.length
                     ? `Your sections: ${instructor.sections.map(sec => `${sec.program} ${sec.yearSection}`).join(', ')}`
-                    : 'Track how the students in your sections are doing.';
+                    : 'How the students in your sections are doing.';
             }
             $('sidebarAvatar').textContent = initials(instructor.fullName) || 'IN';
 
@@ -889,13 +940,18 @@
                     onPending: (n) => {
                         $('contentPending').hidden = !n;
                         $('contentPending').textContent = n;
+                        $('quickContentNote').textContent = n ? `${n} unpublished change${n === 1 ? '' : 's'}` : 'Videos, lessons, questions';
                         loadAudit();
                     },
                 });
 
                 $('adminLoading').hidden = true;
                 $('adminApp').hidden = false;
-                $('exportBtn').hidden = false;
+                $('quickInactive').textContent = (() => {
+                    const n = students.filter(x => x.inactive).length;
+                    return n ? `${n} student${n === 1 ? '' : 's'} inactive 7+ days` : 'Everyone studied this week';
+                })();
+                showTab(location.hash.slice(1) || 'overview');
             } catch (err) {
                 $('adminLoading').innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${escapeHtml(err.message)}`;
             }
