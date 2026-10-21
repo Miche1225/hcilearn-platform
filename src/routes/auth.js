@@ -22,7 +22,8 @@ const {
 
 const {
     normalizeEmail,
-    hashEmail
+    hashEmail,
+    encryptEmail
 } = require('../utils/emailSecurity');
 
 const {
@@ -481,7 +482,8 @@ router.post(
                         program,
                         email_hash,
                         student_id,
-                        password_hash
+                        password_hash,
+                        email_enc
                     )
 
                     VALUES
@@ -493,7 +495,8 @@ router.post(
                         $5,
                         $6,
                         $7,
-                        $8
+                        $8,
+                        $9
                     )
 
                     RETURNING id`,
@@ -514,7 +517,9 @@ router.post(
 
                         cleanStudentId || null,
 
-                        passwordHash
+                        passwordHash,
+
+                        encryptEmail(normalizedEmail)
                     ]
                 );
 
@@ -697,6 +702,16 @@ router.post(
                 res,
                 user.id,
                 user.session_version
+            );
+
+
+            /*
+                Keep the encrypted email current (older accounts only
+                get one here) so instructors can send reminders.
+            */
+            await pool.query(
+                'UPDATE users SET email_enc = $1 WHERE id = $2',
+                [encryptEmail(normalizedEmail), user.id]
             );
 
 

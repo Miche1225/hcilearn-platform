@@ -681,6 +681,15 @@ async function init() {
             'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS daily_goal INTEGER NOT NULL DEFAULT 10'
         );
 
+        /* Encrypted email (saved at signup/login) and when an instructor
+           last emailed an inactive-student reminder. */
+        await client.query(
+            'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS email_enc TEXT'
+        );
+        await client.query(
+            'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS reminded_at TIMESTAMPTZ'
+        );
+
         /* Set by an instructor to block an account from logging in. */
         await client.query(
             'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS disabled_at TIMESTAMPTZ'

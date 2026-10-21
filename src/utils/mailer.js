@@ -6,10 +6,12 @@
     - Signup notification
     - Login notification
     - Password reset email
+    - Inactive-student reminder (sent by an instructor)
 
     IMPORTANT:
-    The database does NOT need to store the plaintext email.
-    The email address is supplied only for the current request.
+    The database does NOT store the plaintext email. Reminders
+    use the encrypted copy (users.email_enc); everything else uses
+    the address supplied in the current request.
 
     The email greeting uses FIRST NAME only.
 */
@@ -612,6 +614,78 @@ function sendPasswordResetEmail(
 
 
 /* =========================================================
+   INACTIVE REMINDER EMAIL
+   ========================================================= */
+
+
+/*
+    Sent when an instructor clicks the reminder bell
+    for a student who hasn't studied in a while.
+*/
+function sendInactiveReminder(
+    toEmail,
+    firstName,
+    loginLink
+) {
+
+    const name =
+        firstName || 'there';
+
+
+    return sendMail({
+
+        label:
+            'inactive reminder',
+
+        to:
+            toEmail,
+
+        subject:
+            `We miss you on ${APP_NAME}!`,
+
+        text:
+
+            `Hi ${name},
+
+` +
+
+            `Your instructor noticed you haven't studied on ${APP_NAME} for a while.
+
+` +
+
+            `Jump back in and keep your progress going:
+` +
+
+            `${loginLink}
+
+` +
+
+            `— ${APP_NAME}`,
+
+        html:
+            layout(
+
+                'Time to get back to learning!',
+
+                `<p>Hi <strong>${esc(name)}</strong>,</p>` +
+
+                `<p>Your instructor noticed you haven't studied on <strong>${APP_NAME}</strong> for a while.</p>` +
+
+                `<p style="text-align: center; margin: 28px 0;">` +
+
+                `<a href="${esc(loginLink)}" style="background: #007bff; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">` +
+
+                `Continue learning` +
+
+                `</a></p>`
+
+            )
+
+    });
+}
+
+
+/* =========================================================
    EXPORT
    ========================================================= */
 
@@ -621,6 +695,8 @@ module.exports = {
 
     sendLoginNotification,
 
-    sendPasswordResetEmail
+    sendPasswordResetEmail,
+
+    sendInactiveReminder
 
 };

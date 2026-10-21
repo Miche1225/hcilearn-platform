@@ -22,7 +22,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Gotchas
 
-- `EMAIL_HASH_SECRET` must never change once users exist — emails are stored only as HMAC hashes, so changing it locks everyone out.
+- `EMAIL_HASH_SECRET` must never change once users exist — emails are looked up by HMAC hash (`email_hash`), and the AES-GCM copy used for inactive reminders (`email_enc`, saved at signup/login) is keyed from it too. Changing it locks everyone out.
 - Rate limiting is in-memory and resets on restart.
 - Request bodies are capped at 20kb.
 

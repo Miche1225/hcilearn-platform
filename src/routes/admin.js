@@ -8,6 +8,8 @@ const { requireInstructor, requireAdminRole } = require('../middleware/instructo
 const { getContent } = require('../contentStore');
 const { todayLocal, addDays, toYmd, computeStreaks } = require('../utils/dates');
 const { getBadges } = require('./gamify');
+const { decryptEmail } = require('../utils/emailSecurity');
+const { sendInactiveReminder } = require('../utils/mailer');
 
 const router = express.Router();
 router.use(requireInstructor);
@@ -42,7 +44,7 @@ async function loadStudents(instructor) {
   const videoIds = [...content.videoTitles.keys()];
   const { rows } = await pool.query(
     `SELECT u.id, u.full_name, u.program, u.year_section, u.student_id, u.profile_photo,
-            u.created_at, u.disabled_at,
+            u.created_at, u.disabled_at, u.email_enc IS NOT NULL AS can_email, u.reminded_at,
             cs.solved_ids, sc.completed_ids
      FROM users u
      LEFT JOIN case_study_progress cs ON cs.user_id = u.id
@@ -115,6 +117,8 @@ async function loadStudents(instructor) {
       lastActive,
       inactive: !lastActive || lastActive < addDays(today, -INACTIVE_AFTER_DAYS),
       deactivated: !!s.disabled_at,
+      canEmail: s.can_email,
+      remindedAt: s.reminded_at,
     };
   });
 }
@@ -312,6 +316,32 @@ router.post('/students/:id/remove', async (req, res, next) => {
         .destroy(`hcilearn/profile_photos/user${student.id}`, { resource_type: 'image' })
         .catch(err => console.error('Could not delete profile photo:', err.message));
     } catch (err) { /* Cloudinary not set up */ }
+    res.json({ ok: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Email an inactive student a nudge to come back. Once a day at most, so a
+// student can't be spammed by repeated clicks.
+const REMIND_COOLDOWN_HOURS = 24;
+router.post('/students/:id/remind', async (req, res, next) => {
+  try {
+    const student = await studentFor(req);
+    if (!student) return res.status(404).json({ error: 'Student not found.' });
+    if (student.disabled_at) return res.status(400).json({ error: 'This account is deactivated.' });
+    const { rows: [u] } = await pool.query(
+      `SELECT first_name, email_enc, reminded_at > NOW() - make_interval(hours => $2) AS recent
+       FROM users WHERE id = $1`, [student.id, REMIND_COOLDOWN_HOURS]);
+    if (!u.email_enc) return res.status(409).json({ error: 'No email on file yet. It is saved the next time this student logs in.' });
+    if (u.recent) return res.status(429).json({ error: 'A reminder was already sent in the last 24 hours.' });
+
+    const base = (process.env.APP_URL || `${req.protocol}://${req.get('host')}`).replace(/\/+$/, '');
+    const sent = await sendInactiveReminder(decryptEmail(u.email_enc), u.first_name, `${base}/login.html`);
+    if (!sent) return res.status(502).json({ error: 'The email could not be sent. Check the email settings.' });
+
+    await pool.query('UPDATE users SET reminded_at = NOW() WHERE id = $1', [student.id]);
+    await audit(req.instructor.id, 'remind_student', student.id);
     res.json({ ok: true });
   } catch (err) {
     next(err);

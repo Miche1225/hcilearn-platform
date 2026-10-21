@@ -260,7 +260,7 @@
         const AUDIT_ICONS = {
             export_csv: 'fa-file-csv', publish_content: 'fa-upload', discard_content: 'fa-rotate-left',
             post_announcement: 'fa-bullhorn', delete_announcement: 'fa-bullhorn', reset_progress: 'fa-eraser',
-            signout_student: 'fa-arrow-right-from-bracket', deactivate_student: 'fa-user-slash', reactivate_student: 'fa-user-check', remove_student: 'fa-user-xmark',
+            remind_student: 'fa-bell', signout_student: 'fa-arrow-right-from-bracket', deactivate_student: 'fa-user-slash', reactivate_student: 'fa-user-check', remove_student: 'fa-user-xmark',
             rollback_content: 'fa-clock-rotate-left', add_instructor: 'fa-user-plus', update_instructor: 'fa-user-pen',
             reset_instructor_password: 'fa-key', remove_instructor: 'fa-user-minus',
         };
@@ -272,6 +272,7 @@
             post_announcement: (e) => `Posted announcement "${e.details}"`,
             delete_announcement: (e) => `Deleted announcement "${e.details}"`,
             reset_progress: (e) => `Reset ${e.targetName || 'a student'}'s progress`,
+            remind_student: (e) => `Emailed ${e.targetName || 'a student'} a reminder`,
             signout_student: (e) => `Signed ${e.targetName || 'a student'} out everywhere`,
             deactivate_student: (e) => `Deactivated ${e.targetName || 'a student'}'s account`,
             reactivate_student: (e) => `Reactivated ${e.targetName || 'a student'}'s account`,
@@ -521,6 +522,9 @@
 
                     <h4>Manage account</h4>
                     <div class="student-manage">
+                        ${s.inactive && !s.deactivated ? (s.canEmail
+                            ? `<button type="button" class="tool-btn" data-manage="remind"><i class="fa-solid fa-bell"></i> Send reminder email</button>`
+                            : '<button type="button" class="tool-btn" disabled title="The email is saved the next time this student logs in."><i class="fa-solid fa-bell-slash"></i> No email on file yet</button>') : ''}
                         <button type="button" class="tool-btn" data-manage="signout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sign out everywhere</button>
                         <button type="button" class="tool-btn" data-manage="reset"><i class="fa-solid fa-eraser"></i> Reset progress</button>
                         ${s.deactivated ? '<button type="button" class="tool-btn" data-manage="reactivate"><i class="fa-solid fa-user-check"></i> Reactivate account</button>' : ''}
@@ -540,6 +544,7 @@
 
         // ---------------- Student management ----------------
         const MANAGE = {
+            remind: { title: 'Send a reminder email?', message: (n) => `${n} will get an email saying you noticed they haven't studied lately, with a link to log in.`, confirm: 'Send email', icon: 'fa-bell', done: 'Reminder sent' },
             signout: { title: 'Sign out everywhere?', message: (n) => `${n} will be logged out on every device and will need to log in again.`, confirm: 'Sign out', icon: 'fa-arrow-right-from-bracket', done: 'Signed out everywhere' },
             reset: { title: 'Reset all progress?', message: (n) => `This clears ${n}'s case studies, study cards, videos, mistakes, streak and badges. Their account and saved items stay. This cannot be undone.`, confirm: 'Reset progress', icon: 'fa-eraser', danger: true, done: 'Progress reset' },
             deactivate: { title: 'Deactivate this account?', message: (n) => `${n} will be logged out and won't be able to log in until you reactivate the account. Their progress is kept.`, confirm: 'Deactivate', icon: 'fa-user-slash', danger: true, done: 'Account deactivated' },
