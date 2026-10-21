@@ -704,6 +704,15 @@ async function init() {
             'ALTER TABLE public.daily_activity ADD COLUMN IF NOT EXISTS perfect_decks INTEGER NOT NULL DEFAULT 0'
         );
 
+        /* content_versions existed before item_count was added, so older
+           databases never got it and every publish failed. */
+        await client.query(
+            'ALTER TABLE public.content_versions ADD COLUMN IF NOT EXISTS item_count INTEGER NOT NULL DEFAULT 0'
+        );
+        await client.query(
+            'UPDATE public.content_versions SET item_count = jsonb_array_length(snapshot) WHERE item_count = 0'
+        );
+
         /* When the student last opened their notifications (announcements
            posted after this are "unread"). */
         await client.query(
