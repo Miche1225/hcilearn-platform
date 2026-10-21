@@ -68,7 +68,7 @@
                     <div class="admin-header-icon"><i class="fa-solid fa-user-shield"></i></div>
                     <div class="admin-header-text">
                         <h2>Admin Dashboard</h2>
-                        <p>Track how every student is doing across HCILearn.</p>
+                        <p id="adminSubtitle">Track how every student is doing across HCILearn.</p>
                     </div>
                     <a href="/api/admin/export.csv" class="tool-btn admin-export" id="exportBtn" hidden>
                         <i class="fa-solid fa-file-csv"></i> Export CSV
@@ -858,6 +858,11 @@
             $('tabBtnContent').hidden = !instructor.isAdmin;
             $('tabBtnInstructors').hidden = !instructor.isAdmin;
             $('noSectionsNote').hidden = instructor.isAdmin || instructor.sections.length > 0;
+            if (!instructor.isAdmin) {
+                $('adminSubtitle').textContent = instructor.sections.length
+                    ? `Your sections: ${instructor.sections.map(sec => `${sec.program} ${sec.yearSection}`).join(', ')}`
+                    : 'Track how the students in your sections are doing.';
+            }
             $('sidebarAvatar').textContent = initials(instructor.fullName) || 'IN';
 
             try {
