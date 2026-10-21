@@ -11472,3 +11472,19 @@ fieldset.ce-field legend {
     .notif-bell.has-unread i { animation: none; }
     .notif-pop, .notif-panel { transition: opacity 0.2s; }
 }
+
+/* Dashboard badge preview: a full grid (two complete rows, no gaps) */
+.badges-card .badge-mini-row {
+    display: grid;
+    grid-template-columns: repeat(var(--badge-cols, 5), minmax(0, 1fr));
+    gap: 10px;
+}
+
+.badges-card .badge-mini {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    max-width: 72px;
+    justify-self: center;
+    font-size: clamp(16px, 2.2vw, 22px);
+}
