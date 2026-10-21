@@ -5,7 +5,7 @@
 // ang Web Audio API, kaya gumagana kahit offline at walang copyright issue.
 //
 // Usage:   HCISfx.play('correct' | 'wrong' | 'levelUp' | 'mastered')            (Case Studies)
-//          HCISfx.play('cardCorrect' | 'cardWrong' | 'cardMastered')             (Study Cards)
+//          HCISfx.play('cardCorrect' | 'cardWrong' | 'cardMastered' | 'tick' | 'timeUp')  (Study Cards)
 // May maliit na mute button (kanang-itaas) sa Case Studies at Study Cards
 // na naaalala ng browser. Sa ibang pages, confetti lang ang ginagamit.
 
@@ -136,6 +136,21 @@
       tone({ freq: N.G6, start: 0.58, dur: 0.70, type: 'sine', vol: 0.22 });
       tone({ freq: N.D6, start: 0.58, dur: 0.70, type: 'triangle', vol: 0.12 });
       tone({ freq: N.B5, start: 0.58, dur: 0.70, type: 'triangle', vol: 0.12 });
+    },
+
+    // ---- Study Cards timer ----
+
+    // Huling 5 segundo: mahinang "tick" ng orasan
+    tick: function () {
+      tone({ freq: 1800, start: 0.00, dur: 0.04, type: 'square', vol: 0.05 });
+    },
+
+    // Naubos ang oras: alarm-clock na "brring" + pababang tono
+    timeUp: function () {
+      for (var i = 0; i < 6; i++) {
+        tone({ freq: i % 2 ? 1320 : 1568, start: i * 0.07, dur: 0.07, type: 'square', vol: 0.08 });
+      }
+      tone({ freq: 523, slideTo: 262, start: 0.46, dur: 0.45, type: 'triangle', vol: 0.22 });
     }
   };
 

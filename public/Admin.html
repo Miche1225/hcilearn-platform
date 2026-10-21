@@ -9,8 +9,8 @@
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#0d3b75">
-    <link rel="stylesheet" href="style.css?v=54">
-    <link rel="stylesheet" href="dark.css?v=17">
+    <link rel="stylesheet" href="style.css?v=56">
+    <link rel="stylesheet" href="dark.css?v=19">
     <script src="js/theme.js?v=1"></script>
     <!-- FontAwesome para sa icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -806,11 +806,31 @@
                         <span class="admin-tag"><i class="fa-solid ${AUDIT_ICONS[e.action] || 'fa-eye'}"></i></span>
                         <span class="admin-list-text"><strong>${escapeHtml((AUDIT_LABELS[e.action] || (() => e.action))(e))}</strong>
                         <small>${escapeHtml(e.adminName)} · ${formatDateTime(e.createdAt)}</small></span>
+                        ${me && me.isAdmin ? `<button type="button" class="ce-icon-btn audit-remove" data-audit-delete="${e.id}" aria-label="Remove this entry" title="Remove this entry"><i class="fa-solid fa-xmark"></i></button>` : ''}
                     </div>`).join('') : '<p class="admin-empty">Nothing recorded yet.</p>';
             } catch (err) {
                 $('auditList').innerHTML = '<p class="admin-empty">Could not load the activity log.</p>';
             }
         }
+
+        // Remove a log entry (main admin only; the server checks too)
+        $('auditList').addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-audit-delete]');
+            if (!btn) return;
+            confirmDialog({
+                title: 'Remove this log entry?', message: 'It will be deleted from the activity log for good.',
+                confirmText: 'Remove', icon: 'fa-xmark', danger: true,
+                onConfirm: async () => {
+                    try {
+                        await api.del(`/admin/audit/${btn.dataset.auditDelete}`);
+                        btn.closest('.admin-list-item').remove();
+                        if (!$('auditList').children.length) $('auditList').innerHTML = '<p class="admin-empty">Nothing recorded yet.</p>';
+                    } catch (err) {
+                        adminToast(err.message, true);
+                    }
+                },
+            });
+        });
 
         // ---------------- Wiring ----------------
         // ---------------- Sections (sidebar links, Admin.html#students etc.) ----------------
