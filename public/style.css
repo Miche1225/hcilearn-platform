@@ -10414,44 +10414,10 @@ div.qs-result {
     display: none;
 }
 
-/* "Show N more" under the top 3 most-missed questions */
-#missedList .is-extra {
-    display: none;
-}
-
-#missedList.is-expanded .is-extra {
-    display: flex;
-}
-
-.admin-more-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    width: 100%;
-    margin-top: 4px;
-    padding: 8px;
-    border: none;
-    border-radius: 12px;
-    background: none;
-    color: var(--fun-grape);
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.admin-more-btn:hover {
-    background: #f6f4ff;
-}
-
-.admin-more-btn i {
-    font-size: 11px;
-    transition: transform 0.2s;
-}
-
-.admin-more-btn[aria-expanded="true"] i {
-    transform: rotate(180deg);
+/* Most-missed questions scroll after about four rows so the card stays short */
+#missedList {
+    max-height: 280px;
+    overflow-y: auto;
 }
 
 /* Narrow cards (small or scaled laptops): one line for the details, so rows line up */

@@ -233,6 +233,7 @@
                         <div class="admin-card">
                             <h3><i class="fa-solid fa-clipboard-list"></i> Admin activity log</h3>
                             <p class="admin-card-note">Every time an admin views a student's details or exports data, it is recorded here.</p>
+                            <button type="button" class="tool-btn is-danger" id="clearAuditBtn" hidden><i class="fa-solid fa-trash"></i> Clear all logs</button>
                             <div class="admin-list" id="auditList"></div>
                         </div>
                     </section>
@@ -267,7 +268,7 @@
             post_announcement: 'fa-bullhorn', delete_announcement: 'fa-bullhorn', reset_progress: 'fa-eraser',
             remind_student: 'fa-bell', signout_student: 'fa-arrow-right-from-bracket', deactivate_student: 'fa-user-slash', reactivate_student: 'fa-user-check', remove_student: 'fa-user-xmark',
             rollback_content: 'fa-clock-rotate-left', add_instructor: 'fa-user-plus', update_instructor: 'fa-user-pen',
-            reset_instructor_password: 'fa-key', remove_instructor: 'fa-user-minus',
+            reset_instructor_password: 'fa-key', remove_instructor: 'fa-user-minus', clear_audit: 'fa-trash',
         };
         const AUDIT_LABELS = {
             view_student: (e) => `Viewed ${e.targetName || 'a deleted student'}'s progress`,
@@ -287,6 +288,7 @@
             update_instructor: (e) => `Updated instructor ${e.details}`,
             reset_instructor_password: (e) => `Reset the password of ${e.details}`,
             remove_instructor: (e) => `Removed instructor ${e.details}`,
+            clear_audit: () => 'Cleared the activity log',
         };
 
         let students = [];
@@ -330,7 +332,6 @@
         const RISK_LOW_ACCURACY = 50;
         const RISK_BEHIND_AFTER_DAYS = 14;
         const RISK_SHOWN = 5; // on the overview; the Students tab has everyone
-        const MISSED_SHOWN = 3;
 
         function classAverage() {
             return students.length ? students.reduce((sum, s) => sum + s.overallPercent, 0) / students.length : 0;
@@ -414,19 +415,15 @@
                 const isCase = m.source === 'case_study';
                 const key = `${m.source}:${m.itemKey}`;
                 const where = `${questionWhere.get(key) || (isCase ? 'Case study' : 'Study card')} · missed ${m.wrong} time${m.wrong === 1 ? '' : 's'}`;
-                return (i) => `
-                <div class="admin-list-item is-static${i >= MISSED_SHOWN ? ' is-extra' : ''}">
+                return `
+                <div class="admin-list-item is-static">
                     <span class="admin-tag is-icon ${isCase ? 'is-case' : 'is-card'}" title="${isCase ? 'Case study' : 'Study card'}"><i class="fa-solid ${isCase ? 'fa-briefcase' : 'fa-clone'}"></i></span>
                     <span class="admin-list-text"><strong class="is-clamped">${escapeHtml(questionText.get(key) || 'Question')}</strong>
                     <small title="${escapeHtml(where)}">${escapeHtml(where)}</small></span>
                     <span class="admin-pill is-warn">${m.students} student${m.students === 1 ? '' : 's'}</span>
                 </div>`;
             });
-            // Top 3 always visible; the rest are in the same list (so every row lines up), shown by the button at the bottom
-            const extra = missedRows.length - MISSED_SHOWN;
-            $('missedList').classList.remove('is-expanded');
-            $('missedList').innerHTML = missedRows.length ? missedRows.map((row, i) => row(i)).join('') + (extra > 0 ? `
-                <button type="button" class="admin-more-btn" data-more="${extra}" aria-expanded="false"><span>Show ${extra} more</span> <i class="fa-solid fa-chevron-down"></i></button>` : '')
+            $('missedList').innerHTML = missedRows.length ? missedRows.join('')
                 : '<p class="admin-empty">No missed questions right now.</p>';
 
             // Least-watched videos
@@ -889,6 +886,20 @@
             }
         }
 
+        // Clear the whole log (main admin only; the server checks too)
+        $('clearAuditBtn').addEventListener('click', () => confirmDialog({
+            title: 'Clear the whole activity log?', message: 'Every entry will be deleted for good. The clear itself is recorded.',
+            confirmText: 'Clear all', icon: 'fa-trash', danger: true,
+            onConfirm: async () => {
+                try {
+                    await api.del('/admin/audit');
+                    loadAudit();
+                } catch (err) {
+                    adminToast(err.message, true);
+                }
+            },
+        }));
+
         // Remove a log entry (main admin only; the server checks too)
         $('auditList').addEventListener('click', (e) => {
             const btn = e.target.closest('[data-audit-delete]');
@@ -946,14 +957,6 @@
             if (!e.target.closest('[data-quick="atrisk"]')) return;
             $('filterStatus').value = 'atrisk';
             renderStudents();
-        });
-        // "Show N more" / "Show less" under the most-missed questions
-        $('missedList').addEventListener('click', (e) => {
-            const btn = e.target.closest('.admin-more-btn');
-            if (!btn) return;
-            const open = $('missedList').classList.toggle('is-expanded');
-            btn.setAttribute('aria-expanded', String(open));
-            btn.querySelector('span').textContent = open ? 'Show less' : `Show ${btn.dataset.more} more`;
         });
         // Reminder email straight from the at-risk list
         $('inactiveList').addEventListener('click', (e) => {
@@ -1015,6 +1018,7 @@
             $('navContent').hidden = !instructor.isAdmin;
             $('navInstructors').hidden = !instructor.isAdmin;
             $('quickContent').hidden = !instructor.isAdmin;
+            $('clearAuditBtn').hidden = !instructor.isAdmin;
             const hour = Number(new Intl.DateTimeFormat('en-US', { hour: 'numeric', hour12: false, timeZone: 'Asia/Manila' }).format(new Date())) % 24;
             const greet = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
             const nameParts = instructor.fullName.split(' ').filter(Boolean);

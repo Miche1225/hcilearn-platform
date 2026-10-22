@@ -482,6 +482,18 @@ router.get('/audit', async (req, res, next) => {
   }
 });
 
+// DELETE /api/admin/audit — clear the whole log (main admin only); the
+// clear itself is recorded so a wiped log never looks untouched
+router.delete('/audit', requireAdminRole, async (req, res, next) => {
+  try {
+    await pool.query('DELETE FROM instructor_audit_log');
+    await audit(req.instructor.id, 'clear_audit');
+    res.json({ ok: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // DELETE /api/admin/audit/:id — remove an entry (main admin only, so the
 // log stays trustworthy; regular instructors can't erase what they did)
 router.delete('/audit/:id', requireAdminRole, async (req, res, next) => {
