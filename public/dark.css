@@ -3225,14 +3225,6 @@
 :root[data-theme="dark"] .admin-list-text small {
     color: hsl(250 12% 67%);
 }
-:root[data-theme="dark"] .admin-more-btn {
-    border: none;
-    background: none;
-    color: var(--fun-grape);
-}
-:root[data-theme="dark"] .admin-more-btn:hover {
-    background: hsl(251 45% 18%);
-}
 :root[data-theme="dark"] .admin-drop-arrow {
     color: #aaa;
 }
