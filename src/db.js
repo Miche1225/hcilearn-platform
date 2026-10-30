@@ -951,6 +951,8 @@ async function init() {
 
         await seedContent();
 
+        await addNewSeedVideos();
+
     } catch (err) {
 
         await client.query('ROLLBACK');
@@ -1011,6 +1013,48 @@ async function seedContent() {
     } finally {
         client.release();
     }
+}
+
+
+/*
+    Videos added to content.json after a database was already seeded.
+    Each seed video is handled only once (remembered in seed_videos_added),
+    so a video an instructor later deletes does not come back on restart.
+*/
+async function addNewSeedVideos() {
+
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS seed_videos_added (
+            key TEXT PRIMARY KEY
+        )
+    `);
+
+    const seed = require('./seed/content.json');
+    const { rows } = await pool.query('SELECT key FROM seed_videos_added');
+    const done = new Set(rows.map(r => r.key));
+
+    let added = 0;
+
+    for (const item of seed.videos) {
+        // Only videos added after the first release; the originals came in via seedContent()
+        if (!item.addedLater || done.has(item.key)) continue;
+
+        const data = JSON.stringify(item.data);
+        const result = await pool.query(
+            `INSERT INTO content_items (kind, key, parent_key, draft, published)
+             VALUES ('video', $1, NULL, $2::jsonb, $2::jsonb)
+             ON CONFLICT (kind, key) DO NOTHING`,
+            [item.key, data]
+        );
+        added += result.rowCount;
+
+        await pool.query(
+            'INSERT INTO seed_videos_added (key) VALUES ($1) ON CONFLICT DO NOTHING',
+            [item.key]
+        );
+    }
+
+    if (added) console.log(`Added ${added} new video(s) from the seed content.`);
 }
 
 

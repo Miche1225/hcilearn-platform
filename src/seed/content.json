@@ -25,6 +25,26 @@
    "key": "evaluation",
    "label": "Evaluation",
    "cls": "case-icon"
+  },
+  {
+   "key": "prototyping",
+   "label": "Prototyping",
+   "cls": "book-icon"
+  },
+  {
+   "key": "accessibility",
+   "label": "Accessibility & Ethics",
+   "cls": "read-icon"
+  },
+  {
+   "key": "emerging",
+   "label": "Emerging Tech & Interfaces",
+   "cls": "video-icon"
+  },
+  {
+   "key": "engagement",
+   "label": "Emotion & Engagement",
+   "cls": "check-icon"
   }
  ],
  "modules": [
@@ -2848,6 +2868,206 @@
     "topic": "evaluation",
     "duration": "51:49"
    }
+  },
+  {
+   "key": "n8MnoJyl3W4",
+   "data": {
+    "position": 17,
+    "title": "Usability Testing",
+    "topic": "evaluation",
+    "duration": ""
+   },
+   "addedLater": true
+  },
+  {
+   "key": "Y4mtlqURXTE",
+   "data": {
+    "position": 18,
+    "title": "Validate Your Visual Design: 6 Methods",
+    "topic": "evaluation",
+    "duration": ""
+   },
+   "addedLater": true
+  },
+  {
+   "key": "-f_nXBzaTPw",
+   "data": {
+    "position": 19,
+    "title": "What is User-Centered Design (UCD)?",
+    "topic": "process",
+    "duration": ""
+   },
+   "addedLater": true
+  },
+  {
+   "key": "nAgXISssAws",
+   "data": {
+    "position": 20,
+    "title": "What is a Mental Model?",
+    "topic": "principles",
+    "duration": ""
+   },
+   "addedLater": true
+  },
+  {
+   "key": "yvlMNKPum38",
+   "data": {
+    "position": 21,
+    "title": "Keystroke-Level Model",
+    "topic": "perception",
+    "duration": ""
+   },
+   "addedLater": true
+  },
+  {
+   "key": "1ucLq6JTxac",
+   "data": {
+    "position": 22,
+    "title": "Figma Prototype Tutorial for Beginners",
+    "topic": "prototyping",
+    "duration": ""
+   },
+   "addedLater": true
+  },
+  {
+   "key": "sVKtLP85KJU",
+   "data": {
+    "position": 23,
+    "title": "Low Fidelity vs. High Fidelity Prototyping - What's Better?",
+    "topic": "prototyping",
+    "duration": ""
+   },
+   "addedLater": true
+  },
+  {
+   "key": "20SHvU2PKsM",
+   "data": {
+    "position": 24,
+    "title": "Introduction to Web Accessibility and W3C Standards",
+    "topic": "accessibility",
+    "duration": ""
+   },
+   "addedLater": true
+  },
+  {
+   "key": "grrx2Lva7T0",
+   "data": {
+    "position": 25,
+    "title": "What is Digital Accessibility?",
+    "topic": "accessibility",
+    "duration": ""
+   },
+   "addedLater": true
+  },
+  {
+   "key": "VA9jr0VLdHs",
+   "data": {
+    "position": 26,
+    "title": "Ethics and Technology",
+    "topic": "accessibility",
+    "duration": ""
+   },
+   "addedLater": true
+  },
+  {
+   "key": "RoZ-WF5Z_1E",
+   "data": {
+    "position": 27,
+    "title": "Does Technology Need to Be Ethical?",
+    "topic": "accessibility",
+    "duration": ""
+   },
+   "addedLater": true
+  },
+  {
+   "key": "eYdadGhl2eI",
+   "data": {
+    "position": 28,
+    "title": "Ubiquitous Computing and Interaction",
+    "topic": "emerging",
+    "duration": ""
+   },
+   "addedLater": true
+  },
+  {
+   "key": "QQ0mv7qyEl8",
+   "data": {
+    "position": 29,
+    "title": "Ubiquitous (Pervasive) Computing",
+    "topic": "emerging",
+    "duration": ""
+   },
+   "addedLater": true
+  },
+  {
+   "key": "NpfFUJdH5sk",
+   "data": {
+    "position": 30,
+    "title": "Are Smart Homes Actually Making Us Vulnerable? A Deep Dive into IoT Security",
+    "topic": "emerging",
+    "duration": ""
+   },
+   "addedLater": true
+  },
+  {
+   "key": "vz0UUVDt2ps",
+   "data": {
+    "position": 31,
+    "title": "Understanding Virtual Reality and Augmented Reality",
+    "topic": "emerging",
+    "duration": ""
+   },
+   "addedLater": true
+  },
+  {
+   "key": "Z-BO6IYTgJg",
+   "data": {
+    "position": 32,
+    "title": "What Is User Interface (UI)?",
+    "topic": "intro",
+    "duration": ""
+   },
+   "addedLater": true
+  },
+  {
+   "key": "PzFN0o-DR-A",
+   "data": {
+    "position": 33,
+    "title": "Voice User Interface (VUI) Design: Exploring the World of Voice-Controlled Interfaces",
+    "topic": "emerging",
+    "duration": ""
+   },
+   "addedLater": true
+  },
+  {
+   "key": "YKnutkaa5kE",
+   "data": {
+    "position": 34,
+    "title": "Gamification in the User Experience",
+    "topic": "engagement",
+    "duration": ""
+   },
+   "addedLater": true
+  },
+  {
+   "key": "1JaVcY3y8Uo",
+   "data": {
+    "position": 35,
+    "title": "Self-Determination Theory: Users Want Autonomy, Relatedness, and Competence",
+    "topic": "engagement",
+    "duration": ""
+   },
+   "addedLater": true
+  },
+  {
+   "key": "t-C9g4H6-2Q",
+   "data": {
+    "position": 36,
+    "title": "The 3 Levels of Emotional Processing",
+    "topic": "engagement",
+    "duration": ""
+   },
+   "addedLater": true
   }
  ],
  "cases": [
