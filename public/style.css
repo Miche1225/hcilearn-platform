@@ -10267,6 +10267,11 @@ a.admin-stat:focus-visible {
 }
 
 /* "N online now" under Active today */
+.admin-stat .admin-stat-live.is-idle {
+    color: #999;
+    font-weight: 600;
+}
+
 .admin-stat .admin-stat-live {
     margin-top: 2px;
     font-size: 12px;

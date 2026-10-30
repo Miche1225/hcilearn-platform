@@ -3184,6 +3184,9 @@
 :root[data-theme="dark"] .admin-stat span {
     color: hsl(250 12% 70%);
 }
+:root[data-theme="dark"] .admin-stat .admin-stat-live.is-idle {
+    color: #999;
+}
 :root[data-theme="dark"] .admin-stat .admin-stat-live {
     color: hsl(155 57% 78%);
 }

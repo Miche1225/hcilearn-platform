@@ -106,7 +106,7 @@
                         </div>
                         <div class="admin-stats">
                             <a href="#students" class="admin-stat" data-quick="all" title="See all students"><i class="fa-solid fa-users"></i><strong id="statStudents">0</strong><span>Students</span></a>
-                            <a href="#students" class="admin-stat" data-quick="today" title="See who was active today"><i class="fa-solid fa-bolt"></i><strong id="statToday">0</strong><span>Active today</span><small class="admin-stat-live" id="statOnline" hidden></small></a>
+                            <a href="#students" class="admin-stat" data-quick="online" title="See who is online right now"><i class="fa-solid fa-bolt"></i><strong id="statToday">0</strong><span>Active today</span><small class="admin-stat-live" id="statOnline" hidden></small></a>
                             <a href="#students" class="admin-stat" data-quick="active" title="See who was active in the last 7 days"><i class="fa-solid fa-calendar-week"></i><strong id="statWeek">0</strong><span>Active this week</span></a>
                             <a href="#students" class="admin-stat is-warn" data-quick="inactive" title="See who has not been active for 7+ days"><i class="fa-solid fa-moon"></i><strong id="statInactive">0</strong><span>Inactive 7+ days</span></a>
                             <a href="#students" class="admin-stat" data-quick="progress" title="See every student's progress, highest first"><i class="fa-solid fa-chart-line"></i><strong id="statAvg">0%</strong><span>Average progress</span></a>
@@ -150,6 +150,7 @@
                             <select id="filterSection" aria-label="Year and section"><option value="">All sections</option></select>
                             <select id="filterStatus" aria-label="Status">
                                 <option value="">Everyone</option>
+                                <option value="online">Online now</option>
                                 <option value="today">Active today</option>
                                 <option value="active">Active this week</option>
                                 <option value="inactive">Inactive 7+ days</option>
@@ -336,10 +337,16 @@
             lastInsights = insights;
             const activeWeek = students.filter(s => !s.inactive);
             $('statStudents').textContent = students.length;
-            $('statToday').textContent = students.filter(s => s.lastActive === today).length;
+            // Big number = students online right now (0 when nobody is);
+            // the line under it says how many opened the system today
             const onlineNow = students.filter(s => s.online).length;
-            $('statOnline').hidden = !onlineNow;
-            $('statOnline').innerHTML = `<i class="fa-solid fa-circle"></i> ${onlineNow} online now`;
+            const usedToday = students.filter(s => s.lastActive === today).length;
+            $('statToday').textContent = onlineNow;
+            $('statOnline').hidden = false;
+            $('statOnline').classList.toggle('is-idle', !onlineNow);
+            $('statOnline').innerHTML = onlineNow
+                ? `<i class="fa-solid fa-circle"></i> ${onlineNow} online now · ${usedToday} opened today`
+                : `Nobody online · ${usedToday} opened today`;
             $('statWeek').textContent = activeWeek.length;
             $('statInactive').textContent = students.length - activeWeek.length;
             $('statAvg').textContent = students.length
@@ -443,6 +450,7 @@
                 (!program || s.program === program) &&
                 (!section || s.yearSection === section) &&
                 (!status || (status === 'atrisk' ? riskReasons(s, avg).length > 0
+                    : status === 'online' ? s.online
                     : status === 'today' ? s.lastActive === today
                     : status === 'inactive' ? s.inactive : !s.inactive)));
 
@@ -837,8 +845,8 @@
             $('studentSearch').value = '';
             $('filterProgram').value = '';
             $('filterSection').value = '';
-            $('filterStatus').value = ['atrisk', 'today', 'active', 'inactive'].includes(quick) ? quick : '';
-            $('sortBy').value = quick === 'progress' ? 'progress' : (quick === 'today' || quick === 'active' || quick === 'inactive') ? 'active' : 'name';
+            $('filterStatus').value = ['atrisk', 'online', 'today', 'active', 'inactive'].includes(quick) ? quick : '';
+            $('sortBy').value = quick === 'progress' ? 'progress' : ['today', 'active', 'inactive'].includes(quick) ? 'active' : 'name';
             renderStudents();
         });
         // Reminder email straight from the at-risk list
@@ -886,11 +894,19 @@
         });
 
         // ---------------- Live refresh ----------------
-        // Students opening the system show up as active/online without
-        // reloading: check every 15 s while this tab is visible, and right
-        // away when the admin comes back to the tab.
-        const LIVE_REFRESH_MS = 15000;
+        // Logins and logouts show up without reloading: a small "who is
+        // online" check every 2 s, and the full numbers every 30 s. Both run
+        // while this tab is visible, and right away when the admin comes back.
+        const ONLINE_CHECK_MS = 2000;
+        const FULL_REFRESH_MS = 30000;
         let refreshing = false;
+        let checkingOnline = false;
+
+        function rerender() {
+            if (lastInsights) renderOverview(lastInsights);
+            renderStudents();
+        }
+
         async function refreshLive() {
             if (refreshing || document.hidden) return;
             refreshing = true;
@@ -907,8 +923,41 @@
                 refreshing = false;
             }
         }
+
+        async function checkOnline() {
+            if (checkingOnline || refreshing || document.hidden) return;
+            checkingOnline = true;
+            try {
+                const live = await api.get('/admin/online');
+                // New or removed student, or a new day: reload everything
+                const known = new Set(students.map(s => s.id));
+                if (live.today !== today || live.ids.length !== known.size || live.ids.some(id => !known.has(id))) {
+                    checkingOnline = false;
+                    return refreshLive();
+                }
+                const online = new Set(live.online);
+                const seenToday = new Set(live.seenToday);
+                let changed = false;
+                students.forEach(s => {
+                    const isOnline = online.has(s.id);
+                    if (s.online !== isOnline) { s.online = isOnline; changed = true; }
+                    if (seenToday.has(s.id) && s.lastActive !== today) {
+                        s.lastActive = today;
+                        s.inactive = false;
+                        changed = true;
+                    }
+                });
+                if (changed) rerender();
+            } catch (err) {
+                // Network blip: the next check tries again
+            } finally {
+                checkingOnline = false;
+            }
+        }
+
         function startLiveRefresh() {
-            setInterval(refreshLive, LIVE_REFRESH_MS);
+            setInterval(checkOnline, ONLINE_CHECK_MS);
+            setInterval(refreshLive, FULL_REFRESH_MS);
             document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshLive(); });
         }
 

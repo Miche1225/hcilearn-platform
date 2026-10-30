@@ -36,11 +36,26 @@ async function requireAuth() {
   try {
     const { user } = await api.get('/auth/me');
     renderSidebarUser(user);
+    startHeartbeat();
     return user;
   } catch (err) {
     window.location.href = 'login.html';
     return null;
   }
+}
+
+// While a page is open and visible, check in every 30 s so the Admin
+// Dashboard can show who is online. Closing the tab stops it.
+let heartbeatStarted = false;
+function startHeartbeat() {
+  if (heartbeatStarted) return;
+  heartbeatStarted = true;
+  const ping = () => {
+    if (document.hidden) return;
+    api.get('/auth/me').catch(() => { /* offline for a moment: next ping retries */ });
+  };
+  setInterval(ping, 30000);
+  document.addEventListener('visibilitychange', ping);
 }
 
 async function logout() {
