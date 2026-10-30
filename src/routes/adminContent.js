@@ -10,13 +10,13 @@
 //   live      both, the same
 const express = require('express');
 const { pool } = require('../db');
-const { requireInstructor, requireAdminRole } = require('../middleware/instructorGuard');
+const { requireAdmin } = require('../middleware/adminGuard');
 const { invalidate, VIDEO_TOPICS } = require('../contentStore');
 const versions = require('../contentVersions');
 
 const router = express.Router();
 // Content is shared by every student, so only the main admin edits it
-router.use(requireInstructor, requireAdminRole);
+router.use(requireAdmin);
 
 const KINDS = ['video', 'module', 'topic', 'case', 'deck', 'card'];
 const PARENT_KIND = { topic: 'module', card: 'deck' };
@@ -121,10 +121,10 @@ async function getRow(id) {
   return rows[0];
 }
 
-async function audit(instructorRowId, action, details) {
+async function audit(adminRowId, action, details) {
   await pool.query(
-    'INSERT INTO instructor_audit_log (instructor_id, action, details) VALUES ($1, $2, $3)',
-    [instructorRowId, action, details]
+    'INSERT INTO admin_audit_log (admin_id, action, details) VALUES ($1, $2, $3)',
+    [adminRowId, action, details]
   );
 }
 
@@ -288,7 +288,7 @@ router.post('/publish', handle(async (req, res) => {
     for (const r of pending) {
       await client.query('UPDATE content_items SET published = draft, updated_at = NOW() WHERE id = $1', [r.id]);
     }
-    await versions.saveVersion(client, req.instructor.id, summary);
+    await versions.saveVersion(client, req.admin.id, summary);
     await client.query('COMMIT');
   } catch (err) {
     await client.query('ROLLBACK');
@@ -298,7 +298,7 @@ router.post('/publish', handle(async (req, res) => {
   }
 
   invalidate();
-  await audit(req.instructor.id, 'publish_content', summary);
+  await audit(req.admin.id, 'publish_content', summary);
   res.json({ published: pending.length, summary });
 }));
 
@@ -309,7 +309,7 @@ router.post('/discard', handle(async (req, res) => {
   for (const r of rows.filter(row => statusOf(row) !== 'live')) {
     await pool.query('UPDATE content_items SET draft = published, updated_at = NOW() WHERE id = $1', [r.id]);
   }
-  await audit(req.instructor.id, 'discard_content', '');
+  await audit(req.admin.id, 'discard_content', '');
   res.json({ ok: true });
 }));
 
@@ -360,7 +360,7 @@ router.post('/versions/:id/rollback', handle(async (req, res) => {
         [item.kind, item.key, item.parentKey || null, JSON.stringify(item.data)]
       );
     }
-    await versions.saveVersion(client, req.instructor.id, `Rolled back to version #${id}`);
+    await versions.saveVersion(client, req.admin.id, `Rolled back to version #${id}`);
     await client.query('COMMIT');
   } catch (err) {
     await client.query('ROLLBACK');
@@ -370,7 +370,7 @@ router.post('/versions/:id/rollback', handle(async (req, res) => {
   }
 
   invalidate();
-  await audit(req.instructor.id, 'rollback_content', `version #${id}`);
+  await audit(req.admin.id, 'rollback_content', `version #${id}`);
   res.json({ ok: true });
 }));
 

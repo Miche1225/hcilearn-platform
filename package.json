@@ -7,7 +7,7 @@
     "start": "node server.js",
     "dev": "node --watch server.js",
     "build:dark": "node scripts/build-dark-css.js",
-    "instructor": "node scripts/instructor.js",
+    "admin": "node scripts/admin.js",
     "test": "node scripts/check.js",
     "lint": "eslint ."
   },

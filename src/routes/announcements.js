@@ -1,5 +1,5 @@
 // src/routes/announcements.js
-// Announcements from instructors for the signed-in student: the Dashboard
+// Announcements from the admin for the signed-in student: the Dashboard
 // banner and the notification bell on every student page.
 const express = require('express');
 const { pool } = require('../db');
@@ -14,8 +14,8 @@ const MAX_SHOWN = 20;
 // Active announcements meant for this student (everyone, or their section)
 async function forStudent(userId) {
   const { rows } = await pool.query(
-    `SELECT a.id, a.title, a.body, a.created_at, a.target_sections, i.full_name AS instructor_name
-     FROM announcements a LEFT JOIN instructors i ON i.id = a.instructor_id
+    `SELECT a.id, a.title, a.body, a.created_at, a.target_sections, ad.full_name AS admin_name
+     FROM announcements a LEFT JOIN admin ad ON ad.id = a.admin_id
      WHERE a.ends_on IS NULL OR a.ends_on >= $1
      ORDER BY a.created_at DESC, a.id DESC
      LIMIT 200`,
@@ -34,7 +34,7 @@ async function forStudent(userId) {
     title: r.title,
     body: r.body,
     createdAt: r.created_at,
-    by: r.instructor_name || 'Your instructor',
+    by: r.admin_name || 'Admin',
     unread: new Date(r.created_at).getTime() > seenAt,
   }));
 }

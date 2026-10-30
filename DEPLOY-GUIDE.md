@@ -50,19 +50,20 @@ sa Supabase at Cloudinary — hindi na sa disk ng server mismo.
    tables sa Supabase (`CREATE TABLE IF NOT EXISTS...`) — hindi mo na kailangan
    manual mag-run ng SQL.
 
-## 4. Gumawa ng instructor account (para sa Admin Dashboard)
+## 4. Gumawa ng admin account (para sa Admin Dashboard)
 
-Hiwalay ang instructor accounts sa student accounts (Instructor ID + password).
+Iisa lang ang admin account, at hiwalay ito sa student accounts (Admin ID + password).
 Sa sarili mong computer, habang naka-set sa `.env` ang `DATABASE_URL` ng
 Supabase project mo:
 
 ```bash
-npm run instructor -- add --id 122524 --name "Pangalan ng Instructor"
+npm run admin -- create --id 122524 --name "Pangalan ng Admin"
 ```
 
 Itatanong nito ang password (hindi ito makikita habang tina-type). Pagkatapos,
-mag-login sa `/login.html#admin` gamit ang Instructor ID at password.
-Iba pang commands: `reset-password`, `rename`, `remove`, `list` (tingnan ang README).
+mag-login sa `/login.html#admin` gamit ang Admin ID at password.
+Isang beses lang ito gumagana, dahil iisang admin account lang ang pinapayagan.
+Iba pang commands: `reset-password`, `rename`, `change-id`, `show` (tingnan ang README).
 
 > **Unang start:** awtomatikong ilalagay ng server sa database ang orihinal na
 > course content (videos, lessons, case studies, study cards) mula sa

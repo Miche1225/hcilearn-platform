@@ -677,13 +677,13 @@ router.post(
 
 
             /*
-                Deactivated by an instructor (checked after the password,
+                Deactivated by the admin (checked after the password,
                 so it does not reveal which accounts exist).
             */
             if (user.disabled_at) {
                 return res.status(403).json({
                     error:
-                        'This account has been deactivated. Please contact your instructor.'
+                        'This account has been deactivated. Please contact the admin.'
                 });
             }
 
@@ -700,7 +700,7 @@ router.post(
 
             /*
                 Keep the encrypted email current (older accounts only
-                get one here) so instructors can send reminders.
+                get one here) so the admin can send reminders.
             */
             await pool.query(
                 'UPDATE users SET email_enc = $1 WHERE id = $2',

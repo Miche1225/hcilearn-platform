@@ -6,7 +6,7 @@
     - Signup notification
     - Login notification
     - Password reset email
-    - Inactive-student reminder (sent by an instructor)
+    - Inactive-student reminder (sent by the admin)
 
     IMPORTANT:
     The database does NOT store the plaintext email. Reminders
@@ -619,7 +619,7 @@ function sendPasswordResetEmail(
 
 
 /*
-    Sent when an instructor clicks the reminder bell
+    Sent when the admin clicks the reminder bell
     for a student who hasn't studied in a while.
 */
 function sendInactiveReminder(
@@ -649,7 +649,7 @@ function sendInactiveReminder(
 
 ` +
 
-            `Your instructor noticed you haven't studied on ${APP_NAME} for a while.
+            `Your HCI 2 admin noticed you haven't studied on ${APP_NAME} for a while.
 
 ` +
 
@@ -669,7 +669,7 @@ function sendInactiveReminder(
 
                 `<p>Hi <strong>${esc(name)}</strong>,</p>` +
 
-                `<p>Your instructor noticed you haven't studied on <strong>${APP_NAME}</strong> for a while.</p>` +
+                `<p>Your HCI 2 admin noticed you haven't studied on <strong>${APP_NAME}</strong> for a while.</p>` +
 
                 `<p style="text-align: center; margin: 28px 0;">` +
 

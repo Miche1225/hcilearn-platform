@@ -50,6 +50,8 @@ const pool =
 */
 async function init() {
 
+    await migrateToSingleAdmin();
+
     /* ==============================================
        CREATE CORE TABLES
        ============================================== */
@@ -406,15 +408,16 @@ async function init() {
         );
 
 
-        /* Instructor accounts for the Admin Dashboard. Separate from
-           student accounts; created with "npm run instructor -- add". */
-        CREATE TABLE IF NOT EXISTS instructors (
+        /* The one admin account for the Admin Dashboard. Separate from
+           student accounts; created with "npm run admin -- create".
+           Only one row is allowed (see admin_one_account below). */
+        CREATE TABLE IF NOT EXISTS admin (
 
             id
                 SERIAL
                 PRIMARY KEY,
 
-            instructor_id
+            admin_id
                 TEXT
                 NOT NULL
                 UNIQUE,
@@ -442,17 +445,17 @@ async function init() {
         );
 
 
-        /* What instructors did on the Admin Dashboard (viewed a student,
+        /* What the admin did on the Admin Dashboard (viewed a student,
            exported data...), for accountability. */
-        CREATE TABLE IF NOT EXISTS instructor_audit_log (
+        CREATE TABLE IF NOT EXISTS admin_audit_log (
 
             id
                 SERIAL
                 PRIMARY KEY,
 
-            instructor_id
+            admin_id
                 INTEGER
-                REFERENCES instructors(id)
+                REFERENCES admin(id)
                 ON DELETE SET NULL,
 
             action
@@ -477,7 +480,7 @@ async function init() {
 
 
         /* Course content edited from the Admin Dashboard.
-           "draft" is what instructors edit, "published" is what students
+           "draft" is what the admin edits, "published" is what students
            see; Publish copies draft -> published. NULL draft = deleted in
            the draft, NULL published = not live. Rows are never removed once
            published, so a key is never reused by different content.
@@ -520,7 +523,7 @@ async function init() {
 
 
         /* A snapshot of the published content after every publish or
-           rollback, so instructors can go back to an earlier version.
+           rollback, so the admin can go back to an earlier version.
            snapshot = [{ kind, key, parentKey, data }, ...] */
         CREATE TABLE IF NOT EXISTS content_versions (
 
@@ -528,9 +531,9 @@ async function init() {
                 SERIAL
                 PRIMARY KEY,
 
-            instructor_id
+            admin_id
                 INTEGER
-                REFERENCES instructors(id)
+                REFERENCES admin(id)
                 ON DELETE SET NULL,
 
             summary
@@ -554,42 +557,16 @@ async function init() {
         );
 
 
-        /* Which student sections each (non-admin) instructor can see.
-           A section = program + year_section, exactly as students entered it. */
-        CREATE TABLE IF NOT EXISTS instructor_sections (
-
-            instructor_id
-                INTEGER
-                NOT NULL
-                REFERENCES instructors(id)
-                ON DELETE CASCADE,
-
-            program
-                TEXT
-                NOT NULL,
-
-            year_section
-                TEXT
-                NOT NULL,
-
-            PRIMARY KEY (
-                instructor_id,
-                program,
-                year_section
-            )
-        );
-
-
-        /* Messages from instructors shown on every student's Dashboard. */
+        /* Messages from the admin shown on the students' Dashboard. */
         CREATE TABLE IF NOT EXISTS announcements (
 
             id
                 SERIAL
                 PRIMARY KEY,
 
-            instructor_id
+            admin_id
                 INTEGER
-                REFERENCES instructors(id)
+                REFERENCES admin(id)
                 ON DELETE SET NULL,
 
             title
@@ -681,7 +658,7 @@ async function init() {
             'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS daily_goal INTEGER NOT NULL DEFAULT 10'
         );
 
-        /* Encrypted email (saved at signup/login) and when an instructor
+        /* Encrypted email (saved at signup/login) and when the admin
            last emailed an inactive-student reminder. */
         await client.query(
             'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS email_enc TEXT'
@@ -690,7 +667,7 @@ async function init() {
             'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS reminded_at TIMESTAMPTZ'
         );
 
-        /* Set by an instructor to block an account from logging in. */
+        /* Set by the admin to block an account from logging in. */
         await client.query(
             'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS disabled_at TIMESTAMPTZ'
         );
@@ -719,18 +696,10 @@ async function init() {
             'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS announcements_seen_at TIMESTAMPTZ'
         );
 
-        /* Instructor role: 'admin' (sees and manages everything) or
-           'instructor' (sees only their assigned sections). */
+        /* Only one admin account can exist. */
         await client.query(
-            "ALTER TABLE public.instructors ADD COLUMN IF NOT EXISTS role TEXT NOT NULL DEFAULT 'instructor'"
+            'CREATE UNIQUE INDEX IF NOT EXISTS admin_one_account ON public.admin ((TRUE))'
         );
-
-        /* There must always be an admin: the first instructor becomes one. */
-        await client.query(`
-            UPDATE public.instructors SET role = 'admin'
-            WHERE id = (SELECT MIN(id) FROM public.instructors)
-              AND NOT EXISTS (SELECT 1 FROM public.instructors WHERE role = 'admin')
-        `);
 
         /* Announcement audience: NULL = everyone, otherwise a list of
            { program, yearSection } sections. */
@@ -967,6 +936,59 @@ async function init() {
 
 
 /*
+    Older databases had several instructor accounts (instructors,
+    instructor_sections, instructor_audit_log). The system now has one admin
+    account. This keeps the main admin (or the oldest account), removes the
+    others and the section assignments, and renames the tables and columns.
+    Audit log entries, announcements and content history are kept.
+    Runs once; does nothing on a new or already-migrated database.
+*/
+async function migrateToSingleAdmin() {
+    await pool.query(`
+        DO $$
+        BEGIN
+            IF to_regclass('public.instructors') IS NOT NULL
+               AND to_regclass('public.admin') IS NULL THEN
+                IF EXISTS (SELECT 1 FROM information_schema.columns
+                           WHERE table_schema = 'public' AND table_name = 'instructors'
+                             AND column_name = 'role') THEN
+                    DELETE FROM public.instructors WHERE id <> (
+                        SELECT id FROM public.instructors ORDER BY (role = 'admin') DESC, id LIMIT 1);
+                    ALTER TABLE public.instructors DROP COLUMN role;
+                ELSE
+                    DELETE FROM public.instructors
+                    WHERE id <> (SELECT MIN(id) FROM public.instructors);
+                END IF;
+                ALTER TABLE public.instructors RENAME COLUMN instructor_id TO admin_id;
+                ALTER TABLE public.instructors RENAME TO admin;
+            END IF;
+
+            IF to_regclass('public.instructor_audit_log') IS NOT NULL
+               AND to_regclass('public.admin_audit_log') IS NULL THEN
+                ALTER TABLE public.instructor_audit_log RENAME COLUMN instructor_id TO admin_id;
+                ALTER TABLE public.instructor_audit_log RENAME TO admin_audit_log;
+            END IF;
+
+            IF EXISTS (SELECT 1 FROM information_schema.columns
+                       WHERE table_schema = 'public' AND table_name = 'content_versions'
+                         AND column_name = 'instructor_id') THEN
+                ALTER TABLE public.content_versions RENAME COLUMN instructor_id TO admin_id;
+            END IF;
+
+            IF EXISTS (SELECT 1 FROM information_schema.columns
+                       WHERE table_schema = 'public' AND table_name = 'announcements'
+                         AND column_name = 'instructor_id') THEN
+                ALTER TABLE public.announcements RENAME COLUMN instructor_id TO admin_id;
+            END IF;
+
+            DROP TABLE IF EXISTS public.instructor_sections;
+        END
+        $$;
+    `);
+}
+
+
+/*
     First start only: load the original course content (src/seed/content.json)
     into content_items, published. After that, content is edited from the
     Admin Dashboard and this does nothing.
@@ -1019,7 +1041,7 @@ async function seedContent() {
 /*
     Videos added to content.json after a database was already seeded.
     Each seed video is handled only once (remembered in seed_videos_added),
-    so a video an instructor later deletes does not come back on restart.
+    so a video the admin later deletes does not come back on restart.
 */
 async function addNewSeedVideos() {
 

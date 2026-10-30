@@ -316,7 +316,7 @@ router.get('/mistakes', async (req, res, next) => {
        ORDER BY last_wrong_at ASC`,
       [req.userId, source]
     );
-    // Skip questions an instructor has since removed
+    // Skip questions the admin has since removed
     const content = await getContent();
     res.json({
       mistakes: rows

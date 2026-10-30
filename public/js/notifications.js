@@ -1,6 +1,6 @@
 // public/js/notifications.js
 // Notification bell for students (needs js/api.js): shows announcements from
-// instructors, a red count for unread ones, and a pop-up when a new one
+// the admin, a red count for unread ones, and a pop-up when a new one
 // arrives. Checks again every minute while the page is open.
 
 (function () {

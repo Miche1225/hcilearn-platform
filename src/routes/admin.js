@@ -1,10 +1,10 @@
 // src/routes/admin.js
 // Admin dashboard (read-only): student progress, class insights, CSV export
-// and the audit log. Every route needs an instructor login
-// (see middleware/instructorGuard.js and routes/instructor.js).
+// and the audit log. Every route needs the admin login
+// (see middleware/adminGuard.js and routes/adminAuth.js).
 const express = require('express');
 const { pool } = require('../db');
-const { requireInstructor, requireAdminRole } = require('../middleware/instructorGuard');
+const { requireAdmin } = require('../middleware/adminGuard');
 const { getContent } = require('../contentStore');
 const { todayLocal, addDays, toYmd, computeStreaks } = require('../utils/dates');
 const { getBadges } = require('./gamify');
@@ -12,14 +12,14 @@ const { decryptEmail } = require('../utils/emailSecurity');
 const { sendInactiveReminder } = require('../utils/mailer');
 
 const router = express.Router();
-router.use(requireInstructor);
+router.use(requireAdmin);
 
 const INACTIVE_AFTER_DAYS = 7;
 
-async function audit(instructorRowId, action, targetUserId = null, details = '') {
+async function audit(adminRowId, action, targetUserId = null, details = '') {
   await pool.query(
-    'INSERT INTO instructor_audit_log (instructor_id, action, target_user_id, details) VALUES ($1, $2, $3, $4)',
-    [instructorRowId, action, targetUserId, details]
+    'INSERT INTO admin_audit_log (admin_id, action, target_user_id, details) VALUES ($1, $2, $3, $4)',
+    [adminRowId, action, targetUserId, details]
   );
 }
 
@@ -28,16 +28,8 @@ function tsToYmd(ts) {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Manila' }).format(new Date(ts));
 }
 
-// Can this instructor see this student? Admins see everyone; other
-// instructors only the sections assigned to them (program + year/section).
-function canSee(instructor, student) {
-  if (instructor.isAdmin) return true;
-  return instructor.sections.some(sec =>
-    sec.program === (student.program || '') && sec.yearSection === (student.year_section || ''));
-}
-
-// Every student this instructor can see, with progress numbers
-async function loadStudents(instructor) {
+// Every student, with progress numbers (the admin sees all students)
+async function loadStudents() {
   const content = await getContent();
   const { caseStudies, decks: deckTotal, videos: videoTotal } = content.totals;
   const totalActivities = caseStudies + deckTotal + videoTotal;
@@ -51,7 +43,7 @@ async function loadStudents(instructor) {
      LEFT JOIN study_card_progress sc ON sc.user_id = u.id
      ORDER BY u.full_name`
   );
-  const students = rows.filter(r => canSee(instructor, r));
+  const students = rows;
   const ids = students.map(s => s.id);
   if (!ids.length) return [];
 
@@ -134,7 +126,7 @@ router.get('/students', async (req, res, next) => {
       today: todayLocal(),
       inactiveAfterDays: INACTIVE_AFTER_DAYS,
       totals: { ...(await getContent()).totals, badges: getBadges((await getContent()).totals).length },
-      students: await loadStudents(req.instructor),
+      students: await loadStudents(),
     });
   } catch (err) {
     next(err);
@@ -144,7 +136,7 @@ router.get('/students', async (req, res, next) => {
 // GET /api/admin/insights — most-missed questions and least-watched videos
 router.get('/insights', async (req, res, next) => {
   try {
-    const students = await loadStudents(req.instructor);
+    const students = await loadStudents();
     const ids = students.map(s => s.id);
 
     const { rows: missed } = await pool.query(
@@ -182,7 +174,7 @@ router.get('/students/:id', async (req, res, next) => {
     const id = Number(req.params.id);
     if (!Number.isInteger(id) || id < 1) return res.status(400).json({ error: 'Invalid student.' });
 
-    const student = (await loadStudents(req.instructor)).find(s => s.id === id);
+    const student = (await loadStudents()).find(s => s.id === id);
     if (!student) return res.status(404).json({ error: 'Student not found.' });
 
     const content = await getContent();
@@ -215,7 +207,7 @@ router.get('/students/:id', async (req, res, next) => {
     }
 
     const earnedAt = new Map(earned.map(b => [b.badge_id, b.earned_at]));
-    await audit(req.instructor.id, 'view_student', id);
+    await audit(req.admin.id, 'view_student', id);
 
     res.json({
       student,
@@ -241,7 +233,7 @@ router.get('/students/:id', async (req, res, next) => {
 // GET /api/admin/export.csv — progress of every student, for grading/reports
 router.get('/export.csv', async (req, res, next) => {
   try {
-    const students = await loadStudents(req.instructor);
+    const students = await loadStudents();
     const { totals } = await getContent();
     // Cells starting with = + - @ could run as formulas in Excel
     const cell = (value) => {
@@ -262,7 +254,7 @@ router.get('/export.csv', async (req, res, next) => {
       ].map(cell).join(','));
     }
 
-    await audit(req.instructor.id, 'export_csv', null, `${students.length} students`);
+    await audit(req.admin.id, 'export_csv', null, `${students.length} students`);
 
     res.set('Content-Type', 'text/csv; charset=utf-8');
     res.set('Content-Disposition', `attachment; filename="hcilearn-progress-${todayLocal()}.csv"`);
@@ -279,7 +271,7 @@ async function studentFor(req) {
   const id = Number(req.params.id);
   if (!Number.isInteger(id) || id < 1) return null;
   const { rows } = await pool.query('SELECT id, full_name, program, year_section, disabled_at FROM users WHERE id = $1', [id]);
-  return rows[0] && canSee(req.instructor, rows[0]) ? rows[0] : null;
+  return rows[0] || null;
 }
 
 const studentAction = (action, run) => async (req, res, next) => {
@@ -287,7 +279,7 @@ const studentAction = (action, run) => async (req, res, next) => {
     const student = await studentFor(req);
     if (!student) return res.status(404).json({ error: 'Student not found.' });
     await run(student);
-    await audit(req.instructor.id, action, student.id);
+    await audit(req.admin.id, action, student.id);
     res.json({ ok: true });
   } catch (err) {
     next(err);
@@ -310,7 +302,7 @@ router.post('/students/:id/remove', async (req, res, next) => {
   try {
     const student = await studentFor(req);
     if (!student) return res.status(404).json({ error: 'Student not found.' });
-    await audit(req.instructor.id, 'remove_student', null, student.full_name);
+    await audit(req.admin.id, 'remove_student', null, student.full_name);
     await pool.query('DELETE FROM users WHERE id = $1', [student.id]);
     // Best effort: also remove the profile photo from Cloudinary
     try {
@@ -343,7 +335,7 @@ router.post('/students/:id/remind', async (req, res, next) => {
     if (!sent) return res.status(502).json({ error: 'The email could not be sent. Check the email settings.' });
 
     await pool.query('UPDATE users SET reminded_at = NOW() WHERE id = $1', [student.id]);
-    await audit(req.instructor.id, 'remind_student', student.id);
+    await audit(req.admin.id, 'remind_student', student.id);
     res.json({ ok: true });
   } catch (err) {
     next(err);
@@ -371,26 +363,31 @@ router.post('/students/:id/reset', studentAction('reset_progress', async (s) => 
 
 
 // ---------- Announcements ----------
-// The admin sees all announcements; other instructors only their own.
+// Every section students have signed up with, for choosing an audience
+async function studentSections() {
+  const { rows } = await pool.query(
+    `SELECT DISTINCT COALESCE(program, '') AS program, COALESCE(year_section, '') AS year_section
+     FROM users WHERE year_section IS NOT NULL ORDER BY 1, 2`
+  );
+  return rows.map(r => ({ program: r.program, yearSection: r.year_section }));
+}
+
 // GET /api/admin/announcements
 router.get('/announcements', async (req, res, next) => {
   try {
     const { rows } = await pool.query(
-      `SELECT a.id, a.instructor_id, a.title, a.body, a.ends_on, a.created_at, a.target_sections, i.full_name AS instructor_name
-       FROM announcements a LEFT JOIN instructors i ON i.id = a.instructor_id
+      `SELECT a.id, a.title, a.body, a.ends_on, a.created_at, a.target_sections, ad.full_name AS admin_name
+       FROM announcements a LEFT JOIN admin ad ON ad.id = a.admin_id
        ORDER BY a.created_at DESC, a.id DESC`
     );
     res.json({
       today: todayLocal(),
-      canPostToEveryone: req.instructor.isAdmin,
-      sections: req.instructor.sections,
-      announcements: rows
-        .filter(r => req.instructor.isAdmin || r.instructor_id === req.instructor.id)
-        .map(r => ({
-          id: r.id, title: r.title, body: r.body, endsOn: r.ends_on ? toYmd(r.ends_on) : null,
-          createdAt: r.created_at, by: r.instructor_name || '(removed instructor)',
-          audience: r.target_sections || null,
-        })),
+      sections: await studentSections(),
+      announcements: rows.map(r => ({
+        id: r.id, title: r.title, body: r.body, endsOn: r.ends_on ? toYmd(r.ends_on) : null,
+        createdAt: r.created_at, by: r.admin_name || 'Admin',
+        audience: r.target_sections || null,
+      })),
     });
   } catch (err) {
     next(err);
@@ -398,8 +395,7 @@ router.get('/announcements', async (req, res, next) => {
 });
 
 // POST /api/admin/announcements  { title, body, endsOn?, sections? }
-// sections = [{ program, yearSection }]; null/empty = everyone (admin only).
-// Other instructors can only post to their own sections.
+// sections = [{ program, yearSection }]; null/empty = everyone.
 router.post('/announcements', async (req, res, next) => {
   try {
     const { title, body, endsOn } = req.body || {};
@@ -416,23 +412,16 @@ router.post('/announcements', async (req, res, next) => {
       ends = endsOn;
     }
 
-    const mine = req.instructor.sections;
     const wanted = Array.isArray(req.body.sections) ? req.body.sections : [];
-    let audience = wanted
+    const audience = wanted
       .filter(x => x && typeof x.program === 'string' && typeof x.yearSection === 'string')
       .map(x => ({ program: x.program, yearSection: x.yearSection }));
-    if (!req.instructor.isAdmin) {
-      if (!mine.length) return res.status(400).json({ error: 'You have no sections yet. Ask the main admin to assign them.' });
-      if (!audience.length) audience = mine; // default: all of my sections
-      const ok = audience.every(a => mine.some(m => m.program === a.program && m.yearSection === a.yearSection));
-      if (!ok) return res.status(403).json({ error: 'You can only post to your own sections.' });
-    }
 
     const { rows } = await pool.query(
-      'INSERT INTO announcements (instructor_id, title, body, ends_on, target_sections) VALUES ($1, $2, $3, $4, $5::jsonb) RETURNING id',
-      [req.instructor.id, t, b, ends, audience.length ? JSON.stringify(audience) : null]
+      'INSERT INTO announcements (admin_id, title, body, ends_on, target_sections) VALUES ($1, $2, $3, $4, $5::jsonb) RETURNING id',
+      [req.admin.id, t, b, ends, audience.length ? JSON.stringify(audience) : null]
     );
-    await audit(req.instructor.id, 'post_announcement', null, t);
+    await audit(req.admin.id, 'post_announcement', null, t);
     res.json({ id: rows[0].id });
   } catch (err) {
     next(err);
@@ -444,10 +433,8 @@ router.delete('/announcements/:id', async (req, res, next) => {
   try {
     const id = Number(req.params.id);
     if (!Number.isInteger(id) || id < 1) return res.status(400).json({ error: 'Invalid announcement.' });
-    const owner = req.instructor.isAdmin ? '' : ' AND instructor_id = $2';
-    const params = req.instructor.isAdmin ? [id] : [id, req.instructor.id];
-    const { rows } = await pool.query(`DELETE FROM announcements WHERE id = $1${owner} RETURNING title`, params);
-    if (rows[0]) await audit(req.instructor.id, 'delete_announcement', null, rows[0].title);
+    const { rows } = await pool.query('DELETE FROM announcements WHERE id = $1 RETURNING title', [id]);
+    if (rows[0]) await audit(req.admin.id, 'delete_announcement', null, rows[0].title);
     res.json({ ok: true });
   } catch (err) {
     next(err);
@@ -460,20 +447,18 @@ router.get('/audit', async (req, res, next) => {
   try {
     const { rows } = await pool.query(
       `SELECT l.id, l.action, l.details, l.created_at,
-              i.full_name AS instructor_name, i.instructor_id AS instructor_code,
+              ad.full_name AS admin_name, ad.admin_id AS admin_code,
               t.full_name AS target_name
-       FROM instructor_audit_log l
-       LEFT JOIN instructors i ON i.id = l.instructor_id
+       FROM admin_audit_log l
+       LEFT JOIN admin ad ON ad.id = l.admin_id
        LEFT JOIN users t ON t.id = l.target_user_id
-       WHERE $1::boolean OR l.instructor_id = $2
        ORDER BY l.created_at DESC, l.id DESC
-       LIMIT 200`,
-      [req.instructor.isAdmin, req.instructor.id]
+       LIMIT 200`
     );
     res.json({
       entries: rows.map(r => ({
         id: r.id, action: r.action, details: r.details, createdAt: r.created_at,
-        adminName: r.instructor_name ? `${r.instructor_name} (ID ${r.instructor_code})` : '(removed instructor)',
+        adminName: r.admin_name ? `${r.admin_name} (ID ${r.admin_code})` : 'Admin',
         targetName: r.target_name,
       })),
     });
@@ -482,25 +467,24 @@ router.get('/audit', async (req, res, next) => {
   }
 });
 
-// DELETE /api/admin/audit — clear the whole log (main admin only); the
-// clear itself is recorded so a wiped log never looks untouched
-router.delete('/audit', requireAdminRole, async (req, res, next) => {
+// DELETE /api/admin/audit — clear the whole log; the clear itself is
+// recorded so a wiped log never looks untouched
+router.delete('/audit', async (req, res, next) => {
   try {
-    await pool.query('DELETE FROM instructor_audit_log');
-    await audit(req.instructor.id, 'clear_audit');
+    await pool.query('DELETE FROM admin_audit_log');
+    await audit(req.admin.id, 'clear_audit');
     res.json({ ok: true });
   } catch (err) {
     next(err);
   }
 });
 
-// DELETE /api/admin/audit/:id — remove an entry (main admin only, so the
-// log stays trustworthy; regular instructors can't erase what they did)
-router.delete('/audit/:id', requireAdminRole, async (req, res, next) => {
+// DELETE /api/admin/audit/:id — remove an entry
+router.delete('/audit/:id', async (req, res, next) => {
   try {
     const id = Number(req.params.id);
     if (!Number.isInteger(id) || id < 1) return res.status(400).json({ error: 'Invalid entry.' });
-    await pool.query('DELETE FROM instructor_audit_log WHERE id = $1', [id]);
+    await pool.query('DELETE FROM admin_audit_log WHERE id = $1', [id]);
     res.json({ ok: true });
   } catch (err) {
     next(err);

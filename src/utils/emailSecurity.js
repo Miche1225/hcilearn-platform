@@ -72,7 +72,7 @@ function hashEmail(email) {
 
 
 /*
-    Reversible copy of the email, so instructors can send
+    Reversible copy of the email, so the admin can send
     reminders to inactive students. AES-256-GCM with a key
     derived from the same secret (so it must not change either).
 

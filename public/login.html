@@ -82,10 +82,10 @@
                     </div>
 
 
-                    <!-- INSTRUCTOR ID (admin login) -->
-                    <div class="input-group" id="instructorGroup" hidden>
+                    <!-- ADMIN ID (admin login) -->
+                    <div class="input-group" id="adminIdGroup" hidden>
 
-                        <label for="instructorId">Instructor ID</label>
+                        <label for="adminId">Admin ID</label>
 
                         <div class="input-wrapper">
 
@@ -93,7 +93,7 @@
 
                             <input
                                 type="text"
-                                id="instructorId"
+                                id="adminId"
                                 placeholder="e.g. 122524"
                                 autocomplete="username"
                                 inputmode="numeric"
@@ -422,13 +422,13 @@
             document.querySelector('.glass-panel').classList.toggle('is-admin-mode', adminMode);
             document.getElementById('adminBadge').hidden = !adminMode;
             document.getElementById('studentExtras').hidden = adminMode;
-            // Instructors log in with their Instructor ID, students with email
+            // The admin logs in with the Admin ID, students with email
             document.getElementById('emailGroup').hidden = adminMode;
-            document.getElementById('instructorGroup').hidden = !adminMode;
+            document.getElementById('adminIdGroup').hidden = !adminMode;
             document.getElementById('formOptions').hidden = adminMode;
             document.getElementById('loginTitle').textContent = adminMode ? 'Admin login' : 'Hello, welcome!';
             document.getElementById('loginSubtitle').textContent = adminMode
-                ? 'For instructors. Log in with your Instructor ID.'
+                ? 'For the admin. Log in with your Admin ID.'
                 : 'Log in to continue your learning journey.';
 
             const toggle = document.getElementById('adminToggle');
@@ -450,13 +450,13 @@
         document.getElementById('adminToggle').addEventListener('click', () => {
             adminMode = !adminMode;
             applyLoginMode();
-            document.getElementById(adminMode ? 'instructorId' : 'email').focus();
+            document.getElementById(adminMode ? 'adminId' : 'email').focus();
         });
 
         applyLoginMode();
 
         // Already logged in? Go straight to the right page.
-        api.get(adminMode ? '/instructor/me' : '/auth/me')
+        api.get(adminMode ? '/admin/auth/me' : '/auth/me')
             .then(() => {
                 window.location.href = adminMode ? 'Admin.html' : 'Dashboard.html';
             })
@@ -464,16 +464,16 @@
 
 
         /* ==========================================
-           INSTRUCTOR LOGIN (admin mode)
+           ADMIN LOGIN (admin mode)
            ========================================== */
 
-        async function instructorLogin() {
+        async function adminLogin() {
             const btn = document.getElementById('loginBtn');
-            const instructorId = document.getElementById('instructorId').value.trim();
+            const adminId = document.getElementById('adminId').value.trim();
             const password = document.getElementById('password').value;
 
-            if (!instructorId || !password) {
-                showLoginError('Please enter your Instructor ID and password.');
+            if (!adminId || !password) {
+                showLoginError('Please enter your Admin ID and password.');
                 return;
             }
 
@@ -481,7 +481,7 @@
             btn.innerHTML = '<span class="btn-spinner"></span> Logging in...';
 
             try {
-                await api.post('/instructor/login', { instructorId, password });
+                await api.post('/admin/auth/login', { adminId, password });
                 btn.classList.add('success');
                 btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Welcome!';
                 setTimeout(() => { window.location.href = 'Admin.html'; }, 600);
@@ -583,7 +583,7 @@
 
                     if (adminMode) {
                         document.getElementById('loginError').classList.remove('visible');
-                        instructorLogin();
+                        adminLogin();
                         return;
                     }
 

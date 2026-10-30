@@ -1,7 +1,7 @@
 // src/contentStore.js
 // The published course content (videos, lessons, case studies, study cards),
 // read from content_items and cached in memory. The cache is cleared when an
-// instructor publishes, so students always get the latest published version.
+// admin publishes, so students always get the latest published version.
 const { pool } = require('./db');
 const seed = require('./seed/content.json');
 
@@ -81,7 +81,7 @@ function invalidate() {
 
 // Unlocking rule shared by Case Studies and Study Cards: everything already
 // done, plus the first not-done item in order. (Same as before, but works
-// when instructors add or reorder items.)
+// when the admin adds or reorders items.)
 function unlockedKeys(order, doneList) {
   const done = new Set(doneList.map(Number));
   const unlocked = [];

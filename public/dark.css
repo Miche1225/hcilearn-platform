@@ -3583,9 +3583,6 @@
     background: hsl(48 45% 21%);
     color: hsl(46 70% 84%);
 }
-:root[data-theme="dark"] .instructor-list .admin-list-text strong small {
-    color: #9a95b0;
-}
 :root[data-theme="dark"] .notif-count {
     border: 2px solid #3d2a8a;
     background: #ff4d6d;
@@ -3683,12 +3680,6 @@
     --nav-tint: rgba(255, 179, 122, 0.16);
     --nav-soft: hsl(28 45% 24%);
     --nav-strong: #d68748;
-}
-:root[data-theme="dark"] .nav-item[data-section="instructors"] {
-    --nav-c: #cfadf5;
-    --nav-tint: rgba(207, 173, 245, 0.16);
-    --nav-soft: hsl(269 45% 23%);
-    --nav-strong: #8352b8;
 }
 :root[data-theme="dark"] .nav-item[data-section="audit"] {
     --nav-c: #7fe0c4;

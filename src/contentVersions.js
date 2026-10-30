@@ -20,11 +20,11 @@ async function currentSnapshot(db = pool) {
   return rows.map(r => ({ kind: r.kind, key: r.key, parentKey: r.parent_key, data: r.published }));
 }
 
-async function saveVersion(db, instructorId, summary) {
+async function saveVersion(db, adminRowId, summary) {
   const snapshot = await currentSnapshot(db);
   const { rows } = await db.query(
-    'INSERT INTO content_versions (instructor_id, summary, snapshot, item_count) VALUES ($1, $2, $3::jsonb, $4) RETURNING id',
-    [instructorId, summary, JSON.stringify(snapshot), snapshot.length]
+    'INSERT INTO content_versions (admin_id, summary, snapshot, item_count) VALUES ($1, $2, $3::jsonb, $4) RETURNING id',
+    [adminRowId, summary, JSON.stringify(snapshot), snapshot.length]
   );
   const { rows: old } = await db.query('SELECT id FROM content_versions ORDER BY id DESC OFFSET $1', [KEEP_VERSIONS]);
   for (const r of old) await db.query('DELETE FROM content_versions WHERE id = $1', [r.id]);
@@ -42,13 +42,13 @@ async function ensureBaseline(db = pool) {
 async function listVersions() {
   await ensureBaseline();
   const { rows } = await pool.query(
-    `SELECT v.id, v.summary, v.item_count, v.created_at, i.full_name AS instructor_name
-     FROM content_versions v LEFT JOIN instructors i ON i.id = v.instructor_id
+    `SELECT v.id, v.summary, v.item_count, v.created_at, a.full_name AS admin_name
+     FROM content_versions v LEFT JOIN admin a ON a.id = v.admin_id
      ORDER BY v.id DESC`
   );
   return rows.map((r, index) => ({
     id: r.id, summary: r.summary, itemCount: r.item_count, createdAt: r.created_at,
-    by: r.instructor_name || (r.summary === 'Starting content' ? 'System' : '(removed instructor)'),
+    by: r.admin_name || (r.summary === 'Starting content' ? 'System' : 'Admin'),
     isCurrent: index === 0,
   }));
 }

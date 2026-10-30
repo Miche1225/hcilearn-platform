@@ -11026,7 +11026,7 @@ div.qs-result {
 }
 
 .login-page #emailGroup[hidden],
-.login-page #instructorGroup[hidden],
+.login-page #adminIdGroup[hidden],
 .login-page #formOptions[hidden] {
     display: none;
 }
@@ -11515,7 +11515,7 @@ div.qs-result {
     .ce-bar-actions { margin-left: 0; }
 }
 
-/* --- Admin: publish history, sections, instructors --- */
+/* --- Admin: publish history --- */
 .ce-history {
     display: flex;
     flex-direction: column;
@@ -11605,15 +11605,6 @@ fieldset.ce-field legend {
 }
 
 .admin-page .admin-notice[hidden] { display: none !important; }
-
-.instructor-list {
-    margin-top: 14px;
-}
-
-.instructor-list .admin-list-text strong small {
-    font-weight: 600;
-    color: #9a95b0;
-}
 
 .admin-page .sidebar-user {
     gap: 6px;
@@ -11896,7 +11887,6 @@ fieldset.ce-field legend {
 .nav-item[data-section="students"]      { --nav-c: #8fb6ff; --nav-tint: rgba(143, 182, 255, 0.16); --nav-soft: #d6e4f9; --nav-strong: #4b84e6; }
 .nav-item[data-section="content"]       { --nav-c: #8fd6a6; --nav-tint: rgba(143, 214, 166, 0.16); --nav-soft: #c9e6d3; --nav-strong: #3f8f5b; }
 .nav-item[data-section="announcements"] { --nav-c: #ffb37a; --nav-tint: rgba(255, 179, 122, 0.16); --nav-soft: #fbe0c9; --nav-strong: #d68748; }
-.nav-item[data-section="instructors"]   { --nav-c: #cfadf5; --nav-tint: rgba(207, 173, 245, 0.16); --nav-soft: #e5d9f2; --nav-strong: #8352b8; }
 .nav-item[data-section="audit"]         { --nav-c: #7fe0c4; --nav-tint: rgba(127, 224, 196, 0.16); --nav-soft: #d3f5ea; --nav-strong: #1f8a6a; }
 
 .admin-page .nav-item[hidden] { display: none; }
