@@ -10,10 +10,13 @@ const {
     requireAuth,
     issueSession,
     clearSession,
+    JWT_SECRET,
     IS_PRODUCTION
 } = require('../middleware/authGuard');
+const jwt = require('jsonwebtoken');
 
 const { rateLimit } = require('../middleware/rateLimit');
+const { notifyPresence } = require('../presence');
 
 const {
     isValidPassword,
@@ -704,6 +707,7 @@ router.post(
                 'UPDATE users SET last_seen_at = NOW() WHERE id = $1',
                 [user.id]
             );
+            notifyPresence();
 
 
             /*
@@ -1130,7 +1134,19 @@ router.post(
 
 router.post(
     '/logout',
-    (req, res) => {
+    async (req, res) => {
+
+        /*
+            Note the logout so the Admin Dashboard stops showing the
+            student as online right away. Best effort: logout always works.
+        */
+        try {
+            const payload = jwt.verify(req.cookies.token, JWT_SECRET, { algorithms: ['HS256'] });
+            if (Number.isInteger(payload.userId)) {
+                await pool.query('UPDATE users SET signed_out_at = NOW() WHERE id = $1', [payload.userId]);
+                notifyPresence();
+            }
+        } catch (err) { /* no or expired cookie: nothing to record */ }
 
         clearSession(res);
 

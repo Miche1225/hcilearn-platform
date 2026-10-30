@@ -345,8 +345,8 @@
             $('statOnline').hidden = false;
             $('statOnline').classList.toggle('is-idle', !onlineNow);
             $('statOnline').innerHTML = onlineNow
-                ? `<i class="fa-solid fa-circle"></i> ${onlineNow} online now`
-                : `Nobody online`;
+                ? `<i class="fa-solid fa-circle"></i> ${onlineNow} online now · ${usedToday} opened today`
+                : `Nobody online · ${usedToday} opened today`;
             $('statWeek').textContent = activeWeek.length;
             $('statInactive').textContent = students.length - activeWeek.length;
             $('statAvg').textContent = students.length
@@ -894,10 +894,11 @@
         });
 
         // ---------------- Live refresh ----------------
-        // Logins and logouts show up without reloading: a small "who is
-        // online" check every 2 s, and the full numbers every 30 s. Both run
+        // Logins and logouts show up without reloading: pushed by the server
+        // the moment they happen (listenForPresence), plus a small "who is
+        // online" check every 3 s as a backup and the full numbers every 30 s. Both run
         // while this tab is visible, and right away when the admin comes back.
-        const ONLINE_CHECK_MS = 2000;
+        const ONLINE_CHECK_MS = 3000;
         const FULL_REFRESH_MS = 30000;
         let refreshing = false;
         let checkingOnline = false;
@@ -921,12 +922,17 @@
                 // Network blip: the next tick tries again
             } finally {
                 refreshing = false;
+                // A login/logout arrived during the reload: show it now
+                if (checkAgain) checkOnline();
             }
         }
 
+        let checkAgain = false; // a login/logout arrived while checking
         async function checkOnline() {
-            if (checkingOnline || refreshing || document.hidden) return;
+            if (checkingOnline || refreshing) { checkAgain = true; return; }
+            if (document.hidden) return;
             checkingOnline = true;
+            checkAgain = false;
             try {
                 const live = await api.get('/admin/online');
                 // New or removed student, or a new day: reload everything
@@ -952,10 +958,22 @@
                 // Network blip: the next check tries again
             } finally {
                 checkingOnline = false;
+                if (checkAgain) checkOnline();
             }
         }
 
+        // The server pushes "presence" the moment a student logs in or out,
+        // so the numbers change within about a second. The browser reconnects
+        // by itself if the connection drops; the timed checks cover the gap.
+        function listenForPresence() {
+            if (!window.EventSource) return;
+            const events = new EventSource('/api/admin/events');
+            events.addEventListener('presence', () => checkOnline());
+            events.addEventListener('open', () => checkOnline());
+        }
+
         function startLiveRefresh() {
+            listenForPresence();
             setInterval(checkOnline, ONLINE_CHECK_MS);
             setInterval(refreshLive, FULL_REFRESH_MS);
             document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshLive(); });

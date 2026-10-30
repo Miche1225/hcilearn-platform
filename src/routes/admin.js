@@ -10,11 +10,18 @@ const { todayLocal, addDays, toYmd, computeStreaks } = require('../utils/dates')
 const { getBadges } = require('./gamify');
 const { decryptEmail } = require('../utils/emailSecurity');
 const { sendInactiveReminder } = require('../utils/mailer');
+const { bus, notifyPresence } = require('../presence');
 
 const router = express.Router();
 router.use(requireAdmin);
 
 const INACTIVE_AFTER_DAYS = 7;
+
+// Online = checked in within the last 75 s (open pages check in every 30 s)
+// and has not logged out since. Logging out drops the student at once.
+const ONLINE_SQL = `COALESCE(u.last_seen_at > NOW() - INTERVAL '75 seconds'
+              AND (u.signed_out_at IS NULL OR u.signed_out_at < u.last_seen_at)
+              AND u.disabled_at IS NULL, FALSE)`;
 
 async function audit(adminRowId, action, targetUserId = null, details = '') {
   await pool.query(
@@ -37,7 +44,7 @@ async function loadStudents() {
   const { rows } = await pool.query(
     `SELECT u.id, u.full_name, u.program, u.year_section, u.student_id, u.profile_photo,
             u.created_at, u.disabled_at, u.email_enc IS NOT NULL AS can_email, u.reminded_at, u.last_seen_at,
-            COALESCE(u.last_seen_at > NOW() - INTERVAL '5 minutes', FALSE) AS online,
+            ${ONLINE_SQL} AS online,
             cs.solved_ids, sc.completed_ids
      FROM users u
      LEFT JOIN case_study_progress cs ON cs.user_id = u.id
@@ -115,7 +122,7 @@ async function loadStudents() {
       deactivated: !!s.disabled_at,
       canEmail: s.can_email,
       remindedAt: s.reminded_at,
-      // Opened the system in the last 5 minutes
+      // Has the system open right now (checked in within 75 s, not logged out)
       online: s.online && !s.disabled_at,
     };
   });
@@ -131,6 +138,50 @@ router.get('/students', async (req, res, next) => {
       inactiveAfterDays: INACTIVE_AFTER_DAYS,
       totals: { ...(await getContent()).totals, badges: getBadges((await getContent()).totals).length },
       students: await loadStudents(),
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/admin/events — stays open and sends "presence" whenever a student
+// logs in, logs out or comes back online (Server-Sent Events). The page then
+// asks /online for the new numbers.
+router.get('/events', (req, res) => {
+  res.set({
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-store',
+    'Connection': 'keep-alive',
+    'X-Accel-Buffering': 'no', // proxies must pass each message on at once
+  });
+  res.flushHeaders();
+  res.write('retry: 2000\n\n');
+
+  const send = () => res.write('event: presence\ndata: 1\n\n');
+  // A comment every 20 s keeps proxies from closing a quiet connection
+  const keepAlive = setInterval(() => res.write(': ping\n\n'), 20000);
+  bus.on('presence', send);
+  req.on('close', () => {
+    clearInterval(keepAlive);
+    bus.off('presence', send);
+  });
+});
+
+// GET /api/admin/online — who is online right now and who opened the system
+// today. Small and fast, so the dashboard can check every couple of seconds.
+router.get('/online', async (req, res, next) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT u.id, ${ONLINE_SQL} AS online,
+              COALESCE((u.last_seen_at AT TIME ZONE 'Asia/Manila')::date
+                       = (NOW() AT TIME ZONE 'Asia/Manila')::date, FALSE) AS seen_today
+       FROM users u`
+    );
+    res.json({
+      today: todayLocal(),
+      ids: rows.map(r => r.id),
+      online: rows.filter(r => r.online).map(r => r.id),
+      seenToday: rows.filter(r => r.seen_today).map(r => r.id),
     });
   } catch (err) {
     next(err);
@@ -292,11 +343,13 @@ const studentAction = (action, run) => async (req, res, next) => {
 
 // Log the student out on every device
 router.post('/students/:id/signout', studentAction('signout_student', (s) =>
-  pool.query('UPDATE users SET session_version = session_version + 1 WHERE id = $1', [s.id])));
+  pool.query('UPDATE users SET session_version = session_version + 1, signed_out_at = NOW() WHERE id = $1', [s.id])
+    .then(notifyPresence)));
 
 // Block / unblock logging in (deactivating also logs them out)
 router.post('/students/:id/deactivate', studentAction('deactivate_student', (s) =>
-  pool.query('UPDATE users SET disabled_at = NOW(), session_version = session_version + 1 WHERE id = $1', [s.id])));
+  pool.query('UPDATE users SET disabled_at = NOW(), session_version = session_version + 1, signed_out_at = NOW() WHERE id = $1', [s.id])
+    .then(notifyPresence)));
 router.post('/students/:id/reactivate', studentAction('reactivate_student', (s) =>
   pool.query('UPDATE users SET disabled_at = NULL WHERE id = $1', [s.id])));
 

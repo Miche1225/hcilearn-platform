@@ -1,6 +1,7 @@
 // src/middleware/authGuard.js
 const jwt = require('jsonwebtoken');
 const { pool } = require('../db');
+const { notifyPresence } = require('../presence');
 
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
@@ -67,13 +68,24 @@ async function requireAuth(req, res, next) {
 
     req.userId = payload.userId;
     req.sessionVersion = rows[0].session_version;
-    // Remember the student opened the system (at most once a minute).
+    // Remember the student opened the system (at most every 20 seconds;
+    // open pages check in every 30 seconds). If they were offline, tell open
+    // Admin Dashboards right away. Skipped for 5 s after a logout so a
+    // request still in flight can't make a logged-out student look online.
     // Not awaited: a failed update must never block the page.
     pool.query(
-      `UPDATE users SET last_seen_at = NOW()
-       WHERE id = $1 AND (last_seen_at IS NULL OR last_seen_at < NOW() - INTERVAL '1 minute')`,
+      `WITH before AS (SELECT last_seen_at, signed_out_at FROM users WHERE id = $1)
+       UPDATE users u SET last_seen_at = NOW()
+       FROM before b
+       WHERE u.id = $1
+         AND (b.signed_out_at IS NULL OR b.signed_out_at < NOW() - INTERVAL '5 seconds')
+         AND (b.last_seen_at IS NULL OR b.last_seen_at < NOW() - INTERVAL '20 seconds'
+              OR b.signed_out_at >= b.last_seen_at)
+       RETURNING (b.last_seen_at IS NULL OR b.last_seen_at < NOW() - INTERVAL '75 seconds'
+                  OR b.signed_out_at >= b.last_seen_at) AS came_online`,
       [payload.userId]
-    ).catch(err => console.error('Could not save last_seen_at:', err.message));
+    ).then(({ rows: r }) => { if (r[0] && r[0].came_online) notifyPresence(); })
+      .catch(err => console.error('Could not save last_seen_at:', err.message));
     next();
   } catch (err) {
     next(err);
