@@ -74,15 +74,15 @@ async function requireAuth(req, res, next) {
     // request still in flight can't make a logged-out student look online.
     // Not awaited: a failed update must never block the page.
     pool.query(
-      `WITH before AS (SELECT last_seen_at, signed_out_at, left_at FROM users WHERE id = $1)
+      `WITH before AS (SELECT last_seen_at, signed_out_at FROM users WHERE id = $1)
        UPDATE users u SET last_seen_at = NOW()
        FROM before b
        WHERE u.id = $1
          AND (b.signed_out_at IS NULL OR b.signed_out_at < NOW() - INTERVAL '5 seconds')
          AND (b.last_seen_at IS NULL OR b.last_seen_at < NOW() - INTERVAL '20 seconds'
-              OR b.signed_out_at >= b.last_seen_at OR b.left_at >= b.last_seen_at)
+              OR b.signed_out_at >= b.last_seen_at)
        RETURNING (b.last_seen_at IS NULL OR b.last_seen_at < NOW() - INTERVAL '75 seconds'
-                  OR b.signed_out_at >= b.last_seen_at OR b.left_at >= b.last_seen_at) AS came_online`,
+                  OR b.signed_out_at >= b.last_seen_at) AS came_online`,
       [payload.userId]
     ).then(({ rows: r }) => { if (r[0] && r[0].came_online) notifyPresence(); })
       .catch(err => console.error('Could not save last_seen_at:', err.message));

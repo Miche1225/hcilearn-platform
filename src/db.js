@@ -683,12 +683,6 @@ async function init() {
             'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS signed_out_at TIMESTAMPTZ'
         );
 
-        /* When the student closed the tab or left the site (Back button,
-           another website), so "online now" drops without a logout. */
-        await client.query(
-            'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS left_at TIMESTAMPTZ'
-        );
-
         /* Badges: longest run of correct answers in a row (per day) and
            decks finished without a single mistake. */
         await client.query(

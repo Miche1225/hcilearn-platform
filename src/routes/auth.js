@@ -1132,33 +1132,6 @@ router.post(
    LOGOUT
    ========================================================= */
 
-/*
-    The student's page is closing (Back button, closed tab, another
-    website). Sent with navigator.sendBeacon. If no HCILearn page checks in
-    within 3 s (a click to another page of the site does), the Admin
-    Dashboard shows the student offline. Not requireAuth: that would count
-    this very request as a check-in.
-*/
-const LEAVE_GRACE_MS = 3000;
-
-router.post(
-    '/left',
-    async (req, res) => {
-
-        try {
-            const payload = jwt.verify(req.cookies.token, JWT_SECRET, { algorithms: ['HS256'] });
-            if (Number.isInteger(payload.userId)) {
-                await pool.query('UPDATE users SET left_at = NOW() WHERE id = $1', [payload.userId]);
-                // Just after the grace time, have open dashboards check again
-                setTimeout(notifyPresence, LEAVE_GRACE_MS + 300);
-            }
-        } catch (err) { /* no or expired cookie: nothing to record */ }
-
-        res.status(204).end();
-    }
-);
-
-
 router.post(
     '/logout',
     async (req, res) => {
