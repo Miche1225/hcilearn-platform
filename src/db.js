@@ -918,6 +918,8 @@ async function init() {
 
         await client.query('COMMIT');
 
+        await fixAdminForeignKeys();
+
         await seedContent();
 
         await addNewSeedVideos();
@@ -982,6 +984,58 @@ async function migrateToSingleAdmin() {
             END IF;
 
             DROP TABLE IF EXISTS public.instructor_sections;
+        END
+        $$;
+    `);
+}
+
+
+/*
+    Older databases linked admin_id (audit log, content history,
+    announcements) to the users table instead of admin, so every admin
+    action that writes there failed (e.g. opening a student). This points
+    those links at admin(id). Entries whose admin no longer exists keep
+    their row with admin_id NULL. Does nothing on an already-correct database.
+*/
+async function fixAdminForeignKeys() {
+    await pool.query(`
+        DO $$
+        DECLARE
+            t   TEXT;
+            con RECORD;
+        BEGIN
+            FOREACH t IN ARRAY ARRAY['admin_audit_log', 'content_versions', 'announcements'] LOOP
+                CONTINUE WHEN to_regclass('public.' || t) IS NULL;
+                CONTINUE WHEN NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns
+                    WHERE table_schema = 'public' AND table_name = t AND column_name = 'admin_id');
+
+                -- Already linked to admin: nothing to do
+                CONTINUE WHEN EXISTS (
+                    SELECT 1 FROM pg_constraint c
+                    JOIN pg_attribute a ON a.attrelid = c.conrelid AND a.attnum = ANY (c.conkey)
+                    WHERE c.contype = 'f' AND c.conrelid = ('public.' || t)::regclass
+                      AND a.attname = 'admin_id' AND c.confrelid = 'public.admin'::regclass);
+
+                -- Drop any wrong link on admin_id (e.g. to users)
+                FOR con IN
+                    SELECT c.conname FROM pg_constraint c
+                    JOIN pg_attribute a ON a.attrelid = c.conrelid AND a.attnum = ANY (c.conkey)
+                    WHERE c.contype = 'f' AND c.conrelid = ('public.' || t)::regclass
+                      AND a.attname = 'admin_id'
+                LOOP
+                    EXECUTE format('ALTER TABLE public.%I DROP CONSTRAINT %I', t, con.conname);
+                END LOOP;
+
+                EXECUTE format('ALTER TABLE public.%I ALTER COLUMN admin_id DROP NOT NULL', t);
+                EXECUTE format(
+                    'UPDATE public.%I SET admin_id = NULL
+                     WHERE admin_id IS NOT NULL AND admin_id NOT IN (SELECT id FROM public.admin)', t);
+                EXECUTE format(
+                    'ALTER TABLE public.%I ADD CONSTRAINT %I
+                     FOREIGN KEY (admin_id) REFERENCES public.admin(id) ON DELETE SET NULL',
+                    t, t || '_admin_id_fkey');
+            END LOOP;
         END
         $$;
     `);
