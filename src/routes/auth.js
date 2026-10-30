@@ -697,6 +697,14 @@ router.post(
                 user.session_version
             );
 
+            /*
+                Logging in counts as active right away on the Admin Dashboard.
+            */
+            await pool.query(
+                'UPDATE users SET last_seen_at = NOW() WHERE id = $1',
+                [user.id]
+            );
+
 
             /*
                 Keep the encrypted email current (older accounts only

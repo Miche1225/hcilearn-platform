@@ -36,7 +36,8 @@ async function loadStudents() {
   const videoIds = [...content.videoTitles.keys()];
   const { rows } = await pool.query(
     `SELECT u.id, u.full_name, u.program, u.year_section, u.student_id, u.profile_photo,
-            u.created_at, u.disabled_at, u.email_enc IS NOT NULL AS can_email, u.reminded_at,
+            u.created_at, u.disabled_at, u.email_enc IS NOT NULL AS can_email, u.reminded_at, u.last_seen_at,
+            COALESCE(u.last_seen_at > NOW() - INTERVAL '5 minutes', FALSE) AS online,
             cs.solved_ids, sc.completed_ids
      FROM users u
      LEFT JOIN case_study_progress cs ON cs.user_id = u.id
@@ -85,9 +86,10 @@ async function loadStudents() {
     const days = (daysByUser.get(s.id) || []).sort().reverse();
     const streak = computeStreaks(days, today);
 
-    // Last active = latest study day or logged activity
+    // Last active = latest study day, logged activity, or opening the system
     const candidates = [days[0]];
     if (lastLog.get(s.id) && lastLog.get(s.id).last) candidates.push(tsToYmd(lastLog.get(s.id).last));
+    if (s.last_seen_at) candidates.push(tsToYmd(s.last_seen_at));
     const lastActive = candidates.filter(Boolean).sort().pop() || null;
 
     const a = answers.get(s.id);
@@ -113,6 +115,8 @@ async function loadStudents() {
       deactivated: !!s.disabled_at,
       canEmail: s.can_email,
       remindedAt: s.reminded_at,
+      // Opened the system in the last 5 minutes
+      online: s.online && !s.disabled_at,
     };
   });
 }

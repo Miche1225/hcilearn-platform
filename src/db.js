@@ -672,6 +672,12 @@ async function init() {
             'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS disabled_at TIMESTAMPTZ'
         );
 
+        /* Last time the student opened the system (any logged-in page),
+           so just logging in counts as active on the Admin Dashboard. */
+        await client.query(
+            'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS last_seen_at TIMESTAMPTZ'
+        );
+
         /* Badges: longest run of correct answers in a row (per day) and
            decks finished without a single mistake. */
         await client.query(

@@ -105,11 +105,11 @@
                             </div>
                         </div>
                         <div class="admin-stats">
-                            <div class="admin-stat"><i class="fa-solid fa-users"></i><strong id="statStudents">0</strong><span>Students</span></div>
-                            <div class="admin-stat"><i class="fa-solid fa-bolt"></i><strong id="statToday">0</strong><span>Active today</span></div>
-                            <div class="admin-stat"><i class="fa-solid fa-calendar-week"></i><strong id="statWeek">0</strong><span>Active this week</span></div>
-                            <div class="admin-stat is-warn"><i class="fa-solid fa-moon"></i><strong id="statInactive">0</strong><span>Inactive 7+ days</span></div>
-                            <div class="admin-stat"><i class="fa-solid fa-chart-line"></i><strong id="statAvg">0%</strong><span>Average progress</span></div>
+                            <a href="#students" class="admin-stat" data-quick="all" title="See all students"><i class="fa-solid fa-users"></i><strong id="statStudents">0</strong><span>Students</span></a>
+                            <a href="#students" class="admin-stat" data-quick="today" title="See who was active today"><i class="fa-solid fa-bolt"></i><strong id="statToday">0</strong><span>Active today</span><small class="admin-stat-live" id="statOnline" hidden></small></a>
+                            <a href="#students" class="admin-stat" data-quick="active" title="See who was active in the last 7 days"><i class="fa-solid fa-calendar-week"></i><strong id="statWeek">0</strong><span>Active this week</span></a>
+                            <a href="#students" class="admin-stat is-warn" data-quick="inactive" title="See who has not been active for 7+ days"><i class="fa-solid fa-moon"></i><strong id="statInactive">0</strong><span>Inactive 7+ days</span></a>
+                            <a href="#students" class="admin-stat" data-quick="progress" title="See every student's progress, highest first"><i class="fa-solid fa-chart-line"></i><strong id="statAvg">0%</strong><span>Average progress</span></a>
                         </div>
 
                         <!-- Two columns that stack on their own, so a tall card never leaves a gap beside it -->
@@ -150,6 +150,7 @@
                             <select id="filterSection" aria-label="Year and section"><option value="">All sections</option></select>
                             <select id="filterStatus" aria-label="Status">
                                 <option value="">Everyone</option>
+                                <option value="today">Active today</option>
                                 <option value="active">Active this week</option>
                                 <option value="inactive">Inactive 7+ days</option>
                                 <option value="atrisk">At risk</option>
@@ -336,6 +337,9 @@
             const activeWeek = students.filter(s => !s.inactive);
             $('statStudents').textContent = students.length;
             $('statToday').textContent = students.filter(s => s.lastActive === today).length;
+            const onlineNow = students.filter(s => s.online).length;
+            $('statOnline').hidden = !onlineNow;
+            $('statOnline').innerHTML = `<i class="fa-solid fa-circle"></i> ${onlineNow} online now`;
             $('statWeek').textContent = activeWeek.length;
             $('statInactive').textContent = students.length - activeWeek.length;
             $('statAvg').textContent = students.length
@@ -416,8 +420,14 @@
         function fillFilters() {
             const programs = [...new Set(students.map(s => s.program).filter(Boolean))].sort();
             const sections = [...new Set(students.map(s => s.yearSection).filter(Boolean))].sort();
-            $('filterProgram').insertAdjacentHTML('beforeend', programs.map(p => `<option>${escapeHtml(p)}</option>`).join(''));
-            $('filterSection').insertAdjacentHTML('beforeend', sections.map(s => `<option>${escapeHtml(s)}</option>`).join(''));
+            // Rebuilt on every refresh, keeping what the admin picked
+            const fill = (el, first, values) => {
+                const picked = el.value;
+                el.innerHTML = `<option value="">${first}</option>` + values.map(v => `<option>${escapeHtml(v)}</option>`).join('');
+                el.value = values.includes(picked) ? picked : '';
+            };
+            fill($('filterProgram'), 'All programs', programs);
+            fill($('filterSection'), 'All sections', sections);
         }
 
         function renderStudents() {
@@ -432,7 +442,9 @@
                 (!q || s.fullName.toLowerCase().includes(q) || s.studentId.toLowerCase().includes(q)) &&
                 (!program || s.program === program) &&
                 (!section || s.yearSection === section) &&
-                (!status || (status === 'atrisk' ? riskReasons(s, avg).length > 0 : status === 'inactive' ? s.inactive : !s.inactive)));
+                (!status || (status === 'atrisk' ? riskReasons(s, avg).length > 0
+                    : status === 'today' ? s.lastActive === today
+                    : status === 'inactive' ? s.inactive : !s.inactive)));
 
             const sorters = {
                 name: (a, b) => a.fullName.localeCompare(b.fullName),
@@ -460,7 +472,7 @@
                     <td data-label="Videos">${s.videosWatched}</td>
                     <td data-label="Streak">${s.currentStreak ? `<span class="admin-streak"><i class="fa-solid fa-fire"></i> ${s.currentStreak}</span>` : '—'}</td>
                     <td data-label="Badges">${s.badges}</td>
-                    <td data-label="Last active">${s.deactivated ? '<span class="admin-pill is-off">Deactivated</span>' : `<span class="admin-pill${s.inactive ? ' is-warn' : ''}">${lastActiveText(s.lastActive)}</span>`}</td>
+                    <td data-label="Last active">${s.deactivated ? '<span class="admin-pill is-off">Deactivated</span>' : s.online ? '<span class="admin-pill is-online"><i class="fa-solid fa-circle"></i> Online now</span>' : `<span class="admin-pill${s.inactive ? ' is-warn' : ''}">${lastActiveText(s.lastActive)}</span>`}</td>
                 </tr>`).join('');
         }
 
@@ -816,10 +828,17 @@
 
         window.addEventListener('hashchange', () => showTab(location.hash.slice(1)));
 
-        // "Who needs attention" (and "see all" under the at-risk list) opens Students filtered to at-risk
+        // Stat tiles, "Who needs attention" and "see all" open Students showing
+        // exactly the students behind that number
         document.addEventListener('click', (e) => {
-            if (!e.target.closest('[data-quick="atrisk"]')) return;
-            $('filterStatus').value = 'atrisk';
+            const link = e.target.closest('[data-quick]');
+            if (!link) return;
+            const quick = link.dataset.quick;
+            $('studentSearch').value = '';
+            $('filterProgram').value = '';
+            $('filterSection').value = '';
+            $('filterStatus').value = ['atrisk', 'today', 'active', 'inactive'].includes(quick) ? quick : '';
+            $('sortBy').value = quick === 'progress' ? 'progress' : (quick === 'today' || quick === 'active' || quick === 'inactive') ? 'active' : 'name';
             renderStudents();
         });
         // Reminder email straight from the at-risk list
@@ -866,6 +885,33 @@
             });
         });
 
+        // ---------------- Live refresh ----------------
+        // Students opening the system show up as active/online without
+        // reloading: check every 15 s while this tab is visible, and right
+        // away when the admin comes back to the tab.
+        const LIVE_REFRESH_MS = 15000;
+        let refreshing = false;
+        async function refreshLive() {
+            if (refreshing || document.hidden) return;
+            refreshing = true;
+            try {
+                const [list, insights] = await Promise.all([api.get('/admin/students'), api.get('/admin/insights')]);
+                students = list.students;
+                today = list.today;
+                renderOverview(insights);
+                fillFilters();
+                renderStudents();
+            } catch (err) {
+                // Network blip: the next tick tries again
+            } finally {
+                refreshing = false;
+            }
+        }
+        function startLiveRefresh() {
+            setInterval(refreshLive, LIVE_REFRESH_MS);
+            document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshLive(); });
+        }
+
         (async function init() {
             // Admin session only; students and logged-out visitors go to the admin login
             let admin;
@@ -905,6 +951,7 @@
                 renderStudents();
                 loadAudit();
                 loadAnnouncements();
+                startLiveRefresh();
                 HCIContentEditor.mount($('contentEditor'), {
                     onPending: (n) => {
                         $('contentPending').hidden = !n;

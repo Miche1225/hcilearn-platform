@@ -3163,6 +3163,12 @@
 :root[data-theme="dark"] .admin-stat {
     border: 2px solid hsl(253 45% 20%);
     background: hsl(250 14% 17%);
+    color: inherit;
+}
+:root[data-theme="dark"] a.admin-stat:hover,
+:root[data-theme="dark"] a.admin-stat:focus-visible {
+    border-color: hsl(252 45% 25%);
+    box-shadow: 0 8px 20px rgba(106, 76, 240, 0.12);
 }
 :root[data-theme="dark"] .admin-stat i {
     background: hsl(255 45% 20%);
@@ -3177,6 +3183,14 @@
 }
 :root[data-theme="dark"] .admin-stat span {
     color: hsl(250 12% 70%);
+}
+:root[data-theme="dark"] .admin-stat .admin-stat-live {
+    color: hsl(155 57% 78%);
+}
+:root[data-theme="dark"] .admin-stat .admin-stat-live i,
+:root[data-theme="dark"] .admin-pill.is-online i {
+    background: none;
+    color: hsl(147 61% 70%);
 }
 :root[data-theme="dark"] .admin-card {
     border: 2px solid hsl(253 45% 20%);

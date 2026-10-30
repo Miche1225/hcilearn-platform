@@ -67,6 +67,13 @@ async function requireAuth(req, res, next) {
 
     req.userId = payload.userId;
     req.sessionVersion = rows[0].session_version;
+    // Remember the student opened the system (at most once a minute).
+    // Not awaited: a failed update must never block the page.
+    pool.query(
+      `UPDATE users SET last_seen_at = NOW()
+       WHERE id = $1 AND (last_seen_at IS NULL OR last_seen_at < NOW() - INTERVAL '1 minute')`,
+      [payload.userId]
+    ).catch(err => console.error('Could not save last_seen_at:', err.message));
     next();
   } catch (err) {
     next(err);
