@@ -50,12 +50,25 @@ let heartbeatStarted = false;
 function startHeartbeat() {
   if (heartbeatStarted) return;
   heartbeatStarted = true;
+  const checkIn = () => api.get('/auth/me').catch(() => { /* offline for a moment: next ping retries */ });
   const ping = () => {
     if (document.hidden) return;
-    api.get('/auth/me').catch(() => { /* offline for a moment: next ping retries */ });
+    checkIn();
   };
   setInterval(ping, 30000);
   document.addEventListener('visibilitychange', ping);
+
+  // Leaving the page (Back button, closing the tab, another website): tell
+  // the server so the student shows offline within a few seconds. Opening
+  // another HCILearn page checks in again right away, so they stay online.
+  window.addEventListener('pagehide', () => {
+    if (navigator.sendBeacon) navigator.sendBeacon(API_BASE + '/auth/left');
+  });
+  // Check in once more shortly after load, in case the previous page's
+  // "left" message reached the server after this page's first check-in
+  setTimeout(checkIn, 1500);
+  // Coming back with Forward/Back (page restored from the browser's cache)
+  window.addEventListener('pageshow', (e) => { if (e.persisted) checkIn(); });
 }
 
 async function logout() {

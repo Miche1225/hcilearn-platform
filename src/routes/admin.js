@@ -17,10 +17,13 @@ router.use(requireAdmin);
 
 const INACTIVE_AFTER_DAYS = 7;
 
-// Online = checked in within the last 75 s (open pages check in every 30 s)
-// and has not logged out since. Logging out drops the student at once.
+// Online = checked in within the last 75 s (open pages check in every 30 s),
+// has not logged out since, and has not left the site. Logging out drops the
+// student at once; leaving (Back button, closing the tab) after 3 s, the time
+// a click to another HCILearn page gets to check in first.
 const ONLINE_SQL = `COALESCE(u.last_seen_at > NOW() - INTERVAL '75 seconds'
               AND (u.signed_out_at IS NULL OR u.signed_out_at < u.last_seen_at)
+              AND NOT COALESCE(u.left_at >= u.last_seen_at AND u.left_at < NOW() - INTERVAL '3 seconds', FALSE)
               AND u.disabled_at IS NULL, FALSE)`;
 
 async function audit(adminRowId, action, targetUserId = null, details = '') {
