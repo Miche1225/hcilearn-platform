@@ -689,6 +689,12 @@ async function init() {
             'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS left_at TIMESTAMPTZ'
         );
 
+        /* When the student switched to another tab or app (HCILearn still
+           open but hidden), so they show offline after 30 seconds. */
+        await client.query(
+            'ALTER TABLE public.users ADD COLUMN IF NOT EXISTS hidden_at TIMESTAMPTZ'
+        );
+
         /* Badges: longest run of correct answers in a row (per day) and
            decks finished without a single mistake. */
         await client.query(

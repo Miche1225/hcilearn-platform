@@ -345,8 +345,8 @@
             $('statOnline').hidden = false;
             $('statOnline').classList.toggle('is-idle', !onlineNow);
             $('statOnline').innerHTML = onlineNow
-                ? `<i class="fa-solid fa-circle"></i> ${onlineNow} online now · ${usedToday} opened today`
-                : `Nobody online · ${usedToday} opened today`;
+                ? `<i class="fa-solid fa-circle"></i> ${onlineNow} online now`
+                : `Nobody online`;
             $('statWeek').textContent = activeWeek.length;
             $('statInactive').textContent = students.length - activeWeek.length;
             $('statAvg').textContent = students.length

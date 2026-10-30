@@ -56,7 +56,15 @@ function startHeartbeat() {
     checkIn();
   };
   setInterval(ping, 30000);
-  document.addEventListener('visibilitychange', ping);
+  // Switched to another tab or app: tell the server, so the student shows
+  // offline if they stay away for 30 seconds. Coming back checks in at once.
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (navigator.sendBeacon) navigator.sendBeacon(API_BASE + '/auth/hidden');
+    } else {
+      checkIn();
+    }
+  });
 
   // Leaving the page (Back button, closing the tab, another website): tell
   // the server so the student shows offline within a few seconds. Opening

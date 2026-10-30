@@ -1159,6 +1159,40 @@ router.post(
 );
 
 
+/*
+    HCILearn went into the background (student switched to another tab or
+    app). Sent with navigator.sendBeacon. Counts as a check-in now, so the
+    30-second timer starts from this moment; if the page doesn't come back
+    within 30 s, the Admin Dashboard shows the student offline.
+*/
+const HIDDEN_GRACE_MS = 30000;
+
+router.post(
+    '/hidden',
+    async (req, res) => {
+
+        try {
+            const payload = jwt.verify(req.cookies.token, JWT_SECRET, { algorithms: ['HS256'] });
+            if (Number.isInteger(payload.userId)) {
+                // Skipped if the student already left or logged out (the
+                // "left" message can arrive first): that must stay offline.
+                const { rowCount } = await pool.query(
+                    `UPDATE users SET hidden_at = NOW(), last_seen_at = NOW()
+                     WHERE id = $1 AND disabled_at IS NULL
+                       AND (left_at IS NULL OR left_at < last_seen_at)
+                       AND (signed_out_at IS NULL OR signed_out_at < last_seen_at)`,
+                    [payload.userId]
+                );
+                // Just after the 30 s, have open dashboards check again
+                if (rowCount) setTimeout(notifyPresence, HIDDEN_GRACE_MS + 300);
+            }
+        } catch (err) { /* no or expired cookie: nothing to record */ }
+
+        res.status(204).end();
+    }
+);
+
+
 router.post(
     '/logout',
     async (req, res) => {
