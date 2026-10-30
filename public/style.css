@@ -10455,8 +10455,9 @@ a.admin-stat:focus-visible {
     display: none;
 }
 
-/* Most-missed questions scroll after about four rows so the card stays short */
-#missedList {
+/* Most-missed questions and video topics scroll after about four rows so the cards stay short */
+#missedList,
+#videoList {
     max-height: 280px;
     overflow-y: auto;
 }
@@ -10469,7 +10470,8 @@ a.admin-stat:focus-visible {
     white-space: nowrap;
 }
 
-#missedList .admin-pill {
+#missedList .admin-pill,
+#videoList .admin-pill {
     flex-shrink: 0;
     white-space: nowrap;
 }

@@ -117,12 +117,12 @@
                             <div class="overview-col">
                                 <div class="admin-card">
                                     <h3><i class="fa-solid fa-triangle-exclamation"></i> At-risk students</h3>
-                                    <p class="admin-card-note">Inactive 7+ days, under 50% correct, or far behind the class.</p>
+                                    <p class="admin-card-note">Not active for 3 days or more, or never used the system.</p>
                                     <div class="admin-list" id="inactiveList"></div>
                                 </div>
                                 <div class="admin-card">
                                     <h3><i class="fa-solid fa-circle-xmark"></i> Most-missed questions</h3>
-                                    <p class="admin-card-note">Questions students got wrong and haven't cleared yet.</p>
+                                    <p class="admin-card-note">Where students made mistakes, and how many students missed each one.</p>
                                     <div class="admin-list" id="missedList"></div>
                                 </div>
                             </div>
@@ -133,6 +133,7 @@
                                 </div>
                                 <div class="admin-card">
                                     <h3><i class="fa-solid fa-video-slash"></i> Least-watched videos</h3>
+                                    <p class="admin-card-note">Video topics, least watched first. The percent goes up as students watch.</p>
                                     <div class="admin-list" id="videoList"></div>
                                 </div>
                             </div>
@@ -305,27 +306,19 @@
         }
 
         // ---------------- At-risk students ----------------
-        // Reasons a student may need help. Accuracy needs enough answers to mean
-        // something, and "behind" waits two weeks after joining.
-        const RISK_MIN_ANSWERS = 10;
-        const RISK_LOW_ACCURACY = 50;
-        const RISK_BEHIND_AFTER_DAYS = 14;
+        // At risk = never used the system, or not active for 3+ days
+        const RISK_INACTIVE_DAYS = 3;
         const RISK_SHOWN = 5; // on the overview; the Students tab has everyone
 
         function classAverage() {
             return students.length ? students.reduce((sum, s) => sum + s.overallPercent, 0) / students.length : 0;
         }
 
-        function riskReasons(s, avg) {
+        function riskReasons(s) {
             if (s.deactivated) return [];
-            const reasons = [];
-            if (!s.lastActive) reasons.push('Never started');
-            else if (s.inactive) reasons.push(`Inactive ${daysBetween(s.lastActive, today)} days`);
-            const accuracy = s.answers ? Math.round((s.correct / s.answers) * 100) : 100;
-            if (s.answers >= RISK_MIN_ANSWERS && accuracy < RISK_LOW_ACCURACY) reasons.push(`${accuracy}% correct`);
-            if (s.lastActive && daysBetween(s.joinedAt.slice(0, 10), today) >= RISK_BEHIND_AFTER_DAYS
-                && s.overallPercent < Math.max(10, avg / 2)) reasons.push(`Behind: ${s.overallPercent}% done`);
-            return reasons;
+            if (!s.lastActive) return ['Never used the system'];
+            const days = daysBetween(s.lastActive, today);
+            return days >= RISK_INACTIVE_DAYS ? [`Inactive ${days} days`] : [];
         }
 
         // A reminder can go out once a day, only to inactive students with an email on file
@@ -369,11 +362,11 @@
                     ${progressBar(r.avg)}
                 </div>`).join('') : '<p class="admin-empty">No students yet.</p>';
 
-            // At-risk students: most reasons first, then longest inactive
+            // At-risk students: never started first, then longest inactive
             const avg = classAverage();
             const atRisk = students.map(s => ({ s, reasons: riskReasons(s, avg) }))
                 .filter(r => r.reasons.length)
-                .sort((a, b) => b.reasons.length - a.reasons.length || (a.s.lastActive || '').localeCompare(b.s.lastActive || ''));
+                .sort((a, b) => (a.s.lastActive || '').localeCompare(b.s.lastActive || ''));
             // One line per student (reasons beside the name), top 5; the rest are one click away
             $('inactiveList').innerHTML = atRisk.length ? atRisk.slice(0, RISK_SHOWN).map(({ s, reasons }) => `
                 <div class="risk-row">
@@ -382,27 +375,15 @@
                         <span class="admin-list-text"><strong>${escapeHtml(s.fullName)}</strong><small>${escapeHtml(sectionOf(s))}</small></span>
                         <span class="risk-reasons">${reasons.map(r => `<span class="admin-pill is-warn">${escapeHtml(r)}</span>`).join('')}</span>
                     </button>
-                    ${s.inactive && s.canEmail ? `<button type="button" class="ce-icon-btn risk-remind" data-remind="${s.id}" ${remindedRecently(s) ? 'disabled title="Reminder already sent today" aria-label="Reminder already sent today"' : 'title="Send reminder email" aria-label="Send reminder email"'}><i class="fa-solid ${remindedRecently(s) ? 'fa-check' : 'fa-bell'}"></i></button>` : '<span class="risk-remind" aria-hidden="true"></span>'}
+                    ${s.canEmail ? `<button type="button" class="ce-icon-btn risk-remind" data-remind="${s.id}" ${remindedRecently(s) ? 'disabled title="Reminder already sent today" aria-label="Reminder already sent today"' : 'title="Send reminder email" aria-label="Send reminder email"'}><i class="fa-solid ${remindedRecently(s) ? 'fa-check' : 'fa-bell'}"></i></button>` : '<span class="risk-remind" aria-hidden="true"></span>'}
                 </div>`).join('') + (atRisk.length > RISK_SHOWN ? `<a href="#students" class="risk-more" data-quick="atrisk">See all ${atRisk.length} at-risk students <i class="fa-solid fa-arrow-right"></i></a>` : '')
                 : '<p class="admin-empty"><i class="fa-solid fa-circle-check"></i> Nobody looks at risk right now!</p>';
 
-            // One-line row that opens to show the full title and details (all args already escaped)
-            const dropRow = (tag, title, pill, details) => `
-                <details class="admin-drop">
-                    <summary class="admin-list-item">
-                        ${tag}
-                        <span class="admin-list-text"><strong>${title}</strong></span>
-                        ${pill}
-                        <i class="fa-solid fa-chevron-down admin-drop-arrow"></i>
-                    </summary>
-                    <div class="admin-drop-body"><p>${title}</p><small>${details}</small></div>
-                </details>`;
-
-            // Most-missed questions
+            // Most-missed questions: the question, where it is, and how many students missed it
             const missedRows = insights.mostMissed.map(m => {
                 const isCase = m.source === 'case_study';
                 const key = `${m.source}:${m.itemKey}`;
-                const where = `${questionWhere.get(key) || (isCase ? 'Case study' : 'Study card')} · missed ${m.wrong} time${m.wrong === 1 ? '' : 's'}`;
+                const where = questionWhere.get(key) || (isCase ? 'Case study' : 'Study card');
                 return `
                 <div class="admin-list-item is-static">
                     <span class="admin-tag is-icon ${isCase ? 'is-case' : 'is-card'}" title="${isCase ? 'Case study' : 'Study card'}"><i class="fa-solid ${isCase ? 'fa-briefcase' : 'fa-clone'}"></i></span>
@@ -414,13 +395,15 @@
             $('missedList').innerHTML = missedRows.length ? missedRows.join('')
                 : '<p class="admin-empty">No missed questions right now.</p>';
 
-            // Least-watched videos
-            $('videoList').innerHTML = insights.leastWatched.length ? insights.leastWatched.map(v => dropRow(
-                '<span class="admin-tag is-icon is-video"><i class="fa-solid fa-play"></i></span>',
-                escapeHtml(v.title),
-                `<span class="admin-pill${v.watchedBy ? '' : ' is-warn'}">${insights.studentCount ? Math.round(v.watchedBy / insights.studentCount * 100) : 0}%</span>`,
-                `Watched by ${v.watchedBy} of ${insights.studentCount} student${insights.studentCount === 1 ? '' : 's'}`
-            )).join('') : '<p class="admin-empty">No videos yet.</p>';
+            // Least-watched videos, by topic (e.g. "Prototyping 0%")
+            const n = insights.studentCount;
+            $('videoList').innerHTML = insights.videoTopics.length ? insights.videoTopics.map(t => `
+                <div class="admin-list-item is-static">
+                    <span class="admin-tag is-icon is-video"><i class="fa-solid fa-play"></i></span>
+                    <span class="admin-list-text"><strong>${escapeHtml(t.label)}</strong>
+                    <small>${t.videos} video${t.videos === 1 ? '' : 's'} · ${t.views} view${t.views === 1 ? '' : 's'} from ${n} student${n === 1 ? '' : 's'}</small></span>
+                    <span class="admin-pill${t.percent ? '' : ' is-warn'}">${t.percent}%</span>
+                </div>`).join('') : '<p class="admin-empty">No videos yet.</p>';
         }
 
         // ---------------- Students table ----------------

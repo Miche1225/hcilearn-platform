@@ -5,7 +5,7 @@
 const express = require('express');
 const { pool } = require('../db');
 const { requireAdmin } = require('../middleware/adminGuard');
-const { getContent } = require('../contentStore');
+const { getContent, VIDEO_TOPICS } = require('../contentStore');
 const { todayLocal, addDays, toYmd, computeStreaks } = require('../utils/dates');
 const { getBadges } = require('./gamify');
 const { decryptEmail } = require('../utils/emailSecurity');
@@ -194,35 +194,49 @@ router.get('/online', async (req, res, next) => {
   }
 });
 
-// GET /api/admin/insights — most-missed questions and least-watched videos
+// GET /api/admin/insights — most-missed questions and watching per video topic
 router.get('/insights', async (req, res, next) => {
   try {
     const students = await loadStudents();
     const ids = students.map(s => s.id);
 
+    // Every question someone still has wrong, with how many students missed it
     const { rows: missed } = await pool.query(
-      `SELECT source, item_key, COUNT(*)::int AS students, SUM(wrong_count)::int AS wrong
+      `SELECT source, item_key, COUNT(DISTINCT user_id)::int AS students
        FROM mistakes WHERE user_id = ANY($1::int[])
        GROUP BY source, item_key
-       ORDER BY students DESC, wrong DESC
-       LIMIT 10`,
+       ORDER BY students DESC, source, item_key`,
       [ids]
     );
 
+    // Watching per video topic: watched (student, video) pairs out of
+    // students x videos in that topic, so it climbs as people watch
+    const content = await getContent();
     const { rows: watchRows } = await pool.query(
       `SELECT video_id, COUNT(DISTINCT user_id)::int AS n FROM video_progress
        WHERE user_id = ANY($1::int[]) GROUP BY video_id`,
       [ids]
     );
     const watchCount = new Map(watchRows.map(r => [r.video_id, r.n]));
-    const videos = [...(await getContent()).videoTitles.entries()]
-      .map(([id, title]) => ({ id, title, watchedBy: watchCount.get(id) || 0 }))
-      .sort((a, b) => a.watchedBy - b.watchedBy);
+    const videoTopics = VIDEO_TOPICS.map(t => {
+      const vids = content.videos.filter(v => v.topic === t.key);
+      const views = vids.reduce((sum, v) => sum + (watchCount.get(v.key) || 0), 0);
+      const possible = vids.length * ids.length;
+      return {
+        key: t.key,
+        label: t.label,
+        videos: vids.length,
+        views,
+        percent: possible ? Math.round((views / possible) * 100) : 0,
+      };
+    })
+      .filter(t => t.videos)
+      .sort((a, b) => a.percent - b.percent || a.label.localeCompare(b.label));
 
     res.json({
       studentCount: ids.length,
-      mostMissed: missed.map(m => ({ source: m.source, itemKey: m.item_key, students: m.students, wrong: m.wrong })),
-      leastWatched: videos.slice(0, 6),
+      mostMissed: missed.map(m => ({ source: m.source, itemKey: m.item_key, students: m.students })),
+      videoTopics,
     });
   } catch (err) {
     next(err);
