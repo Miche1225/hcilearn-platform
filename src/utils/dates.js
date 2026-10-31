@@ -22,6 +22,13 @@ function toYmd(value) {
   return `${value.getFullYear()}-${pad(value.getMonth() + 1)}-${pad(value.getDate())}`;
 }
 
+// Monday of the week that ymd falls in (weeks run Monday to Sunday)
+function weekStart(ymd) {
+  const [y, m, d] = ymd.split('-').map(Number);
+  const dow = new Date(Date.UTC(y, m - 1, d)).getUTCDay(); // 0 = Sunday
+  return addDays(ymd, -((dow + 6) % 7));
+}
+
 function weekdayLabel(ymd) {
   const [y, m, d] = ymd.split('-').map(Number);
   return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' });
@@ -52,4 +59,4 @@ function computeStreaks(activeDays, today) {
   return { current, longest: Math.max(longest, current), activeToday: set.has(today) };
 }
 
-module.exports = { TIME_ZONE, todayLocal, addDays, toYmd, weekdayLabel, computeStreaks };
+module.exports = { TIME_ZONE, todayLocal, addDays, toYmd, weekStart, weekdayLabel, computeStreaks };

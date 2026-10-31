@@ -6,7 +6,7 @@ const express = require('express');
 const { pool } = require('../db');
 const { requireAdmin } = require('../middleware/adminGuard');
 const { getContent, VIDEO_TOPICS } = require('../contentStore');
-const { todayLocal, addDays, toYmd, computeStreaks } = require('../utils/dates');
+const { todayLocal, addDays, toYmd, weekStart, computeStreaks } = require('../utils/dates');
 const { getBadges } = require('./gamify');
 const { decryptEmail } = require('../utils/emailSecurity');
 const { sendInactiveReminder } = require('../utils/mailer');
@@ -15,7 +15,9 @@ const { bus, notifyPresence } = require('../presence');
 const router = express.Router();
 router.use(requireAdmin);
 
-const INACTIVE_AFTER_DAYS = 7;
+// Inactive = no use of the system for this many days (same rule as the
+// at-risk list). Logging in again clears it at once.
+const INACTIVE_AFTER_DAYS = 3;
 
 // Online = checked in within the last 75 s (open pages check in every 30 s),
 // has not logged out since, has not left the site, and has not had HCILearn
@@ -104,6 +106,9 @@ async function loadStudents() {
     if (lastLog.get(s.id) && lastLog.get(s.id).last) candidates.push(tsToYmd(lastLog.get(s.id).last));
     if (s.last_seen_at) candidates.push(tsToYmd(s.last_seen_at));
     const lastActive = candidates.filter(Boolean).sort().pop() || null;
+    // Never used it: counts as inactive only once the account is 3+ days old,
+    // so a brand-new sign-up is not flagged on day one
+    const idleSince = lastActive || tsToYmd(s.created_at);
 
     const a = answers.get(s.id);
     return {
@@ -117,6 +122,7 @@ async function loadStudents() {
       caseSolved: solved,
       decksMastered: decks,
       videosWatched: watched,
+      activitiesDone: solved + decks + watched,
       overallPercent: totalActivities ? Math.round(((solved + decks + watched) / totalActivities) * 100) : 0,
       answers: a ? a.answers : 0,
       correct: a ? a.correct : 0,
@@ -124,7 +130,9 @@ async function loadStudents() {
       longestStreak: streak.longest,
       badges: badges.get(s.id) ? badges.get(s.id).n : 0,
       lastActive,
-      inactive: !lastActive || lastActive < addDays(today, -INACTIVE_AFTER_DAYS),
+      // Used the system this calendar week (Monday to today, Philippine time)
+      activeThisWeek: !!lastActive && lastActive >= weekStart(today) && !s.disabled_at,
+      inactive: !s.disabled_at && idleSince <= addDays(today, -INACTIVE_AFTER_DAYS),
       deactivated: !!s.disabled_at,
       canEmail: s.can_email,
       remindedAt: s.reminded_at,
@@ -139,10 +147,13 @@ async function loadStudents() {
 // GET /api/admin/students — every student with progress numbers
 router.get('/students', async (req, res, next) => {
   try {
+    const totals = (await getContent()).totals;
     res.json({
       today: todayLocal(),
+      weekStart: weekStart(todayLocal()),
       inactiveAfterDays: INACTIVE_AFTER_DAYS,
-      totals: { ...(await getContent()).totals, badges: getBadges((await getContent()).totals).length },
+      totalActivities: totals.caseStudies + totals.decks + totals.videos,
+      totals: { ...totals, badges: getBadges(totals).length },
       students: await loadStudents(),
     });
   } catch (err) {

@@ -107,9 +107,9 @@
                         <div class="admin-stats">
                             <a href="#students" class="admin-stat" data-quick="all" title="See all students"><i class="fa-solid fa-users"></i><strong id="statStudents">0</strong><span>Students</span></a>
                             <a href="#students" class="admin-stat" data-quick="online" title="See who is online right now"><i class="fa-solid fa-bolt"></i><strong id="statToday">0</strong><span>Active today</span><small class="admin-stat-live" id="statOnline" hidden></small></a>
-                            <a href="#students" class="admin-stat" data-quick="active" title="See who was active in the last 7 days"><i class="fa-solid fa-calendar-week"></i><strong id="statWeek">0</strong><span>Active this week</span></a>
-                            <a href="#students" class="admin-stat is-warn" data-quick="inactive" title="See who has not been active for 7+ days"><i class="fa-solid fa-moon"></i><strong id="statInactive">0</strong><span>Inactive 7+ days</span></a>
-                            <a href="#students" class="admin-stat" data-quick="progress" title="See every student's progress, highest first"><i class="fa-solid fa-chart-line"></i><strong id="statAvg">0%</strong><span>Average progress</span></a>
+                            <a href="#students" class="admin-stat" data-quick="active" title="See who used the system this week (Monday to today)"><i class="fa-solid fa-calendar-week"></i><strong id="statWeek">0</strong><span>Active this week</span></a>
+                            <a href="#students" class="admin-stat is-warn" data-quick="inactive" title="See who has not used the system for 3+ days"><i class="fa-solid fa-moon"></i><strong id="statInactive">0</strong><span>Inactive 3+ days</span></a>
+                            <a href="#students" class="admin-stat" data-quick="progress" title="See every student's progress, highest first"><i class="fa-solid fa-chart-line"></i><strong id="statAvg">0%</strong><span>Average progress</span><small class="admin-stat-live is-idle" id="statAvgNote" hidden></small></a>
                         </div>
 
                         <!-- Two columns that stack on their own, so a tall card never leaves a gap beside it -->
@@ -154,7 +154,7 @@
                                 <option value="online">Online now</option>
                                 <option value="today">Active today</option>
                                 <option value="active">Active this week</option>
-                                <option value="inactive">Inactive 7+ days</option>
+                                <option value="inactive">Inactive 3+ days</option>
                                 <option value="atrisk">At risk</option>
                             </select>
                             <select id="sortBy" aria-label="Sort by">
@@ -273,6 +273,7 @@
 
         let students = [];
         let today = '';
+        let totalActivities = 0; // published case studies + decks + videos
         let questionText = new Map();   // "case_study:12" / "study_card:3-7" -> question
         let questionWhere = new Map();  // same keys -> "Scenario 4" / "Study Cards · Lesson 2: ..."
 
@@ -314,6 +315,20 @@
             return students.length ? students.reduce((sum, s) => sum + s.overallPercent, 0) / students.length : 0;
         }
 
+        // Overall progress of a group: everything they finished out of everything
+        // they could finish (not an average of rounded per-student percents)
+        function groupProgress(list) {
+            const possible = totalActivities * list.length;
+            const done = list.reduce((sum, s) => sum + (s.activitiesDone || 0), 0);
+            return { done, possible, percent: possible ? (done / possible) * 100 : 0 };
+        }
+
+        // 8.4% stays 8.4%, 0.3% doesn't read as 0%, whole numbers stay whole
+        function formatPercent(p) {
+            const r = Math.round(p * 10) / 10;
+            return `${Number.isInteger(r) ? r : r.toFixed(1)}%`;
+        }
+
         function riskReasons(s) {
             if (s.deactivated) return [];
             if (!s.lastActive) return ['Never used the system'];
@@ -328,7 +343,8 @@
         let lastInsights = null;
         function renderOverview(insights) {
             lastInsights = insights;
-            const activeWeek = students.filter(s => !s.inactive);
+            // This calendar week (Monday to today); resets to 0 every Monday
+            const activeWeek = students.filter(s => s.activeThisWeek);
             $('statStudents').textContent = students.length;
             // Big number = students online right now (0 when nobody is);
             // the line under it says how many opened the system today
@@ -341,10 +357,12 @@
                 ? `<i class="fa-solid fa-circle"></i> ${onlineNow} online now`
                 : `Nobody online`;
             $('statWeek').textContent = activeWeek.length;
-            $('statInactive').textContent = students.length - activeWeek.length;
-            $('statAvg').textContent = students.length
-                ? `${Math.round(students.reduce((sum, s) => sum + s.overallPercent, 0) / students.length)}%`
-                : '0%';
+            // Only students idle for 3+ days; drops as soon as one logs in again
+            $('statInactive').textContent = students.filter(s => s.inactive).length;
+            const overall = groupProgress(students);
+            $('statAvg').textContent = formatPercent(overall.percent);
+            $('statAvgNote').hidden = !overall.possible;
+            $('statAvgNote').textContent = `${overall.done} of ${overall.possible} activities done`;
 
             // Progress by section (average overall %)
             const groups = new Map();
@@ -354,7 +372,7 @@
                 groups.get(key).push(s);
             });
             const rows = [...groups.entries()]
-                .map(([name, list]) => ({ name, count: list.length, avg: Math.round(list.reduce((sum, s) => sum + s.overallPercent, 0) / list.length) }))
+                .map(([name, list]) => ({ name, count: list.length, avg: Math.round(groupProgress(list).percent) }))
                 .sort((a, b) => a.name.localeCompare(b.name));
             $('sectionBars').innerHTML = rows.length ? rows.map(r => `
                 <div class="section-bar">
@@ -435,7 +453,7 @@
                 (!status || (status === 'atrisk' ? riskReasons(s, avg).length > 0
                     : status === 'online' ? s.online
                     : status === 'today' ? s.lastActive === today
-                    : status === 'inactive' ? s.inactive : !s.inactive)));
+                    : status === 'inactive' ? s.inactive : s.activeThisWeek)));
 
             const sorters = {
                 name: (a, b) => a.fullName.localeCompare(b.fullName),
@@ -898,6 +916,7 @@
                 const [list, insights] = await Promise.all([api.get('/admin/students'), api.get('/admin/insights')]);
                 students = list.students;
                 today = list.today;
+                totalActivities = list.totalActivities || 0;
                 renderOverview(insights);
                 fillFilters();
                 renderStudents();
@@ -933,6 +952,7 @@
                     if (seenToday.has(s.id) && s.lastActive !== today) {
                         s.lastActive = today;
                         s.inactive = false;
+                        s.activeThisWeek = !s.deactivated;
                         changed = true;
                     }
                 });
@@ -996,6 +1016,7 @@
 
                 students = list.students;
                 today = list.today;
+                totalActivities = list.totalActivities || 0;
                 renderOverview(insights);
                 fillFilters();
                 renderStudents();
