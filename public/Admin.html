@@ -362,7 +362,7 @@
             const overall = groupProgress(students);
             $('statAvg').textContent = formatPercent(overall.percent);
             $('statAvgNote').hidden = !overall.possible;
-            
+            $('statAvgNote').textContent = `${overall.done} of ${overall.possible} activities done`;
 
             // Progress by section (average overall %)
             const groups = new Map();
