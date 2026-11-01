@@ -38,7 +38,7 @@ const {
 const EMAIL_REGEX =
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const RESET_TOKEN_MINUTES = 30;
+const RESET_TOKEN_MINUTES = 5;
 
 const RESET_COOLDOWN_SECONDS = 60;
 
