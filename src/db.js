@@ -710,6 +710,12 @@ async function init() {
             "ALTER TABLE public.study_card_progress ADD COLUMN IF NOT EXISTS perfect_ids TEXT NOT NULL DEFAULT '[]'"
         );
 
+        /* Lesson topics each student has opened (JSON list of topic keys),
+           for "Read 12 / 137 topics" on the Dashboard. */
+        await client.query(
+            "ALTER TABLE public.lesson_progress ADD COLUMN IF NOT EXISTS read_ids TEXT NOT NULL DEFAULT '[]'"
+        );
+
         /* content_versions existed before item_count was added, so older
            databases never got it and every publish failed. */
         await client.query(
