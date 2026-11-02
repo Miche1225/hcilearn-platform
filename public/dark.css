@@ -22,8 +22,7 @@
     background: url('campus-bg.jpg') no-repeat center center/cover;
 }
 :root[data-theme="dark"] .image-section {
-    background: url('classroom-img.jpg') no-repeat center center/cover;
-    background-color: hsl(250 14% 20%);
+    background-color: #0d3b75;
 }
 :root[data-theme="dark"] .glass-panel {
     background: hsl(250 14% 17% / 0.45);
@@ -825,9 +824,98 @@
 :root[data-theme="dark"] .login-page .secure-note i {
     color: hsl(144 62% 79%);
 }
+:root[data-theme="dark"] .login-page .image-section {
+    background: radial-gradient(rgba(255, 255, 255, 0.09) 1px, transparent 1.5px) 0 0 / 22px 22px,
+        linear-gradient(150deg, #0d3b75 0%, #2a3fa8 45%, #5b3fc9 75%, #8a4fd8 100%);
+}
+:root[data-theme="dark"] .login-page .art-glow.is-one {
+    background: #4fb3ff;
+}
+:root[data-theme="dark"] .login-page .art-glow.is-two {
+    background: #ff6fa5;
+}
+:root[data-theme="dark"] .login-page .art-card {
+    background: hsl(250 14% 17%);
+    color: hsl(250 49% 87%);
+    box-shadow: 0 1.4em 3em rgba(10, 8, 40, 0.35);
+}
+:root[data-theme="dark"] .login-page .art-card small {
+    color: hsl(245 16% 69%);
+}
+:root[data-theme="dark"] .login-page .art-screen {
+    background: linear-gradient(135deg, #4fb3ff, #7b5cff 60%, #ff6fa5);
+}
+:root[data-theme="dark"] .login-page .art-play {
+    background: hsl(250 14% 17% / 0.92);
+    color: #7b5cff;
+}
+:root[data-theme="dark"] .login-page .art-time {
+    background: rgba(13, 13, 40, 0.7);
+    color: #fff;
+}
+:root[data-theme="dark"] .login-page .art-progress {
+    background: hsl(254 45% 20%);
+}
+:root[data-theme="dark"] .login-page .art-progress span {
+    background: linear-gradient(90deg, #3fcf9b, #4fb3ff);
+}
+:root[data-theme="dark"] .login-page .art-quiz .art-label {
+    color: #7b5cff;
+}
+:root[data-theme="dark"] .login-page .art-choice {
+    border: 1.5px solid hsl(253 45% 20%);
+    color: hsl(246 23% 76%);
+}
+:root[data-theme="dark"] .login-page .art-choice > span {
+    background: hsl(251 45% 19%);
+    color: #7b5cff;
+}
+:root[data-theme="dark"] .login-page .art-choice.is-right {
+    border-color: #3fcf9b;
+    background: hsl(153 45% 20%);
+    color: hsl(155 69% 81%);
+}
+:root[data-theme="dark"] .login-page .art-choice.is-right > span {
+    background: #3fcf9b;
+    color: #fff;
+}
+:root[data-theme="dark"] .login-page .art-choice i {
+    color: hsl(158 60% 67%);
+}
+:root[data-theme="dark"] .login-page .art-board .art-label {
+    color: hsl(33 75% 69%);
+}
+:root[data-theme="dark"] .login-page .art-rank {
+    color: hsl(246 23% 76%);
+}
+:root[data-theme="dark"] .login-page .art-rank > span {
+    color: #fff;
+}
+:root[data-theme="dark"] .login-page .art-rank b {
+    color: hsl(250 49% 87%);
+}
+:root[data-theme="dark"] .login-page .art-rank.is-gold > span {
+    background: #ffc93c;
+}
+:root[data-theme="dark"] .login-page .art-rank.is-silver > span {
+    background: hsl(219 24% 34%);
+}
+:root[data-theme="dark"] .login-page .art-rank.is-bronze > span {
+    background: #e0965a;
+}
+:root[data-theme="dark"] .login-page .art-chip {
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid hsl(250 14% 17% / 0.35);
+    color: #fff;
+}
+:root[data-theme="dark"] .login-page .art-streak i {
+    color: #ffb347;
+}
+:root[data-theme="dark"] .login-page .art-badge i {
+    color: #ffc93c;
+}
 :root[data-theme="dark"] .login-page .image-overlay {
     color: #fff;
-    background: linear-gradient(to top, rgba(0, 34, 68, 0.92) 0%, rgba(0, 51, 102, 0.6) 55%, rgba(0, 51, 102, 0) 100%);
 }
 :root[data-theme="dark"] .login-page .overlay-badge {
     background: rgba(255, 255, 255, 0.15);
