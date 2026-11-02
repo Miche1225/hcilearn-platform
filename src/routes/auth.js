@@ -587,6 +587,17 @@ router.post(
 
         } catch (err) {
 
+            // Double-clicked Sign up: the first request already made the account
+            if (err.code === '23505') {
+
+                return res.status(409).json({
+
+                    error:
+                        'An account with that email already exists.'
+
+                });
+            }
+
             next(err);
         }
     }

@@ -377,10 +377,7 @@ router.post('/students/:id/signout', studentAction('signout_student', (s) =>
   pool.query('UPDATE users SET session_version = session_version + 1, signed_out_at = NOW() WHERE id = $1', [s.id])
     .then(notifyPresence)));
 
-// Block / unblock logging in (deactivating also logs them out)
-router.post('/students/:id/deactivate', studentAction('deactivate_student', (s) =>
-  pool.query('UPDATE users SET disabled_at = NOW(), session_version = session_version + 1, signed_out_at = NOW() WHERE id = $1', [s.id])
-    .then(notifyPresence)));
+// Unblock accounts deactivated before "Remove account" replaced deactivating
 router.post('/students/:id/reactivate', studentAction('reactivate_student', (s) =>
   pool.query('UPDATE users SET disabled_at = NULL WHERE id = $1', [s.id])));
 

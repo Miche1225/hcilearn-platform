@@ -530,14 +530,17 @@
                 cancelText: 'Cancel',
                 icon: 'fa-trash',
                 danger: true,
-                onConfirm: async () => {
+                password: 'Enter your password to confirm',
+                onConfirm: async (password) => {
                     btn.disabled = true;
                     btn.textContent = 'Deleting...';
 
                     try {
                         const response = await fetch('/api/account', {
                             method: 'DELETE',
-                            credentials: 'include'
+                            credentials: 'include',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ currentPassword: password })
                         });
 
                         const data = await response.json().catch(() => ({}));

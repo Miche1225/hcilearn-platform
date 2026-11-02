@@ -7082,6 +7082,21 @@ p {
     color: #666;
 }
 
+/* Password box in a confirm dialog (e.g. Delete Account) */
+.confirm-input {
+    width: 100%;
+    box-sizing: border-box;
+    height: 44px;
+    margin: -8px 0 20px;
+    padding: 0 16px;
+    border: 1px solid #ddd;
+    border-radius: 25px;
+    background: #fff;
+    color: #333;
+    font: inherit;
+    font-size: 14px;
+}
+
 .confirm-actions {
     display: flex;
     gap: 10px;

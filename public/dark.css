@@ -2132,6 +2132,11 @@
 :root[data-theme="dark"] .confirm-card p {
     color: hsl(250 12% 74%);
 }
+:root[data-theme="dark"] .confirm-input {
+    border: 1px solid hsl(250 14% 25%);
+    background: hsl(250 14% 17%);
+    color: hsl(250 12% 85%);
+}
 :root[data-theme="dark"] .confirm-cancel {
     background: hsl(250 14% 17%);
     color: hsl(250 12% 85%);
