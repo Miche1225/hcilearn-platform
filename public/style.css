@@ -1777,8 +1777,22 @@ p {
     margin-bottom: 35px;
 }
 
+/* Invisible but still reachable with Tab / arrow keys (display:none wasn't) */
+.options-group > div {
+    position: relative;
+}
+
 .hidden-radio {
-    display: none; 
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+}
+
+.hidden-radio:focus-visible + .option-label {
+    outline: 3px solid #3b5b82;
+    outline-offset: 2px;
 }
 
 .option-label {
@@ -2012,10 +2026,6 @@ p {
 .fc-option:hover .fc-option-text {
     background-color: #ffffff;
     border-color: #94a3b8;
-}
-
-.hidden-radio {
-    display: none;
 }
 
 .hidden-radio:checked + .fc-option-text {

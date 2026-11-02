@@ -145,7 +145,7 @@
                         <!-- Option A -->
                         <div>
                             <input type="radio" name="quizOption" id="optA" class="hidden-radio" value="0">
-                            <label for="optA" class="option-label" onclick="selectOption(0)">
+                            <label for="optA" class="option-label">
                                 <span class="option-letter">A</span>
                                 <span class="option-text" id="labelA"></span>
                             </label>
@@ -153,7 +153,7 @@
                         <!-- Option B -->
                         <div>
                             <input type="radio" name="quizOption" id="optB" class="hidden-radio" value="1">
-                            <label for="optB" class="option-label" onclick="selectOption(1)">
+                            <label for="optB" class="option-label">
                                 <span class="option-letter">B</span>
                                 <span class="option-text" id="labelB"></span>
                             </label>
@@ -161,7 +161,7 @@
                         <!-- Option C -->
                         <div>
                             <input type="radio" name="quizOption" id="optC" class="hidden-radio" value="2">
-                            <label for="optC" class="option-label" onclick="selectOption(2)">
+                            <label for="optC" class="option-label">
                                 <span class="option-letter">C</span>
                                 <span class="option-text" id="labelC"></span>
                             </label>
@@ -169,7 +169,7 @@
                         <!-- Option D -->
                         <div>
                             <input type="radio" name="quizOption" id="optD" class="hidden-radio" value="3">
-                            <label for="optD" class="option-label" onclick="selectOption(3)">
+                            <label for="optD" class="option-label">
                                 <span class="option-letter">D</span>
                                 <span class="option-text" id="labelD"></span>
                             </label>
@@ -214,6 +214,22 @@
         let mistakeIds = [];            // mga scenario na nagkamali (hindi pa na-clear)
         let reviewQueue = null;         // mga natitirang scenario habang nagre-review, o null
         let missedThisAttempt = false;  // nagkamali na ba sa scenario na ito ngayong bukas
+        // optionOrder[slot] = index of the choice shown in that slot (shuffled each open)
+        let optionOrder = [0, 1, 2, 3];
+
+        // Fisher-Yates shuffle (every order equally likely)
+        function shuffle(list) {
+            for (let i = list.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [list[i], list[j]] = [list[j], list[i]];
+            }
+            return list;
+        }
+
+        // Picking a choice by click, tap or keyboard (Tab + arrow keys) all land here
+        document.addEventListener('change', (e) => {
+            if (e.target.classList && e.target.classList.contains('hidden-radio')) selectOption(Number(e.target.value));
+        });
 
         // Initialize Page: pull the user's real progress from the backend first.
         const isUnlocked = (key) => unlockedIds.includes(key);
@@ -402,13 +418,16 @@
             quizStatus.classList.toggle('is-solved', !reviewQueue && solvedIds.includes(id));
             quizStatus.classList.toggle('is-review', !!reviewQueue);
 
-            // Set Options (tanggalin ang "A. " sa unahan dahil may letter badge na)
-            ['labelA', 'labelB', 'labelC', 'labelD'].forEach((labelId, index) => {
-                document.getElementById(labelId).innerText = data.options[index].replace(/^[A-D]\.\s*/, '');
+            // Choices in a new order each time, so the answer can't be memorised by letter.
+            // Remove a leading "A. " or "A) " since there's a letter badge already.
+            optionOrder = shuffle([0, 1, 2, 3]);
+            ['labelA', 'labelB', 'labelC', 'labelD'].forEach((labelId, slot) => {
+                document.getElementById(labelId).innerText = data.options[optionOrder[slot]].replace(/^[A-D][.)]\s*/, '');
             });
 
             // Reset UI states
             resetOptionsUI();
+            document.querySelectorAll('.hidden-radio').forEach(r => { r.disabled = false; });
             hideFeedback();
             document.getElementById('optionsGroup').classList.remove('is-locked');
 
@@ -482,10 +501,12 @@
             // Tanggalin ang dating red/green classes bago suriin
             labels.forEach(label => label.classList.remove('correct-answer', 'wrong-answer'));
 
-            if (Number(selectedAnswer) === data.answer) {
+            if (optionOrder[Number(selectedAnswer)] === data.answer) {
                 // TAMA ANG SAGOT Logic
                 labels[selectedAnswer].classList.add('correct-answer');
                 document.getElementById('optionsGroup').classList.add('is-locked');
+                // Locked: a later click or arrow key can't move the selection
+                document.querySelectorAll('.hidden-radio').forEach(r => { r.disabled = true; });
 
                 const firstTime = !solvedIds.includes(currentActiveScenario);
                 const nextId = nextKeyAfter(currentActiveScenario);
@@ -554,6 +575,11 @@
                 }
 
                 showFeedback('wrong', '<i class="fa-solid fa-circle-xmark"></i> Not quite. Pick another answer and try again.');
+
+                // Clear the pick (the wrong one stays red), so "Try Again" can't
+                // resend the same wrong answer without choosing again
+                selectedAnswer = null;
+                document.querySelectorAll('.hidden-radio').forEach(r => { r.checked = false; });
 
                 // Papalitan lang ang button ng "Try Again"
                 submitBtn.innerText = "Try Again";
