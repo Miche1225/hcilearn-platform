@@ -106,7 +106,7 @@
                         <div class="streak-flame" id="streakFlame"><i class="fa-solid fa-fire"></i></div>
                         <div class="streak-text">
                             <strong><span id="streakCount">0</span> day streak</strong>
-                            <small id="streakNote">Get an answer right today to start a streak!</small>
+                            <small id="streakNote">Study today (answer, watch or read) to start a streak!</small>
                         </div>
                     </div>
                     <div class="streak-week" id="streakWeek" aria-label="Last 7 days"></div>
@@ -114,7 +114,7 @@
                 </div>
 
                 <div class="card badges-card">
-                    <h3 class="card-title"><i class="fa-solid fa-medal icon-title"></i> Badges <span class="badge-count" id="badgeCount">0 / 14</span></h3>
+                    <h3 class="card-title"><i class="fa-solid fa-medal icon-title"></i> Badges <span class="badge-count" id="badgeCount">–</span></h3>
                     <div class="badge-mini-row" id="badgeMini"></div>
                     <a href="Account.html#badges" class="badge-link">See all badges <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
@@ -219,6 +219,7 @@
                             <div class="act-icon read-icon"><i class="fa-solid fa-book"></i></div>
                             <div class="act-text">
                                 <span>Read Lesson</span>
+                                <small id="lessonMeta">Not started</small>
                             </div>
                             <i class="fa-solid fa-chevron-right act-arrow"></i>
                         </a>
@@ -313,7 +314,8 @@
         }
 
         function moduleMeta(done, total, verb) {
-            if (done <= 0) return 'Not started';
+            // Nothing published yet (0 of 0) counts as not started, not finished
+            if (total <= 0 || done <= 0) return 'Not started';
             if (done >= total) return `Completed · ${total}/${total}`;
             return `${done}/${total} ${verb}`;
         }
@@ -328,12 +330,17 @@
             modules.forEach(m => {
                 const metaEl = document.getElementById(m.meta);
                 metaEl.textContent = moduleMeta(m.done, m.total, m.verb);
-                metaEl.classList.toggle('is-done', m.done >= m.total);
+                metaEl.classList.toggle('is-done', m.total > 0 && m.done >= m.total);
 
                 animateCount(document.getElementById(m.count), m.done);
                 document.getElementById(m.totalEl).textContent = `/${m.total}`;
-                document.getElementById(m.bar).style.width = `${Math.min(100, (m.done / m.total) * 100)}%`;
+                document.getElementById(m.bar).style.width = `${m.total ? Math.min(100, (m.done / m.total) * 100) : 0}%`;
             });
+
+            // Read Lesson has no count, just done or not
+            const lessonMeta = document.getElementById('lessonMeta');
+            lessonMeta.textContent = summary.lessonCompleted ? 'Completed' : 'Not started';
+            lessonMeta.classList.toggle('is-done', !!summary.lessonCompleted);
 
             // Suggest the unfinished module with the lowest completion
             const next = modules
@@ -455,6 +462,8 @@
                 }
             } catch (err) {
                 console.error('Could not load progress summary:', err);
+                document.getElementById('progressMessage').innerHTML =
+                    `<i class="fa-solid fa-circle-exclamation"></i> Couldn't load your progress. Refresh to try again.`;
             }
         }
 
@@ -522,6 +531,8 @@
 
         // Full leaderboard pop-up: everyone, with a name search, opened at your row
         async function openFullLeaderboard() {
+            // A double click must not stack a second pop-up on the first
+            if (document.querySelector('.lb-full')) return;
             const previousFocus = document.activeElement;
             const overlay = document.createElement('div');
             overlay.className = 'confirm-overlay';
@@ -611,7 +622,7 @@
             document.getElementById('streakBest').textContent = streak.longest;
             document.getElementById('streakFlame').classList.toggle('is-lit', streak.current > 0);
             document.getElementById('streakNote').textContent =
-                streak.current === 0 ? 'Get an answer right today to start a streak!'
+                streak.current === 0 ? 'Study today (answer, watch or read) to start a streak!'
                 : streak.activeToday ? "You studied today. Keep it going tomorrow!"
                 : "Study today to keep your streak alive!";
 
