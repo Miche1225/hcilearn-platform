@@ -344,7 +344,7 @@ function shortName(row) {
 router.get('/leaderboard', async (req, res, next) => {
   try {
     const { rows } = await pool.query(
-      `SELECT u.id, u.full_name, u.first_name, u.last_name,
+      `SELECT u.id, u.full_name, u.first_name, u.last_name, u.profile_photo,
               COALESCE(SUM(${POINTS_SQL}), 0)::int AS points,
               COALESCE(SUM(d.correct), 0)::int AS correct,
               COALESCE(SUM(d.answers - d.correct), 0)::int AS wrong
@@ -356,7 +356,9 @@ router.get('/leaderboard', async (req, res, next) => {
       [addDays(todayLocal(), -6)]
     );
     // The ORDER BY never ties, so the position is the rank
-    const ranked = rows.map((r, i) => ({ rank: i + 1, name: shortName(r), points: r.points, isMe: r.id === req.userId }));
+    const ranked = rows.map((r, i) => ({
+      rank: i + 1, name: shortName(r), photo: r.profile_photo || null, points: r.points, isMe: r.id === req.userId,
+    }));
     // ?all=1 (the "See all" pop-up) lists everyone, 0 points included
     if (req.query.all === '1') {
       return res.json({ total: ranked.length, entries: ranked.slice(0, LEADERBOARD_ALL_MAX) });

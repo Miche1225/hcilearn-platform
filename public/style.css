@@ -7016,7 +7016,8 @@ p {
 .confirm-overlay {
     position: fixed;
     inset: 0;
-    z-index: 2000;
+    /* Above the admin student drawer and content editor, which open these dialogs */
+    z-index: 10010;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -10577,6 +10578,19 @@ a.admin-stat:focus-visible {
     width: 60px;
     height: 60px;
     font-size: 20px;
+}
+
+/* Student's own profile photo instead of initials (admin + leaderboard) */
+.admin-avatar,
+.lb-avatar {
+    overflow: hidden;
+}
+
+.admin-avatar img,
+.lb-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .admin-tag {

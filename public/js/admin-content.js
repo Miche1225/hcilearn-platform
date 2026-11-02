@@ -413,13 +413,10 @@ const HCIContentEditor = (function () {
     const form = overlay.querySelector('form');
     requestAnimationFrame(() => overlay.classList.add('is-open'));
 
-    const close = () => {
-      overlay.classList.remove('is-open');
-      document.removeEventListener('keydown', onKey);
-      setTimeout(() => overlay.remove(), 200);
-    };
-    const onKey = (e) => { if (e.key === 'Escape') close(); };
-    document.addEventListener('keydown', onKey);
+    // A stray Escape or click outside must not throw away typed work
+    let dirty = false;
+    form.addEventListener('input', () => { dirty = true; });
+    const close = askBeforeClosing(overlay, () => dirty);
     overlay.addEventListener('click', (e) => { if (e.target === overlay || e.target.closest('[data-close]')) close(); });
 
     // Icon previews + topic preview
@@ -440,6 +437,7 @@ const HCIContentEditor = (function () {
       const sections = readSections(form);
       const sec = b.closest('.ce-section');
       const i = sec ? Number(sec.dataset.index) : -1;
+      dirty = true;
       if (b.dataset.sec === 'add') sections.push({ icon: 'fa-book-open', heading: '', body: '' });
       if (b.dataset.sec === 'remove') sections.splice(i, 1);
       if (b.dataset.sec === 'up' && i > 0) [sections[i - 1], sections[i]] = [sections[i], sections[i - 1]];
@@ -459,7 +457,7 @@ const HCIContentEditor = (function () {
         const body = readForm(form, kind);
         if (isNew) await api.post('/admin/content', { kind, parentKey, data: body });
         else await api.put(`/admin/content/${item.id}`, { data: body });
-        close();
+        close(true);
         if (parentKey) open.add(`${kind === 'topic' ? 'module' : 'deck'}:${parentKey}`);
         toast(isNew ? 'Added as a draft' : 'Draft saved');
         await load();
@@ -472,6 +470,32 @@ const HCIContentEditor = (function () {
 
     const first = form.querySelector('input:not([disabled]), textarea');
     if (first) first.focus();
+  }
+
+  // Close function for an editor window: closes at once when nothing was typed
+  // (or force = true after saving), otherwise asks first. Also handles Escape.
+  function askBeforeClosing(overlay, hasChanges) {
+    let asking = false;
+    const shut = () => {
+      overlay.classList.remove('is-open');
+      document.removeEventListener('keydown', onKey);
+      setTimeout(() => overlay.remove(), 200);
+    };
+    const close = (force) => {
+      if (force === true || !hasChanges()) return shut();
+      if (asking) return; // the Escape that closes the question itself
+      asking = true;
+      confirmDialog({
+        title: 'Discard your changes?', message: 'What you typed in this window has not been saved.',
+        confirmText: 'Discard', cancelText: 'Keep editing', icon: 'fa-triangle-exclamation', danger: true,
+      }).then((ok) => {
+        asking = false;
+        if (ok) shut();
+      });
+    };
+    const onKey = (e) => { if (e.key === 'Escape') close(); };
+    document.addEventListener('keydown', onKey);
+    return close;
   }
 
   // ---------- Bulk add cards ----------
@@ -537,14 +561,8 @@ const HCIContentEditor = (function () {
     const saveBtn = form.querySelector('[type="submit"]');
     let busy = false;
 
-    const close = () => {
-      if (busy) return;
-      overlay.classList.remove('is-open');
-      document.removeEventListener('keydown', onKey);
-      setTimeout(() => overlay.remove(), 200);
-    };
-    const onKey = (e) => { if (e.key === 'Escape') close(); };
-    document.addEventListener('keydown', onKey);
+    const ask = askBeforeClosing(overlay, () => form.elements.cards.value.trim() !== '');
+    const close = (force) => { if (!busy) ask(force); };
     overlay.addEventListener('click', (e) => { if (e.target === overlay || e.target.closest('[data-close]')) close(); });
 
     // Live check while typing
@@ -583,7 +601,7 @@ const HCIContentEditor = (function () {
       busy = false;
       open.add(`deck:${parentKey}`);
       if (added === cards.length) {
-        close();
+        close(true);
         toast(`${added} card${added === 1 ? '' : 's'} added as drafts`);
       } else {
         // Keep only the cards that weren't added, so fixing and retrying is easy

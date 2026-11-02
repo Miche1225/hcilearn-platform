@@ -467,7 +467,10 @@
         // Medals only for top 3 with points (a 0-point tie isn't a podium)
         // Same name always gets the same avatar colour
         const avatarColor = (name) => [...name].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 997, 7) % 6;
-        const lbAvatar = (e) => `<span class="lb-avatar lb-av-${avatarColor(e.name)}" aria-hidden="true">${escapeHtml(e.name.replace(/[^A-Za-zÀ-ÿ ]/g, '').split(' ').filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase() || '?')}</span>`;
+        // The student's profile photo, or their initials if they have none
+        const lbAvatar = (e) => `<span class="lb-avatar lb-av-${avatarColor(e.name)}" aria-hidden="true">${e.photo
+            ? `<img src="${escapeHtml(e.photo)}" alt="" loading="lazy">`
+            : escapeHtml(e.name.replace(/[^A-Za-zÀ-ÿ ]/g, '').split(' ').filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase() || '?')}</span>`;
 
         const lbRow = (e, i = 0) => `
             <li class="lb-row${e.isMe ? ' is-me' : ''}${e.points && e.rank <= 3 ? ` is-top${e.rank}` : ''}" style="--i:${Math.min(i, 15)}">
