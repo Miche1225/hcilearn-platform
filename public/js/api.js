@@ -279,8 +279,9 @@ document.addEventListener('click', (e) => {
 });
 
 // Styled replacement for window.confirm(). Resolves true/false.
-// options: { title, message, confirmText, cancelText, icon, danger, onConfirm }
+// options: { title, message, confirmText, cancelText, icon, danger, onConfirm, password }
 // If onConfirm is given, the confirm button shows a spinner while it runs.
+// password = placeholder text: adds a password box; its value is passed to onConfirm.
 function confirmDialog(options = {}) {
   const {
     title = 'Are you sure?',
@@ -290,6 +291,7 @@ function confirmDialog(options = {}) {
     icon = 'fa-circle-question',
     danger = false,
     onConfirm = null,
+    password = '',
   } = options;
 
   return new Promise((resolve) => {
@@ -300,6 +302,7 @@ function confirmDialog(options = {}) {
         <div class="confirm-icon"><i class="fa-solid ${icon}"></i></div>
         <h3 id="confirmTitle"></h3>
         <p id="confirmMessage"></p>
+        ${password ? '<input type="password" class="confirm-input" autocomplete="current-password">' : ''}
         <div class="confirm-actions">
           <button type="button" class="confirm-btn confirm-cancel"></button>
           <button type="button" class="confirm-btn confirm-ok"></button>
@@ -313,6 +316,13 @@ function confirmDialog(options = {}) {
     const okBtn = overlay.querySelector('.confirm-ok');
     cancelBtn.textContent = cancelText;
     okBtn.textContent = confirmText;
+    const input = overlay.querySelector('.confirm-input');
+    if (input) {
+      input.placeholder = password;
+      input.setAttribute('aria-label', password);
+      input.addEventListener('keydown', (e) => { if (e.key === 'Enter') okBtn.click(); });
+    }
+    const focusables = [input, cancelBtn, okBtn].filter(Boolean);
 
     const previousFocus = document.activeElement;
     let busy = false;
@@ -331,7 +341,8 @@ function confirmDialog(options = {}) {
       // Keep Tab focus inside the dialog
       if (e.key === 'Tab') {
         e.preventDefault();
-        (document.activeElement === cancelBtn ? okBtn : cancelBtn).focus();
+        const i = focusables.indexOf(document.activeElement);
+        focusables[(i + (e.shiftKey ? -1 : 1) + focusables.length) % focusables.length].focus();
       }
     }
 
@@ -341,12 +352,13 @@ function confirmDialog(options = {}) {
 
     okBtn.addEventListener('click', async () => {
       if (!onConfirm) return close(true);
+      if (input && !input.value) return input.focus();
       busy = true;
       okBtn.disabled = true;
       cancelBtn.disabled = true;
       okBtn.innerHTML = `<span class="btn-spinner"></span> ${okBtn.textContent}`;
       try {
-        await onConfirm();
+        await onConfirm(input ? input.value : undefined);
       } finally {
         busy = false;
         close(true);
@@ -355,6 +367,6 @@ function confirmDialog(options = {}) {
 
     document.body.appendChild(overlay);
     requestAnimationFrame(() => overlay.classList.add('is-open'));
-    cancelBtn.focus();
+    (input || cancelBtn).focus();
   });
 }

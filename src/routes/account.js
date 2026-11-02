@@ -318,7 +318,9 @@ router.put(
                     student_id,
                     password_hash,
                     session_version,
-                    profile_photo
+                    profile_photo,
+                    first_name,
+                    last_name
 
                  FROM public.users
 
@@ -352,6 +354,24 @@ router.put(
                 String(fullName).trim() !== ''
                     ? String(fullName).trim()
                     : user.full_name;
+
+            /*
+                The leaderboard and reminder emails use first/last name,
+                so a renamed student must not keep the old ones.
+            */
+            const nameParts =
+                newFullName.split(/\s+/);
+
+            const nameChanged =
+                newFullName !== user.full_name;
+
+            const newFirstName =
+                nameChanged ? nameParts[0] : user.first_name;
+
+            const newLastName =
+                nameChanged
+                    ? (nameParts.length > 1 ? nameParts[nameParts.length - 1] : null)
+                    : user.last_name;
 
             const newYearSection =
                 yearSection !== undefined
@@ -505,7 +525,11 @@ router.put(
 
                     password_hash = $5,
 
-                    session_version = $6
+                    session_version = $6,
+
+                    first_name = $8,
+
+                    last_name = $9
 
                  WHERE id = $7
 
@@ -531,7 +555,11 @@ router.put(
 
                     newSessionVersion,
 
-                    req.userId
+                    req.userId,
+
+                    newFirstName,
+
+                    newLastName
 
                 ]
             );
@@ -643,6 +671,49 @@ router.delete(
     async (req, res, next) => {
 
         try {
+
+            /*
+                Needs the password, like a password change, so someone at
+                an unattended logged-in computer can't wipe the account.
+            */
+            const attempt =
+                passwordChangeLimiter.hit(
+                    `account-pw:${req.userId}`
+                );
+
+            if (attempt.limited) {
+
+                return passwordChangeLimiter.reject(
+                    res,
+                    attempt.retryAfter
+                );
+            }
+
+            const { currentPassword } = req.body || {};
+
+            const { rows } = await pool.query(
+                'SELECT password_hash FROM public.users WHERE id = $1',
+                [req.userId]
+            );
+
+            const passwordOk =
+                rows[0] &&
+                typeof currentPassword === 'string' &&
+                currentPassword.length > 0 &&
+                await bcrypt.compare(
+                    currentPassword,
+                    rows[0].password_hash
+                );
+
+            if (!passwordOk) {
+
+                return res.status(400).json({
+
+                    error:
+                        'Your password is incorrect. Your account was not deleted.'
+
+                });
+            }
 
             await pool.query(
 

@@ -5,6 +5,7 @@
 const express = require('express');
 const { pool } = require('../db');
 const { requireAuth } = require('../middleware/authGuard');
+const { rateLimit } = require('../middleware/rateLimit');
 const { getContent } = require('../contentStore');
 const { todayLocal, addDays, toYmd, weekdayLabel, computeStreaks } = require('../utils/dates');
 
@@ -127,13 +128,17 @@ async function awardBadges(userId, stats, badges) {
   const owned = new Set(rows.map(r => r.badge_id));
   const earnedNow = badges.filter(b => !owned.has(b.id) && stats[b.stat] >= b.target);
 
+  // Two requests at once can both see a badge as new; only the one whose
+  // insert went through reports it, so the pop-up shows once
+  const inserted = [];
   for (const badge of earnedNow) {
-    await pool.query(
+    const { rowCount } = await pool.query(
       'INSERT INTO user_badges (user_id, badge_id) VALUES ($1, $2) ON CONFLICT (user_id, badge_id) DO NOTHING',
       [userId, badge.id]
     );
+    if (rowCount) inserted.push(badge);
   }
-  return earnedNow.map(publicBadge);
+  return inserted.map(publicBadge);
 }
 
 function publicBadge(b) {
@@ -203,7 +208,15 @@ router.get('/summary', async (req, res, next) => {
 // POST /api/gamify/activity
 //   { type: 'answer', correct, combo? }   combo = correct answers in a row so far
 //   { type: 'video' | 'read' | 'cleared' | 'perfect' }   perfect = deck with no mistakes
-router.post('/activity', async (req, res, next) => {
+// A student answers at most a few questions a minute; more is a script
+const activityLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 60,
+  keyFn: (req) => `activity:${req.userId}`,
+  message: 'Slow down a little and try again in a minute.',
+});
+
+router.post('/activity', activityLimiter, async (req, res, next) => {
   try {
     const { type, correct } = req.body || {};
     const columns = { answer: 'answers', video: 'videos', read: 'topics_read', cleared: 'mistakes_cleared', perfect: 'perfect_decks' };
@@ -309,9 +322,10 @@ router.put('/goal', async (req, res, next) => {
 // account), so only one student holds each spot. Students with no points are
 // left off the top list (you always see your own rank).
 // Names are shortened to "Juan D." and no ids are sent.
-// Per-day caps keep repeatable actions (videos, reads, decks) from being farmed.
+// Per-day caps keep repeatable actions (answers, videos, reads, decks) from
+// being farmed, since the browser reports them.
 const POINTS_SQL = `
-  d.correct * 10
+  LEAST(d.correct, 150) * 10
   + LEAST(d.videos, 10) * 5
   + LEAST(d.topics_read, 20) * 2
   + LEAST(d.perfect_decks, 5) * 20

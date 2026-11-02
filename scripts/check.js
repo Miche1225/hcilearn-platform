@@ -61,6 +61,22 @@ for (const script of ['build-dark-css.js']) {
   else console.log(result.stdout.trim());
 }
 
+// 4. Streak maths (dates.js has no database, so it can run here)
+const { addDays, computeStreaks } = require('../src/utils/dates');
+const expect = (label, actual, wanted) => {
+  if (JSON.stringify(actual) !== JSON.stringify(wanted)) fail(`${label}: got ${JSON.stringify(actual)}, want ${JSON.stringify(wanted)}`);
+};
+expect('addDays across a month end', addDays('2026-02-27', 2), '2026-03-01');
+expect('addDays across a year end', addDays('2026-12-31', 1), '2027-01-01');
+expect('streak still alive before studying today',
+  computeStreaks(['2026-03-01', '2026-02-28', '2026-02-27'], '2026-03-02'),
+  { current: 3, longest: 3, activeToday: false });
+expect('streak broken by a missed day',
+  computeStreaks(['2026-03-05', '2026-03-03', '2026-03-02'], '2026-03-05'),
+  { current: 1, longest: 2, activeToday: true });
+expect('no study days', computeStreaks([], '2026-03-05'), { current: 0, longest: 0, activeToday: false });
+console.log('Checked the streak maths.');
+
 if (failures) {
   console.error(`\n${failures} check(s) failed.`);
   process.exit(1);
