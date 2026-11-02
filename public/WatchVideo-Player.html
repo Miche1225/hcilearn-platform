@@ -88,10 +88,10 @@
                 <!-- Header Title -->
                 <div class="page-header">
                     <div class="title-with-icon">
-                        <i class="fa-solid fa-clapperboard"></i> 
-                        <h2>Watch Videos</h2>
+                        <i class="fa-solid fa-clapperboard"></i>
+                        <h2 id="videoHeading">Watch Videos</h2>
                     </div>
-                    <p>Watch the video and understand each concepts.</p>
+                    <p id="videoSubheading">Watch the video and understand each concept.</p>
                     <hr class="header-divider">
                 </div>
 
@@ -100,6 +100,7 @@
                     <!-- DITO PAPASOK ANG YOUTUBE API -->
                     <div id="youtubePlayer"></div>
                 </div>
+                <p class="video-alert" id="videoAlert" role="status" hidden></p>
 
                 <!-- Resume notice + bookmark / note -->
                 <div class="player-tools">
@@ -129,7 +130,7 @@
 
                 <!-- Centered Back Button -->
                 <div class="player-footer-centered">
-                    <button type="button" class="btn-back-centered" id="markWatchedBtn" style="margin-right:10px;">Mark as Watched</button>
+                    <button type="button" class="btn-back-centered" id="markWatchedBtn" style="margin-right:10px;" disabled>Unlocks at 80%</button>
                     <a href="WatchVideo.html" class="btn-back-centered">Back</a>
                 </div>
 
@@ -151,13 +152,31 @@
         const videoId = urlParams.get('video') || 'Yb0ZGvccOAY';
         const videoTitle = urlParams.get('title') || videoId;
 
+        const markBtn = document.getElementById('markWatchedBtn');
+        // 'waiting' (under 80%), 'ready', 'watched' (already or just now), 'gone' (not in the course)
+        let markState = 'waiting';
+
+        function showAlert(text) {
+            const box = document.getElementById('videoAlert');
+            box.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> <span></span>';
+            box.querySelector('span').textContent = text;
+            box.hidden = false;
+        }
+
+        function setMarkState(state, label) {
+            markState = state;
+            markBtn.disabled = state !== 'ready';
+            markBtn.textContent = label;
+        }
+
         let watchLogged = false;
         async function logWatched() {
-            if (watchLogged) return;
+            if (watchLogged || markState === 'gone') return;
             watchLogged = true;
             try {
                 await api.post('/progress/videos/watch', { videoId, title: videoTitle });
                 document.getElementById('watchedMsg').style.display = 'block';
+                setMarkState('watched', 'Watched ✓');
                 HCISfx.confetti(90); // visual only: this page has no mute button
                 HCIGamify.record('video');
             } catch (err) {
@@ -166,7 +185,52 @@
             }
         }
 
-        document.getElementById('markWatchedBtn').addEventListener('click', logWatched);
+        markBtn.addEventListener('click', logWatched);
+
+        // The video's real title (from the published list, not the link), and
+        // a clear message for an old link to a video that was removed
+        api.get('/content/videos').then(({ videos }) => {
+            const video = videos.find(v => v.key === videoId);
+            if (!video) {
+                setMarkState('gone', 'Not in the course');
+                showAlert("This video is no longer in the course, so watching it won't count toward your progress.");
+                return;
+            }
+            document.getElementById('videoHeading').textContent = video.title;
+            document.title = `${video.title} · HCILearn`;
+            if (video.duration) document.getElementById('videoSubheading').textContent = `Video lesson · ${video.duration}`;
+        }).catch(() => {});
+
+        // ========================================================
+        // "MARK AS WATCHED" UNLOCKS AT 80%
+        // Counts time actually played (skipping ahead doesn't count). The part
+        // watched before a resume counts too, so nobody has to start over.
+        // ========================================================
+        const UNLOCK_SHARE = 0.8;
+        let earlierSeconds = 0;   // resume point from an earlier visit
+        let playedSeconds = 0;    // played on this visit
+        let lastTime = null;
+
+        function updateMarkButton() {
+            if (markState !== 'waiting' && markState !== 'ready') return;
+            const duration = player && player.getDuration ? player.getDuration() : 0;
+            if (!duration) return;
+            const share = Math.min(1, (earlierSeconds + playedSeconds) / duration);
+            if (share >= UNLOCK_SHARE) setMarkState('ready', 'Mark as Watched');
+            else setMarkState('waiting', `Unlocks at 80% · ${Math.floor(share * 100)}%`);
+        }
+
+        setInterval(() => {
+            if (!player || !player.getPlayerState || player.getPlayerState() !== YT.PlayerState.PLAYING) {
+                lastTime = null;
+                return;
+            }
+            const now = player.getCurrentTime();
+            // Normal playback moves about 1 s per tick (2 s at double speed); a bigger jump is a seek
+            if (lastTime !== null && now > lastTime && now - lastTime <= 2.5) playedSeconds += now - lastTime;
+            lastTime = now;
+            updateMarkButton();
+        }, 1000);
 
 
         // ========================================================
@@ -226,10 +290,21 @@
             document.getElementById('resumeNote').hidden = true;
         });
 
+        // Already watched before: say so instead of asking for 80% again
+        progressPromise.then(progress => {
+            if (progress && progress.watched.some(w => w.video_id === videoId) && markState !== 'gone') {
+                setMarkState('watched', 'Already watched ✓');
+            }
+        });
+
         // Load the YouTube IFrame API so we can detect when the video actually ends.
+        // If YouTube is blocked (e.g. a school network), say so instead of a blank box.
+        const YOUTUBE_FAILED = "The video couldn't load. YouTube may be blocked on this network, or you're offline.";
         const ytScript = document.createElement('script');
         ytScript.src = 'https://www.youtube.com/iframe_api';
+        ytScript.onerror = () => showAlert(YOUTUBE_FAILED);
         document.head.appendChild(ytScript);
+        setTimeout(() => { if (!player) showAlert(YOUTUBE_FAILED); }, 12000);
 
         window.onYouTubeIframeAPIReady = async function () {
             const progress = await progressPromise;
@@ -238,6 +313,7 @@
                 saved.position_seconds >= RESUME_MIN_SECONDS &&
                 saved.position_seconds < saved.duration_seconds - RESUME_END_MARGIN
                 ? saved.position_seconds : 0;
+            earlierSeconds = resumeAt;
 
             const playerVars = { autoplay: 1, rel: 0 };
             if (resumeAt) playerVars.start = resumeAt;
@@ -248,13 +324,18 @@
                 videoId: videoId,
                 playerVars,
                 events: {
+                    onReady: updateMarkButton,
+                    // Keep the clearer "no longer in the course" message if that's the reason
+                    onError: () => { if (markState !== 'gone') showAlert("This video can't be played right now. Try again later."); },
                     onStateChange: function (event) {
                         if (event.data === YT.PlayerState.PAUSED) {
                             savePosition(false);
                         }
                         // Kapag tapos na ang video (State 0 = ENDED)
                         if (event.data === YT.PlayerState.ENDED) {
-                            logWatched();
+                            // Only counts if 80% was really played (jumping to the end doesn't)
+                            updateMarkButton();
+                            if (markState === 'ready' || markState === 'watched') logWatched();
                             // Tapos na: sa umpisa na ulit magsisimula sa susunod
                             const duration = Math.floor(player.getDuration());
                             if (duration) sendPosition(0, duration, false);

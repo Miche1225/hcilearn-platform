@@ -1326,6 +1326,24 @@ p {
 }
 
 /* Video Container */
+/* The YouTube player keeps a 16:9 shape at any width (it was a fixed 500 px tall) */
+.video-container iframe {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+}
+
+.video-alert {
+    margin: -8px 0 16px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: #fff4e5;
+    color: #8a4b00;
+    font-size: 14px;
+    font-weight: 600;
+}
+
 .video-container {
     background: #000;
     width: 100%;
@@ -8506,6 +8524,11 @@ body.update-password-page .update-container::before {
 
 .player-tools .player-tool-buttons {
     margin-left: auto;
+}
+
+/* display:inline-flex below would otherwise beat the hidden attribute */
+.resume-note[hidden] {
+    display: none;
 }
 
 .resume-note {
