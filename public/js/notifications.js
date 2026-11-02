@@ -47,18 +47,34 @@
     bell.classList.toggle('has-unread', unread > 0);
   }
 
+  // Long messages start folded; remember which ones were opened so the
+  // once-a-minute refresh doesn't fold them again
+  const LONG_BODY = 220;
+  const expanded = new Set();
+  const isLong = (body) => body.length > LONG_BODY || body.split('\n').length > 4;
+
   function renderPanel() {
     if (!panel) return;
+    const newCount = items.filter(a => a.unread).length;
+    const count = panel.querySelector('.notif-head-count');
+    count.hidden = !newCount;
+    count.textContent = `${newCount} new`;
+
     const list = panel.querySelector('.notif-list');
-    list.innerHTML = items.length ? items.map(a => `
+    list.innerHTML = items.length ? items.map(a => {
+      const long = a.body && isLong(a.body);
+      const open = expanded.has(String(a.id)); // data-id comes back as a string
+      return `
       <div class="notif-item${a.unread ? ' is-unread' : ''}">
         <span class="notif-icon"><i class="fa-solid fa-bullhorn"></i></span>
         <div class="notif-text">
           <strong>${esc(a.title)}${a.unread ? ' <span class="notif-new">New</span>' : ''}</strong>
-          ${a.body ? `<p>${esc(a.body)}</p>` : ''}
+          ${a.body ? `<p${long && !open ? ' class="is-folded"' : ''}>${esc(a.body)}</p>` : ''}
+          ${long ? `<button type="button" class="notif-more" data-id="${esc(a.id)}" aria-expanded="${open}">${open ? 'Show less' : 'Show more'}</button>` : ''}
           <small>${esc(a.by)} · ${timeAgo(a.createdAt)}</small>
         </div>
-      </div>`).join('')
+      </div>`;
+    }).join('')
       : '<p class="notif-empty"><i class="fa-regular fa-bell-slash"></i> No announcements right now.</p>';
   }
 
@@ -69,10 +85,20 @@
       panel.setAttribute('role', 'dialog');
       panel.setAttribute('aria-label', 'Notifications');
       panel.innerHTML = `
-        <div class="notif-head"><b><i class="fa-solid fa-bell"></i> Notifications</b>
+        <div class="notif-head"><b><i class="fa-solid fa-bell"></i> Notifications <span class="notif-head-count" hidden></span></b>
           <button type="button" class="qs-close notif-close" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div>
         <div class="notif-list"></div>`;
       panel.querySelector('.notif-close').addEventListener('click', closePanel);
+      panel.querySelector('.notif-list').addEventListener('click', (e) => {
+        const btn = e.target.closest('.notif-more');
+        if (!btn) return;
+        const id = btn.dataset.id;
+        expanded.has(id) ? expanded.delete(id) : expanded.add(id);
+        renderPanel();
+        // The list was redrawn, so put focus back on the same button
+        const again = [...panel.querySelectorAll('.notif-more')].find(b => b.dataset.id === id);
+        if (again) again.focus();
+      });
       document.body.appendChild(panel);
     }
     renderPanel();
@@ -121,7 +147,15 @@
     // closes the panel" listener and the panel shuts right after opening
     el.querySelector('.notif-view').addEventListener('click', (e) => { e.stopPropagation(); close(); openPanel(); });
     el.querySelector('.notif-pop-close').addEventListener('click', close);
-    setTimeout(close, 9000);
+
+    // Don't vanish while the student is reading it or tabbing to its buttons
+    let timer = setTimeout(close, 9000);
+    const pause = () => clearTimeout(timer);
+    const resume = () => { clearTimeout(timer); timer = setTimeout(close, 4000); };
+    el.addEventListener('mouseenter', pause);
+    el.addEventListener('mouseleave', () => { if (!el.contains(document.activeElement)) resume(); });
+    el.addEventListener('focusin', pause);
+    el.addEventListener('focusout', (e) => { if (!el.contains(e.relatedTarget) && !el.matches(':hover')) resume(); });
   }
 
   // ---------- Data ----------

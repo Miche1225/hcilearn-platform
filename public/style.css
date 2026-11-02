@@ -9120,6 +9120,22 @@ body.update-password-page .update-container::before {
 .saved-card.is-lesson .saved-kind { background: #defaee; color: #23805a; }
 .saved-card.is-video .saved-kind  { background: #e3f2ff; color: #2668b8; }
 
+/* Saved item the admin has since removed from the course */
+.saved-gone {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: #fff1dc;
+    color: #a35400;
+    font-weight: 800;
+}
+
+.saved-card.is-gone .saved-title {
+    color: #777;
+}
+
 .saved-card h3 {
     margin: 0 0 6px;
     font-size: 17px;
@@ -11863,6 +11879,39 @@ fieldset.ce-field legend {
 .notif-text strong { display: block; font-size: 14px; color: #1d1640; }
 .notif-text p { margin: 4px 0; font-size: 13px; line-height: 1.45; color: #555; white-space: pre-wrap; }
 .notif-text small { font-size: 12px; color: #999; }
+
+.notif-text p.is-folded {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.notif-more {
+    display: block;
+    margin: 0 0 4px;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--fun-coral);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.notif-more:hover { text-decoration: underline; }
+
+.notif-head-count {
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #ff4d6d;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.notif-head-count[hidden] { display: none; }
 
 .notif-new {
     margin-left: 4px;

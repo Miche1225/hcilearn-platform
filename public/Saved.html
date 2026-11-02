@@ -140,6 +140,25 @@
         const searchInput = document.getElementById('savedSearch');
         let activeFilter = 'all';
 
+        // What's published now: topic key -> the number students see, and video ids.
+        // null if it couldn't load (then nothing is marked as removed).
+        let published = null;
+        const publishedPromise = Promise.all([
+            api.get('/content/lessons'),
+            api.get('/content/videos'),
+        ]).then(([lessons, videos]) => {
+            published = {
+                topicNumber: new Map(lessons.modules.flatMap(m => m.topics.map(t => [String(t.key), t.number]))),
+                videoIds: new Set(videos.videos.map(v => v.key)),
+            };
+        }).catch(() => {});
+
+        // Removed from the course since it was saved (only known once content loaded)
+        function isGone(b) {
+            if (!published) return false;
+            return b.kind === 'video' ? !published.videoIds.has(b.itemKey) : !published.topicNumber.has(String(b.itemKey));
+        }
+
         function linkFor(b) {
             if (b.kind === 'video') {
                 return `WatchVideo-Player.html?video=${encodeURIComponent(b.itemKey)}&title=${encodeURIComponent(b.title)}`;
@@ -202,25 +221,39 @@
                     </div>`;
 
                 const href = linkFor(b);
+                const gone = isGone(b);
+                // The topic number students see on Read Lesson (not the hidden key)
+                const topicNumber = published && published.topicNumber.get(String(b.itemKey));
                 card.querySelector('.saved-kind').innerHTML = b.kind === 'video'
                     ? '<i class="fa-solid fa-play"></i> Video'
-                    : `<i class="fa-solid fa-book"></i> Topic ${Number(b.itemKey)}`;
+                    : `<i class="fa-solid fa-book"></i> Topic${topicNumber ? ` ${topicNumber}` : ''}`;
                 card.querySelector('.saved-date').textContent = `Saved ${formatDate(b.createdAt)}`;
                 card.querySelector('.saved-title').textContent = b.title;
-                card.querySelector('.saved-title').href = href;
-                card.querySelector('.saved-open').href = href;
+                if (gone) {
+                    // Removed by the admin: no link that leads nowhere, no note edit the
+                    // server would refuse. The note stays readable and the item removable.
+                    card.classList.add('is-gone');
+                    const tag = document.createElement('span');
+                    tag.className = 'saved-gone';
+                    tag.innerHTML = '<i class="fa-solid fa-circle-minus"></i> No longer in the course';
+                    card.querySelector('.saved-card-meta').appendChild(tag);
+                    card.querySelector('.saved-open').remove();
+                    card.querySelector('.saved-edit').remove();
+                } else {
+                    card.querySelector('.saved-title').href = href;
+                    card.querySelector('.saved-open').href = href;
+                }
 
                 const noteEl = card.querySelector('.saved-card-note');
                 noteEl.textContent = b.note || 'No note yet.';
                 noteEl.classList.toggle('is-empty', !b.note);
-                card.querySelector('.saved-edit span').textContent = b.note ? 'Edit note' : 'Add note';
-
                 if (b.kind === 'video') {
                     const img = card.querySelector('img');
                     img.src = `https://img.youtube.com/vi/${encodeURIComponent(b.itemKey)}/mqdefault.jpg`;
                 }
 
-                card.querySelector('.saved-edit').addEventListener('click', async () => {
+                if (!gone) card.querySelector('.saved-edit span').textContent = b.note ? 'Edit note' : 'Add note';
+                if (!gone) card.querySelector('.saved-edit').addEventListener('click', async () => {
                     try {
                         const saved = await HCIBookmarks.editNote(b.kind, b.itemKey, b.title);
                         if (saved) HCIBookmarks.toast('Note saved', 'fa-pen-to-square');
@@ -268,7 +301,8 @@
 
         searchInput.addEventListener('input', render);
 
-        HCIBookmarks.load()
+        // Wait for the published content too, so numbers and "removed" tags are right
+        Promise.all([HCIBookmarks.load(), publishedPromise])
             .then(render)
             .catch(() => {
                 listEl.innerHTML = '<p class="saved-error"><i class="fa-solid fa-circle-exclamation"></i> Could not load your saved items. Please refresh the page.</p>';

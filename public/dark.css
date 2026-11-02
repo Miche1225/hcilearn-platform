@@ -2795,6 +2795,13 @@
     background: hsl(208 45% 20%);
     color: hsl(213 66% 72%);
 }
+:root[data-theme="dark"] .saved-gone {
+    background: hsl(36 45% 21%);
+    color: hsl(31 75% 78%);
+}
+:root[data-theme="dark"] .saved-card.is-gone .saved-title {
+    color: hsl(250 12% 70%);
+}
 :root[data-theme="dark"] .saved-title {
     color: hsl(250 49% 87%);
 }
@@ -3654,6 +3661,15 @@
 }
 :root[data-theme="dark"] .notif-text small {
     color: #999;
+}
+:root[data-theme="dark"] .notif-more {
+    border: none;
+    background: none;
+    color: var(--fun-coral);
+}
+:root[data-theme="dark"] .notif-head-count {
+    background: #ff4d6d;
+    color: #fff;
 }
 :root[data-theme="dark"] .notif-new {
     background: #ff4d6d;
