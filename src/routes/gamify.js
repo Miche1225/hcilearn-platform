@@ -359,7 +359,9 @@ router.get('/leaderboard', async (req, res, next) => {
   try {
     const { rows } = await pool.query(
       `SELECT u.id, u.full_name, u.first_name, u.last_name, u.profile_photo,
-              COALESCE(SUM(${POINTS_SQL}), 0)::int AS points,
+              -- FILTER: with no activity the LEFT JOIN gives NULLs, and LEAST() skips
+              -- NULLs, so LEAST(NULL, 150) = 150 would hand every cap to a new student
+              COALESCE(SUM(${POINTS_SQL}) FILTER (WHERE d.user_id IS NOT NULL), 0)::int AS points,
               COALESCE(SUM(d.correct), 0)::int AS correct,
               COALESCE(SUM(d.answers - d.correct), 0)::int AS wrong
        FROM users u
