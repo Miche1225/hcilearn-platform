@@ -148,6 +148,15 @@
                         </div>
                         <span class="acct-streak-chip" id="acctStreak" hidden><i class="fa-solid fa-fire"></i> <span></span></span>
                     </div>
+                    <div class="badge-toolbar">
+                        <label for="badgeFilter" class="badge-filter-label"><i class="fa-solid fa-filter"></i> Show</label>
+                        <select id="badgeFilter" class="badge-filter">
+                            <option value="all">All badges</option>
+                            <option value="finished">Finished</option>
+                            <option value="ongoing">Ongoing</option>
+                            <option value="unfinished">Unfinished</option>
+                        </select>
+                    </div>
                     <div class="badge-grid" id="badgeGrid">
                         <p class="badge-loading"><span class="btn-spinner"></span> Loading badges...</p>
                     </div>
@@ -698,7 +707,6 @@
            ================================================= */
 
         function renderBadges(data) {
-            const grid = document.getElementById('badgeGrid');
             const earnedCount = data.badges.filter(b => b.earned).length;
             document.getElementById('badgeSummary').textContent =
                 `${earnedCount} of ${data.badges.length} earned. Keep studying to unlock the rest!`;
@@ -707,8 +715,33 @@
             streakChip.hidden = data.streak.current === 0;
             streakChip.querySelector('span').textContent = `${data.streak.current}-day streak`;
 
-            grid.innerHTML = '';
-            data.badges.forEach(b => {
+            allBadges = data.badges;
+            // Counts beside each choice, e.g. "Ongoing (8)"
+            const filter = document.getElementById('badgeFilter');
+            [...filter.options].forEach(o => {
+                const n = o.value === 'all' ? allBadges.length : allBadges.filter(b => badgeStatus(b) === o.value).length;
+                o.textContent = `${BADGE_FILTER_LABELS[o.value]} (${n})`;
+            });
+            drawBadges();
+        }
+
+        // Finished = earned, Ongoing = some progress, Unfinished = not started yet
+        const BADGE_FILTER_LABELS = { all: 'All badges', finished: 'Finished', ongoing: 'Ongoing', unfinished: 'Unfinished' };
+        const BADGE_FILTER_KEY = 'hcilearn_badge_filter';
+        let allBadges = [];
+        const badgeStatus = (b) => b.earned ? 'finished' : b.progress > 0 ? 'ongoing' : 'unfinished';
+
+        function drawBadges() {
+            const grid = document.getElementById('badgeGrid');
+            const show = document.getElementById('badgeFilter').value;
+            const list = show === 'all' ? allBadges : allBadges.filter(b => badgeStatus(b) === show);
+
+            grid.innerHTML = list.length ? '' : `<p class="badge-loading"><i class="fa-regular fa-face-smile"></i> ${{
+                finished: 'No finished badges yet. Keep studying!',
+                ongoing: 'No badges in progress right now.',
+                unfinished: 'You have started every badge. Nice!',
+            }[show] || 'No badges to show.'}</p>`;
+            list.forEach(b => {
                 const tile = document.createElement('div');
                 tile.className = `badge-tile badge-${b.color}${b.earned ? ' is-earned' : ''}`;
                 tile.innerHTML = `
@@ -726,6 +759,19 @@
                 grid.appendChild(tile);
             });
         }
+
+        // Remember the chosen filter in this browser (a convenience; works without it)
+        (function () {
+            const filter = document.getElementById('badgeFilter');
+            try {
+                const saved = localStorage.getItem(BADGE_FILTER_KEY);
+                if (saved && BADGE_FILTER_LABELS[saved]) filter.value = saved;
+            } catch (e) { /* storage blocked */ }
+            filter.addEventListener('change', () => {
+                try { localStorage.setItem(BADGE_FILTER_KEY, filter.value); } catch (e) { /* storage blocked */ }
+                drawBadges();
+            });
+        })();
 
         api.get('/gamify/summary')
             .then(data => {

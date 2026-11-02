@@ -2928,6 +2928,17 @@
     background: linear-gradient(135deg, var(--fun-sun), var(--fun-coral));
     color: #fff;
 }
+:root[data-theme="dark"] .badge-filter-label {
+    color: hsl(250 12% 70%);
+}
+:root[data-theme="dark"] .badge-filter {
+    border: 2px solid hsl(253 45% 20%);
+    background: hsl(250 14% 17%);
+    color: hsl(250 12% 81%);
+}
+:root[data-theme="dark"] .badge-filter:focus-visible {
+    outline: 2px solid var(--fun-grape);
+}
 :root[data-theme="dark"] .badge-tile {
     border: 2px dashed hsl(253 41% 22%);
     background: hsl(252 45% 18%);

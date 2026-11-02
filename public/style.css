@@ -9557,6 +9557,42 @@ body.update-password-page .update-container::before {
     gap: 14px;
 }
 
+/* Account: "Show: All / Finished / Ongoing / Unfinished" badge filter */
+.badge-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.badge-filter-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #777;
+}
+
+.badge-filter {
+    padding: 8px 14px;
+    border: 2px solid #ece8fb;
+    border-radius: 999px;
+    background: #fff;
+    color: #444;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.badge-filter:focus-visible {
+    outline: 2px solid var(--fun-grape);
+    outline-offset: 2px;
+}
+
+.badge-grid > .badge-loading {
+    grid-column: 1 / -1;
+}
+
 .badge-tile {
     display: flex;
     flex-direction: column;
