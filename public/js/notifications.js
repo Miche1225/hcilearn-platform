@@ -26,11 +26,13 @@
     return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
   }
 
+  // One list per student, so on a shared lab PC the next student still gets their pop-ups
+  let storeKey = POPPED_KEY;
   const popped = () => {
-    try { return JSON.parse(localStorage.getItem(POPPED_KEY) || '[]'); } catch (e) { return []; }
+    try { return JSON.parse(localStorage.getItem(storeKey) || '[]'); } catch (e) { return []; }
   };
   const remember = (ids) => {
-    try { localStorage.setItem(POPPED_KEY, JSON.stringify([...new Set([...popped(), ...ids])].slice(-100))); } catch (e) { /* storage blocked */ }
+    try { localStorage.setItem(storeKey, JSON.stringify([...new Set([...popped(), ...ids])].slice(-100))); } catch (e) { /* storage blocked */ }
   };
 
   // ---------- Bell ----------
@@ -130,6 +132,7 @@
     } catch (e) {
       return; // not logged in / offline: try again later
     }
+    if (data.userId) storeKey = `${POPPED_KEY}:${data.userId}`;
     items = data.announcements;
     unread = data.unreadCount;
     renderBell();

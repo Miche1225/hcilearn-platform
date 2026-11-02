@@ -43,7 +43,8 @@ async function forStudent(userId) {
 router.get('/', async (req, res, next) => {
   try {
     const announcements = await forStudent(req.userId);
-    res.json({ announcements, unreadCount: announcements.filter(a => a.unread).length });
+    // userId: the bell remembers shown pop-ups per student (lab PCs are shared)
+    res.json({ userId: req.userId, announcements, unreadCount: announcements.filter(a => a.unread).length });
   } catch (err) {
     next(err);
   }
