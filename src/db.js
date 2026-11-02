@@ -704,6 +704,12 @@ async function init() {
             'ALTER TABLE public.daily_activity ADD COLUMN IF NOT EXISTS perfect_decks INTEGER NOT NULL DEFAULT 0'
         );
 
+        /* Decks finished without a mistake (JSON list of deck keys), so
+           replaying the same deck perfectly doesn't count again. */
+        await client.query(
+            "ALTER TABLE public.study_card_progress ADD COLUMN IF NOT EXISTS perfect_ids TEXT NOT NULL DEFAULT '[]'"
+        );
+
         /* content_versions existed before item_count was added, so older
            databases never got it and every publish failed. */
         await client.query(

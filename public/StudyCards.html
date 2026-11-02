@@ -31,12 +31,6 @@
                 if (!e.target.closest || !e.target.closest('input, textarea')) e.preventDefault();
             });
         });
-        document.addEventListener('DOMContentLoaded', function() {
-            let currentPageName = window.location.pathname.split('/').pop();
-            if (currentPageName && currentPageName !== '') {
-                localStorage.setItem('lastLessonVisited', currentPageName);
-            }
-        });
     </script>
 
     <div class="dashboard-container">
@@ -716,7 +710,8 @@
             if (examMode) return finishExam();
             if (reviewMode) return finishReview();
             // "Flawless" badge: whole deck without a single mistake (or time-out)
-            if (missedThisRound.size === 0) HCIGamify.record('perfect');
+            // (the server counts each deck's first flawless run only)
+            if (missedThisRound.size === 0) HCIGamify.record('perfect', null, { deck: currentLessonId });
             document.getElementById('doneTitle').textContent = 'Deck mastered!';
             const lessonId = currentLessonId;
             const nextId = nextDeckAfter(lessonId);
@@ -755,6 +750,8 @@
             document.getElementById('quizView').style.display = 'none';
             document.getElementById('scHeaderSide').style.display = '';
             document.getElementById('lessonListView').style.display = '';
+            // Quitting early: show mistakes made or cleared in this round
+            applyLessonLockState();
             scrollToTop();
         }
 
@@ -762,13 +759,6 @@
             document.querySelector('.main-content').scrollTo({ top: 0 });
             window.scrollTo({ top: 0 });
         }
-
-        // PAG-TRACK NG LAST VISITED LESSON PARA SA DASHBOARD
-        let currentPageName = window.location.pathname.split('/').pop();
-        if (!currentPageName || currentPageName === '') {
-            currentPageName = 'StudyCards.html';
-        }
-        localStorage.setItem('lastLessonVisited', currentPageName);
 
     </script>
 </body>

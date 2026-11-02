@@ -315,9 +315,6 @@
         });
 
         HCIBookmarks.load().then(renderBookmark).catch(() => {});
-
-        // PAG-TRACK NG LAST VISITED LESSON PARA SA DASHBOARD
-        localStorage.setItem('lastLessonVisited', window.location.pathname.split('/').pop() + window.location.search);
     </script>
 </body>
 </html>
