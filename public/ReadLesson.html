@@ -27,12 +27,6 @@
     <script src="js/search.js?v=3"></script>
     <script>
         requireAuth();
-        document.addEventListener('DOMContentLoaded', function() {
-            let currentPageName = window.location.pathname.split('/').pop();
-            if (currentPageName && currentPageName !== '') {
-                localStorage.setItem('lastLessonVisited', currentPageName);
-            }
-        });
     </script>
 
    <div class="dashboard-container">
@@ -285,14 +279,6 @@
     <!-- KUMPLETONG JAVASCRIPT PARA SA ACCORDION, SMART SEARCH BAR AT READING PROGRESS -->
     <script>
         document.addEventListener('DOMContentLoaded', async function() {
-
-            // PAG-TRACK NG LAST VISITED LESSON PARA SA DASHBOARD
-            let currentPageName = window.location.pathname.split('/').pop();
-            if (!currentPageName || currentPageName === '') {
-                // Palitan ng tamang pangalan depende sa file (e.g. 'ReadLesson.html')
-                currentPageName = 'ReadLesson.html';
-            }
-            localStorage.setItem('lastLessonVisited', currentPageName);
 
             // FUNCTION: Tagasalin ng words pa-number (e.g. "four" -> "4")
             function normalizeText(text) {

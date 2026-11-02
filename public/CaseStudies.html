@@ -32,12 +32,6 @@
                 if (!e.target.closest || !e.target.closest('input, textarea')) e.preventDefault();
             });
         });
-        document.addEventListener('DOMContentLoaded', function() {
-            let currentPageName = window.location.pathname.split('/').pop();
-            if (currentPageName && currentPageName !== '') {
-                localStorage.setItem('lastLessonVisited', currentPageName);
-            }
-        });
     </script>
 
     <div class="dashboard-container">
@@ -566,13 +560,6 @@
                 // Ang isAnswerSubmitted ay mananatiling FALSE para makapindot ulit ang user ng ibang sagot!
             }
         }
-
-        // PAG-TRACK NG LAST VISITED LESSON PARA SA DASHBOARD
-        let currentPageName = window.location.pathname.split('/').pop();
-        if (!currentPageName || currentPageName === '') {
-            currentPageName = 'CaseStudies.html';
-        }
-        localStorage.setItem('lastLessonVisited', currentPageName);
 
     </script>
 </body>

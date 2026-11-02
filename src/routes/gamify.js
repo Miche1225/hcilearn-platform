@@ -230,6 +230,20 @@ router.post('/activity', activityLimiter, async (req, res, next) => {
 
     const inc = { answers: 0, correct: 0, videos: 0, topics_read: 0, mistakes_cleared: 0, perfect_decks: 0 };
     inc[columns[type]] = 1;
+
+    // A perfect deck counts once per deck, ever: replaying it can't farm points
+    if (type === 'perfect') {
+      const deckKey = Number(req.body.deck);
+      if (!(await getContent()).deckByKey.has(deckKey)) {
+        return res.status(400).json({ error: 'Invalid deck.' });
+      }
+      const { rowCount } = await pool.query(
+        `UPDATE study_card_progress SET perfect_ids = (perfect_ids::jsonb || to_jsonb($2::text))::text
+         WHERE user_id = $1 AND NOT (perfect_ids::jsonb ? $2::text)`,
+        [userId, String(deckKey)]
+      );
+      if (!rowCount) inc.perfect_decks = 0;
+    }
     if (type === 'answer' && correct === true) inc.correct = 1;
     // A run of correct answers can't be longer than today's correct answers
     const combo = type === 'answer' && correct === true

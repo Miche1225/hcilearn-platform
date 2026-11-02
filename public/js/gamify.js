@@ -2,7 +2,7 @@
 // Study streak and badges (needs js/api.js; js/sfx.js for confetti).
 //
 //   HCIGamify.record('answer', true);   // answered a question (right/wrong)
-//   HCIGamify.record('perfect');        // finished a deck without a mistake
+//   HCIGamify.record('perfect', null, { deck });  // finished a deck without a mistake
 //   HCIGamify.record('video');          // finished a video
 //   HCIGamify.record('read');           // opened a lesson topic
 //   HCIGamify.record('cleared');        // cleared a mistake in review
@@ -42,8 +42,9 @@ const HCIGamify = (function () {
     return n;
   }
 
-  function record(type, correct) {
-    const body = { type };
+  // extra: more fields for the server, e.g. { deck } for 'perfect'
+  function record(type, correct, extra) {
+    const body = { ...extra, type };
     if (type === 'answer') {
       body.correct = !!correct;
       body.combo = nextCombo(!!correct);
