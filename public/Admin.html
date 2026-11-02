@@ -106,7 +106,7 @@
                         </div>
                         <div class="admin-stats">
                             <a href="#students" class="admin-stat" data-quick="all" title="See all students"><i class="fa-solid fa-users"></i><strong id="statStudents">0</strong><span>Students</span></a>
-                            <a href="#students" class="admin-stat" data-quick="online" title="See who is online right now"><i class="fa-solid fa-bolt"></i><strong id="statToday">0</strong><span>Active today</span><small class="admin-stat-live" id="statOnline" hidden></small></a>
+                            <a href="#students" class="admin-stat" data-quick="online" title="See who is online right now"><i class="fa-solid fa-bolt"></i><strong id="statToday">0</strong><span>Online now</span><small class="admin-stat-live" id="statOnline" hidden></small></a>
                             <a href="#students" class="admin-stat" data-quick="active" title="See who used the system this week (Monday to today)"><i class="fa-solid fa-calendar-week"></i><strong id="statWeek">0</strong><span>Active this week</span></a>
                             <a href="#students" class="admin-stat is-warn" data-quick="inactive" title="See who has not used the system for 3+ days"><i class="fa-solid fa-moon"></i><strong id="statInactive">0</strong><span>Inactive 3+ days</span></a>
                             <a href="#students" class="admin-stat" data-quick="progress" title="See every student's progress, highest first"><i class="fa-solid fa-chart-line"></i><strong id="statAvg">0%</strong><span>Average progress</span><small class="admin-stat-live is-idle" id="statAvgNote" hidden></small></a>
@@ -280,6 +280,18 @@
         const $ = (id) => document.getElementById(id);
         const escapeHtml = (text) => String(text).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
         const initials = (name) => name.split(' ').filter(Boolean).slice(0, 2).map(n => n[0].toUpperCase()).join('');
+        // The student's profile photo, or their initials if they have none
+        const avatar = (s, extra = '') => `<span class="admin-avatar${extra}">${s.profilePhoto
+            ? `<img src="${escapeHtml(s.profilePhoto)}" alt="" loading="lazy">`
+            : escapeHtml(initials(s.fullName))}</span>`;
+
+        // The admin login lasts 8 hours; after that, go back to the login page
+        // instead of quietly showing old numbers
+        function sessionEnded(err) {
+            if (!err || err.status !== 401) return false;
+            window.location.href = 'login.html#admin';
+            return true;
+        }
 
         function daysBetween(a, b) {
             return Math.round((Date.parse(b) - Date.parse(a)) / 86400000);
@@ -353,9 +365,7 @@
             $('statToday').textContent = onlineNow;
             $('statOnline').hidden = false;
             $('statOnline').classList.toggle('is-idle', !onlineNow);
-            $('statOnline').innerHTML = onlineNow
-                ? `<i class="fa-solid fa-circle"></i> ${onlineNow} online now`
-                : `Nobody online`;
+            $('statOnline').innerHTML = `${onlineNow ? '<i class="fa-solid fa-circle"></i> ' : ''}${usedToday} used it today`;
             $('statWeek').textContent = activeWeek.length;
             // Only students idle for 3+ days; drops as soon as one logs in again
             $('statInactive').textContent = students.filter(s => s.inactive).length;
@@ -389,7 +399,7 @@
             $('inactiveList').innerHTML = atRisk.length ? atRisk.slice(0, RISK_SHOWN).map(({ s, reasons }) => `
                 <div class="risk-row">
                     <button type="button" class="admin-list-item" data-student="${s.id}">
-                        <span class="admin-avatar">${escapeHtml(initials(s.fullName))}</span>
+                        ${avatar(s)}
                         <span class="admin-list-text"><strong>${escapeHtml(s.fullName)}</strong><small>${escapeHtml(sectionOf(s))}</small></span>
                         <span class="risk-reasons">${reasons.map(r => `<span class="admin-pill is-warn">${escapeHtml(r)}</span>`).join('')}</span>
                     </button>
@@ -470,7 +480,7 @@
                 <tr data-student="${s.id}" tabindex="0">
                     <td data-label="Student">
                         <span class="admin-student">
-                            <span class="admin-avatar">${escapeHtml(initials(s.fullName))}</span>
+                            ${avatar(s)}
                             <span><strong>${escapeHtml(s.fullName)}</strong><small>${escapeHtml(s.studentId || '—')}</small></span>
                         </span>
                     </td>
@@ -500,7 +510,7 @@
 
                 $('drawerBody').innerHTML = `
                     <div class="student-head">
-                        <span class="admin-avatar is-big">${escapeHtml(initials(s.fullName))}</span>
+                        ${avatar(s, ' is-big')}
                         <div>
                             <h3 id="drawerName">${escapeHtml(s.fullName)}</h3>
                             <p>${escapeHtml(s.studentId || 'No student ID')} · ${escapeHtml(sectionOf(s))}</p>
@@ -629,15 +639,18 @@
             try {
                 const { announcements, today: day, sections } = await api.get('/admin/announcements');
 
-                // Audience picker (keeps choices made before a reload)
+                // Audience picker: rebuilt on every load so sections of students
+                // who just signed up appear, keeping what the admin already picked
                 const box = $('announceAudience');
-                if (!box.dataset.ready) {
-                    box.dataset.ready = '1';
-                    box.innerHTML = `<legend>Who sees it</legend>
-                        <label class="ce-check"><input type="radio" name="audienceMode" value="all" checked> Everyone</label><label class="ce-check"><input type="radio" name="audienceMode" value="sections"> Only these sections:</label>
-                        <div class="ce-checks">${sections.map(sec => `
-                            <label class="ce-check"><input type="checkbox" name="audienceSection" value="${escapeHtml(JSON.stringify(sec))}"> ${escapeHtml(sectionLabel(sec))}</label>`).join('') || '<small>No sections yet.</small>'}</div>`;
-                }
+                const mode = box.querySelector('input[name="audienceMode"]:checked');
+                const picked = new Set([...box.querySelectorAll('input[name="audienceSection"]:checked')].map(c => c.value));
+                box.innerHTML = `<legend>Who sees it</legend>
+                    <label class="ce-check"><input type="radio" name="audienceMode" value="all" ${!mode || mode.value === 'all' ? 'checked' : ''}> Everyone</label><label class="ce-check"><input type="radio" name="audienceMode" value="sections" ${mode && mode.value === 'sections' ? 'checked' : ''}> Only these sections:</label>
+                    <div class="ce-checks">${sections.map(sec => {
+                        const value = JSON.stringify(sec);
+                        return `
+                        <label class="ce-check"><input type="checkbox" name="audienceSection" value="${escapeHtml(value)}" ${picked.has(value) ? 'checked' : ''}> ${escapeHtml(sectionLabel(sec))}</label>`;
+                    }).join('') || '<small>No sections yet.</small>'}</div>`;
 
                 $('announceList').innerHTML = announcements.length ? announcements.map(a => {
                     const expired = a.endsOn && a.endsOn < day;
@@ -670,7 +683,9 @@
                     sections: toEveryone ? null : picked,
                 });
                 form.reset();
-                form.querySelectorAll('input[name="audienceSection"]').forEach(c => { c.checked = !mode; });
+                // Next announcement starts as "Everyone" again
+                form.querySelectorAll('input[name="audienceSection"]').forEach(c => { c.checked = false; });
+                form.querySelector('input[name="audienceMode"][value="all"]').checked = true;
                 adminToast('Announcement posted');
                 loadAnnouncements();
                 loadAudit();
@@ -873,7 +888,10 @@
         });
         $('drawerClose').addEventListener('click', closeStudent);
         $('drawerOverlay').addEventListener('click', (e) => { if (e.target === $('drawerOverlay')) closeStudent(); });
-        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('drawerOverlay').hidden) closeStudent(); });
+        // Escape on a dialog opened from the drawer closes only that dialog
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !$('drawerOverlay').hidden && !document.querySelector('.confirm-overlay, .ce-overlay')) closeStudent();
+        });
         // Export is a plain download; refresh the log afterwards
         ['exportBtn', 'quickExport'].forEach(id => $(id).addEventListener('click', () => setTimeout(loadAudit, 1500)));
 
@@ -921,6 +939,7 @@
                 renderStudents();
             } catch (err) {
                 // Network blip: the next tick tries again
+                sessionEnded(err);
             } finally {
                 refreshing = false;
                 // A login/logout arrived during the reload: show it now
@@ -958,6 +977,7 @@
                 if (changed) rerender();
             } catch (err) {
                 // Network blip: the next check tries again
+                sessionEnded(err);
             } finally {
                 checkingOnline = false;
                 if (checkAgain) checkOnline();

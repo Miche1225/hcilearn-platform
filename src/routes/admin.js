@@ -208,8 +208,8 @@ router.get('/online', async (req, res, next) => {
 // GET /api/admin/insights — most-missed questions and watching per video topic
 router.get('/insights', async (req, res, next) => {
   try {
-    const students = await loadStudents();
-    const ids = students.map(s => s.id);
+    // Only the ids are needed here; loadStudents() would redo every student's progress
+    const ids = (await pool.query('SELECT id FROM users')).rows.map(r => r.id);
 
     // Every question someone still has wrong, with how many students missed it
     const { rows: missed } = await pool.query(

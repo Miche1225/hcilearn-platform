@@ -18,7 +18,9 @@ async function apiRequest(method, url, body) {
   try { data = await res.json(); } catch (e) { /* no JSON body */ }
   if (!res.ok) {
     const message = (data && data.error) ? data.error : `Request failed (${res.status})`;
-    throw new Error(message);
+    const err = new Error(message);
+    err.status = res.status; // lets pages spot an expired login (401)
+    throw err;
   }
   return data;
 }
