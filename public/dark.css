@@ -457,6 +457,9 @@
 :root[data-theme="dark"] .question-text {
     color: hsl(250 12% 89%);
 }
+:root[data-theme="dark"] .hidden-radio:focus-visible + .option-label {
+    outline: 3px solid #3b5b82;
+}
 :root[data-theme="dark"] .option-label {
     background-color: transparent;
     border: 1px solid hsl(215 16% 30%);
