@@ -176,60 +176,8 @@
                             <h3>Lesson Outline</h3>
                         </div>
                         <div class="card-body">
-                            <ul class="custom-bullet-list">
-                                <li>What is HCI? A review.</li>
-                                <li>Interdisciplinary nature (CS, Psychology, Design, Ergonomics).</li>
-                                <li>HCI 1 recap: Usability, User-Centered Design (UCD), Interaction Models.</li>
-                                <li>Importance of HCI in systems development.</li>
-                                <li>Overview of HCI2: Focus on advanced techniques, tools, and systems.</li>
-                                <li>Introduction to Design Thinking.</li>
-                                <li>UCD Process Stages.</li>
-                                <li>Design Thinking vs. UCD.</li>
-                                <li>Tools for Empathy & Design.</li>
-                                <li>Mental Models.</li>
-                                <li>Cognitive Models in HCI.</li>
-                                <li>Design Implications.</li>
-                                <li>Prototyping in HCI.</li>
-                                <li>Tool Overview.</li>
-                                <li>Advanced Prototyping Techniques.</li>
-                                <li>Best Practices in Digital Prototyping.</li>
-                                <li>Introduction to User Research.</li>
-                                <li>User Interviews.</li>
-                                <li>Personas.</li>
-                                <li>Journey Mapping.</li>
-                                <li>Research Ethics.</li>
-                                <li>Introduction to Accessibility and Inclusive Design.</li>
-                                <li>Types of Disabilities and Design Barriers.</li>
-                                <li>WCAG Principles (POUR).</li>
-                                <li>Assistive Technologies.</li>
-                                <li>Inclusive Design Strategies.</li>
-                                <li>Evaluating Accessibility.</li>
-                                <li>Introduction to Ethics in HCI.</li>
-                                <li>Ethical Frameworks.</li>
-                                <li>Cultural Dimensions in Design.</li>
-                                <li>Bias and Discrimination in Interfaces.</li>
-                                <li>Design for Global Audiences.</li>
-                                <li>Understanding Emotion in UX.</li>
-                                <li>User Motivation in HCI.</li>
-                                <li>Emotional Design Patterns.</li>
-                                <li>Designing for Engagement.</li>
-                                <li>Evaluating Emotion in UX.</li>
-                                <li>Overview of AI in HCI.</li>
-                                <li>Conversational Interfaces.</li>
-                                <li>Voice User Interfaces.</li>
-                                <li>Prototyping Conversational Interfaces.</li>
-                                <li>UX Evaluation for Conversational & Voice UI.</li>
-                                <li>Introduction to Mixed Reality & Tangible Interfaces.</li>
-                                <li>Applications of AR/VR in daily life and industry.</li>
-                                <li>AR vs VR: Differences, strengths, and limitations.</li>
-                                <li>Prototyping AR/VR & Tangible Interfaces.</li>
-                                <li>Usability Evaluation in Immersive Interfaces.</li>
-                                <li>Introduction to UbiComp and Smart Environments.</li>
-                                <li>Applications of Smart Environments.</li>
-                                <li>Characteristics & Challenges of UbiComp.</li>
-                                <li>Prototyping Smart Environment Solutions.</li>
-                                <li>Usability & Ethical Issues in Smart Environments.</li>
-                            </ul>
+                            <!-- Built from the lessons below, so it always matches what the admin publishes -->
+                            <ul class="custom-bullet-list" id="lessonOutlineList"></ul>
                         </div>
                     </div>
 
@@ -330,6 +278,10 @@
                 option.textContent = `Lesson ${m + 1}: ${mod.title}`;
                 moduleSelect.appendChild(option);
 
+                const outlineItem = document.createElement('li');
+                outlineItem.textContent = `Lesson ${m + 1}: ${mod.title} (${mod.topics.length} topic${mod.topics.length === 1 ? '' : 's'})`;
+                document.getElementById('lessonOutlineList').appendChild(outlineItem);
+
                 // Topics (key = permanent id for links/bookmarks, number = shown)
                 mod.topics.forEach(topic => {
                     const item = document.createElement('div');
@@ -355,6 +307,8 @@
             // Jump to module
             moduleSelect.addEventListener('change', function () {
                 if (!this.value) return;
+                // A search may be hiding that lesson: clear it first
+                if (searchInput.value) { searchInput.value = ''; runSearch(); }
                 const target = document.getElementById(`module-${this.value}`);
                 if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 this.value = '';
@@ -476,6 +430,9 @@
                 if (topicsCounted.has(item.id)) return;
                 topicsCounted.add(item.id);
                 HCIGamify.record('read');
+                // Reading progress on the Dashboard (the server keeps each topic once)
+                api.post('/progress/lesson/read', { topicKey: item.dataset.key })
+                    .catch(err => console.error('Could not save reading progress:', err));
             }
 
             accordionItems.forEach(item => {
@@ -509,15 +466,21 @@
                 return text.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
             }
 
-            // I-highlight ang tinype na salita sa title
+            // I-highlight ang tinype na salita sa title. Works on the plain text,
+            // so a search for "a" or "amp" can't break the "&amp;" in "AR & VR".
             function highlightTitle(span, query) {
                 const original = span.dataset.original;
                 if (!query) { span.textContent = original; return; }
-                const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                span.innerHTML = escapeHtml(original).replace(
-                    new RegExp(`(${escapeHtml(escapedQuery)})`, 'gi'),
-                    '<mark>$1</mark>'
-                );
+                const lower = original.toLowerCase();
+                const q = query.toLowerCase();
+                let html = '';
+                let from = 0;
+                let at;
+                while ((at = lower.indexOf(q, from)) !== -1) {
+                    html += escapeHtml(original.slice(from, at)) + `<mark>${escapeHtml(original.slice(at, at + q.length))}</mark>`;
+                    from = at + q.length;
+                }
+                span.innerHTML = html + escapeHtml(original.slice(from));
             }
 
             function runSearch() {

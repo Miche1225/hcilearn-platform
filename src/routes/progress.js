@@ -61,6 +61,8 @@ router.get('/summary', async (req, res, next) => {
 
     const solvedCount = JSON.parse(cs.solved_ids).filter(id => content.caseByKey.has(Number(id))).length;
     const completedLessonsCount = JSON.parse(sc.completed_ids).filter(id => content.deckByKey.has(Number(id))).length;
+    // Topics opened that are still published (removed topics don't count)
+    const topicsRead = JSON.parse(lesson.read_ids || '[]').filter(key => content.topicByKey.has(String(key))).length;
 
     const { caseStudies, decks, videos } = content.totals;
     const totalActivities = caseStudies + decks + videos;
@@ -81,7 +83,9 @@ router.get('/summary', async (req, res, next) => {
       videosTotal: videos,
       studyCardsCompleted: completedLessonsCount,
       studyCardsTotal: decks,
-      lessonCompleted: !!lesson.completed,
+      topicsRead,
+      topicsTotal: content.totals.topics,
+      lessonCompleted: content.totals.topics > 0 && topicsRead >= content.totals.topics,
       recentActivities,
     });
   } catch (err) {
@@ -271,6 +275,32 @@ router.get('/lesson', async (req, res, next) => {
   try {
     const row = await getLessonRow(req.userId);
     res.json({ completed: !!row.completed, completedAt: row.completed_at });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/progress/lesson/read  { topicKey } — the student opened a topic
+// Remembered once per topic; the Dashboard shows "Read N / total topics".
+router.post('/lesson/read', async (req, res, next) => {
+  try {
+    const topicKey = String((req.body || {}).topicKey || '');
+    const content = await getContent();
+    if (!content.topicByKey.has(topicKey)) {
+      return res.status(400).json({ error: 'Unknown topic.' });
+    }
+    await getLessonRow(req.userId); // make sure the row exists
+    // Adds the key only if it isn't in the list yet (no duplicates, no race)
+    const { rows } = await pool.query(
+      `UPDATE lesson_progress
+       SET read_ids = CASE WHEN read_ids::jsonb ? $2::text THEN read_ids
+                           ELSE (read_ids::jsonb || to_jsonb($2::text))::text END
+       WHERE user_id = $1
+       RETURNING read_ids`,
+      [req.userId, topicKey]
+    );
+    const read = JSON.parse(rows[0].read_ids).filter(key => content.topicByKey.has(String(key))).length;
+    res.json({ topicsRead: read, topicsTotal: content.totals.topics });
   } catch (err) {
     next(err);
   }
