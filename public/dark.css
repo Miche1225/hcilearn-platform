@@ -22,7 +22,7 @@
     background: url('campus-bg.jpg') no-repeat center center/cover;
 }
 :root[data-theme="dark"] .image-section {
-    background: url('classroom-img.jpg') no-repeat center center/cover;
+    background: url('classroom-img.svg') no-repeat center center/cover;
     background-color: hsl(250 14% 20%);
 }
 :root[data-theme="dark"] .glass-panel {
