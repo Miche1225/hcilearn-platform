@@ -2,6 +2,7 @@
 // Study streak, daily goal and badges.
 //
 // "Today" is counted in Philippine time, since every user is a UEP student.
+const crypto = require('crypto');
 const express = require('express');
 const { pool } = require('../db');
 const { requireAuth } = require('../middleware/authGuard');
@@ -347,6 +348,12 @@ const POINTS_SQL = `
 const LEADERBOARD_TOP = 10;
 const LEADERBOARD_ALL_MAX = 2000; // shortcut: whole list in one response, add paging if students ever exceed this
 
+// Opens a classmate's profile from the leaderboard without sending user ids:
+// a keyed hash the server can match but nobody can turn back into an id.
+// It changes if JWT_SECRET does, which only breaks an already-open leaderboard.
+const HANDLE_KEY = `profile:${process.env.JWT_SECRET || 'dev_secret_change_me'}`;
+const profileHandle = (id) => crypto.createHmac('sha256', HANDLE_KEY).update(String(id)).digest('hex').slice(0, 20);
+
 function shortName(row) {
   const parts = row.full_name.split(' ').filter(Boolean);
   const first = row.first_name || parts[0] || 'Student';
@@ -374,6 +381,7 @@ router.get('/leaderboard', async (req, res, next) => {
     // The ORDER BY never ties, so the position is the rank
     const ranked = rows.map((r, i) => ({
       rank: i + 1, name: shortName(r), photo: r.profile_photo || null, points: r.points, isMe: r.id === req.userId,
+      handle: profileHandle(r.id),
     }));
     // ?all=1 (the "See all" pop-up) lists everyone, 0 points included
     if (req.query.all === '1') {
@@ -384,6 +392,51 @@ router.get('/leaderboard', async (req, res, next) => {
     if (mine && !entries.includes(mine)) entries.push(mine);
 
     res.json({ total: ranked.length, entries });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/gamify/profile/:handle — what a classmate sees when they click a
+// leaderboard name: the same short name and photo, streaks, correct answers
+// and earned badges. No email, program or section.
+router.get('/profile/:handle', async (req, res, next) => {
+  try {
+    const { handle } = req.params;
+    if (!/^[0-9a-f]{20}$/.test(handle)) return res.status(404).json({ error: 'Student not found.' });
+
+    // shortcut: hashes every active id to find the match (fine for a few thousand students); store the handle in a column if it ever gets slow
+    const { rows: ids } = await pool.query('SELECT id FROM users WHERE disabled_at IS NULL');
+    const match = ids.find(r => profileHandle(r.id) === handle);
+    if (!match) return res.status(404).json({ error: 'Student not found.' });
+    const userId = match.id;
+
+    const { rows: [user] } = await pool.query(
+      'SELECT full_name, first_name, last_name, profile_photo, created_at FROM users WHERE id = $1',
+      [userId]
+    );
+    const { rows: [totals] } = await pool.query(
+      'SELECT COALESCE(SUM(correct), 0)::int AS correct FROM daily_activity WHERE user_id = $1',
+      [userId]
+    );
+    const { rows: earnedRows } = await pool.query(
+      'SELECT badge_id, earned_at FROM user_badges WHERE user_id = $1 ORDER BY earned_at DESC',
+      [userId]
+    );
+    const BADGES = getBadges((await getContent()).totals);
+    const byId = new Map(BADGES.map(b => [b.id, b]));
+
+    res.json({
+      name: shortName(user),
+      photo: user.profile_photo || null,
+      memberSince: user.created_at,
+      isMe: userId === req.userId,
+      streak: computeStreaks(await getActiveDays(userId), todayLocal()),
+      correct: totals.correct,
+      // Badges removed from the list since they were earned are skipped
+      badges: earnedRows.filter(r => byId.has(r.badge_id)).map(r => publicBadge(byId.get(r.badge_id))),
+      badgeTotal: BADGES.length,
+    });
   } catch (err) {
     next(err);
   }

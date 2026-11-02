@@ -12625,6 +12625,108 @@ fieldset.ce-field legend {
     animation: lbRowIn 0.4s var(--fun-bounce) both, funGlow 2.2s ease-in-out 0.6s infinite;
 }
 
+/* --- Clickable students (open their profile) --- */
+.lb-row[data-handle],
+.lb-step[data-handle] {
+    cursor: pointer;
+}
+
+.lb-row[data-handle]:focus-visible,
+.lb-step[data-handle]:focus-visible {
+    outline: 3px solid var(--fun-grape);
+    outline-offset: 2px;
+    border-radius: 12px;
+}
+
+.lb-step[data-handle]:hover .lb-avatar {
+    transform: scale(1.06);
+}
+
+.lb-step .lb-avatar {
+    transition: transform 0.25s var(--fun-bounce);
+}
+
+/* --- Student profile card --- */
+.confirm-card.lb-profile {
+    position: relative;
+    width: 400px;
+    padding: 28px 24px 22px;
+}
+
+.lb-profile-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 34px;
+    height: 34px;
+    margin: 0;
+}
+
+.lb-profile .lb-profile-avatar {
+    width: 84px;
+    height: 84px;
+    margin: 0 auto 12px;
+    font-size: 26px;
+    border: 4px solid #fff;
+    box-shadow: 0 0 0 3px var(--fun-grape), 0 8px 18px rgba(123, 92, 255, 0.25);
+}
+
+.lb-profile h3 { margin: 0 0 4px; }
+.lb-profile h3 small { font-size: 14px; color: var(--fun-grape); }
+
+.confirm-card .lb-profile-sub {
+    margin: 0 0 16px;
+    font-size: 13px;
+    color: #777;
+}
+
+.lb-profile-sub i { color: var(--fun-sun); }
+
+.lb-profile-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.lb-profile-stats div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px 6px;
+    border-radius: 14px;
+    background: #f6f3ff;
+}
+
+.lb-profile-stats b { font-size: 20px; font-weight: 900; color: #1d1640; }
+.lb-profile-stats small { font-size: 11px; font-weight: 700; color: #7a70a8; }
+.lb-profile-stats .fa-fire { color: var(--fun-coral); }
+.lb-profile-stats .fa-trophy { color: var(--fun-sun); }
+.lb-profile-stats .fa-check { color: var(--fun-mint, #2bb673); }
+
+.lb-profile h4 {
+    display: flex;
+    justify-content: space-between;
+    margin: 0 0 10px;
+    font-size: 14px;
+    font-weight: 800;
+    color: #1d1640;
+    text-align: left;
+}
+
+.lb-profile h4 span { font-weight: 700; color: #999; }
+
+.lb-profile-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-height: 160px;
+    overflow-y: auto;
+    padding: 4px 2px;
+}
+
+.lb-profile-badges .badge-mini { width: 40px; height: 40px; font-size: 16px; }
+
 /* --- Full leaderboard pop-up --- */
 .lb-full {
     width: 480px;

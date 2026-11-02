@@ -3944,6 +3944,47 @@
 :root[data-theme="dark"] .lb-row.is-me {
     background: linear-gradient(90deg, hsl(256 45% 19%), hsl(250 14% 17%));
 }
+:root[data-theme="dark"] .lb-row[data-handle]:focus-visible,
+:root[data-theme="dark"] .lb-step[data-handle]:focus-visible {
+    outline: 3px solid var(--fun-grape);
+}
+:root[data-theme="dark"] .lb-profile .lb-profile-avatar {
+    border: 4px solid hsl(250 14% 17%);
+    box-shadow: 0 0 0 3px var(--fun-grape), 0 8px 18px rgba(123, 92, 255, 0.25);
+}
+:root[data-theme="dark"] .lb-profile h3 small {
+    color: var(--fun-grape);
+}
+:root[data-theme="dark"] .confirm-card .lb-profile-sub {
+    color: hsl(250 12% 70%);
+}
+:root[data-theme="dark"] .lb-profile-sub i {
+    color: var(--fun-sun);
+}
+:root[data-theme="dark"] .lb-profile-stats div {
+    background: hsl(255 45% 18%);
+}
+:root[data-theme="dark"] .lb-profile-stats b {
+    color: hsl(250 49% 87%);
+}
+:root[data-theme="dark"] .lb-profile-stats small {
+    color: hsl(251 24% 66%);
+}
+:root[data-theme="dark"] .lb-profile-stats .fa-fire {
+    color: var(--fun-coral);
+}
+:root[data-theme="dark"] .lb-profile-stats .fa-trophy {
+    color: var(--fun-sun);
+}
+:root[data-theme="dark"] .lb-profile-stats .fa-check {
+    color: var(--fun-mint, hsl(151 62% 72%));
+}
+:root[data-theme="dark"] .lb-profile h4 {
+    color: hsl(250 49% 87%);
+}
+:root[data-theme="dark"] .lb-profile h4 span {
+    color: #999;
+}
 :root[data-theme="dark"] .lb-full {
     border: 3px solid hsl(250 14% 17%);
 }
