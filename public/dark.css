@@ -316,6 +316,10 @@
     border: none;
     border-bottom: 2px solid hsl(213 27% 21%);
 }
+:root[data-theme="dark"] .video-alert {
+    background: hsl(35 45% 20%);
+    color: hsl(33 75% 81%);
+}
 :root[data-theme="dark"] .video-container {
     background: #000;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
