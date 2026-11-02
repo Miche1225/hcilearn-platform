@@ -362,7 +362,8 @@
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text == null ? '' : String(text);
-            return div.innerHTML;
+            // innerHTML leaves quotes as-is; escape them so names are safe inside attributes too
+            return div.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         }
 
         function timeAgo(dateString) {
@@ -481,8 +482,12 @@
             ? `<img src="${escapeHtml(e.photo)}" alt="" loading="lazy">`
             : escapeHtml(e.name.replace(/[^A-Za-zÀ-ÿ ]/g, '').split(' ').filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase() || '?')}</span>`;
 
+        // Clicking a student (row or podium) opens their profile
+        const lbProfileAttrs = (e) => `data-handle="${escapeHtml(e.handle)}" data-rank="${escapeHtml(e.rank)}" data-points="${Number(e.points) || 0}"
+            role="button" tabindex="0" aria-label="View ${escapeHtml(e.name)}'s profile"`;
+
         const lbRow = (e, i = 0) => `
-            <li class="lb-row${e.isMe ? ' is-me' : ''}${e.points && e.rank <= 3 ? ` is-top${e.rank}` : ''}" style="--i:${Math.min(i, 15)}">
+            <li class="lb-row${e.isMe ? ' is-me' : ''}${e.points && e.rank <= 3 ? ` is-top${e.rank}` : ''}" style="--i:${Math.min(i, 15)}" ${lbProfileAttrs(e)}>
                 <span class="lb-rank">${e.points && e.rank <= 3 ? MEDALS[e.rank - 1] : typeof e.rank === 'number' ? `#${e.rank}` : e.rank}</span>
                 ${lbAvatar(e)}
                 <span class="lb-name">${escapeHtml(e.name)}${e.isMe ? ' <small>(you)</small>' : ''}</span>
@@ -492,7 +497,7 @@
         // Podium for the top 3 (2nd, 1st, 3rd, like a real one)
         const lbPodium = (top) => `
             <div class="lb-podium">${[1, 0, 2].filter(i => top[i]).map(i => `
-                <div class="lb-step is-place${i + 1}${top[i].isMe ? ' is-me' : ''}">
+                <div class="lb-step is-place${i + 1}${top[i].isMe ? ' is-me' : ''}" ${lbProfileAttrs(top[i])}>
                     <span class="lb-crown" aria-hidden="true">${MEDALS[i]}</span>
                     ${lbAvatar(top[i])}
                     <strong>${escapeHtml(top[i].name)}${top[i].isMe ? ' <small>(you)</small>' : ''}</strong>
@@ -566,7 +571,11 @@
             };
             const onKey = (e) => { if (e.key === 'Escape') close(); };
             document.addEventListener('keydown', onKey);
-            overlay.addEventListener('click', (e) => { if (e.target === overlay || e.target.closest('[data-close]')) close(); });
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay || e.target.closest('[data-close]')) return close();
+                const student = e.target.closest('[data-handle]');
+                if (student) openStudentProfile(student);
+            });
             overlay.querySelector('[data-close]').focus();
 
             const list = overlay.querySelector('.lb-full-list');
@@ -595,8 +604,74 @@
             }
         }
 
-        // The whole card opens the full list (the button is there for keyboard users)
-        document.querySelector('.leaderboard-card').addEventListener('click', openFullLeaderboard);
+        // A classmate's profile card, on top of the leaderboard
+        async function openStudentProfile(el) {
+            if (document.querySelector('.lb-profile')) return;
+            const previousFocus = document.activeElement;
+            const { handle, rank, points } = el.dataset;
+            const overlay = document.createElement('div');
+            overlay.className = 'confirm-overlay';
+            overlay.innerHTML = `
+                <div class="confirm-card lb-profile" role="dialog" aria-modal="true" aria-labelledby="lbProfileName">
+                    <button type="button" class="qs-close lb-profile-close" data-close aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+                    <div class="lb-profile-body"><p class="lb-note"><span class="btn-spinner"></span> Loading...</p></div>
+                </div>`;
+            document.body.appendChild(overlay);
+            requestAnimationFrame(() => overlay.classList.add('is-open'));
+
+            const close = () => {
+                window.removeEventListener('keydown', onKey, true);
+                overlay.classList.remove('is-open');
+                setTimeout(() => overlay.remove(), 200);
+                if (previousFocus && previousFocus.focus) previousFocus.focus();
+            };
+            // Capture + stop: Escape closes only this card, not the full list under it
+            const onKey = (e) => { if (e.key === 'Escape') { e.stopPropagation(); close(); } };
+            window.addEventListener('keydown', onKey, true);
+            overlay.addEventListener('click', (e) => { if (e.target === overlay || e.target.closest('[data-close]')) close(); });
+            overlay.querySelector('[data-close]').focus();
+
+            const body = overlay.querySelector('.lb-profile-body');
+            try {
+                const p = await api.get(`/gamify/profile/${encodeURIComponent(handle)}`);
+                const since = new Date(p.memberSince).toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+                const placeLabel = Number(points) > 0 && rank !== '–' ? `#${escapeHtml(rank)} this week` : 'Not ranked this week';
+                body.innerHTML = `
+                    ${lbAvatar({ name: p.name, photo: p.photo }).replace('lb-avatar', 'lb-avatar lb-profile-avatar')}
+                    <h3 id="lbProfileName">${escapeHtml(p.name)}${p.isMe ? ' <small>(you)</small>' : ''}</h3>
+                    <p class="lb-profile-sub">${placeLabel} · <i class="fa-solid fa-star"></i> ${Number(points) || 0} points · Joined ${escapeHtml(since)}</p>
+                    <div class="lb-profile-stats">
+                        <div><b>${p.streak.current}</b><small><i class="fa-solid fa-fire"></i> Streak</small></div>
+                        <div><b>${p.streak.longest}</b><small><i class="fa-solid fa-trophy"></i> Best streak</small></div>
+                        <div><b>${p.correct}</b><small><i class="fa-solid fa-check"></i> Correct</small></div>
+                    </div>
+                    <h4>Badges <span>${p.badges.length} / ${p.badgeTotal}</span></h4>
+                    ${p.badges.length
+                        ? `<div class="lb-profile-badges">${p.badges.map(b => `
+                            <span class="badge-mini badge-${escapeHtml(b.color)} is-earned" title="${escapeHtml(b.name)}: ${escapeHtml(b.description)}">
+                                <i class="fa-solid ${escapeHtml(b.icon)}" aria-hidden="true"></i><span class="sr-only">${escapeHtml(b.name)}</span>
+                            </span>`).join('')}</div>`
+                        : '<p class="lb-note">No badges yet.</p>'}`;
+            } catch (err) {
+                body.innerHTML = '<p class="lb-note">Could not load this profile.</p>';
+            }
+        }
+
+        // Enter / Space on a focused student works like a click
+        document.addEventListener('keydown', (e) => {
+            const student = (e.key === 'Enter' || e.key === ' ') && e.target.closest && e.target.closest('[data-handle]');
+            if (!student) return;
+            e.preventDefault();
+            student.click();
+        });
+
+        // The whole card opens the full list (the button is there for keyboard users),
+        // except a click on a student, which opens their profile
+        document.querySelector('.leaderboard-card').addEventListener('click', (e) => {
+            const student = e.target.closest('[data-handle]');
+            if (student) openStudentProfile(student);
+            else openFullLeaderboard();
+        });
 
         async function loadLeaderboard() {
             try {
