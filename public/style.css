@@ -10956,12 +10956,13 @@ a.admin-stat:focus-visible {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .admin-grid {
-        grid-template-columns: 1fr;
+    /* 5 tiles in 2 columns: the last one fills its row instead of leaving a gap */
+    .admin-stat:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
     }
 
-    .section-bar {
-        grid-template-columns: minmax(0, 1fr) 90px 40px;
+    .admin-grid {
+        grid-template-columns: 1fr;
     }
 
     .admin-toolbar select {
@@ -12052,9 +12053,16 @@ fieldset.ce-field legend {
 .admin-quick-btn small { font-size: 12px; color: #888; }
 
 @media screen and (max-width: 768px) {
-    .admin-quick { grid-template-columns: 1fr 1fr; }
-    .admin-quick-btn { padding: 12px; }
+    /* minmax(0, ...) so a long label can't push the second column off screen */
+    .admin-quick { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .admin-quick-btn { padding: 12px; min-width: 0; }
     .admin-quick-btn > i { width: 36px; height: 36px; font-size: 15px; }
+}
+
+/* Phones: icon above the text, so each label gets the full button width */
+@media screen and (max-width: 480px) {
+    .admin-quick-btn { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .admin-quick-btn span { width: 100%; }
 }
 
 /* Admin on phones: "Export progress" is already in the quick actions */
