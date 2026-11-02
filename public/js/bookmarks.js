@@ -118,8 +118,26 @@ const HCIBookmarks = (function () {
         resolve(result);
       }
 
+      // Escape or a click outside: ask first if the note was changed, so a
+      // stray key or tap can't throw away what was typed
+      let asking = false;
+      function dismiss() {
+        if (textarea.value === note) return close(null);
+        if (asking) return;
+        asking = true;
+        confirmDialog({
+          title: 'Discard your note?', message: 'What you typed here has not been saved.',
+          confirmText: 'Discard', cancelText: 'Keep writing', icon: 'fa-triangle-exclamation', danger: true,
+        }).then((ok) => {
+          asking = false;
+          if (ok) close(null);
+          else textarea.focus();
+        });
+      }
+
       function onKey(e) {
-        if (e.key === 'Escape') close(null);
+        if (asking) return; // the question dialog handles its own keys
+        if (e.key === 'Escape') dismiss();
         if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) close(textarea.value);
         // Keep Tab focus inside the dialog
         if (e.key === 'Tab') {
@@ -132,7 +150,7 @@ const HCIBookmarks = (function () {
 
       cancelBtn.addEventListener('click', () => close(null));
       okBtn.addEventListener('click', () => close(textarea.value));
-      overlay.addEventListener('click', (e) => { if (e.target === overlay) close(null); });
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) dismiss(); });
       document.addEventListener('keydown', onKey);
 
       document.body.appendChild(overlay);
