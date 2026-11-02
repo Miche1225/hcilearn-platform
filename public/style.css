@@ -75,8 +75,8 @@ body, html {
 /* --- Right Section (Background Image) --- */
 .image-section {
     flex: 1;
-    /* Palitan ang 'classroom-img.jpg' ng pangalan ng image file niyo */
-    background: url('classroom-img.jpg') no-repeat center center/cover;
+    /* SVG trace of the classroom photo: stays sharp at any screen size */
+    background: url('classroom-img.svg') no-repeat center center/cover;
     background-color: #f4f4f4; 
 }
 
