@@ -304,9 +304,18 @@ router.put('/goal', async (req, res, next) => {
 });
 
 // ---------- Leaderboards ----------
-// Ranks every student by correct answers in the last 7 days. Students with
-// no points are left off the top list (you always see your own rank).
+// Ranks every student by points earned in the last 7 days. Ranks are unique
+// (ties go to more correct answers, then fewer wrong ones, then the earlier
+// account), so only one student holds each spot. Students with no points are
+// left off the top list (you always see your own rank).
 // Names are shortened to "Juan D." and no ids are sent.
+// Per-day caps keep repeatable actions (videos, reads, decks) from being farmed.
+const POINTS_SQL = `
+  d.correct * 10
+  + LEAST(d.videos, 10) * 5
+  + LEAST(d.topics_read, 20) * 2
+  + LEAST(d.perfect_decks, 5) * 20
+  + CASE WHEN d.goal_met THEN 25 ELSE 0 END`;
 const LEADERBOARD_TOP = 10;
 const LEADERBOARD_ALL_MAX = 2000; // shortcut: whole list in one response, add paging if students ever exceed this
 
@@ -321,20 +330,19 @@ function shortName(row) {
 router.get('/leaderboard', async (req, res, next) => {
   try {
     const { rows } = await pool.query(
-      `SELECT u.id, u.full_name, u.first_name, u.last_name, COALESCE(SUM(d.correct), 0)::int AS points
+      `SELECT u.id, u.full_name, u.first_name, u.last_name,
+              COALESCE(SUM(${POINTS_SQL}), 0)::int AS points,
+              COALESCE(SUM(d.correct), 0)::int AS correct,
+              COALESCE(SUM(d.answers - d.correct), 0)::int AS wrong
        FROM users u
        LEFT JOIN daily_activity d ON d.user_id = u.id AND d.day >= $1
        WHERE u.disabled_at IS NULL
        GROUP BY u.id
-       ORDER BY points DESC, u.full_name`,
+       ORDER BY points DESC, correct DESC, wrong ASC, u.id`,
       [addDays(todayLocal(), -6)]
     );
-    // Same points = same rank
-    let rank = 0;
-    const ranked = rows.map((r, i) => {
-      if (i === 0 || r.points !== rows[i - 1].points) rank = i + 1;
-      return { rank, name: shortName(r), points: r.points, isMe: r.id === req.userId };
-    });
+    // The ORDER BY never ties, so the position is the rank
+    const ranked = rows.map((r, i) => ({ rank: i + 1, name: shortName(r), points: r.points, isMe: r.id === req.userId }));
     // ?all=1 (the "See all" pop-up) lists everyone, 0 points included
     if (req.query.all === '1') {
       return res.json({ total: ranked.length, entries: ranked.slice(0, LEADERBOARD_ALL_MAX) });
