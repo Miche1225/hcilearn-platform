@@ -92,6 +92,9 @@
       panel.querySelector('.notif-list').addEventListener('click', (e) => {
         const btn = e.target.closest('.notif-more');
         if (!btn) return;
+        // The redraw below detaches the clicked button, so the "click outside"
+        // listener would no longer see it inside the panel and close it
+        e.stopPropagation();
         const id = btn.dataset.id;
         expanded.has(id) ? expanded.delete(id) : expanded.add(id);
         renderPanel();
