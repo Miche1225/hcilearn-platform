@@ -66,6 +66,8 @@ const DUMMY_PASSWORD_HASH =
 
 const MINUTE = 60 * 1000;
 
+// A whole class shares one school Wi-Fi IP, so per-IP limits must fit a class
+// (the per-email limit below still stops password guessing on one account).
 const loginLimiter = rateLimit({
     windowMs: 15 * MINUTE,
     max: 10,
@@ -75,14 +77,14 @@ const loginLimiter = rateLimit({
 
 const loginIpLimiter = rateLimit({
     windowMs: 15 * MINUTE,
-    max: 50,
+    max: 300,
     keyFn: (req) => `login-ip:${req.ip}`,
     message: 'Too many login attempts. Please wait 15 minutes and try again.'
 });
 
 const signupLimiter = rateLimit({
     windowMs: 60 * MINUTE,
-    max: 10,
+    max: 100,
     keyFn: (req) => `signup:${req.ip}`,
     message: 'Too many sign-up attempts. Please try again later.'
 });
