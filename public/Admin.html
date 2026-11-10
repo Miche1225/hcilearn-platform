@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin · HCILearn</title>
     <meta name="description" content="HCILearn admin dashboard: student progress and class insights.">
-    <link rel="icon" href="favicon-32.png?v=4" type="image/png" sizes="32x32">
-    <link rel="apple-touch-icon" href="apple-touch-icon.png?v=4">
+    <link rel="icon" href="favicon-32.png?v=2" type="image/png" sizes="32x32">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png?v=2">
     <meta name="theme-color" content="#0d3b75">
     <link rel="stylesheet" href="style.css?v=73">
     <link rel="stylesheet" href="dark.css?v=37">
@@ -280,18 +280,6 @@
         const $ = (id) => document.getElementById(id);
         const escapeHtml = (text) => String(text).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
         const initials = (name) => name.split(' ').filter(Boolean).slice(0, 2).map(n => n[0].toUpperCase()).join('');
-        // The student's profile photo, or their initials if they have none
-        const avatar = (s, extra = '') => `<span class="admin-avatar${extra}">${s.profilePhoto
-            ? `<img src="${escapeHtml(s.profilePhoto)}" alt="" loading="lazy">`
-            : escapeHtml(initials(s.fullName))}</span>`;
-
-        // The admin login lasts 8 hours; after that, go back to the login page
-        // instead of quietly showing old numbers
-        function sessionEnded(err) {
-            if (!err || err.status !== 401) return false;
-            window.location.href = 'login.html#admin';
-            return true;
-        }
 
         function daysBetween(a, b) {
             return Math.round((Date.parse(b) - Date.parse(a)) / 86400000);
@@ -358,14 +346,16 @@
             // This calendar week (Monday to today); resets to 0 every Monday
             const activeWeek = students.filter(s => s.activeThisWeek);
             $('statStudents').textContent = students.length;
-            // Big number = students online right now (0 when nobody is);
-            // the line under it says how many opened the system today
+            // Big number = students who opened the system today;
+            // the line under it says how many are online right now
             const onlineNow = students.filter(s => s.online).length;
             const usedToday = students.filter(s => s.lastActive === today).length;
-            $('statToday').textContent = onlineNow;
+            $('statToday').textContent = usedToday;
             $('statOnline').hidden = false;
             $('statOnline').classList.toggle('is-idle', !onlineNow);
-            $('statOnline').innerHTML = `${onlineNow ? '<i class="fa-solid fa-circle"></i> ' : ''}${usedToday} used it today`;
+            $('statOnline').innerHTML = onlineNow
+                ? `<i class="fa-solid fa-circle"></i> ${onlineNow} online now`
+                : 'Nobody online now';
             $('statWeek').textContent = activeWeek.length;
             // Only students idle for 3+ days; drops as soon as one logs in again
             $('statInactive').textContent = students.filter(s => s.inactive).length;
@@ -399,7 +389,7 @@
             $('inactiveList').innerHTML = atRisk.length ? atRisk.slice(0, RISK_SHOWN).map(({ s, reasons }) => `
                 <div class="risk-row">
                     <button type="button" class="admin-list-item" data-student="${s.id}">
-                        ${avatar(s)}
+                        <span class="admin-avatar">${escapeHtml(initials(s.fullName))}</span>
                         <span class="admin-list-text"><strong>${escapeHtml(s.fullName)}</strong><small>${escapeHtml(sectionOf(s))}</small></span>
                         <span class="risk-reasons">${reasons.map(r => `<span class="admin-pill is-warn">${escapeHtml(r)}</span>`).join('')}</span>
                     </button>
@@ -480,7 +470,7 @@
                 <tr data-student="${s.id}" tabindex="0">
                     <td data-label="Student">
                         <span class="admin-student">
-                            ${avatar(s)}
+                            <span class="admin-avatar">${escapeHtml(initials(s.fullName))}</span>
                             <span><strong>${escapeHtml(s.fullName)}</strong><small>${escapeHtml(s.studentId || '—')}</small></span>
                         </span>
                     </td>
@@ -510,7 +500,7 @@
 
                 $('drawerBody').innerHTML = `
                     <div class="student-head">
-                        ${avatar(s, ' is-big')}
+                        <span class="admin-avatar is-big">${escapeHtml(initials(s.fullName))}</span>
                         <div>
                             <h3 id="drawerName">${escapeHtml(s.fullName)}</h3>
                             <p>${escapeHtml(s.studentId || 'No student ID')} · ${escapeHtml(sectionOf(s))}</p>
@@ -595,6 +585,7 @@
             remind: { title: 'Send a reminder email?', message: (n) => `${n} will get an email saying you noticed they haven't studied lately, with a link to log in.`, confirm: 'Send email', icon: 'fa-bell', done: 'Reminder sent' },
             signout: { title: 'Sign out everywhere?', message: (n) => `${n} will be logged out on every device and will need to log in again.`, confirm: 'Sign out', icon: 'fa-arrow-right-from-bracket', done: 'Signed out everywhere' },
             reset: { title: 'Reset all progress?', message: (n) => `This clears ${n}'s case studies, study cards, videos, mistakes, streak and badges. Their account and saved items stay. This cannot be undone.`, confirm: 'Reset progress', icon: 'fa-eraser', danger: true, done: 'Progress reset' },
+            deactivate: { title: 'Deactivate this account?', message: (n) => `${n} will be logged out and won't be able to log in until you reactivate the account. Their progress is kept.`, confirm: 'Deactivate', icon: 'fa-user-slash', danger: true, done: 'Account deactivated' },
             remove: { title: 'Remove this account?', message: (n) => `${n}'s account will be deleted for good, with all their progress, badges and saved items. They can sign up again later as a new student. This cannot be undone.`, confirm: 'Remove account', icon: 'fa-user-xmark', danger: true, done: 'Account removed', removed: true },
             reactivate: { title: 'Reactivate this account?', message: (n) => `${n} will be able to log in again.`, confirm: 'Reactivate', icon: 'fa-user-check', done: 'Account reactivated' },
         };
@@ -639,18 +630,15 @@
             try {
                 const { announcements, today: day, sections } = await api.get('/admin/announcements');
 
-                // Audience picker: rebuilt on every load so sections of students
-                // who just signed up appear, keeping what the admin already picked
+                // Audience picker (keeps choices made before a reload)
                 const box = $('announceAudience');
-                const mode = box.querySelector('input[name="audienceMode"]:checked');
-                const picked = new Set([...box.querySelectorAll('input[name="audienceSection"]:checked')].map(c => c.value));
-                box.innerHTML = `<legend>Who sees it</legend>
-                    <label class="ce-check"><input type="radio" name="audienceMode" value="all" ${!mode || mode.value === 'all' ? 'checked' : ''}> Everyone</label><label class="ce-check"><input type="radio" name="audienceMode" value="sections" ${mode && mode.value === 'sections' ? 'checked' : ''}> Only these sections:</label>
-                    <div class="ce-checks">${sections.map(sec => {
-                        const value = JSON.stringify(sec);
-                        return `
-                        <label class="ce-check"><input type="checkbox" name="audienceSection" value="${escapeHtml(value)}" ${picked.has(value) ? 'checked' : ''}> ${escapeHtml(sectionLabel(sec))}</label>`;
-                    }).join('') || '<small>No sections yet.</small>'}</div>`;
+                if (!box.dataset.ready) {
+                    box.dataset.ready = '1';
+                    box.innerHTML = `<legend>Who sees it</legend>
+                        <label class="ce-check"><input type="radio" name="audienceMode" value="all" checked> Everyone</label><label class="ce-check"><input type="radio" name="audienceMode" value="sections"> Only these sections:</label>
+                        <div class="ce-checks">${sections.map(sec => `
+                            <label class="ce-check"><input type="checkbox" name="audienceSection" value="${escapeHtml(JSON.stringify(sec))}"> ${escapeHtml(sectionLabel(sec))}</label>`).join('') || '<small>No sections yet.</small>'}</div>`;
+                }
 
                 $('announceList').innerHTML = announcements.length ? announcements.map(a => {
                     const expired = a.endsOn && a.endsOn < day;
@@ -683,9 +671,7 @@
                     sections: toEveryone ? null : picked,
                 });
                 form.reset();
-                // Next announcement starts as "Everyone" again
-                form.querySelectorAll('input[name="audienceSection"]').forEach(c => { c.checked = false; });
-                form.querySelector('input[name="audienceMode"][value="all"]').checked = true;
+                form.querySelectorAll('input[name="audienceSection"]').forEach(c => { c.checked = !mode; });
                 adminToast('Announcement posted');
                 loadAnnouncements();
                 loadAudit();
@@ -888,10 +874,7 @@
         });
         $('drawerClose').addEventListener('click', closeStudent);
         $('drawerOverlay').addEventListener('click', (e) => { if (e.target === $('drawerOverlay')) closeStudent(); });
-        // Escape on a dialog opened from the drawer closes only that dialog
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && !$('drawerOverlay').hidden && !document.querySelector('.confirm-overlay, .ce-overlay')) closeStudent();
-        });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('drawerOverlay').hidden) closeStudent(); });
         // Export is a plain download; refresh the log afterwards
         ['exportBtn', 'quickExport'].forEach(id => $(id).addEventListener('click', () => setTimeout(loadAudit, 1500)));
 
@@ -939,7 +922,6 @@
                 renderStudents();
             } catch (err) {
                 // Network blip: the next tick tries again
-                sessionEnded(err);
             } finally {
                 refreshing = false;
                 // A login/logout arrived during the reload: show it now
@@ -977,7 +959,6 @@
                 if (changed) rerender();
             } catch (err) {
                 // Network blip: the next check tries again
-                sessionEnded(err);
             } finally {
                 checkingOnline = false;
                 if (checkAgain) checkOnline();
