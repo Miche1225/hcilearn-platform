@@ -349,13 +349,12 @@
             // Big number = students who opened the system today;
             // the line under it says how many are online right now
             const onlineNow = students.filter(s => s.online).length;
-            const usedToday = students.filter(s => s.lastActive === today).length;
-            $('statToday').textContent = usedToday;
+            $('statToday').textContent = onlineNow;
             $('statOnline').hidden = false;
             $('statOnline').classList.toggle('is-idle', !onlineNow);
             $('statOnline').innerHTML = onlineNow
                 ? `<i class="fa-solid fa-circle"></i> ${onlineNow} online now`
-                : 'Nobody online now';
+                : 'Nobody online';
             $('statWeek').textContent = activeWeek.length;
             // Only students idle for 3+ days; drops as soon as one logs in again
             $('statInactive').textContent = students.filter(s => s.inactive).length;
